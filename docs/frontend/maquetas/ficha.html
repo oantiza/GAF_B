@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Maqueta · Ficha de un fondo</title>
+<link rel="stylesheet" href="sistema.css">
+</head>
+<body>
+<main class="pagina">
+  <a class="volver" href="#">← Buscador</a>
+
+  <div class="cabecera">
+    <div>
+      <p class="cabecera__ceja">Fondo de inversión · Renta variable · Sector ecología</p>
+      <h1>Amundi Funds - Global Equity Responsible A EUR (C)</h1>
+      <p class="cabecera__meta"><span class="codigo">LU1883318740</span> · Clase en EUR · Acumulación · Índice de referencia: MSCI World NR EUR · <span class="distintivo distintivo--si">Se puede proponer</span></p>
+    </div>
+    <div class="cabecera__acciones">
+      <span class="boton boton--discreto">Descargar ficha</span>
+      <span class="boton">Comparar</span>
+      <span class="boton boton--principal">Añadir a la propuesta</span>
+    </div>
+  </div>
+
+  <section class="respuesta" aria-label="Lo esencial del fondo">
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Valor liquidativo</p>
+      <p class="respuesta__cifra">535,02 €</p>
+      <p class="respuesta__apunte">06/11/2026</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Rentabilidad 1 año</p>
+      <p class="respuesta__cifra sube">+5,75 %</p>
+      <p class="respuesta__apunte">su índice, +14,83 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Rentabilidad anualizada 3 años</p>
+      <p class="respuesta__cifra sube">+14,59 %</p>
+      <p class="respuesta__apunte">su índice, +19,31 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Volatilidad 3 años</p>
+      <p class="respuesta__cifra">10,45 %</p>
+      <p class="respuesta__apunte">caída máxima, −16,24 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Coste corriente</p>
+      <p class="respuesta__cifra">2,08 %</p>
+      <p class="respuesta__apunte">al año · del KID, 19/08/2026</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Riesgo (SRI)</p>
+      <p class="respuesta__cifra">4 <small>de 7</small></p>
+      <p class="respuesta__apunte">del KID, 19/08/2026</p>
+    </div>
+  </section>
+
+  <nav class="pestanas" aria-label="Secciones de la ficha">
+    <a class="pestana" aria-selected="true" href="#">Resumen</a>
+    <a class="pestana" href="#">Rentabilidad y riesgo</a>
+    <a class="pestana" href="#">Cartera</a>
+    <a class="pestana" href="#">Costes</a>
+    <a class="pestana" href="#">Documentos y datos</a>
+  </nav>
+
+  <div class="rejilla">
+    <section class="col-8">
+      <div class="bloque__cabecera">
+        <div>
+          <h2 class="bloque__titulo">Evolución frente a su índice</h2>
+          <p class="bloque__procedencia">Base 100 · en euros · valor liquidativo diario hasta el 06/11/2026 · calculado por nosotros</p>
+        </div>
+        <span class="opciones" role="radiogroup" aria-label="Periodo"><span>1 año</span><span aria-checked="true">3 años</span><span>5 años</span><span>10 años</span></span>
+      </div>
+      <svg class="grafico" id="evolucion" role="img" aria-label="Evolución del fondo y de su índice en base 100 durante tres años"></svg>
+
+      <table class="tabla" style="margin-top: var(--e-4)">
+        <thead>
+          <tr><th>Rentabilidad</th><th class="cifra">En lo que va de año</th><th class="cifra">1 año</th><th class="cifra">3 años</th><th class="cifra">5 años</th><th class="cifra">10 años</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>El fondo</td><td class="cifra sube">+6,86 %</td><td class="cifra sube">+5,75 %</td><td class="cifra sube">+14,59 %</td><td class="cifra sube">+5,61 %</td><td class="cifra sube">+8,74 %</td></tr>
+          <tr><td>Frente a su índice</td><td class="cifra"><span class="no-aplica">No aplica</span></td><td class="cifra baja">−9,08 pp</td><td class="cifra baja">−4,72 pp</td><td class="cifra baja">−5,36 pp</td><td class="cifra"><span class="falta">Falta el dato</span></td></tr>
+        </tbody>
+      </table>
+      <p class="bloque__nota">Las rentabilidades de más de un año son anualizadas. «Frente a su índice» es la diferencia en puntos porcentuales con el MSCI World NR EUR en el mismo periodo.</p>
+    </section>
+
+    <div class="col-4" style="display: grid; gap: var(--e-6); align-content: start;">
+      <section>
+        <div class="bloque__cabecera"><div><h2 class="bloque__titulo">En qué invierte</h2><p class="bloque__procedencia">Declarado por el proveedor · 30/09/2026</p></div><a class="bloque__enlace" href="#">Ver la cartera</a></div>
+        <div class="partes">
+          <div><span>Estados Unidos</span><span class="barra-de-parte"><b style="width: 50.5%"></b></span><em>50,5 %</em></div>
+          <div><span>Eurozona</span><span class="barra-de-parte"><b style="width: 25.5%"></b></span><em>25,5 %</em></div>
+          <div><span>Europa no euro</span><span class="barra-de-parte"><b style="width: 8.3%"></b></span><em>8,3 %</em></div>
+          <div><span>Japón</span><span class="barra-de-parte"><b style="width: 6.6%"></b></span><em>6,6 %</em></div>
+          <div><span>Resto</span><span class="barra-de-parte"><b style="width: 9.1%; background: var(--serie-referencia)"></b></span><em>9,1 %</em></div>
+        </div>
+        <p class="bloque__nota">99,4 % en renta variable. Primeros sectores: financieras 33,2 %, industriales 27,7 %, tecnología 13,7 %.</p>
+      </section>
+
+      <section>
+        <div class="bloque__cabecera"><div><h2 class="bloque__titulo">Lo que cuesta</h2><p class="bloque__procedencia">Del KID · 19/08/2026</p></div><a class="bloque__enlace" href="#">Ver los costes</a></div>
+        <dl class="filas">
+          <div><dt>Coste corriente</dt><dd>2,08 %</dd></div>
+          <div><dt>Comisión de gestión</dt><dd>1,50 %</dd></div>
+          <div><dt>Comisión de suscripción<small>Máximo; no siempre se paga</small></dt><dd>4,50 %</dd></div>
+          <div><dt>Comisión de éxito</dt><dd><span class="falta">Falta el dato</span></dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <div class="bloque__cabecera"><div><h2 class="bloque__titulo">El fondo, en una frase</h2><p class="bloque__procedencia">Del folleto, en su idioma</p></div></div>
+        <p style="padding-top: var(--e-2); color: var(--tinta-2); font-size: var(--texto-sm);">The Sub-Fund seeks to increase the value of your investment over the recommended holding period, while achieving an ESG score greater than that of the benchmark… <a class="bloque__enlace" href="#">Leer entero</a></p>
+      </section>
+    </div>
+  </div>
+</main>
+<script src="marco.js"></script>
+<script>
+  montarMarco({ activa: "Buscador", migas: ["Activos", "Buscador", "Ficha de activo"] });
+  const fondo = acabarEn(serie(7, 157, 0.0026, 0.034), 150.5);
+  const indice = acabarEn(serie(21, 157, 0.0034, 0.03), 169.8);
+  dibujarLineas(document.getElementById("evolucion"), {
+    series: [
+      { valores: fondo, color: "var(--serie-1)", rotulo: "El fondo", apunte: "150,5" },
+      { valores: indice, color: "var(--serie-referencia)", trazos: true, rotulo: "Su índice", apunte: "169,8" }
+    ],
+    ejeX: ["nov 2023", "may 2024", "nov 2024", "may 2025", "nov 2025", "may 2026", "nov 2026"],
+    formato: (valor) => valor.toFixed(0),
+    alto: 280
+  });
+</script>
+</body>
+</html>

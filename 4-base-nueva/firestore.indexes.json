@@ -1,0 +1,74 @@
+{
+  "//": [
+    "Los indices del proyecto nuevo, razonados sobre las consultas que la aplicacion hace de",
+    "verdad: las cuatro de `src/adapters/baseNuevaLectura.ts`, que es el unico fichero que lee",
+    "esta base.",
+    "",
+    "NO HACE FALTA NINGUN INDICE COMPUESTO, pero SI UNO DE GRUPO, y eso se midio en la nube. El",
+    "02-11-2026 se declaro un indice compuesto sobre `targets.set_by` y Firestore lo rechazo:",
+    "«this index is not necessary, configure using single field index controls». De ahi se",
+    "concluyo que el indice automatico de campo unico ya alcanzaba a las consultas de grupo, y era",
+    "falso: el automatico vale para una coleccion, no para el grupo. Medido el 03-11-2026 contra",
+    "la nube: «FAILED_PRECONDITION: The query requires a COLLECTION_GROUP_ASC index for collection",
+    "targets and field advisor_id». Lo que el mensaje pedia era el control de campo unico, que es",
+    "el `fieldOverrides` de `targets.advisor_id` de abajo.",
+    "",
+    "El emulador no exige indices, asi que esto solo se ve preguntando a la nube.",
+    "",
+    "LAS CUATRO CONSULTAS, y por que ninguna pide un indice compuesto:",
+    "  - la ficha            -> documentos por su ruta. No es una consulta.",
+    "  - el buscador         -> grupo sobre `read`, sin filtro ni orden.",
+    "  - la salud            -> grupo sobre `quality`, sin filtro ni orden.",
+    "  - las carteras        -> `portfolios` filtrado por `advisor_id` y grupo sobre `targets`",
+    "                           filtrado tambien por `advisor_id` desde el 03-11-2026, que es",
+    "                           el campo por el que concede la regla. Los dos son igualdad",
+    "                           sobre un campo: lo que",
+    "                           Firestore rechazo era el compuesto; el de grupo va en fieldOverrides.",
+    "",
+    "El dia que una pantalla ordene por una cifra y filtre por otra -una tabla de activos por",
+    "volatilidad dentro de una clase de activo, por ejemplo- ese si sera un indice compuesto, y",
+    "entonces se declara aqui. Antes no.",
+    "",
+    "`price_series.points` queda sin indices automaticos: nadie consulta por un punto de la",
+    "serie, y esos indices aumentarian mucho el espacio ocupado."
+  ],
+  "indexes": [
+    {
+      "collectionGroup": "bdb_activos_reports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    }],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "targets",
+      "fieldPath": "advisor_id",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "price_series",
+      "fieldPath": "points",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "fx_rates",
+      "fieldPath": "points",
+      "indexes": []
+    }
+  ]
+}

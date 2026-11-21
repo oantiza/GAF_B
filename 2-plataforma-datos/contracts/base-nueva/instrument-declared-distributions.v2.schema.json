@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-distributions.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/distributions — v2",
+  "description": "Los repartos de una clase, con fecha e importe. Existe porque la bandera de distribution_policy solo permite DECIDIR si fiarse de la serie de valor liquidativo; esta lista permite ARREGLARLA. La serie de una clase que reparte baja el dia del pago, y esa caida no es mercado: es dinero que salio al participe. Sin corregirla, contamina la volatilidad, inventa caidas maximas y sesga la rentabilidad a la baja. Con la fecha, el importe y el valor liquidativo de ese dia se reconstruye una serie de retorno total, y entonces la metrica se puede calcular en vez de solo declinarse.\n\nEl dato existe y hasta el 01-11-2026 no se guardaba para nadie: el bloque estaba en el extractor desde siempre y no escribia nada, por tres defectos a la vez (buscaba la lista en tres claves que no existen, tomaba como importe el valor liquidativo del dia, y guardaba la fecha cruda). La misma leccion que el indice de referencia y que la politica del registro frances: un dato que ya se pide, llega, y se pierde en el camino.",
+  "x-collection": "instruments/{instrument_id}/declared/distributions",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "records_checked"],
+  "allOf": [
+    {
+      "if": {
+        "required": ["payments"],
+        "properties": { "payments": { "minItems": 1 } }
+      },
+      "then": { "required": ["currency"] },
+      "$comment": "Un importe sin su divisa no es un importe. Si hay un solo pago, la divisa es obligatoria."
+    }
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien lo afirma. Parte del sobre comun de todo bloque declared/*.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "records_checked": {
+      "type": "boolean",
+      "description": "Si se le PREGUNTO al proveedor por los repartos de esta clase. Es el campo que hace util a todo el bloque, y por eso es obligatorio. Sin el, una lista ausente dice dos cosas incompatibles a la vez: que no reparte, o que nadie ha mirado. Con el, una lista ausente y records_checked true es evidencia de acumulacion —la mas debil de las cuatro, porque es una ausencia afirmada por un tercero y no una declaracion del folleto, pero evidencia— y una lista ausente con records_checked false es simplemente que falta la pasada.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-coverage-target": 1
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Divisa de los importes repartidos, que es la de la clase y no necesariamente el euro. Obligatoria en cuanto hay un pago.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "yield_12m": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2,
+      "description": "Lo repartido en los ultimos doce meses, en fraccion sobre el valor liquidativo. El canonico lo trae como distribuciones.yield_12m_pct, en porcentaje y con la unidad en el nombre; aqui es fraccion y la unidad se declara.\n\nEntra aqui, y no en el perfil, porque es un hecho sobre los repartos y no una politica. Hasta ahora se leia solo para adivinar la politica y despues se tiraba, aunque lo traen 765 de las 843 clases. Un valor mayor que cero PRUEBA que la clase reparte; un cero NO prueba que acumule, porque de los 749 ceros exactos del canonico muchos son 'no tengo el dato' escritos como cero. El tope de 2 no es una creencia sobre lo que es sensato, es el margen para no rechazar un reparto extraordinario de capital.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "payments": {
+      "type": "array",
+      "maxItems": 400,
+      "description": "Un pago por entrada, de lo mas viejo a lo mas nuevo. La ausencia de la lista significa NOT_APPLICABLE —la clase acumula— solo cuando records_checked es true; con records_checked false significa que falta la pasada, y es ese campo el que lo dice, no este.\n\nEl tope de 400 cubre un reparto mensual durante mas de treinta anios, que es mas de lo que vive una clase. Lo mas largo medido el 01-11-2026 son 5 pagos.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "amount_per_share"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "Fecha del reparto. Es la fecha a la que hay que sumar el importe para reconstruir la serie, asi que sin ella el pago no sirve de nada y no entra.",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "amount_per_share": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "Importe repartido por participacion, en la divisa del bloque. NO es el valor liquidativo de ese dia: confundirlos fue uno de los tres defectos del extractor, y habria escrito 244,93 de reparto donde el reparto fue 4,64.",
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "nav_on_date": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "Valor liquidativo el dia del reparto. Es lo que convierte la lista en una serie reconstruible: el importe se reinvierte a este precio. Sin el se puede sumar el reparto, pero no capitalizarlo.",
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "income": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "La parte del reparto que es renta (cupon, dividendo). Junto con capital_gains es el desglose de amount_per_share, no otra medida del mismo importe: viaja para el dia que haga falta fiscalidad. En los 16 pagos medidos el 01-11-2026 coincide con el total, porque Morningstar no declara plusvalias en ninguno.",
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "capital_gains": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "La parte del reparto que es plusvalia realizada. El proveedor la da a veces entera y a veces en dos tramos, corto y largo plazo, que el extractor suma.",
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    }
+  }
+}

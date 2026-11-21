@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/portfolio-target.v2.schema.json",
+  "title": "portfolios/{portfolio_id}/targets/{instrument_id} — v2",
+  "description": "El peso objetivo de un instrumento en una cartera. Esto es lo que las 23 carteras de hoy guardan de verdad —pesos—, y esta aqui y no en positions porque un peso objetivo es una POLITICA DE INVERSION, no una tenencia. La diferencia entre el target y la posicion es la desviacion, que es el numero que un asesor mira; si los dos viven en el mismo campo, esa diferencia no se puede calcular.",
+  "x-collection": "portfolios/{portfolio_id}/targets/{instrument_id}",
+  "x-layer": "human",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["instrument_id", "weight", "advisor_id", "set_by", "set_at"],
+  "properties": {
+    "advisor_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "De quien es la cartera a la que pertenece este objetivo, copiado de `portfolios/{portfolio_id}.advisor_id`. Esta DUPLICADO a proposito y no es una redundancia que haya que limpiar: es el campo por el que las reglas de Firestore conceden la lectura, y una consulta de grupo sobre `targets` no puede mirar el documento padre sin un `get()` por documento, que en 220 objetivos es inviable y crece con las carteras. Antes la regla concedia por `set_by` -quien puso el peso-, y eso permitia leer el objetivo de la cartera de OTRO asesor si lo habia puesto uno: medido el 03-11-2026, la cartera daba 403 y su objetivo 200, dos respuestas contradictorias sobre el mismo dato. Autoria y propiedad son hechos distintos y confundirlos es lo que abrio el agujero; `set_by` sigue registrando la autoria y ya no manda en el acceso. La igualdad con el padre la impone el escritor y la comprueba `audit:base-nueva`: si se rompe, un asesor pierde de vista sus propios objetivos o ve los de otro.",
+      "x-unit": "text",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "instrument_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "En FRACCION. Lo que llega de la reoriginacion suma 1 o no lleva targets; un borrador guardado desde el constructor (status DRAFT) puede sumar otra cosa mientras el asesor lo monta, y la pantalla lo avisa. En fraccion y no en por ciento por la misma razon que todo lo demas: el 100 y el 1,0 son el mismo peso escrito de dos maneras, y mezclarlos es el error de escala que ya pasa con asset_mix.",
+      "x-unit": "fraction",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "keep_euros": {
+      "type": "boolean",
+      "description": "Lo marca el asesor en el constructor: esta posicion se mantiene en euros y no se reparte. Se guarda porque es decision suya y la pantalla la devuelve.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "target_euros": {
+      "type": "number",
+      "minimum": 0,
+      "description": "El importe objetivo en euros que escribio el asesor, si lo hizo. Es un dato suyo, no una derivada del peso y del capital.",
+      "x-unit": "currency_amount",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "band_min": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Banda inferior de tolerancia. Fuera de la banda, hay que rebalancear.",
+      "x-unit": "fraction",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "band_max": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "x-unit": "fraction",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "set_by": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "set_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

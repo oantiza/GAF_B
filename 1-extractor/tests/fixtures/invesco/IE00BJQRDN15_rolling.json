@@ -1,0 +1,271 @@
+{
+ "effectiveDate": "2026-11-06",
+ "inceptionDate": "2019-07-30",
+ "baseline": 10000,
+ "isin": "IE00BJQRDN15",
+ "performanceName": "growthOf10K",
+ "currency": "USD",
+ "benchmarkName": "MSCI World Total Return (Net) Index",
+ "lineChartData": [
+  {
+   "type": "Shareclass",
+   "data": [
+    {
+     "date": "2019-07-30",
+     "value": 10000,
+     "returnPercent": 0
+    },
+    {
+     "date": "2026-10-06",
+     "value": 28015.99,
+     "returnPercent": 180.1599
+    },
+    {
+     "date": "2026-10-07",
+     "value": 27739.05,
+     "returnPercent": 177.3905
+    },
+    {
+     "date": "2026-10-08",
+     "value": 27615.9,
+     "returnPercent": 176.159
+    },
+    {
+     "date": "2026-10-09",
+     "value": 27704.69,
+     "returnPercent": 177.0469
+    },
+    {
+     "date": "2026-10-12",
+     "value": 27647.25,
+     "returnPercent": 176.4725
+    },
+    {
+     "date": "2026-10-13",
+     "value": 27714.31,
+     "returnPercent": 177.1431
+    },
+    {
+     "date": "2026-10-14",
+     "value": 27405.25,
+     "returnPercent": 174.0525
+    },
+    {
+     "date": "2026-10-15",
+     "value": 27497.64,
+     "returnPercent": 174.9764
+    },
+    {
+     "date": "2026-10-16",
+     "value": 27313.03,
+     "returnPercent": 173.1303
+    },
+    {
+     "date": "2026-10-19",
+     "value": 27321.21,
+     "returnPercent": 173.2121
+    },
+    {
+     "date": "2026-10-20",
+     "value": 27413.01,
+     "returnPercent": 174.1301
+    },
+    {
+     "date": "2026-10-21",
+     "value": 27587.8,
+     "returnPercent": 175.878
+    },
+    {
+     "date": "2026-10-22",
+     "value": 27248.44,
+     "returnPercent": 172.4844
+    },
+    {
+     "date": "2026-10-23",
+     "value": 27038.11,
+     "returnPercent": 170.3811
+    },
+    {
+     "date": "2026-10-26",
+     "value": 27229.51,
+     "returnPercent": 172.2951
+    },
+    {
+     "date": "2026-10-27",
+     "value": 27405.29,
+     "returnPercent": 174.0529
+    },
+    {
+     "date": "2026-10-28",
+     "value": 27451.51,
+     "returnPercent": 174.5151
+    },
+    {
+     "date": "2026-10-29",
+     "value": 27447.96,
+     "returnPercent": 174.4796
+    },
+    {
+     "date": "2026-10-30",
+     "value": 26928.95,
+     "returnPercent": 169.2895
+    },
+    {
+     "date": "2026-11-02",
+     "value": 26862.04,
+     "returnPercent": 168.6204
+    },
+    {
+     "date": "2026-11-03",
+     "value": 26918.72,
+     "returnPercent": 169.1872
+    },
+    {
+     "date": "2026-11-04",
+     "value": 27321.95,
+     "returnPercent": 173.2195
+    },
+    {
+     "date": "2026-11-05",
+     "value": 26396.26,
+     "returnPercent": 163.9626
+    },
+    {
+     "date": "2026-11-06",
+     "value": 26198.7,
+     "returnPercent": 161.987
+    }
+   ]
+  },
+  {
+   "type": "Index",
+   "data": [
+    {
+     "date": "2019-07-30",
+     "value": 10000,
+     "returnPercent": 0
+    },
+    {
+     "date": "2026-10-06",
+     "value": 25192.12,
+     "returnPercent": 151.9212
+    },
+    {
+     "date": "2026-10-07",
+     "value": 25056.93,
+     "returnPercent": 150.5693
+    },
+    {
+     "date": "2026-10-08",
+     "value": 24921.81,
+     "returnPercent": 149.2181
+    },
+    {
+     "date": "2026-10-09",
+     "value": 25080.83,
+     "returnPercent": 150.8083
+    },
+    {
+     "date": "2026-10-12",
+     "value": 25085.32,
+     "returnPercent": 150.8532
+    },
+    {
+     "date": "2026-10-13",
+     "value": 25093.77,
+     "returnPercent": 150.9377
+    },
+    {
+     "date": "2026-10-14",
+     "value": 24848.79,
+     "returnPercent": 148.4879
+    },
+    {
+     "date": "2026-10-15",
+     "value": 24934.71,
+     "returnPercent": 149.3471
+    },
+    {
+     "date": "2026-10-16",
+     "value": 24807.65,
+     "returnPercent": 148.0765
+    },
+    {
+     "date": "2026-10-19",
+     "value": 24834.95,
+     "returnPercent": 148.3495
+    },
+    {
+     "date": "2026-10-20",
+     "value": 24881.43,
+     "returnPercent": 148.8143
+    },
+    {
+     "date": "2026-10-21",
+     "value": 25036.06,
+     "returnPercent": 150.3606
+    },
+    {
+     "date": "2026-10-22",
+     "value": 24744.24,
+     "returnPercent": 147.4424
+    },
+    {
+     "date": "2026-10-23",
+     "value": 24641.68,
+     "returnPercent": 146.4168
+    },
+    {
+     "date": "2026-10-26",
+     "value": 24777.22,
+     "returnPercent": 147.7722
+    },
+    {
+     "date": "2026-10-27",
+     "value": 24908.63,
+     "returnPercent": 149.0863
+    },
+    {
+     "date": "2026-10-28",
+     "value": 24957.52,
+     "returnPercent": 149.5752
+    },
+    {
+     "date": "2026-10-29",
+     "value": 24953.56,
+     "returnPercent": 149.5356
+    },
+    {
+     "date": "2026-10-30",
+     "value": 24582.6,
+     "returnPercent": 145.826
+    },
+    {
+     "date": "2026-11-02",
+     "value": 24491.41,
+     "returnPercent": 144.9141
+    },
+    {
+     "date": "2026-11-03",
+     "value": 24521.09,
+     "returnPercent": 145.2109
+    },
+    {
+     "date": "2026-11-04",
+     "value": 24883.75,
+     "returnPercent": 148.8375
+    },
+    {
+     "date": "2026-11-05",
+     "value": 24068.54,
+     "returnPercent": 140.6854
+    },
+    {
+     "date": "2026-11-06",
+     "value": 23967.03,
+     "returnPercent": 139.6703
+    }
+   ]
+  }
+ ]
+}

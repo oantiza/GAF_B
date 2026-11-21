@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-provenance.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/provenance — v2",
+  "description": "Campo a campo, de donde salio. Es lo que hace cumplir el criterio de diseno del documento: una cifra que puede acabar en un informe de cliente tiene que poder nombrar su origen, su fecha y su unidad sin salir de la base. Sustituye a los dos sitios que hoy dicen lo mismo a medias, provenance y source_metadata, y absorbe quality.history_trace.",
+  "x-collection": "instruments/{instrument_id}/declared/provenance",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["package_id", "fields"],
+  "properties": {
+    "package_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "El paquete del extractor del que salio esta pasada. export/manifest.json ya lleva package_id, sha256 y line_count por fichero: la disciplina existe, lo que faltaba era guardarla con el dato.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "package_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "fields": {
+      "type": "object",
+      "maxProperties": 300,
+      "description": "Mapa ruta -> procedencia. Lleva tope de claves: el numero de rutas de un instrumento esta acotado por el contrato, asi que este mapa tambien.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "as_of"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "La procedencia tal como la nombra el extractor, por ejemplo vl_eodhd:eod o morningstar_lt:ETFsnapshot.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "document_url": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_APPLICABLE"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_APPLICABLE"
+          }
+        }
+      }
+    }
+  }
+}

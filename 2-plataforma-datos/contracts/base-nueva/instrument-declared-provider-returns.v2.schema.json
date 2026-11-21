@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-provider-returns.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/provider_returns — v2",
+  "description": "Las rentabilidades que publica el PROVEEDOR, con su base declarada. Separadas de computed/metrics por la misma razon que provider_risk: son dos cifras distintas que hoy comparten campo. Y llevan return_basis obligatorio, porque una rentabilidad de reparto y una de acumulacion no son comparables y la diferencia medida llega al 6,82 % anual.",
+  "x-collection": "instruments/{instrument_id}/declared/provider_returns",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "return_basis"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "La fecha MAS RECIENTE de las cifras del bloque, o la comun cuando todas coinciden (decision B-74, Oscar, 09-11-2026). Sigue siendo obligatoria y es la unica que hay que leer cuando falta `as_of_by_window`: entonces todas las cifras del bloque son a esta fecha. Cuando esta, la fecha de cada cifra es la de su ventana alli, y esta solo dice hasta donde llega el bloque.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of_by_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 2,
+      "description": "La fecha de CADA cifra, por su ventana, cuando no todas son de la misma fecha (decision B-74, Oscar, 09-11-2026). Las claves son las de `trailing_return` mas `ytd` para `ytd_return`. La fecha es la de la cifra del FONDO en esa ventana, que es la que el canonico fecha; la de la categoria y el indice no la trae por separado, y no se supone que sea la misma (en LU1295551144 la categoria de todas las ventanas llega de `ETFsnapshot`, aunque el fondo a 1 ano llegue de `sal_trailingReturn`).\n\nPor que hace falta: Morningstar entrega el 1 mes, el ano en curso y el 1 ano de un endpoint (`sal_trailingReturn`, a fin de mes) y el 3, 5 y 10 anos anualizados de otro (`ETFsnapshot` / `MFsnapshot`, a fin de trimestre). Medido por el extractor sobre su cache el 09-11-2026 a las 20:38, de las 795 fichas con cifra 437 traen las dos fechas (30-09 y 31-10), 206 solo el 30-09, 149 solo el 31-10 y 3 el 30-11-2025: en mas de la mitad, una sola fecha para el bloque fechaba mal parte de sus cifras. Y en 747 de esas 795 las cifras publicadas son NUESTRA serie, asi que lo que este bloque fecha son sobre todo las cifras de Morningstar desplazadas a `meta.contraste`, con la fecha que el contraste guarda para cada ventana. Dos cifras de fechas distintas no se comparan sin decirlo.\n\nPor que aqui y no un `as_of` dentro de cada ventana: quien lee hoy `trailing_return.3y` recorre sus sujetos, y una fecha metida entre ellos se leeria como un sujeto mas. Un campo al lado no cambia nada para quien no lo lee.\n\nSolo se escribe si las fechas difieren, y entonces lleva TODAS las ventanas presentes en el bloque. Si coinciden, falta, y `as_of` es la de todas. La cifra del fondo que nuestro calculo desplazo y vuelve de `meta.contraste` lleva la fecha que el contraste guarda para su ventana (`rentabilidad.fecha_dato_por_ventana.<ventana>`), y si no la guarda, la del bloque desplazada, como antes de esta decision.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-counts-when": "NUNCA",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "1y": { "$ref": "#/$defs/fecha_de_ventana" },
+        "3y": { "$ref": "#/$defs/fecha_de_ventana" },
+        "5y": { "$ref": "#/$defs/fecha_de_ventana" },
+        "10y": { "$ref": "#/$defs/fecha_de_ventana" },
+        "ytd": { "$ref": "#/$defs/fecha_de_ventana" }
+      }
+    },
+    "return_basis": {
+      "type": "string",
+      "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+      "description": "Obligatorio. Sale de declared/profile.distribution_policy y del tipo de serie del proveedor, no de una suposicion. Una lista ordenada o comparada cuyos elementos no compartan return_basis hace fallar la prueba septima.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "trailing_return": { "$ref": "#/$defs/ventanas" },
+    "ytd_return": { "$ref": "#/$defs/sujetos" }
+  },
+  "$defs": {
+    "fecha_de_ventana": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "La fecha de las cifras de esa ventana, segun el proveedor.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "sujetos": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "fund": { "$ref": "#/$defs/cifra" },
+        "category": { "$ref": "#/$defs/cifra" },
+        "benchmark": { "$ref": "#/$defs/cifra" }
+      }
+    },
+    "cifra": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 5,
+      "description": "Rentabilidad anualizada en FRACCION. El rango [-5, 5] es el que la especificacion de fundamentales ya usa: fuera de ahi es casi seguro un error de escala, que es como se cuelan los por cientos guardados como decimales.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "ventanas": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "1y": { "$ref": "#/$defs/sujetos" },
+        "3y": { "$ref": "#/$defs/sujetos" },
+        "5y": { "$ref": "#/$defs/sujetos" },
+        "10y": { "$ref": "#/$defs/sujetos" }
+      }
+    }
+  }
+}

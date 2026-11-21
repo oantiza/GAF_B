@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/client.v2.schema.json",
+  "title": "clients/{client_id} — v2",
+  "description": "El cliente. Es la parte de la base que hoy NO EXISTE: la maestra guarda 23 carteras modelo y ninguna cartera real, y el motor que calcula TWR, XIRR, flujos, traspasos y Sortino no persiste nada (cero llamadas a collection() en todo el modulo portfolio_real). Eso significa que no hay que reescribir calculos, solo darles donde vivir.",
+  "x-collection": "clients/{client_id}",
+  "x-layer": "ledger",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["client_id", "schema_version", "updated_at", "identity", "advisor_uids"],
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "pattern": "^CLI_[0-9A-Z]{8}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "base-nueva.client.v2",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "updated_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name", "kind"],
+      "description": "Lo minimo para nombrar al cliente. Los extractos por cliente son ANONIMOS: no traen ni nombre ni numero de cliente, asi que la identidad es METADATO DE INGESTA —quien afirmo que este extracto es de este cliente, y cuando— y es el unico sitio donde un error humano puede colgar la cartera de uno de otro. Por eso la ingesta lo firma.",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "ledger",
+          "x-owner": "app"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["PERSON", "ENTITY"],
+          "x-unit": "code",
+          "x-layer": "ledger",
+          "x-owner": "app"
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "x-unit": "code",
+          "x-layer": "ledger",
+          "x-owner": "app",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "advisor_uids": {
+      "type": "array",
+      "maxItems": 20,
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Quien puede ver a este cliente. Ojo con lo que esto NO es: las reglas de Firestore de hoy DENIEGAN todo acceso directo del cliente a las carteras (allow read, write: if false), y todo pasa por Functions invocables con el Admin SDK. Asi que este campo lo comprueba una Function, no una regla, y escribirlo mal no abre nada por si solo: lo que abre o cierra es el codigo de la Function que lo lee.",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "x-unit": "code",
+        "x-layer": "ledger",
+        "x-owner": "app"
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["risk_profile", "updated_by", "updated_at"],
+      "description": "El perfil es una DECISION registrada, no un dato: lleva autor y fecha porque alguien decidio que este cliente es asi, y eso hay que poder justificarlo despues.",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_YET_FETCHED",
+      "properties": {
+        "risk_profile": {
+          "type": "string",
+          "enum": ["CONSERVATIVE", "MODERATE", "BALANCED", "DYNAMIC", "AGGRESSIVE"],
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "app"
+        },
+        "horizon_years": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 60,
+          "x-unit": "years",
+          "x-layer": "human",
+          "x-owner": "app",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "constraints": {
+          "type": "array",
+          "maxItems": 50,
+          "description": "Restricciones de mandato, con tope.",
+          "x-layer": "human",
+          "x-owner": "app",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "human",
+            "x-owner": "app"
+          }
+        },
+        "updated_by": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "human",
+          "x-owner": "app"
+        },
+        "updated_at": {
+          "type": "string",
+          "x-unit": "date",
+          "x-layer": "human",
+          "x-owner": "app"
+        }
+      }
+    }
+  }
+}

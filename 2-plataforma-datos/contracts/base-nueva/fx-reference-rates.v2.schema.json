@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/fx-reference-rates.v2.schema.json",
+  "title": "fx_rates/{currency}_{year} — v2",
+  "description": "Un anio de los cambios de referencia del BCE de una moneda, en unidades de esa moneda por 1 EUR (EXR D.X.EUR.SP00.A). Es la fuente que fija la decision 10 para llevar a euros una serie en otra divisa: el motor de carteras solo trabaja en euros. La serie original no se toca; la conversion se hace al leer, asi que siempre se puede auditar cada parte por separado.",
+  "x-collection": "fx_rates/{rate_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["currency", "year", "series_key", "source", "first_date", "last_date", "observations", "points"],
+  "properties": {
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "year": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "series_key": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "const": "ECB",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "first_date": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "last_date": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "observations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 366,
+      "x-unit": "count",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "points": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 366,
+      "description": "En orden ascendente y sin fechas repetidas. El BCE no publica en sus festivos, y esos dias simplemente no estan.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "value"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "value": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          }
+        }
+      }
+    }
+  }
+}

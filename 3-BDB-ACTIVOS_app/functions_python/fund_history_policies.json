@@ -1,0 +1,674 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-11-05",
+  "assets": {
+    "DE0005318406": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#de0005318406"
+      }
+    },
+    "DE000DWS17J0": {
+      "usable_from": "2016-12-01",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "ES0114904008": {
+      "usable_from": "2019-12-20",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "ES0116848005": {
+      "usable_from": "2010-12-24",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "ES0125240038": {
+      "usable_from": "2006-11-16",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "ES0138614039": {
+      "usable_from": "2003-01-30",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Multifondo Europa (CNMV registro 1998-04-27) se comporto como un monetario hasta enero de 2003 (volatilidad semanal 0,1-1 %, +2-4 % anual); la gestora comunico su transformacion y cambio de politica a la CNMV (22-05-2002, 05-09-2002, 26-05-2003) y el VL se mueve como renta variable europea desde el 30-01-2003. Su politica del 02-07-2021 (CNMV 294399) no cambia la vocacion (Renta Variable Internacional) ni el regimen de volatilidad: no se recorta ahi. Revisado el 13-10-2026."
+    },
+    "ES0161560018": {
+      "flags": [
+        "PRICE_FROZEN_DELISTED"
+      ],
+      "frozen_price": {
+        "from": "2025-09-15",
+        "value": 6.5
+      },
+      "reason": "NH Hotel Group (Minor Hotels Europe & Americas, NHH.MC): negociacion suspendida el 15/09/2025, al cerrar ese dia el plazo de aceptacion de la opa de exclusion, y excluido con efectos del 25/09/2025 (config/bajas_decididas.csv del extractor). El broker mantiene la posicion al ultimo precio (6,50 EUR). Para los calculos de cartera el ultimo precio se prolonga plano hasta la fecha de calculo (cero rentabilidad, cero riesgo), en vez de recortar o excluir. Pedido por Oscar el 01-10-2026; se queda dado de alta como unico caso, decision del 12-11-2026. `from` es la ultima sesion real, el 15/09/2025, porque extend_frozen_price solo prolonga si la serie guardada llega a esa fecha, y prolonga desde el dia habil siguiente a su ultimo punto. Hasta el 12-11-2026 decia 2025-09-25, el primer dia de la prolongacion que hizo BDB, y con la serie real de EODHD, que acaba el 24/09/2025, no se habria prolongado. La serie es la de EODHD (NHH.MC, adjusted_close): ultimo cierre real 6,50 EUR el 15/09/2025, el mismo precio que el del broker; del 16 al 19/09 EODHD repite la fila del 15 y del 22 al 24/09 la sirve con volumen 0, que no son sesiones y valen tambien 6,50."
+    },
+    "ES0162916037": {
+      "usable_from": "2015-03-18",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Fon Fineco Renta Fija Plus (CNMV 3381) era MILLENIUM FUND II, FI, un fondo con objetivo de rentabilidad no garantizado (CNMV 76185, 89367, 94294, 120855, 122496, 160673): volatilidad semanal del 15-50 % entre 2008 y 2012 y caida del 41 % en 2008-2009. La CNMV registro el 18-03-2015 el cambio de vocacion inversora (220310); desde entonces el VL se comporta como renta fija euro a corto (volatilidad < 3 %). La politica se volvio a modificar el 21-04-2017 (250949) sin cambiar la vocacion. Revisado el 13-10-2026."
+    },
+    "ES0164813034": {
+      "usable_from": "2008-12-12",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Fon Fineco Gestion II (CNMV 3320) invertia mayoritariamente en otras IIC y se movia como renta variable hasta el 12-12-2008, fecha en que la CNMV registro el cambio de vocacion inversora y de politica (101430): volatilidad semanal del 13-56 % en 2006-2008 y caida del 59 % hasta el 13-10-2008. Despues hubo cambios de politica (2011, 05-10-2012, 19-06-2015) y la absorcion de Multioportunidad II (22-06-2012) sin volver a ese regimen. Revisado el 13-10-2026."
+    },
+    "ES0165092034": {
+      "usable_from": "2005-02-22",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Multifondo America esta registrado en la CNMV desde el 16-02-2005; la serie EODHD trae un punto suelto el 01-01-2001 (10,2781) y no vuelve a tener datos hasta el 22-02-2005. Su politica del 02-07-2021 (CNMV 294400) no cambia la vocacion (Renta Variable Internacional) ni el regimen de volatilidad: no se recorta ahi. Revisado el 13-10-2026."
+    },
+    "FR0007008750": {
+      "usable_from": "2000-12-29",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "FR0010172767": {
+      "usable_from": "2005-05-10",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "FR0013460961": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#fr0013460961"
+      }
+    },
+    "IE0034277479": {
+      "usable_from": "2005-01-05",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Unverified isolated spike; only later observations are used."
+    },
+    "IE00B4M05337": {
+      "usable_from": "2012-02-06",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "IE00B88WFS66": {
+      "usable_from": "2012-12-05",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "IE00BYYPF581": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#ie00byypf581"
+      }
+    },
+    "IE00BZ18VT34": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#ie00bz18vt34"
+      },
+      "excluded_dates": [
+        "2025-02-04"
+      ],
+      "excluded_dates_notes": {
+        "2025-02-04": {
+          "reason": "supuesto VL erróneo; sin contraste con la gestora",
+          "reviewed_at": "2026-11-05",
+          "reviewed_by": "Óscar, decisión 54, sobre la revisión del lote N3 de la auditoría",
+          "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#ie00bz18vt34"
+        }
+      }
+    },
+    "LU0034353002": {
+      "usable_from": "1999-01-04",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Unverified currency redenomination; exclude earlier observations."
+    },
+    "LU0048293368": {
+      "usable_from": "2021-07-20",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "30:1 split confirmed; provider event date differs. Use only post-event prices pending reconciliation."
+    },
+    "LU0102219945": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu0102219945"
+      }
+    },
+    "LU0106819104": {
+      "usable_from": "2022-07-18",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Schroder ISF Emerging Europe: suspendida el 25-02-2022 por Rusia y reabierta el 18-07-2022 reorganizada con side pockets; el valor liquidativo cae ese día de forma no comparable (de 25,50 a 10,29 en la A1) y no es rentabilidad. La serie vale desde la reapertura (decisión D-9 de Óscar, 11-11-2026)."
+    },
+    "LU0121216526": {
+      "usable_from": "2001-04-27",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0133716950": {
+      "usable_from": "2022-07-18",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Schroder ISF Emerging Europe: suspendida el 25-02-2022 por Rusia y reabierta el 18-07-2022 reorganizada con side pockets; el valor liquidativo cae ese día de forma no comparable (de 25,50 a 10,29 en la A1) y no es rentabilidad. La serie vale desde la reapertura (decisión D-9 de Óscar, 11-11-2026)."
+    },
+    "LU0162660350": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu0162660350"
+      }
+    },
+    "LU0171304552": {
+      "usable_from": "2020-03-20",
+      "flags": [
+        "HISTORY_SPLICED_SISTER_CLASS"
+      ],
+      "reason": "Re-spliced 2026-09-30 with the correct sister class LU0171301533 (BGF World Energy A2 EUR, daily corr 0.9999): rescaled A2 levels before 2025-04-08, real E2 NAV from then on. The 2001-2019 stretch came from a wrong donor (LU0171289902, Sustainable Energy) and was deleted."
+    },
+    "LU0232524495": {
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Reconciled 2026-09-30: the NAV history (CNMV, 2021-06-10..2026-03-17) matches EODHD and Morningstar month by month; the divergence came from the daily refresh appending the Munich exchange quote (AXBL.MU) since 2026-03-18 instead of the NAV. Refresh stretch replaced by LU0232524495.EUFUND and the root listing repointed; nothing blocked."
+    },
+    "LU0248167537": {
+      "usable_from": "2006-03-28",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0248168261": {
+      "usable_from": "2006-03-28",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0248168428": {
+      "usable_from": "2006-03-28",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0251807987": {
+      "usable_from": "2015-05-13",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0252970834": {
+      "usable_from": "2006-05-29",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Unverified price discontinuity; exclude earlier observations."
+    },
+    "LU0321373184": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu0321373184"
+      }
+    },
+    "LU0352312184": {
+      "usable_from": "2008-07-01",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0352312853": {
+      "usable_from": "2008-07-01",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0404220724": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu0404220724"
+      }
+    },
+    "LU0546917344": {
+      "usable_from": "2011-05-02",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0568583420": {
+      "usable_from": "2011-06-24",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0568620560": {
+      "usable_from": "2011-06-24",
+      "flags": [
+        "HISTORY_RESTRICTED_AFTER_REVIEW"
+      ],
+      "reason": "Unverified currency redenomination; exclude earlier observations."
+    },
+    "LU0823394852": {
+      "usable_from": "2013-05-17",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0823411706": {
+      "usable_from": "2013-05-24",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0823421689": {
+      "usable_from": "2013-05-17",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0918140210": {
+      "usable_from": "2013-05-22",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0935222900": {
+      "usable_from": "2013-12-12",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU0995386439": {
+      "usable_from": "2014-04-01",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1089088741": {
+      "usable_from": "2016-08-11",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1095739733": {
+      "blocked": true,
+      "flags": [
+        "TOTAL_RETURN_RECONCILED"
+      ],
+      "reason": "Revisado: la serie es el valor liquidativo de esta clase y solo le faltan los pagos; con ellos reinvertidos iguala al proveedor. Se dibuja rotulada, «Valor liquidativo, sin dividendos», y el bloqueo sigue en pie para todo lo que mide, salvo Rendimiento, que toma los pagos del extracto (decisión 96).",
+      "draw_after_review": {
+        "reviewed_at": "2026-11-05",
+        "reviewed_by": "Óscar, decisión 53, sobre la revisión del lote N3 de la auditoría",
+        "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu1095739733"
+      }
+    },
+    "LU1103303167": {
+      "usable_from": "2016-01-21",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1103307408": {
+      "usable_from": "2015-01-13",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1127969597": {
+      "usable_from": "2014-10-28",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1161086159": {
+      "usable_from": "2015-07-10",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1299311164": {
+      "usable_from": "2015-11-19",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1299311834": {
+      "usable_from": "2015-11-19",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1301026388": {
+      "usable_from": "2015-11-04",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1304666057": {
+      "usable_from": "2015-11-16",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1481583711": {
+      "usable_from": "2016-10-18",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1548496022": {
+      "usable_from": "2017-01-30",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1582984149": {
+      "usable_from": "2018-03-16",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1582988306": {
+      "usable_from": "2018-01-16",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1594335520": {
+      "usable_from": "2017-05-02",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670618187": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670618690": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670626446": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670631016": {
+      "usable_from": "2018-09-21",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670631289": {
+      "usable_from": "2018-09-21",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670707527": {
+      "usable_from": "2018-09-20",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670710075": {
+      "usable_from": "2018-09-20",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670715975": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670718219": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670720462": {
+      "usable_from": "2018-10-26",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670722161": {
+      "usable_from": "2018-09-21",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1670724373": {
+      "usable_from": "2018-09-07",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1769941003": {
+      "usable_from": "2018-08-28",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1775950477": {
+      "usable_from": "2018-09-07",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1829329819": {
+      "usable_from": "2018-08-29",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1868537090": {
+      "usable_from": "2018-10-15",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1873127366": {
+      "usable_from": "2022-09-13",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1882462655": {
+      "usable_from": "2019-06-14",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1883327816": {
+      "usable_from": "2008-12-12",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1883329432": {
+      "usable_from": "2013-05-07",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU1988110927": {
+      "usable_from": "2020-07-24",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU2145461757": {
+      "usable_from": "2020-10-29",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU2145463373": {
+      "usable_from": "2020-10-29",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU2146190835": {
+      "usable_from": "2020-10-29",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU2222028099": {
+      "usable_from": "2020-11-19",
+      "flags": [
+        "HISTORY_CONTINUITY_UNVERIFIED"
+      ],
+      "reason": "Pre-class observations excluded pending documented predecessor continuity."
+    },
+    "LU3038481936": {
+      "flags": [
+        "PREDECESSOR_CONTINUITY_DOCUMENTED"
+      ],
+      "reason": "Successor of Hamco Global Value Fund FI class R (ES0141116030) by merger on 2025-11-25; NAV carried over (255.4351 -> 256.152). Continuity confirmed by Oscar on 2026-09-30; the FI stretch is provider data (EODHD)."
+    }
+  },
+  "reviews": {
+    "LU2133220793": {
+      "lifted_block": "NAV returns differ from provider total returns; distributions/FX/identity require reconciliation.",
+      "reason": "Bloqueo levantado: no reparte y su serie iguala al proveedor. A 3 años, 19,56 % la serie y 19,63 % el proveedor, y a 3 años justos, como mide él, 19,625 % los dos; una sola diferencia de 0,56 % en jul-2024, corregida en agosto.",
+      "reviewed_at": "2026-11-05",
+      "reviewed_by": "Óscar, decisión 57, sobre la revisión del lote N3 de la auditoría",
+      "evidence": "docs/rediseno-2026-11/REVISION_NUEVE_FONDOS_2026-11-05.md#lu2133220793"
+    }
+  }
+}

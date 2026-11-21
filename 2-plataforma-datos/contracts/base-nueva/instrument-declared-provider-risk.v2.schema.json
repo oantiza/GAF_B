@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-provider-risk.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/provider_risk — v2",
+  "description": "Las cifras de riesgo que publica el PROVEEDOR, no las nuestras. Existe separado de computed/metrics porque es exactamente lo que hoy falla: risk.volatilidad a 3 anios vive en dos sitios con dos unidades y nadie puede decir cual es cual. Aqui una cifra del proveedor es un dato declarado, con su fecha y su fuente, y no se mezcla nunca con la que calculamos de la serie. Tres sujetos: fund, category y benchmark; en las cifras relativas (beta, r2, provider_alpha) el sujeto dice CONTRA QUE se mide, no de quien es.",
+  "x-collection": "instruments/{instrument_id}/declared/provider_risk",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "return_basis"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "return_basis": {
+      "type": "string",
+      "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+      "description": "Obligatorio aunque este bloque sea de riesgo, porque lleva provider_alpha, y un alpha es una DIFERENCIA de rentabilidades: hereda el sesgo de la politica de distribucion AMPLIFICADO. Un fondo de reparto competente medido contra un indice de retorno total ensena un alpha negativo sostenido que no es suyo. Sin esta base, el alpha del proveedor no se puede ni leer.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "volatility": { "$ref": "#/$defs/ventanas_absolutas_fraction" },
+    "sharpe": { "$ref": "#/$defs/ventanas_absolutas_ratio" },
+    "max_drawdown": { "$ref": "#/$defs/ventanas_absolutas_fraction" },
+    "beta": { "$ref": "#/$defs/ventanas_relativas_ratio" },
+    "r2": { "$ref": "#/$defs/ventanas_relativas_fraction" },
+    "provider_alpha": { "$ref": "#/$defs/ventanas_relativas_fraction" },
+    "tracking_error": { "$ref": "#/$defs/ventanas_relativas_fraction" },
+    "information_ratio": { "$ref": "#/$defs/ventanas_relativas_ratio" }
+  },
+  "$defs": {
+    "relativa_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Una cifra RELATIVA: el sujeto dice CONTRA QUE se mide, no de quien es. Es la distincion que el canonico de hoy no hace, y por eso aqui tiene una forma distinta de las cifras absolutas: sus columnas fondo/categoria/indice significan 'de quien' para la volatilidad y el Sharpe, pero 'contra que' para el alpha, la beta y el R2, y no hay nada en el dato que lo diga.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "vs_benchmark": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "vs_category": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "relativa_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "vs_benchmark": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "vs_category": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "sujetos_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Una cifra ABSOLUTA: el sujeto dice DE QUIEN es.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "fund": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "category": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "benchmark": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 5,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "sujetos_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "fund": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "category": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "benchmark": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "ventanas_absolutas_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Las cuatro ventanas, con un solo nombre en toda la base: 1y, 3y, 5y, 10y. Nunca 3a aqui y 3y alli.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "1y": { "$ref": "#/$defs/sujetos_fraction" },
+        "3y": { "$ref": "#/$defs/sujetos_fraction" },
+        "5y": { "$ref": "#/$defs/sujetos_fraction" },
+        "10y": { "$ref": "#/$defs/sujetos_fraction" }
+      }
+    },
+    "ventanas_absolutas_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "1y": { "$ref": "#/$defs/sujetos_ratio" },
+        "3y": { "$ref": "#/$defs/sujetos_ratio" },
+        "5y": { "$ref": "#/$defs/sujetos_ratio" },
+        "10y": { "$ref": "#/$defs/sujetos_ratio" }
+      }
+    },
+    "ventanas_relativas_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "1y": { "$ref": "#/$defs/relativa_fraction" },
+        "3y": { "$ref": "#/$defs/relativa_fraction" },
+        "5y": { "$ref": "#/$defs/relativa_fraction" },
+        "10y": { "$ref": "#/$defs/relativa_fraction" }
+      }
+    },
+    "ventanas_relativas_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "1y": { "$ref": "#/$defs/relativa_ratio" },
+        "3y": { "$ref": "#/$defs/relativa_ratio" },
+        "5y": { "$ref": "#/$defs/relativa_ratio" },
+        "10y": { "$ref": "#/$defs/relativa_ratio" }
+      }
+    }
+  }
+}

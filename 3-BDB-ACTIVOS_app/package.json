@@ -1,0 +1,73 @@
+{
+  "name": "gestor-activos-financieros-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc -b",
+    "build": "npm run typecheck && vite build && npm run check:bundle",
+    "check:bundle": "node scripts/checkInitialBundleBudget.mjs",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:ci": "vitest run",
+    "test:functions": "python -m pytest functions_python/tests -q",
+    "test:all": "npm test && npm run test:functions",
+    "sync:contracts": "node scripts/syncContractsCache.mjs",
+    "check:contracts": "node scripts/syncContractsCache.mjs --check",
+    "smoke:firestore-rules": "node scripts/smokeFirestoreRulesNoAuth.mjs",
+    "smoke:commercial-retro-rules": "node scripts/smokeCommercialRetroRules.mjs",
+    "preview:static-export-sample": "node scripts/buildStaticExportSample.mjs",
+    "write:static-export-sample": "node scripts/buildStaticExportSample.mjs --write",
+    "validate:static-export-canary": "node scripts/validateStaticExportCanary.mjs",
+    "diff:static-export-sample": "git diff --no-index -- src/data/bbddActivosStaticExportSample.ts src/data/bbddActivosStaticExportSample.generated.ts",
+    "promote:static-export-sample": "node scripts/buildStaticExportSample.mjs --promote",
+    "preview": "vite preview",
+    "smoke:informe": "node scripts/smokeFlujoInforme.mjs",
+    "smoke:pdf": "node scripts/smokePdfD3.mjs",
+    "shots:ui": "node scripts/capturaInterfaz.mjs xl,l,d,p,t,tp",
+    "shots:estrecha": "node scripts/capturaInterfaz.mjs estrecha",
+    "seed:emulator-user": "node scripts/seedEmulatorUser.mjs"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^4.0.0",
+    "big.js": "^7.0.1",
+    "firebase": "13.0.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-markdown": "^9.0.0",
+    "recharts": "^3.9.2",
+    "remark-gfm": "^4.0.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.6"
+    },
+    "source-map-js": "1.2.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/big.js": "^7.0.0",
+    "@types/node": "^24.12.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "axe-core": "^4.14.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "happy-dom": "^20.10.6",
+    "playwright": "^1.62.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "8.1.6",
+    "vitest": "^4.1.11"
+  }
+}

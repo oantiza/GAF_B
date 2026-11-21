@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-quote.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/quote — v2",
+  "description": "El ultimo precio publicado del instrumento y el dia al que corresponde. Para un fondo es su valor liquidativo; para una accion o un ETF, el cierre de mercado.\n\nEste bloque entra el 01-11-2026 y no estaba previsto, asi que conviene decir por que: la base nueva NO GUARDABA EL PRECIO DE NADA. Medido ese dia sobre los 11.566 documentos escritos, ninguna ruta de ningun contrato contiene una cotizacion —se busco nav, price, unit_price y last_price, y los dos unicos resultados son el valor liquidativo del dia de un reparto y el precio unitario de una operacion del libro, que son otra cosa—. El canonico, en cambio, lo trae en los 846 registros, con su fecha y su divisa.\n\nSalio al disenar la ficha de una accion, que por decision de Oscar enseña identidad, sector, mercado, PRECIO y nuestras metricas. Las otras cuatro cosas tenian sitio y el precio no, asi que la decision no se podia cumplir. Se escribe para TODOS los tipos y no solo para acciones a proposito: el hueco es de la base, no de las acciones, y taparlo solo en un tipo habria dejado 772 fondos sin precio por una asimetria sin razon.\n\nLo que este bloque NO es: la serie. Aqui vive un escalar, el ultimo valor conocido. La serie historica es del almacen analitico (price_series en Parquet), sigue por hacer y es la que sostiene las metricas; computed/metrics ya dice con que serie se calculo en inputs.series_id. Dos cosas distintas y por eso dos sitios.",
+  "x-collection": "instruments/{instrument_id}/declared/quote",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "price", "price_class"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien lo afirma. Parte del sobre comun de todo bloque declared/*.\n\nDesde la decision B-68 de Oscar (09-11-2026) es la fuente REAL de este precio: el codigo de procedencia de `valoracion.vl` (`meta.procedencia` del canonico) tal como lo escribe el extractor, el mismo vocabulario que `declared/provenance` publica para los demas campos, para que una cifra y su procedencia se lean con la misma clave. Hasta entonces decia `canonical:fondosdb` en todos los documentos, que es quien transporta el precio y no quien lo da.\n\nEl vocabulario, medido el 09-11-2026 sobre el canonico `182481b2…` (1.316 registros):\n- `vl_eodhd:eod` (738, todos fondos): el cierre EOD de EODHD usado como valor liquidativo del fondo.\n- `eodhd` (542: 510 acciones y 32 ETF): el cierre de mercado de EODHD.\n- `morningstar_lt:sal_quote` (31, fondos): la cotizacion de Morningstar.\n- `canonical:fondosdb`, de reserva: solo cuando el canonico no dice de donde viene el precio. Ese dia no lo usaba ningun documento: los cinco registros sin procedencia tampoco traen precio.\n\nNo se cierra en un `enum` a proposito: una fuente nueva del extractor tiene que poder escribirse sin romper la escritura, y su codigo se anade a esta lista cuando aparezca.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "El dia del precio, que aqui es el dato y no un detalle del sobre: un precio sin su dia no se puede ensenar a un cliente ni comparar con otro. Por eso es obligatorio, como en todo bloque declarado, y por eso viaja a la tarjeta.\n\nHace falta de verdad, medido el 01-11-2026: de los 846 precios del canonico, 770 son de octubre y 74 de julio —las 73 acciones y un fondo—, tres meses y medio de diferencia. Una ficha que ensene los dos sin decir de cuando es cada uno esta comparando dos momentos distintos del mercado. El umbral a partir del cual un precio esta viejo es de LECTURA y no de escritura, como el de la frescura de la tarjeta: cambiarlo no puede obligar a reescribir la base.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100000000,
+      "description": "El precio, en la divisa de `currency`. Lo traen los 846 registros del canonico.\n\nEl tope de cien millones no es una creencia sobre lo que es caro: es el margen para una accion sin desdoblar, de las que cotizan a cientos de miles, sin dejar pasar un error de escala de varios ordenes.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-coverage-target": 1
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "La divisa de ESTE precio, y no tiene por que ser la del instrumento. Es `valoracion.vl_divisa`, que el extractor escribe junto con el precio y su fecha desde una sola fuente.\n\nEste bloque nacio sin divisa, por una medida del 01-11-2026: en los 846 registros coincidia con identity.currency. Dejo de ser verdad al entrar los ETF: de los 28, en 13 la clase esta en USD y el precio en EUR. En `IE00B4L5Y983` la clase es USD y justETF, a quien se le pide en euros, da 129,07 EUR, mientras su valor liquidativo es 144,71 USD, y sin este campo la ficha escribia 129,07 USD, un error del 12 %.\n\nNo es el mercado: 129,07 no es el cierre de XETRA de ese dia, que es 128,975 y es el de su serie. Medido el 05-11-2026 contra la serie de los 19 ETF con precio del mismo dia, la razon va de 0,9992 a 1,0033, asi que la divisa es la de verdad en todos, y el mercado no se puede afirmar. Los demas tipos coinciden con su clase, salvo `ES0132526031`, que no declara clase.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "price_class": {
+      "type": "string",
+      "enum": ["NAV", "MARKET_PRICE", "RATE"],
+      "description": "QUE clase de precio es, con el mismo vocabulario cerrado que ya usa la serie de un indice en computed/metrics.relative.benchmark.series_class, y por la misma razon: un valor liquidativo y un cierre de mercado no son la misma magnitud y no se comparan sin decirlo.\n\nQue importa de verdad, y esta medido en el propio proyecto: en IE00B4L5Y983 el cierre de XETRA da 129,685 EUR y el valor liquidativo del proveedor 144,71, y no es un desajuste —son 129,685 por 1,116, el valor liquidativo en dolares—. Dos cifras correctas de cosas distintas. Y un precio de mercado lleva mas ruido que un valor liquidativo: medido el 01-11-2026, un ETF cotizado infla la volatilidad a un anio 1,2 puntos frente al valor liquidativo de un fondo indice del mismo subyacente, porque XETRA cierra a las 17:30 y el valor liquidativo se calcula tras el cierre de Estados Unidos.\n\nSe DERIVA del tipo de instrumento y de la serie que la fuente usa para cada uno —valor liquidativo en un fondo, cierre de mercado en una accion y en un ETF, los dos ultimos dichos en el codigo que los produce—, asi que su capa es computed y no declared aunque viva en un bloque declarado. Es el mismo criterio que return_basis en computed/metrics: lo que se deduce de algo conocido se declara deducido, y lo que se supone no se escribe.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "platform",
+      "x-coverage-target": 1
+    },
+    "trading": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exchange", "as_of", "sessions"],
+      "description": "Lo que se negocia en la plaza de su serie, en los 12 meses que acaban en `as_of` (decision 108 de Oscar, 05-11-2026). Lo calcula el extractor de la respuesta de EODHD con la que se hace la serie, sin pedir nada, y solo lo lleva lo que cotiza: un fondo se suscribe al valor liquidativo y no se negocia en una plaza.\n\nEs una linea sin adjetivos ni umbrales, igual para todos, y juzga el asesor. Es el volumen de UNA plaza y por eso la dice: en Francfort, Inmocemento no tiene volumen en 246 de 253 sesiones, con el precio moviendose, porque su mercado principal es otro. No dice nada de lo que se negocia fuera de bolsa, ni de la horquilla, que no estan en ningun dato.\n\nNo cuenta en la cobertura: es un dato nuevo, y moverle a 328 instrumentos sus 'Datos disponibles' por tenerlo no diria nada de ellos.",
+      "x-layer": "computed",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "x-counts-when": "NUNCA",
+      "properties": {
+        "exchange": {
+          "type": "string",
+          "minLength": 1,
+          "description": "La plaza de la serie, con el codigo del proveedor: AS, MC, XETRA, F. La aplicacion la nombra.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "platform"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "La moneda de cotizacion, con la que esta `median_traded_value`. En Londres, libras aunque el cierre venga en peniques.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "La fecha de corte: la ultima sesion de la respuesta. Los 12 meses cuentan hacia atras desde aqui.",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "platform"
+        },
+        "sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 400,
+          "description": "Las sesiones de esos 12 meses que trae el proveedor. Menos de un anio si cotiza desde hace menos.",
+          "x-unit": "count",
+          "x-layer": "computed",
+          "x-owner": "platform"
+        },
+        "sessions_without_volume": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 400,
+          "description": "Cuantas de ellas traen el volumen a cero o vacio. Ausente cuando el proveedor no da volumen: ACCION IBEX 35 trae las 261 a cero con el precio moviendose en 255, y eso es un hueco suyo y no falta de negociacion. Urbas trae las 255 con el precio parado, y eso si se dice: 255 de 255.",
+          "x-unit": "count",
+          "x-layer": "computed",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "median_traded_value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "La mediana de volumen por cierre de las sesiones con volumen, en `currency`. Sin redondear: el redondeo es de quien lo ensena. Si el cierre da en la ventana un salto que el ajustado no da, como el de un desdoblamiento, solo de lo posterior, porque el proveedor da el cierre sin ajustar y, en casi todos, el volumen ya ajustado: KLA salia con 10.606 M$ al dia, y son 1.941 M$. `median_sessions` dice sobre cuantas.",
+          "x-unit": "currency_amount",
+          "x-layer": "computed",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "median_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 400,
+          "x-unit": "count",
+          "x-layer": "computed",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    }
+  }
+}

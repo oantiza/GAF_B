@@ -1,0 +1,598 @@
+{
+"pdpResult": {
+"pagePopups": {
+"hideEntryGate": false
+},
+"pageSections": {
+"keyFacts": {
+"accordionItems": [
+{
+"id": "fundinformation-basicinformation",
+"type": "Bundle",
+"headlineText": "Fund key facts",
+"expanded": true,
+"listBundle": [
+{
+"items": [
+{
+"value": "LU0290358497",
+"key": "ISIN",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "25.05.2007",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "25.05.2007",
+"key": "Share class launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Global certificate",
+"key": "Type of investment fund shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": true,
+"key": "UCITS compliant",
+"type": "BOOL",
+"isHighlighted": false
+},
+{
+"value": "Jan 01 - Dec 31",
+"key": "Fiscal year",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "EUR",
+"key": "Share class currency",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Capitalizing",
+"key": "Income treatment",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Exchange traded fund",
+"key": "Exchange traded fund / Non-exchange traded fund",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-fundprofile",
+"headlineText": "Fund profile",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+},
+{
+"items": [
+{
+"value": "Indirect Replication (Swap)",
+"key": "Investment methodology",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Fixed Income Portfolio + Swap",
+"key": "Portfolio structure",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": false,
+"key": "Securities lending",
+"type": "BOOL",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-indexreplication",
+"headlineText": "Index replication technique",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+}
+],
+"disclaimers": []
+},
+{
+"id": "fundinformation-feesandexpenses",
+"type": "List",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"expanded": true,
+"list": {
+"items": [
+{
+"value": "0.02%",
+"key": "Fund management company fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "+ 0.08%",
+"key": "Fund fixed fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "= 0.10%",
+"key": "Fund all-in fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-feesandexpenses",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"disclaimers": [],
+"scope": "fundinformation-feesandexpenses",
+"expanded": true
+},
+"disclaimers": []
+},
+{
+"id": "fundinformation-currentdata",
+"type": "Bundle",
+"headlineText": "Current data",
+"expanded": false,
+"listBundle": [
+{
+"items": [
+{
+"value": "150.70 EUR",
+"key": "NAV",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "05.11.2026",
+"key": "NAV date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "156,380,729",
+"key": "Outstanding shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "24.80 B EUR",
+"key": "Total AUM of fund",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-currentdata",
+"headlineText": "",
+"disclaimers": [],
+"scope": "fundinformation-currentdata",
+"expanded": false
+}
+],
+"disclaimers": []
+},
+{
+"id": "fundinformation-swapcounterparties",
+"type": "Table",
+"headlineText": "Swap counterparties",
+"expanded": false,
+"table": {
+"columns": [
+{
+"key": "header",
+"value": "Counterparty ",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_0",
+"value": "Gross exposure",
+"alignment": "right",
+"isVisibleOnHeader": true
+}
+],
+"values": [
+{
+"header": {
+"value": "<a href='https://www.db.com'>Deutsche Bank AG</a>",
+"type": "text"
+},
+"column_0": {
+"value": "100.00%",
+"sortValue": 100.0006,
+"type": "text"
+}
+}
+],
+"summary": [],
+"sortable": false,
+"isMatrix": false,
+"noRowHeader": false,
+"standAlone": false,
+"stickyHeader": false,
+"initialSortOrder": 1,
+"footnoteComponentId": "fundinformation-swapcounterparties",
+"rowsPerPage": 15,
+"secondSortOrder": 1,
+"id": "fundinformation-swapcounterparties",
+"headlineText": "",
+"disclaimers": [],
+"expanded": false
+},
+"disclaimers": []
+}
+]
+},
+"indexKeyFacts": {
+"accordionItems": [
+{
+"id": "indexinformation-keyfacts",
+"type": "List",
+"headlineText": "Index key facts",
+"expanded": false,
+"list": {
+"items": [
+{
+"value": "Solactive €STR +8.5 Daily Total Return Index<PageFootnoteReference component-id='indexinformation-keyfacts' title=\"On 30.11.2023 the ETF changed its underlying benchmark to track the Solactive €STR +8.5 Daily Total Return Index and subsequently changed its name to EUR Overnight Rate Swap UCITS ETF. Prior to the change the ETF tracked the Deutsche Bank Euro Overnight Rate Total Return Index.\"></PageFootnoteReference>",
+"key": "Index name",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Solactive AG",
+"key": "Index provider",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "SOESTR85",
+"key": "Bloomberg index ticker",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "EUR",
+"key": "Index base currency",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "indexinformation-keyfacts",
+"headlineText": "Index key facts",
+"disclaimers": [
+{
+"text": "<p>Source: DWS 31.08.2026</p>",
+"disableDefaultWrapping": true
+}
+],
+"scope": "indexinformation-keyfacts",
+"expanded": false
+},
+"disclaimers": [
+{
+"text": "<p>Source: DWS 31.08.2026</p>",
+"disableDefaultWrapping": true
+}
+]
+}
+]
+},
+"portfolio": {
+"charts": {
+"cards": [
+{
+"title": "Bond type",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "Bond",
+"weighting": 0.5533259173064847,
+"weightingText": "0.55%"
+},
+{
+"id": "1",
+"allocationName": "Government Bond",
+"weighting": 0.24733996237147718,
+"weightingText": "0.25%"
+},
+{
+"id": "2",
+"allocationName": "Corporate Bond",
+"weighting": 0.14998387559683743,
+"weightingText": "0.15%"
+},
+{
+"id": "3",
+"allocationName": "Supranational Bond",
+"weighting": 0.049348727390808096,
+"weightingText": "0.05%"
+},
+{
+"id": "4",
+"allocationName": "Unknown",
+"weighting": 1.5173343925831526e-06,
+"weightingText": "0.00%"
+}
+]
+},
+{
+"title": "Country allocation",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "France",
+"weighting": 0.2525435351597244,
+"weightingText": "0.25%"
+},
+{
+"id": "1",
+"allocationName": "Spain",
+"weighting": 0.10555276226648308,
+"weightingText": "0.11%"
+},
+{
+"id": "2",
+"allocationName": "Germany",
+"weighting": 0.10489748162729395,
+"weightingText": "0.10%"
+},
+{
+"id": "3",
+"allocationName": "Italy",
+"weighting": 0.09747495280278218,
+"weightingText": "0.10%"
+},
+{
+"id": "4",
+"allocationName": "Belgium",
+"weighting": 0.08687759267869995,
+"weightingText": "0.09%"
+},
+{
+"id": "5",
+"allocationName": "Unknown",
+"weighting": 0.08261486492250848,
+"weightingText": "0.08%"
+},
+{
+"id": "6",
+"allocationName": "Austria",
+"weighting": 0.03816228519084278,
+"weightingText": "0.04%"
+},
+{
+"id": "7",
+"allocationName": "United Kingdom",
+"weighting": 0.03740578178620148,
+"weightingText": "0.04%"
+},
+{
+"id": "8",
+"allocationName": "Canada",
+"weighting": 0.03708616227702212,
+"weightingText": "0.04%"
+},
+{
+"id": "9",
+"allocationName": "Others",
+"weighting": 0.1573845812884416,
+"weightingText": "0.16%"
+}
+]
+},
+{
+"title": "Bond currency weighting",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "EUR",
+"weighting": 0.8903460892886474,
+"weightingText": "0.89%"
+},
+{
+"id": "1",
+"allocationName": "USD",
+"weighting": 0.07479693437667315,
+"weightingText": "0.07%"
+},
+{
+"id": "2",
+"allocationName": "GBP",
+"weighting": 0.03485697633467943,
+"weightingText": "0.03%"
+}
+]
+},
+{
+"title": "Security credit rating breakdown",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "Aaa",
+"weighting": 0.3235259014743824,
+"weightingText": "0.32%"
+},
+{
+"id": "1",
+"allocationName": "Aa1",
+"weighting": 0.054771138561899135,
+"weightingText": "0.05%"
+},
+{
+"id": "2",
+"allocationName": "Aa2",
+"weighting": 0.03491127734420129,
+"weightingText": "0.03%"
+},
+{
+"id": "3",
+"allocationName": "Aa3",
+"weighting": 0.21029979856860892,
+"weightingText": "0.21%"
+},
+{
+"id": "4",
+"allocationName": "A1",
+"weighting": 0.04198109182827487,
+"weightingText": "0.04%"
+},
+{
+"id": "5",
+"allocationName": "A2",
+"weighting": 0.0013343213828463608,
+"weightingText": "0.00%"
+},
+{
+"id": "6",
+"allocationName": "A3",
+"weighting": 0.04038850557052114,
+"weightingText": "0.04%"
+},
+{
+"id": "7",
+"allocationName": "Baa1",
+"weighting": 0.05786111684591072,
+"weightingText": "0.06%"
+},
+{
+"id": "8",
+"allocationName": "Baa2",
+"weighting": 0.028184818971693552,
+"weightingText": "0.03%"
+},
+{
+"id": "9",
+"allocationName": "Others",
+"weighting": 0.2067420294516616,
+"weightingText": "0.21%"
+}
+]
+}
+]
+},
+"headlineText": "Substitute basket",
+"asOfDate": "05.11.2026"
+},
+"topProducts": {
+"topics": [],
+"cards": [
+{
+"title": "Xtrackers Artificial Intelligence & Big Data UCITS ETF 1C",
+"list": [
+{
+"value": [
+{
+"text": "Equities",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"tealiumTrackingModel": {},
+"name": "Equities",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"autoHyphenation": "custom"
+}
+],
+"key": "Asset class",
+"type": "URLLIST"
+},
+{
+"value": [
+{
+"text": "Sector",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"tealiumTrackingModel": {},
+"name": "Sector",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"autoHyphenation": "custom"
+},
+{
+"text": "Developed Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"tealiumTrackingModel": {},
+"name": "Developed Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"autoHyphenation": "custom"
+},
+{
+"text": "Emerging Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"tealiumTrackingModel": {},
+"name": "Emerging Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"autoHyphenation": "custom"
+}
+],
+"key": "Region",
+"type": "URLLIST"
+},
+{
+"value": "Strategic beta/factors",
+"key": "Strategy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Capitalizing",
+"key": "Distribution policy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "0.35%",
+"key": "All-in-fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "29.01.2019",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+}
+]
+}
+],
+"searchUrl": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Fixed+Income",
+"id": "top-products",
+"sideNavigationTitle": "Popular products",
+"headlineText": "Popular products",
+"asOfDate": "",
+"disclaimerHtml": []
+}
+}
+},
+"tealium": {
+"attributes": {
+"product_name": "EUR Overnight Rate Swap UCITS ETF 1C",
+"product_category": [
+"Fixed Income"
+],
+"product_subcategory": [
+"Eurozone",
+"Europe",
+"Capitalizing",
+"Core",
+"Low duration",
+"Ultra Short Duration"
+]
+}
+}
+}

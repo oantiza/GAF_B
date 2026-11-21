@@ -1,0 +1,170 @@
+/* ============================================================================
+   Gestor de carteras: las pestañas Análisis y Comparar (13-11-2026)
+
+   Solo lo que no está ya en `gestor.css` ni en las piezas comunes. Las cabeceras las
+   monta `Panel`, las filas son `.rows` y las tablas cortas `.gestor-tabla`. Aquí va:
+   la tabla de rentabilidad por meses (con el fondo del signo de cada casilla, en cinco
+   intensidades), los repartos de la composición en columnas y el selector de carteras para
+   comparar.
+
+   El fondo de las casillas de meses es el único sitio de la pantalla donde una casilla
+   lleva fondo: verde o rojo, el del signo del mes, más intenso cuanto mayor es la cifra,
+   con la cifra y su signo escritos en tinta (o en tinta clara en las dos más fuertes).
+
+   La traen `VistaAnalisis` y `VistaComparar`.
+   ========================================================================== */
+
+/* --- Rentabilidad por meses y años ------------------------------------------------- */
+
+/* Catorce columnas que tienen que leerse a 768 px: letra pequeña y poco relleno. */
+.gestor-meses {
+  font-size: var(--texto-xs);
+}
+
+.gestor-meses th[scope="row"] {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.gestor-tabla.gestor-meses .gestor-tabla__cifra {
+  padding-left: var(--s-3);
+  padding-right: var(--s-3);
+}
+
+/* Aun así, a 768 las catorce columnas no caben: el año y su total se quedan fijos a los lados y los meses se desplazan
+   entre ellos, para que el total, que es lo que más se lee, no quede fuera de la vista. */
+@media (max-width: 899.98px) {
+  .gestor-meses th[scope="row"],
+  .gestor-meses thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: var(--z-pegado);
+    background: var(--papel);
+  }
+
+  .gestor-meses .gestor-meses__total {
+    position: sticky;
+    right: 0;
+    z-index: var(--z-pegado);
+    background: var(--papel);
+  }
+
+  /* Las dos esquinas de la cabecera, sobre los nombres de los meses, que la pieza ya pega arriba. */
+  .gestor-meses thead th:first-child,
+  .gestor-meses thead .gestor-meses__total {
+    z-index: calc(var(--z-sticky) + 1);
+  }
+}
+
+.gestor-tabla.gestor-meses .gestor-meses__total {
+  padding-left: var(--s-5);
+  font-weight: 600;
+}
+
+.gestor-mes {
+  color: var(--tinta);
+}
+
+/* Cinco intensidades por signo (14-11-2026, Óscar: «le faltan colores en general»): las tres claras, el verde o el rojo
+   del signo mezclados con el papel; la cuarta, el color del signo; la quinta, el color del signo oscurecido con la tinta.
+   No hay tokens de cada intensidad: salen de `--sube` y `--baja` con `color-mix`. El contraste de la cifra sobre su
+   fondo, medido (WCAG, en sRGB como mezcla el navegador): con la tinta, 14,7 / 11,6 / 7,7:1 en las tres primeras del
+   verde y 14,2 / 10,8 / 6,7:1 en las del rojo; con la tinta clara, 5,4 / 7,9:1 en las dos últimas del verde y 5,9 /
+   8,9:1 en las del rojo. Con el verde del diseño «Nuevo», la cuarta al 85 % sobre el papel daba 4,03:1 (15-11-2026). */
+.gestor-mes--sube-1 {
+  background: color-mix(in srgb, var(--sube) 14%, var(--papel));
+}
+
+.gestor-mes--sube-2 {
+  background: color-mix(in srgb, var(--sube) 30%, var(--papel));
+}
+
+.gestor-mes--sube-3 {
+  background: color-mix(in srgb, var(--sube) 55%, var(--papel));
+}
+
+.gestor-mes--sube-4 {
+  background: var(--sube);
+  color: var(--tinta-inversa);
+}
+
+.gestor-mes--sube-5 {
+  background: color-mix(in srgb, var(--sube) 70%, var(--tinta));
+  color: var(--tinta-inversa);
+}
+
+.gestor-mes--baja-1 {
+  background: color-mix(in srgb, var(--baja) 14%, var(--papel));
+}
+
+.gestor-mes--baja-2 {
+  background: color-mix(in srgb, var(--baja) 30%, var(--papel));
+}
+
+.gestor-mes--baja-3 {
+  background: color-mix(in srgb, var(--baja) 55%, var(--papel));
+}
+
+.gestor-mes--baja-4 {
+  background: var(--baja);
+  color: var(--tinta-inversa);
+}
+
+.gestor-mes--baja-5 {
+  background: color-mix(in srgb, var(--baja) 70%, var(--tinta));
+  color: var(--tinta-inversa);
+}
+
+/* --- Composición: los repartos en columnas, más estrechas que un bloque ------------- */
+
+.gestor-repartos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--s-6) var(--s-10);
+  align-items: start;
+  min-width: 0;
+}
+
+/* --- Comparar ------------------------------------------------------------------------ */
+
+/* Un grupo de candidatas: sin la caja que el navegador pone a un `fieldset`. */
+.gestor-grupo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.gestor-candidatas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--filete);
+}
+
+.gestor-candidata {
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--filete);
+  min-width: 0;
+}
+
+.gestor-candidata .check {
+  align-items: baseline;
+}
+
+/* La tabla comparada: el nombre de cada cartera puede ser largo y parte en dos líneas. */
+.gestor-comparada thead th {
+  white-space: normal;
+  vertical-align: bottom;
+  min-width: 8rem;
+}
+
+.gestor-comparada tbody th {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.gestor-calculando {
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}

@@ -1,0 +1,139 @@
+{
+"data": {
+"funds": [
+{
+"pricingDetails": {
+"navPrices": {
+"items": [
+{
+"asOfDate": "2019-07-23",
+"currencyCode": "USD",
+"price": 80
+},
+{
+"asOfDate": "2026-10-06",
+"currencyCode": "USD",
+"price": 194.9968
+},
+{
+"asOfDate": "2026-10-07",
+"currencyCode": "USD",
+"price": 193.848
+},
+{
+"asOfDate": "2026-10-08",
+"currencyCode": "USD",
+"price": 192.5211
+},
+{
+"asOfDate": "2026-10-09",
+"currencyCode": "USD",
+"price": 193.7734
+},
+{
+"asOfDate": "2026-10-12",
+"currencyCode": "USD",
+"price": 193.6384
+},
+{
+"asOfDate": "2026-10-13",
+"currencyCode": "USD",
+"price": 193.2394
+},
+{
+"asOfDate": "2026-10-14",
+"currencyCode": "USD",
+"price": 191.573
+},
+{
+"asOfDate": "2026-10-15",
+"currencyCode": "USD",
+"price": 191.3906
+},
+{
+"asOfDate": "2026-10-16",
+"currencyCode": "USD",
+"price": 190.7889
+},
+{
+"asOfDate": "2026-10-19",
+"currencyCode": "USD",
+"price": 190.9166
+},
+{
+"asOfDate": "2026-10-20",
+"currencyCode": "USD",
+"price": 190.9553
+},
+{
+"asOfDate": "2026-10-21",
+"currencyCode": "USD",
+"price": 192.1967
+},
+{
+"asOfDate": "2026-10-22",
+"currencyCode": "USD",
+"price": 189.6638
+},
+{
+"asOfDate": "2026-10-23",
+"currencyCode": "USD",
+"price": 189.0262
+},
+{
+"asOfDate": "2026-10-26",
+"currencyCode": "USD",
+"price": 189.7276
+},
+{
+"asOfDate": "2026-10-27",
+"currencyCode": "USD",
+"price": 190.8264
+},
+{
+"asOfDate": "2026-10-28",
+"currencyCode": "USD",
+"price": 191.5242
+},
+{
+"asOfDate": "2026-10-29",
+"currencyCode": "USD",
+"price": 191.2921
+},
+{
+"asOfDate": "2026-10-30",
+"currencyCode": "USD",
+"price": 188.4452
+},
+{
+"asOfDate": "2026-11-02",
+"currencyCode": "USD",
+"price": 187.9759
+},
+{
+"asOfDate": "2026-11-03",
+"currencyCode": "USD",
+"price": 187.7921
+},
+{
+"asOfDate": "2026-11-04",
+"currencyCode": "USD",
+"price": 190.3616
+},
+{
+"asOfDate": "2026-11-05",
+"currencyCode": "USD",
+"price": 184.851
+},
+{
+"asOfDate": "2026-11-06",
+"currencyCode": "USD",
+"price": 183.4672
+}
+]
+}
+}
+}
+]
+}
+}

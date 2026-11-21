@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/portfolio-transaction.v2.schema.json",
+  "title": "portfolios/{portfolio_id}/transactions/{tx_id} — v2",
+  "description": "El libro. Solo se anade, nunca se edita: todo lo demas de una cartera real —posiciones, saldo de efectivo, rentabilidad— se deriva de aqui y se puede reconstruir entero. Cada operacion tiene DOS PATAS y cuadra: comprar 100 participaciones a 79,07 EUR son +100 del instrumento y -7.907,00 EUR de la cuenta. Medido sobre un extracto real de 58 operaciones y 5,7 anios: el numero de operacion del extracto es unico en 58 de 58, y por eso es la clave de idempotencia; los titulos vienen siempre en positivo, asi que EL SIGNO LO PONE EL TIPO, no el dato.",
+  "x-collection": "portfolios/{portfolio_id}/transactions/{tx_id}",
+  "x-layer": "ledger",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tx_id",
+    "custodian_id",
+    "custodian_operation_ref",
+    "trade_date",
+    "transaction_type",
+    "flow_class",
+    "flow_class_resolution",
+    "legs",
+    "ingested_by",
+    "ingested_at"
+  ],
+  "properties": {
+    "tx_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "custodian_id + numero de operacion del extracto. Es la CLAVE DE IDEMPOTENCIA: reimportar el mismo extracto no duplica nada, y no hace falta inventar una huella de los campos.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "custodian_id": {
+      "type": "string",
+      "pattern": "^CUST_[0-9]{3}$",
+      "description": "El depositario por id. El numero de operacion es unico POR DEPOSITARIO, no globalmente: con varios depositarios la clave necesita las dos partes.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "custodian_operation_ref": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "trade_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Fecha de operacion.",
+      "x-unit": "date",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "settlement_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Fecha de liquidacion, cuando el extracto la trae. Medido: el movimiento de efectivo casaba con desfase 0 dias en las 32 operaciones que cuadraron al centimo.",
+      "x-unit": "date",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "BUY",
+        "SELL",
+        "SUBSCRIPTION",
+        "REDEMPTION",
+        "DIVIDEND",
+        "COUPON",
+        "FEE",
+        "TAX",
+        "TAX_REFUND",
+        "REPO",
+        "CASH_IN",
+        "CASH_OUT",
+        "TRANSFER_IN",
+        "TRANSFER_OUT",
+        "ACCOUNT_OPEN",
+        "ACCOUNT_CLOSE",
+        "CORPORATE_ACTION_NO_CASH",
+        "NOTE"
+      ],
+      "description": "El tipo CANONICO, nunca el literal del extracto. La lista es la misma que src/config/baseNueva/vocabulario.ts declara, y es exhaustiva y SIN VALOR POR DEFECTO: un literal que el diccionario no sabe traducir para la ingesta y pide la traduccion. El clasificador de hoy hace lo contrario —acaba en OTRO, que significa interno, que significa 'cuenta como rentabilidad'— y con todas las cuentas de un cliente el 59 % de las operaciones de valores caia ahi.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "flow_class": {
+      "type": "string",
+      "enum": ["EXTERNAL", "INTERNAL", "NON_CASH"],
+      "description": "EXTERNAL: dinero que entra o sale por decision del titular; la TWR lo descuenta. INTERNAL: compra, venta, rendimiento o coste dentro de la cartera; no lo descuenta. NON_CASH: marca sin importe —apertura, cierre, anotacion—; lo ignora. La tercera clase existe porque APERTURA no tiene importe y hoy cae en interno sin hacer dano solo porque el importe viene vacio: el dia que un deposito de apertura traiga dotacion inicial, ese dinero se contaria como rentabilidad.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "flow_class_resolution": {
+      "type": "string",
+      "enum": ["CONSTANT", "PAIRING"],
+      "description": "Como se decidio la clase. Para la mayoria de tipos es CONSTANT, una funcion del tipo. Para los traspasos es PAIRING: se resuelve emparejando las dos patas —si existe la contraria en la misma cuenta dentro de la ventana, es interno; si no, es externo—, asi que la clase NO es una funcion del tipo y el contrato tiene que decir cual de las dos cosas paso.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app"
+    },
+    "paired_tx_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "La otra pata del traspaso, cuando se encontro.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-applies-to": "flow_class_resolution PAIRING",
+      "x-applies-when": "TRASPASO_EMPAREJADO",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "legs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "description": "Las dos patas, o una sola cuando el dinero entra o sale del exterior. Para un instrumento, units son participaciones; para una divisa, units son unidades de esa divisa, que es lo que convierte la cuenta de efectivo en positions/EUR.",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["instrument_id", "units"],
+        "x-layer": "ledger",
+        "x-owner": "app",
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+            "x-unit": "code",
+            "x-layer": "ledger",
+            "x-owner": "app"
+          },
+          "units": {
+            "type": "number",
+            "minimum": -1000000000,
+            "maximum": 1000000000,
+            "description": "CON SIGNO. El extracto los trae siempre en positivo y el signo lo pone el tipo; esta es la unica cifra del libro que ya viene firmada.",
+            "x-unit": "count",
+            "x-layer": "ledger",
+            "x-owner": "app"
+          },
+          "unit_price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000000,
+            "description": "Precio por participacion en la divisa de la operacion.",
+            "x-unit": "currency_amount",
+            "x-layer": "ledger",
+            "x-owner": "app",
+            "x-absence": "NOT_APPLICABLE"
+          }
+        }
+      }
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Divisa de la operacion. Medido en el extracto real: 50 de 58 en EUR y 8 en USD, asi que la divisa distinta de la base no era una hipotesis.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "net_amount": {
+      "type": "number",
+      "minimum": -1000000000,
+      "maximum": 1000000000,
+      "description": "Importe NETO en la divisa de la operacion: lo que mueve la cuenta despues de gastos. Medido: coincide al centimo con el movimiento de efectivo en 32 de 40 operaciones y con 0 casi-aciertos; las 8 que no son exactamente las 8 en USD.",
+      "x-unit": "currency_amount",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-applies-to": "flow_class EXTERNAL, INTERNAL",
+      "x-applies-when": "OPERACION_CON_IMPORTE",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "gross_amount": {
+      "type": "number",
+      "minimum": -1000000000,
+      "maximum": 1000000000,
+      "description": "Importe BRUTO, antes de gastos. El extracto por cliente NO lo trae: solo el neto. El desglose esta en el export global del back-office, que es material de apoyo y no alimenta el sistema, asi que este campo se queda ausente con NOT_PROVIDED en vez de calcularse a la inversa.",
+      "x-unit": "currency_amount",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "charges": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000,
+      "description": "Gastos de la operacion, cuando se conocen por separado. Con el extracto por cliente no se conocen: el coste total del cliente queda fuera de alcance y eso hay que decirlo, no estimarlo.",
+      "x-unit": "currency_amount",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "taxes": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000,
+      "x-unit": "currency_amount",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cash_amount": {
+      "type": "number",
+      "minimum": -1000000000,
+      "maximum": 1000000000,
+      "description": "Lo que movio de verdad la cuenta de efectivo, en euros —que es la divisa base de toda cartera, por invariante, asi que el nombre no lleva la divisa dentro—. Es un HECHO, no una conversion nuestra: si no es exactamente esto, el saldo no cuadra.",
+      "x-unit": "currency_amount",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-applies-to": "flow_class EXTERNAL, INTERNAL",
+      "x-applies-when": "OPERACION_CON_IMPORTE",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "fx_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "El tipo que el depositario APLICO de verdad en esta operacion. Sale de dividir el importe en divisa entre el importe en euros, y es recuperable sin que nadie nos lo de: medido en las 8 operaciones en USD salen 0,86164 y ~0,8697 y ~0,8627, constantes por fecha. Es un hecho de la operacion, distinto del tipo de referencia del BCE que usa la VALORACION, que es una convencion. Guardar los dos permite ensenar al cliente lo que le costo el cambio de divisa.",
+      "x-unit": "ratio",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-applies-to": "operaciones con currency distinta de EUR",
+      "x-applies-when": "DIVISA_DISTINTA_DEL_EURO",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "fx_rate_source": {
+      "type": "string",
+      "enum": ["CUSTODIAN_APPLIED", "DERIVED_FROM_CASH_LEG"],
+      "description": "De donde sale fx_rate. DERIVED_FROM_CASH_LEG significa que el extracto no lo declara y se recupero dividiendo: sigue siendo el tipo aplicado, pero conviene saber que se dedujo.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-applies-to": "operaciones con currency distinta de EUR",
+      "x-applies-when": "DIVISA_DISTINTA_DEL_EURO",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "dictionary_entry": {
+      "type": "string",
+      "minLength": 1,
+      "description": "La entrada del diccionario que tradujo el literal del extracto a transaction_type. Guardar la REFERENCIA y no el literal es deliberado: decidido el 31-10, el texto libre del depositario no se guarda, lo que deja fuera de la base los nombres de terceras personas que aparecen en los conceptos de transferencia.",
+      "x-unit": "code",
+      "x-layer": "ledger",
+      "x-owner": "app",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "ingested_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien importo el extracto y afirmo que era de este cliente. El extracto por cliente es anonimo, asi que esta firma es la unica barrera contra colgar la cartera de uno de otro.",
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "ingested_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "app"
+    }
+  }
+}

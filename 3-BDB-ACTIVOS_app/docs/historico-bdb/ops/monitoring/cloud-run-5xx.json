@@ -1,0 +1,34 @@
+{
+  "displayName": "BDB Functions - respuestas 5xx",
+  "combiner": "OR",
+  "enabled": true,
+  "conditions": [
+    {
+      "displayName": "Alguna respuesta 5xx en 5 minutos",
+      "conditionThreshold": {
+        "filter": "resource.type=\"cloud_run_revision\" AND metric.type=\"run.googleapis.com/request_count\" AND metric.label.\"response_code_class\"=\"5xx\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_SUM",
+            "crossSeriesReducer": "REDUCE_SUM"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "0s",
+        "trigger": { "count": 1 }
+      }
+    }
+  ],
+  "notificationChannels": [
+    "projects/bbdd-activos-financieros/notificationChannels/5488170903588245411"
+  ],
+  "alertStrategy": {
+    "autoClose": "86400s"
+  },
+  "documentation": {
+    "mimeType": "text/markdown",
+    "content": "Se han observado respuestas 5xx en servicios BDB. Revisar Cloud Run/Functions Logs, identificar el servicio y la revisión, y comprobar Firestore, secretos y límites de memoria antes de reintentar."
+  }
+}

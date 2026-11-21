@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-alias.v2.schema.json",
+  "title": "instrument_aliases/{retired_isin} — v2",
+  "description": "El ISIN retirado que apunta al vigente. Resuelve la unica pega real de usar el ISIN como clave: un ISIN puede retirarse y reasignarse, y una cartera de hace cinco anios puede nombrar uno que ya no existe. No se resuelve cambiando de clave —que seria pagar un coste permanente por un caso raro— sino con una coleccion pequena de alias. La busqueda de un ISIN desconocido pasa por aqui antes de rendirse.",
+  "x-collection": "instrument_aliases/{retired_isin}",
+  "x-layer": "human",
+  "x-owner": "human",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["current_isin", "reason", "retired_on", "decided_by", "decided_at"],
+  "properties": {
+    "current_isin": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "reason": {
+      "type": "string",
+      "enum": ["MERGER", "SHARE_CLASS_CHANGE", "REDOMICILE", "REASSIGNED", "CORRECTION"],
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "retired_on": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "El documento o la fuente que acredita la retirada, si existe.",
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "human",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "decided_by": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "decided_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "human"
+    }
+  }
+}

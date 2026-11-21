@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-issuer-nav.v2.schema.json",
+  "title": "instruments/{instrument_id}/issuer_nav/{year} — v2",
+  "description": "Un anio del valor liquidativo que publica el emisor de un ETF (`series.vl_emisor` del extractor, decisiones 51 y 52). Es DATO DECLARADO y existe para que la prima o el descuento se puedan auditar y reproducir (decision 8).\n\nNO ES la serie con la que se calculan las metricas de un ETF: esas siguen sobre precio de mercado (`price_series`, metodo seccion 11). Por eso es una coleccion aparte y no otra clase dentro de `price_series`: su clave es el anio, asi que pisaria el documento de mercado del mismo anio, y `get_price_series`, el optimizador y las auditorias leen `price_series` por grupo de coleccion, con lo que una clase nueva los obligaria a filtrar para siempre, y quien se olvidara meteria el VL en las metricas. El `series_id` lleva prefijo `ISSUER:` y no coincide nunca con `computed/metrics.inputs.series_id`.",
+  "x-collection": "instruments/{instrument_id}/issuer_nav/{year}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instrument_id",
+    "year",
+    "series_id",
+    "source",
+    "series_class",
+    "value_kind",
+    "first_date",
+    "last_date",
+    "observations",
+    "points"
+  ],
+  "properties": {
+    "instrument_id": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "year": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "series_id": {
+      "type": "string",
+      "description": "`ISSUER:{adaptador}:{isin}`. Distinto a proposito de cualquier `inputs.series_id` de las metricas.",
+      "pattern": "^ISSUER:",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "description": "`emisor.vl.fuente`.",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "series_class": {
+      "type": "string",
+      "description": "Lo mismo que `declared/issuer_data.nav.series_class`. ISSUER_NAV_DERIVED lo dedujimos nosotros de la serie de crecimiento de Invesco y su VL declarado: la capa es declarada porque el dato de origen lo es, y la clase dice que la serie es deducida.",
+      "enum": [
+        "ISSUER_NAV",
+        "ISSUER_NAV_DERIVED",
+        "ISSUER_CUMULATIVE_RETURN"
+      ],
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "value_kind": {
+      "type": "string",
+      "description": "NAV es un valor liquidativo por participacion. GROWTH es una base de crecimiento, no un precio: solo en ISSUER_CUMULATIVE_RETURN.",
+      "enum": [
+        "NAV",
+        "GROWTH"
+      ],
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "currency": {
+      "type": "string",
+      "description": "`emisor.vl.divisa`.",
+      "pattern": "^[A-Z]{3}$",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "first_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "last_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "observations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 366,
+      "x-unit": "count",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "points": {
+      "type": "array",
+      "maxItems": 366,
+      "description": "En orden ascendente y sin fechas repetidas.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "date",
+          "value"
+        ],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "value": {
+            "type": "number",
+            "description": "El VL en `currency`, sin ajustar por repartos, o la base de crecimiento si `value_kind` es GROWTH.",
+            "exclusiveMinimum": 0,
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          }
+        }
+      },
+      "minItems": 1
+    }
+  }
+}

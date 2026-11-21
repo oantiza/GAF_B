@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-10-18",
+  "description": "Bloqueos de seleccion decididos por el equipo. No son datos del producto: no viven en la maestra (assets/{id}) ni los toca el republish. Revertir = quitar la entrada y desplegar.",
+  "assets": {
+    "ES0125140A14": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "DELISTING_VERIFIED",
+      "effective_date": "2026-09-22",
+      "decided_at": "2026-10-18",
+      "note": "Ercros: exclusion de cotizacion publicada en CNMV (comunicaciones 42821-42824). Se conservan las posiciones existentes y el historico.",
+      "source_url": "https://internet.cnmv.es/portal/otra-informacion-relevante/resultado-oir?lang=ca&nif=A-08000630"
+    },
+    "ES0143416115": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "DELISTING_VERIFIED",
+      "effective_date": "2023-02-14",
+      "decided_at": "2026-10-18",
+      "note": "Siemens Gamesa: exclusion de cotizacion efectiva el 14-02-2023, comunicada en CNMV. Se conservan las posiciones existentes y el historico.",
+      "source_url": "https://www.cnmv.es/webservices/verdocumento/ver?t=%7B0c471537-660b-46b5-bd3e-24d21cd8481f%7D"
+    },
+    "LU1882457739": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "CLOSED_TO_NEW_SUBSCRIPTIONS_VERIFIED",
+      "effective_date": "2025-10-31",
+      "decided_at": "2026-10-18",
+      "successor_asset_id": "LU1882457143",
+      "note": "Amundi: clase C cerrada a comercializacion y nuevas suscripciones desde 31-10-2025. Conversion a clase A desde 28-11-2025 segun periodo CDSC aplicable. El sucesor es referencia documental: no sustituir posiciones ni unir series automaticamente.",
+      "source_url": "https://www.amundi.lu/retail/files/nuxeo/dl/f04c7163-341d-487d-846c-4fbf45eb9ab0?inline=",
+      "source_sha256": "48cd04424f9e15e02e2db1c06edf633cd1e051d3a3766852dacb725560ec02ea"
+    },
+    "LU1883319474": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "CLOSED_TO_NEW_SUBSCRIPTIONS_VERIFIED",
+      "effective_date": "2025-10-31",
+      "decided_at": "2026-10-18",
+      "successor_asset_id": "LU2070309450",
+      "note": "Amundi: clase C cerrada a comercializacion y nuevas suscripciones desde 31-10-2025. Conversion a clase A desde 28-11-2025 segun periodo CDSC aplicable. El sucesor es referencia documental: no sustituir posiciones ni unir series automaticamente.",
+      "source_url": "https://www.amundi.lu/retail/files/nuxeo/dl/f04c7163-341d-487d-846c-4fbf45eb9ab0?inline=",
+      "source_sha256": "48cd04424f9e15e02e2db1c06edf633cd1e051d3a3766852dacb725560ec02ea"
+    },
+    "LU1883342880": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "CLOSED_TO_NEW_SUBSCRIPTIONS_VERIFIED",
+      "effective_date": "2025-10-31",
+      "decided_at": "2026-10-18",
+      "successor_asset_id": "LU2070309377",
+      "note": "Amundi: clase C cerrada a comercializacion y nuevas suscripciones desde 31-10-2025. Conversion a clase A desde 28-11-2025 segun periodo CDSC aplicable. El sucesor es referencia documental: no sustituir posiciones ni unir series automaticamente.",
+      "source_url": "https://www.amundi.lu/retail/files/nuxeo/dl/f04c7163-341d-487d-846c-4fbf45eb9ab0?inline=",
+      "source_sha256": "48cd04424f9e15e02e2db1c06edf633cd1e051d3a3766852dacb725560ec02ea"
+    },
+    "ES0105513008": {
+      "blocked": true,
+      "exclude_from_history": true,
+      "reason": "PRICE_HISTORY_ARTIFACT_UNRESOLVED",
+      "note": "A4 (auditoria 29-09, 30-09): saltos diarios del 200-570 % presentes tambien en la serie del proveedor (EODHD, ajustada); metricas no fiables.",
+      "decided_by": "oscar",
+      "decided_at": "2026-09-30",
+      "migrated_from": "assets/ES0105513008.is_investable=false + quality.review_note (tmp/_flag4.py)"
+    },
+    "ES0110047919": {
+      "blocked": true,
+      "exclude_from_history": true,
+      "reason": "PRICE_HISTORY_ARTIFACT_UNRESOLVED",
+      "note": "A4 (auditoria 29-09, 30-09): saltos diarios del 200-570 % presentes tambien en la serie del proveedor (EODHD, ajustada); metricas no fiables.",
+      "decided_by": "oscar",
+      "decided_at": "2026-09-30",
+      "migrated_from": "assets/ES0110047919.is_investable=false + quality.review_note (tmp/_flag4.py)"
+    },
+    "ES0162600003": {
+      "blocked": true,
+      "exclude_from_history": true,
+      "reason": "PRICE_HISTORY_ARTIFACT_UNRESOLVED",
+      "note": "A4 (auditoria 29-09, 30-09): saltos diarios del 200-570 % presentes tambien en la serie del proveedor (EODHD, ajustada); metricas no fiables.",
+      "decided_by": "oscar",
+      "decided_at": "2026-09-30",
+      "migrated_from": "assets/ES0162600003.is_investable=false + quality.review_note (tmp/_flag4.py)"
+    },
+    "ES0183304080": {
+      "blocked": true,
+      "exclude_from_history": true,
+      "reason": "PRICE_HISTORY_ARTIFACT_UNRESOLVED",
+      "note": "A4 (auditoria 29-09, 30-09): saltos diarios del 200-570 % presentes tambien en la serie del proveedor (EODHD, ajustada); metricas no fiables.",
+      "decided_by": "oscar",
+      "decided_at": "2026-09-30",
+      "migrated_from": "assets/ES0183304080.is_investable=false + quality.review_note (tmp/_flag4.py)"
+    },
+    "ES0158300410": {
+      "blocked": true,
+      "exclude_from_history": false,
+      "reason": "SUSPENSION_VERIFIED",
+      "decided_at": "2026-10-18",
+      "note": "CLEOP: las cuentas anuales de 2025 publicadas en CNMV el 30-04-2026 confirman que se mantiene suspendida la negociacion bursatil. Se conservan las posiciones y el historico; no se inventa una fecha de reanudacion.",
+      "source_url": "https://www.cnmv.es/webservices/verdocumento/ver?e=vosbQHG8sAdmtlobtQVrHkvGON43wHHcXbrRTjRnO%2BCze5HLI2BThe6mgBjw3Gx%2F",
+      "source_sha256": "8672942d1e8551e0bf10776a22a139556e25f3f8acccf7db2705ae55e2966d39"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "bdb-contract-cache.v1",
+  "source": "2-plataforma-datos/contracts",
+  "files": {
+    "asset-for-bdb.v1.schema.json": "4582fa578d070550eadebabde88c346d2c247e45965ca39861bc659695bd6a3a",
+    "asset-market.v1.schema.json": "40caf5c95a82acc896db69c53ca4fd118edb318b1c76623e8649f98a7b9a4ab9",
+    "asset-stock.v1.1.schema.json": "85f52f96c98d7fd6b40647aaa54471ff182e55c8c34100f6abee7009eae92d52",
+    "asset-stock.v1.schema.json": "9e348e8b9dd8f6c84c62be59dc4af937e7e282fa91f10631fc485e709327aa11",
+    "asset.v1.1.schema.json": "289ec4f0686bd5508d8fb3fb2cf4ddd655508c77ac62ce38e19e2165aeee8f56",
+    "asset.v1.2.schema.json": "a0a149af2005666b613d4cf3a59464cdd106f307178081d2e4b1f46db66d4678",
+    "asset.v1.3.schema.json": "d1b27609cda1b4cce7c42400360411474edefdf155dd822757bd5bd97f8bed74",
+    "asset.v1.schema.json": "dd9093ff6b5b3da0bff21094afa7066dfae50b9878f356a00852e6ae9a6c6de5",
+    "holdings.v1.1.schema.json": "084cb4c27e23e37f319a3114321d470ade1b4c1301e6e3b36f83aaf1f3618601",
+    "holdings.v1.2.schema.json": "4577d93b08a60280a288cc5534075915318bdb46b2bf1fe0e3a09295b11a4d28",
+    "holdings.v1.schema.json": "d140c2e76365d0343b9b03782a0d616365cb0809ebee7cc29baf3d209cb56537",
+    "listing.v1.schema.json": "0a83b41e33066f0e88e1a2e3ba4e718fdc34161976d5b8595a96f1ae97c6f9c0",
+    "metrics.v1.1.schema.json": "be2f3f999fe62beeb55d58711db16d081e56886de459e653b1092d08557dfd3a",
+    "metrics.v1.2.schema.json": "23870dc9037461c2b9035d71dd59adbf32af78532f29f0bf97ed22a549fc4d80",
+    "metrics.v1.3.schema.json": "31cbdf4fc42343048a0a6a0230f23dec2c9044690fb87145f20dec0e6a7d603b",
+    "metrics.v1.schema.json": "646dce11cdf59fd078e20960aec543ef18a3cfa012970a87db3affcbabf1e077",
+    "price-series.v1.1.schema.json": "153858078733e53646b187294cb91f64dc59a306f73a00dd1981c134ff92d103",
+    "price-series.v1.2.schema.json": "2c0781e777e2fa76fee208b07efc1a61ded46df26fa70231a1857b1c39f6ea56",
+    "price-series.v1.schema.json": "8fb1f8a0e3131336dd47d6620594eb7d93c9651b2b789dd528462dd9b1fc1339",
+    "search-index.v1.schema.json": "617df3a24f378a478694bf6dba3aad9037307cbd4345dbb1fa01c3021ea36b9b"
+  }
+}

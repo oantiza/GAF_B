@@ -1,0 +1,39 @@
+{
+"data": {
+"funds": [
+{
+"profile": {
+"portId": "9503",
+"identifiers": [
+{
+"altIdCode": "ISIN",
+"altIdValue": "IE00B3XXRP09"
+}
+]
+}
+},
+{
+"profile": {
+"portId": "9679",
+"identifiers": [
+{
+"altIdCode": "ISIN",
+"altIdValue": "IE00BK5BQT80"
+}
+]
+}
+},
+{
+"profile": {
+"portId": "9834",
+"identifiers": [
+{
+"altIdCode": "ISIN",
+"altIdValue": "IE0032126645"
+}
+]
+}
+}
+]
+}
+}

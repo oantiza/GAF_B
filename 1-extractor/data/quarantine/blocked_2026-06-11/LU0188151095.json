@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "isin": "LU0188151095",
+    "actualizado": "2026-06-11T19:26:52+00:00",
+    "version_esquema": 2,
+    "fuentes": {},
+    "errores": []
+  },
+  "identificacion": {
+    "tipo_producto": "unknown",
+    "clase_cubierta": null
+  },
+  "calidad": {
+    "score": 0,
+    "bucket": "BLOQUEADO",
+    "esenciales": "0/10",
+    "flags": []
+  }
+}

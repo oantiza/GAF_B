@@ -1,0 +1,290 @@
+{
+"data": {
+"funds": [
+{
+"profile": {
+"portId": "9503",
+"fundFullName": "Vanguard S&P 500 UCITS ETF (USD) Distributing",
+"fundCurrency": "USD",
+"assetClassificationLevel1": "Equity",
+"marketRegionFocus": "USA",
+"fundInceptionDate": "2012-05-22",
+"distributionStrategy": "Distributing Income",
+"fundDistributionFrequency": "Quarterly",
+"etfReplicationMethodology": "Physical",
+"benchMarkNameFromECS": "S&amp;P 500 Net Total Return",
+"benchmarkPolarisData": {
+"FBPC": [
+{
+"benchmarkShortName": "S&P 500 Net TR",
+"identifiers": [
+{
+"altId": "FactSet ID",
+"altIdValue": "SPN:SP50"
+},
+{
+"altId": "Neoxam ID",
+"altIdValue": "V27163"
+},
+{
+"altId": "RIMES ID",
+"altIdValue": "SP500NRUSD0"
+},
+{
+"altId": "RIMES Index Source",
+"altIdValue": "SPIA"
+},
+{
+"altId": "S&P Benchmark ID",
+"altIdValue": "SPUSA-500-USDUF--N-US-L--"
+},
+{
+"altId": "Ticker",
+"altIdValue": "SPTR500N"
+}
+]
+}
+]
+},
+"identifiers": [
+{
+"altIdCode": "ISIN",
+"altIdValue": "IE00B3XXRP09"
+}
+],
+"feesAndExpenses": {
+"feesAndExpensesType": [
+{
+"expenseType": [
+{
+"code": "TOTEXPRTPC",
+"value": 0.07
+}
+]
+}
+]
+}
+},
+"distributionDetails": {
+"periodicDistributions": {
+"items": [
+{
+"exDividendDate": "2026-09-17",
+"recordDate": "2026-09-18",
+"payableDate": "2026-09-30",
+"taxDetails": [
+{
+"distributionLevelCode": "ACTL",
+"distributionAmount": 0.309606,
+"distributionType": {
+"distCode": "INC"
+},
+"currencyCode": "USD"
+}
+]
+},
+{
+"exDividendDate": "2026-06-18",
+"recordDate": "2026-06-19",
+"payableDate": "2026-07-01",
+"taxDetails": [
+{
+"distributionLevelCode": "ACTL",
+"distributionAmount": 0.323568,
+"distributionType": {
+"distCode": "INC"
+},
+"currencyCode": "USD"
+}
+]
+},
+{
+"exDividendDate": "2026-03-19",
+"recordDate": "2026-03-20",
+"payableDate": "2026-04-01",
+"taxDetails": [
+{
+"distributionLevelCode": "ACTL",
+"distributionAmount": 0.329583,
+"distributionType": {
+"distCode": "INC"
+},
+"currencyCode": "USD"
+}
+]
+},
+{
+"exDividendDate": "2025-12-18",
+"recordDate": "2025-12-19",
+"payableDate": "2025-12-31",
+"taxDetails": [
+{
+"distributionLevelCode": "ACTL",
+"distributionAmount": 0.299086,
+"distributionType": {
+"distCode": "INC"
+},
+"currencyCode": "USD"
+}
+]
+},
+{
+"exDividendDate": "2012-06-27",
+"recordDate": "2012-06-29",
+"payableDate": "2012-07-06",
+"taxDetails": [
+{
+"distributionLevelCode": "ACTL",
+"distributionAmount": 0.035593,
+"distributionType": {
+"distCode": "INC"
+},
+"currencyCode": "USD"
+}
+]
+}
+]
+}
+}
+}
+],
+"polarisAnalyticsHistory": [
+{
+"monthly": {
+"valuation": {
+"fund": {
+"items": [
+{
+"TNA": [
+{
+"fundAssetAmount": 52405987253.24,
+"effectiveDate": "2026-10-31",
+"currency": "USD"
+},
+{
+"fundAssetAmount": 93009098057.31,
+"effectiveDate": "2026-10-31",
+"currency": "NZD"
+},
+{
+"fundAssetAmount": 348680615890.07,
+"effectiveDate": "2026-10-31",
+"currency": "CNH"
+},
+{
+"fundAssetAmount": 985303308443.7,
+"effectiveDate": "2026-10-31",
+"currency": "MXN"
+},
+{
+"fundAssetAmount": 74493014640.99,
+"effectiveDate": "2026-10-31",
+"currency": "AUD"
+},
+{
+"fundAssetAmount": 66961750212.83,
+"effectiveDate": "2026-10-31",
+"currency": "SGD"
+},
+{
+"fundAssetAmount": 43132747808.78,
+"effectiveDate": "2026-10-31",
+"currency": "CHF"
+},
+{
+"fundAssetAmount": 39118973245.05,
+"effectiveDate": "2026-10-31",
+"currency": "GBP"
+},
+{
+"fundAssetAmount": 8253156902576.5,
+"effectiveDate": "2026-10-31",
+"currency": "JPY"
+},
+{
+"fundAssetAmount": 411127590301.03,
+"effectiveDate": "2026-10-31",
+"currency": "HKD"
+},
+{
+"fundAssetAmount": 46946331501.2,
+"effectiveDate": "2026-10-31",
+"currency": "EUR"
+},
+{
+"fundAssetAmount": 73150897307.44,
+"effectiveDate": "2026-10-31",
+"currency": "CAD"
+}
+],
+"AUM": [
+{
+"fundAssetAmount": 594830446032.16,
+"effectiveDate": "2026-10-31",
+"currency": "CNH"
+},
+{
+"fundAssetAmount": 127081091135.71,
+"effectiveDate": "2026-10-31",
+"currency": "AUD"
+},
+{
+"fundAssetAmount": 114233157597.58,
+"effectiveDate": "2026-10-31",
+"currency": "SGD"
+},
+{
+"fundAssetAmount": 14079443415577.65,
+"effectiveDate": "2026-10-31",
+"currency": "JPY"
+},
+{
+"fundAssetAmount": 701361638044.11,
+"effectiveDate": "2026-10-31",
+"currency": "HKD"
+},
+{
+"fundAssetAmount": 124791510884.43,
+"effectiveDate": "2026-10-31",
+"currency": "CAD"
+},
+{
+"fundAssetAmount": 158668537226.4,
+"effectiveDate": "2026-10-31",
+"currency": "NZD"
+},
+{
+"fundAssetAmount": 66734872095.7,
+"effectiveDate": "2026-10-31",
+"currency": "GBP"
+},
+{
+"fundAssetAmount": 80087925837.66,
+"effectiveDate": "2026-10-31",
+"currency": "EUR"
+},
+{
+"fundAssetAmount": 89401805985.19,
+"effectiveDate": "2026-10-31",
+"currency": "USD"
+},
+{
+"fundAssetAmount": 1680874644959.65,
+"effectiveDate": "2026-10-31",
+"currency": "MXN"
+},
+{
+"fundAssetAmount": 73582156416.11,
+"effectiveDate": "2026-10-31",
+"currency": "CHF"
+}
+]
+}
+]
+}
+}
+}
+}
+]
+}
+}

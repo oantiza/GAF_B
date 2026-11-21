@@ -1,0 +1,27 @@
+{
+ "lastModified": "2026-11-06T17:37:43Z",
+ "isin": "IE00B3YCGJ38",
+ "currency": "USD",
+ "keyStats": [
+  {
+   "name": "assetsUnderManagement",
+   "value": 55740283413.196785,
+   "asOfDate": "2026-11-05"
+  },
+  {
+   "name": "nav",
+   "value": 14.7862,
+   "asOfDate": "2026-11-05"
+  },
+  {
+   "name": "umbrellaAum",
+   "value": 101165167973,
+   "asOfDate": "2026-11-05"
+  },
+  {
+   "name": "mgmtFee",
+   "value": 0.05,
+   "asOfDate": null
+  }
+ ]
+}

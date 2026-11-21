@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BizData xmlns="urn:iso:std:iso:20022:tech:xsd:head.003.001.01">
+  <Hdr><AppHdr><Fr><OrgId><Id><OrgId><Othr><Id>EU</Id></Othr></OrgId></Id></OrgId></Fr><MsgDefIdr>auth.017.001.02</MsgDefIdr></AppHdr></Hdr>
+  <Pyld>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:auth.017.001.02">
+      <FinInstrmRptgRefDataRpt>
+        <RptHdr><RptgNtty><NtnlCmptntAuthrty>EU</NtnlCmptntAuthrty></RptgNtty><RptgPrd><Dt>2026-10-31</Dt></RptgPrd></RptHdr>
+        <!-- 1. Acción española en dos centros -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>ES0000000001</Id><FullNm>Banco de Prueba S.A.</FullNm><ShrtNm>BCO PRUEBA</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy><CmmdtyDerivInd>false</CmmdtyDerivInd></FinInstrmGnlAttrbts>
+          <Issr>959800R8UT9ZH0F7M311</Issr>
+          <TradgVnRltdAttrbts><Id>XMAD</Id><IssrReq>true</IssrReq><AdmssnApprvlDtByIssr>2000-01-02T00:00:00Z</AdmssnApprvlDtByIssr><FrstTradDt>2000-01-03T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>ES</RlvntCmptntAuthrty><PblctnPrd><FrDt>2018-01-03</FrDt></PblctnPrd><RlvntTradgVn>XMAD</RlvntTradgVn></TechAttrbts>
+        </RefData>
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>ES0000000001</Id><FullNm>Banco de Prueba S.A.</FullNm><ShrtNm>BCO PRUEBA</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy><CmmdtyDerivInd>false</CmmdtyDerivInd></FinInstrmGnlAttrbts>
+          <Issr>959800R8UT9ZH0F7M311</Issr>
+          <TradgVnRltdAttrbts><Id>XETA</Id><IssrReq>false</IssrReq><FrstTradDt>2005-05-02T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>ES</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <!-- 2. Acción alemana con acentos, en Xetra y en Tradegate (fuera de los centros por defecto) -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>DE0000000002</Id><FullNm>Prüfgesellschaft für Ölmühlen AG</FullNm><ShrtNm>PRUEF OEL</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>529900PRUEBA0000DE02</Issr>
+          <TradgVnRltdAttrbts><Id>XETA</Id><FrstTradDt>2010-03-15T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>DE</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>DE0000000002</Id><FullNm>Prüfgesellschaft für Ölmühlen AG</FullNm><ShrtNm>PRUEF OEL</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>529900PRUEBA0000DE02</Issr>
+          <TradgVnRltdAttrbts><Id>TGAT</Id><FrstTradDt>2012-01-02T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>DE</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <!-- 3. Acción francesa dada de baja en todos sus centros -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>FR0000000005</Id><FullNm>Société Disparue SA</FullNm><ShrtNm>DISPARUE</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>969500PRUEBA0000FR05</Issr>
+          <TradgVnRltdAttrbts><Id>XPAR</Id><FrstTradDt>1999-06-01T00:00:00Z</FrstTradDt><TermntnDt>2025-06-30T00:00:00Z</TermntnDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>FR</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>FR0000000005</Id><FullNm>Société Disparue SA</FullNm><ShrtNm>DISPARUE</ShrtNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>969500PRUEBA0000FR05</Issr>
+          <TradgVnRltdAttrbts><Id>XETA</Id><FrstTradDt>2003-01-02T00:00:00Z</FrstTradDt><TermntnDt>2025-07-15T00:00:00Z</TermntnDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>FR</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <!-- 4. Un bono que se cuela en el fichero: fuera de categoría -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>XS0000000006</Id><FullNm>Bono Prueba 2030</FullNm><ClssfctnTp>DBFTFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <TradgVnRltdAttrbts><Id>XMAD</Id></TradgVnRltdAttrbts>
+        </RefData>
+        <!-- 5. CFI malformado -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>NL0000000007</Id><FullNm>Mal Clasificado NV</FullNm><ClssfctnTp>XX</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <TradgVnRltdAttrbts><Id>XAMS</Id></TradgVnRltdAttrbts>
+        </RefData>
+      </FinInstrmRptgRefDataRpt>
+    </Document>
+  </Pyld>
+</BizData>

@@ -1,0 +1,248 @@
+# F3-C Tanda 3-bis - app.css
+
+## Prover inicial
+
+- Tramo legado: desde inicio de `src/styles/app.css` hasta comentario `TEMA D`.
+- Declaraciones legacy: 747.
+- OVERRIDDEN: 39.
+- PARTIAL: 66.
+- ORPHAN: 642.
+- Duplicados globales selector+propiedad antes de migracion: 52.
+
+## Tanda3b-1
+
+- Eliminadas solo las 39 declaraciones OVERRIDDEN.
+- Eliminadas las reglas que quedaron vacias.
+- Prover posterior: OVERRIDDEN=0.
+- Verificacion: `npm run build` OK; `npm test` OK, 199 tests.
+
+## Tanda3b-2
+
+- Eliminado el marcador `TEMA D`.
+- Movido el tramo superviviente a bloque final de componentes migrados.
+- Sustituidos colores hardcodeados por variables existentes.
+- Reglas no usadas eliminadas en vez de migradas:
+  - `.project-state`
+  - `.data-source-panel`
+- Limpieza de duplicados globales:
+  - `.cockpit-grid`
+  - `.cockpit-col`
+  - `.dash-dist-h`
+  - `.shell-main .app-shell`
+- Prover final: legacy=0, OVERRIDDEN=0, PARTIAL=0, ORPHAN=0, duplicados selector+propiedad=0.
+- `app.css` sin colores literales `#...` ni `rgba(...)`.
+- Verificacion: `npm run build` OK; `npm test` OK, 199 tests.
+
+## Fleco Tanda3b-3 - Auditoria de perdidas
+
+- Base: `865cd1f:src/styles/app.css`.
+- Comparado contra: `HEAD:src/styles/app.css` antes de este fleco.
+- Exclusiones: `.project-state`, `.data-source-panel` y pares OVERRIDDEN probados.
+- Pares perdidos detectados: 145.
+- `.status-pill` no aparece como perdida contra `865cd1f`: sus pares base seguian presentes; se conserva con valores tokenizados.
+- Tras restauracion: `node scripts/cssLossAudit.mjs --base=865cd1f` => `Losses: 0`.
+
+Lista completa previa a restaurar:
+
+- `.cmp-add { margin-bottom: 12px; }` (base lines 2766)
+- `.cmp-add-box { max-width: 480px; }` (base lines 2769)
+- `.cmp-add-box { position: relative; }` (base lines 2769)
+- `.cmp-add-box input { background: var(--surface); }` (base lines 2770)
+- `.cmp-add-box input { border: 1px solid var(--border); }` (base lines 2770)
+- `.cmp-add-box input { border-radius: 10px; }` (base lines 2770)
+- `.cmp-add-box input { color: var(--text); }` (base lines 2770)
+- `.cmp-add-box input { font: inherit; }` (base lines 2770)
+- `.cmp-add-box input { min-height: 44px; }` (base lines 2770)
+- `.cmp-add-box input { padding: 0 12px; }` (base lines 2770)
+- `.cmp-add-box input { width: 100%; }` (base lines 2770)
+- `.cmp-add-label { color: var(--text-muted); }` (base lines 2767)
+- `.cmp-add-label { display: block; }` (base lines 2767)
+- `.cmp-add-label { font-size: 0.78rem; }` (base lines 2767)
+- `.cmp-add-label { font-weight: 700; }` (base lines 2767)
+- `.cmp-add-label { margin-bottom: 6px; }` (base lines 2767)
+- `.cmp-add-label span { color: var(--text-dim); }` (base lines 2768)
+- `.cmp-corr th { text-align: center; }` (base lines 2797)
+- `.cmp-corr-dot { border-radius: 2px; }` (base lines 2799)
+- `.cmp-corr-dot { display: inline-block; }` (base lines 2799)
+- `.cmp-corr-dot { flex: none; }` (base lines 2799)
+- `.cmp-corr-dot { height: 9px; }` (base lines 2799)
+- `.cmp-corr-dot { margin-right: 5px; }` (base lines 2799)
+- `.cmp-corr-dot { vertical-align: middle; }` (base lines 2799)
+- `.cmp-corr-dot { width: 9px; }` (base lines 2799)
+- `.cmp-corr-name { overflow: hidden; }` (base lines 2801)
+- `.cmp-corr-name { text-overflow: ellipsis; }` (base lines 2801)
+- `.cmp-corr-name { white-space: nowrap; }` (base lines 2801)
+- `.cmp-corr-rowlabel { align-items: center; }` (base lines 2800)
+- `.cmp-corr-rowlabel { color: var(--text); }` (base lines 2800)
+- `.cmp-corr-rowlabel { display: flex; }` (base lines 2800)
+- `.cmp-corr-rowlabel { max-width: 230px; }` (base lines 2800)
+- `.cmp-r-class { color: var(--teal-text); }` (base lines 2778)
+- `.cmp-r-isin { font-family: var(--font-mono); }` (base lines 2777)
+- `.cmp-r-meta { align-items: center; }` (base lines 2776)
+- `.cmp-r-meta { color: var(--text-dim); }` (base lines 2776)
+- `.cmp-r-meta { display: flex; }` (base lines 2776)
+- `.cmp-r-meta { font-size: 0.74rem; }` (base lines 2776)
+- `.cmp-r-meta { gap: 9px; }` (base lines 2776)
+- `.cmp-r-name { color: var(--text); }` (base lines 2775)
+- `.cmp-r-name { font-size: 0.9rem; }` (base lines 2775)
+- `.cmp-r-name { font-weight: 600; }` (base lines 2775)
+- `.cmp-results { background: var(--surface); }` (base lines 2771)
+- `.cmp-results { border: 1px solid var(--border); }` (base lines 2771)
+- `.cmp-results { border-radius: 10px; }` (base lines 2771)
+- `.cmp-results { left: 0; }` (base lines 2771)
+- `.cmp-results { list-style: none; }` (base lines 2771)
+- `.cmp-results { margin: 6px 0 0; }` (base lines 2771)
+- `.cmp-results { max-height: 320px; }` (base lines 2771)
+- `.cmp-results { overflow: auto; }` (base lines 2771)
+- `.cmp-results { padding: 4px; }` (base lines 2771)
+- `.cmp-results { position: absolute; }` (base lines 2771)
+- `.cmp-results { right: 0; }` (base lines 2771)
+- `.cmp-results { z-index: 20; }` (base lines 2771)
+- `.cmp-results button { background: transparent; }` (base lines 2772)
+- `.cmp-results button { border: 0; }` (base lines 2772)
+- `.cmp-results button { border-radius: 8px; }` (base lines 2772)
+- `.cmp-results button { color: inherit; }` (base lines 2772)
+- `.cmp-results button { cursor: pointer; }` (base lines 2772)
+- `.cmp-results button { display: flex; }` (base lines 2772)
+- `.cmp-results button { flex-direction: column; }` (base lines 2772)
+- `.cmp-results button { font: inherit; }` (base lines 2772)
+- `.cmp-results button { gap: 3px; }` (base lines 2772)
+- `.cmp-results button { padding: 8px 10px; }` (base lines 2772)
+- `.cmp-results button { text-align: left; }` (base lines 2772)
+- `.cmp-results button { width: 100%; }` (base lines 2772)
+- `.cmp-results button:disabled { cursor: not-allowed; }` (base lines 2774)
+- `.cmp-results button:disabled { opacity: 0.45; }` (base lines 2774)
+- `.cmp-results button:hover:not(:disabled) { background: var(--surface-2); }` (base lines 2773)
+- `.dash-donut-lbl { fill: var(--text-muted); }` (base lines 2482)
+- `.dash-donut-lbl { font-size: 9px; }` (base lines 2483)
+- `.dash-donut-num { fill: var(--text); }` (base lines 2476)
+- `.dash-donut-num { font-family: var(--font-mono); }` (base lines 2477)
+- `.dash-donut-num { font-size: 20px; }` (base lines 2478)
+- `.dash-donut-num { font-weight: 600; }` (base lines 2479)
+- `.dash-donut-wrap { align-items: center; }` (base lines 2472)
+- `.dash-donut-wrap { display: flex; }` (base lines 2471)
+- `.dash-donut-wrap { gap: 16px; }` (base lines 2473)
+- `.dash-grid { display: grid; }` (base lines 2466)
+- `.dash-grid { gap: 14px; }` (base lines 2468)
+- `.dash-grid { grid-template-columns: repeat(2, 1fr); }` (base lines 2467)
+- `.dash-grid [@media (max-width: 820px)] { grid-template-columns: 1fr; }` (base lines 2557)
+- `.dash-legend { display: grid; }` (base lines 2491)
+- `.dash-legend { flex: 1; }` (base lines 2493)
+- `.dash-legend { gap: 7px; }` (base lines 2492)
+- `.dash-legend { list-style: none; }` (base lines 2488)
+- `.dash-legend { margin: 0; }` (base lines 2489)
+- `.dash-legend { padding: 0; }` (base lines 2490)
+- `.dash-legend li { align-items: center; }` (base lines 2497)
+- `.dash-legend li { color: var(--text-muted); }` (base lines 2500)
+- `.dash-legend li { display: flex; }` (base lines 2496)
+- `.dash-legend li { font-size: 12.5px; }` (base lines 2499)
+- `.dash-legend li { gap: 8px; }` (base lines 2498)
+- `.dash-legend li > span:first-child { border-radius: 3px; }` (base lines 2505)
+- `.dash-legend li > span:first-child { flex: 0 0 auto; }` (base lines 2506)
+- `.dash-legend li > span:first-child { height: 11px; }` (base lines 2504)
+- `.dash-legend li > span:first-child { width: 11px; }` (base lines 2503)
+- `.dash-legend li strong { color: var(--text); }` (base lines 2513)
+- `.dash-legend li strong { font-family: var(--font-mono); }` (base lines 2512)
+- `.dash-rr { background: var(--surface-3); }` (base lines 2569)
+- `.dash-rr { border: 1px solid var(--border-soft); }` (base lines 2570)
+- `.dash-rr { border-radius: 10px; }` (base lines 2571)
+- `.dash-rr { padding: 12px 12px 6px; }` (base lines 2572)
+- `.dash-rr svg { display: block; }` (base lines 2575)
+- `.dash-rr-note { font-size: 11.5px; }` (base lines 2579)
+- `.dash-rr-note { margin: 4px 2px 4px; }` (base lines 2578)
+- `.dash-rr-sub { font-size: 12.5px; }` (base lines 2566)
+- `.dash-rr-sub { margin: 2px 0 12px; }` (base lines 2564)
+- `.dash-rr-sub { max-width: 640px; }` (base lines 2565)
+- `.data-source-option-active { background: var(--teal-soft); }` (base lines 1615)
+- `.data-source-option-active { border-color: var(--teal); }` (base lines 1616)
+- `.data-source-option-active span { color: var(--teal-text); }` (base lines 1620)
+- `.data-source-option-active strong { color: var(--teal-text); }` (base lines 1620)
+- `.data-source-option:hover { border-color: var(--teal); }` (base lines 2056)
+- `.source-badge { background: var(--surface-2); }` (base lines 2010)
+- `.source-badge { border: 1px solid var(--border); }` (base lines 2008)
+- `.source-badge { border-radius: 999px; }` (base lines 2009)
+- `.source-badge { color: var(--text-muted); }` (base lines 2011)
+- `.source-badge { font-size: 12px; }` (base lines 2013)
+- `.source-badge { font-weight: 750; }` (base lines 2014)
+- `.source-badge { padding: 8px 11px; }` (base lines 2012)
+- `.source-badge-live { background: rgba(217, 155, 48, 0.1); }` (base lines 2019)
+- `.source-badge-live { border-color: rgba(217, 155, 48, 0.45); }` (base lines 2017)
+- `.source-badge-live { color: var(--gold); }` (base lines 2018)
+- `.source-control { align-items: flex-end; }` (base lines 1984)
+- `.source-control { display: flex; }` (base lines 1983)
+- `.source-control { flex-wrap: wrap; }` (base lines 1986)
+- `.source-control { gap: 10px; }` (base lines 1985)
+- `.source-control { justify-content: flex-end; }` (base lines 1987)
+- `.source-control label { color: var(--text-muted); }` (base lines 1992)
+- `.source-control label { display: grid; }` (base lines 1990)
+- `.source-control label { font-size: 11px; }` (base lines 1993)
+- `.source-control label { font-weight: 700; }` (base lines 1994)
+- `.source-control label { gap: 4px; }` (base lines 1991)
+- `.source-control select { background: var(--surface-2); }` (base lines 2001)
+- `.source-control select { border: 1px solid var(--border); }` (base lines 1999)
+- `.source-control select { border-radius: 8px; }` (base lines 2000)
+- `.source-control select { color: var(--text); }` (base lines 2002)
+- `.source-control select { font-size: 13px; }` (base lines 2004)
+- `.source-control select { font-weight: 650; }` (base lines 2005)
+- `.source-control select { min-width: 210px; }` (base lines 1998)
+- `.source-control select { padding: 8px 10px; }` (base lines 2003)
+- `.status-card span { background: var(--surface-3); }` (base lines 1632)
+- `.status-card span { border: 1px solid var(--border-soft); }` (base lines 1633)
+- `.status-card span { color: var(--text-muted); }` (base lines 1634)
+
+## Fleco Tanda3b-4 - Baseline pre-limpieza
+
+- Baseline localizado: `24e6aad`, padre de `916ab90 TANDA 1: Dead code (UI-15, AR-14)`.
+- Comparado contra: `HEAD:src/styles/app.css` antes de este fleco (`62116cd`).
+- Exclusiones: clases de `AssetComparisonSummary`, `AssetComparisonTable`, `DataSourceSelector`, `StatusCard`, `ModuleScaffold` cuando tenían CSS de clase; `@media print`; `.project-state`; `.data-source-panel`; pares OVERRIDDEN probados.
+- Pares perdidos detectados: 44.
+- `.status-pill`: el baseline `24e6aad` solo conservaba `flex`, `border`, `border-radius`, `padding`, `background`, `color`, `font-size`, `font-weight`; se añadió además la corrección visual explícita `display: inline-block` + `white-space: nowrap` indicada en el fleco.
+- También se corrigieron sustituciones rotas de color heredadas (`var(--surface)8e6` / `var(--surface)4d6`) a `var(--warn-bg)` / `var(--gold-soft)`.
+- Tras restauracion: `node scripts/cssLossAudit.mjs --base=24e6aad` => `Losses: 0`.
+
+Lista completa previa a restaurar:
+
+- `.asset-card-header { display: flex; }` (base lines 314)
+- `.asset-card-header { gap: 12px; }` (base lines 316)
+- `.asset-card-header { justify-content: space-between; }` (base lines 315)
+- `.asset-card-header h3 { font-size: 1.05rem; }` (base lines 321)
+- `.asset-card-header h3 { margin-bottom: 6px; }` (base lines 320)
+- `.asset-card-header p { font-size: 0.84rem; }` (base lines 327)
+- `.asset-card-header p { margin-bottom: 0; }` (base lines 325)
+- `.cards-grid { display: grid; }` (base lines 159)
+- `.cards-grid { gap: 14px; }` (base lines 161)
+- `.cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }` (base lines 160)
+- `.portfolio-constraint-status-blocked { background: #fff0f0; }` (base lines 974)
+- `.portfolio-constraint-status-blocked { border-color: #f4b4b4; }` (base lines 973)
+- `.portfolio-constraint-status-blocked { color: #9f1239; }` (base lines 975)
+- `.portfolio-constraint-status-warning { background: #fff8e6; }` (base lines 968)
+- `.portfolio-constraint-status-warning { border-color: #ead391; }` (base lines 967)
+- `.portfolio-constraint-status-warning { color: #765200; }` (base lines 969)
+- `.portfolio-import-actions { align-items: center; }` (base lines 1015)
+- `.portfolio-import-actions { display: flex; }` (base lines 1013)
+- `.portfolio-import-actions { flex-wrap: wrap; }` (base lines 1014)
+- `.portfolio-import-actions { gap: 10px 18px; }` (base lines 1016)
+- `.portfolio-import-actions .portfolio-import-file { flex: 1 1 100%; }` (base lines 1025)
+- `.portfolio-import-actions > button { flex: 0 0 auto; }` (base lines 1019)
+- `.portfolio-import-actions > p { flex: 1 1 240px; }` (base lines 1022)
+- `.portfolio-import-actions button { border: 1px solid #006b5f; }` (base lines 1030)
+- `.portfolio-import-actions button { border-radius: 8px; }` (base lines 1031)
+- `.portfolio-import-actions button { cursor: pointer; }` (base lines 1035)
+- `.portfolio-import-actions button { font-weight: 800; }` (base lines 1036)
+- `.portfolio-import-actions button { min-height: 40px; }` (base lines 1029)
+- `.portfolio-import-actions button { padding: 9px 12px; }` (base lines 1032)
+- `.portfolio-import-actions button:disabled { cursor: not-allowed; }` (base lines 1043)
+- `.portfolio-import-actions p { font-size: 0.88rem; }` (base lines 1050)
+- `.portfolio-import-actions p { font-weight: 700; }` (base lines 1051)
+- `.portfolio-import-actions p { margin: 0; }` (base lines 1048)
+- `.portfolio-import-editor { display: grid; }` (base lines 989)
+- `.portfolio-import-editor { font-size: 0.88rem; }` (base lines 992)
+- `.portfolio-import-editor { font-weight: 800; }` (base lines 993)
+- `.portfolio-import-editor { gap: 7px; }` (base lines 990)
+- `.portfolio-import-editor textarea { border: 1px solid #b8c5d0; }` (base lines 1000)
+- `.portfolio-import-editor textarea { border-radius: 8px; }` (base lines 1001)
+- `.portfolio-import-editor textarea { font: 700 0.92rem/1.45 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; }` (base lines 1004)
+- `.portfolio-import-editor textarea { min-height: 150px; }` (base lines 998)
+- `.portfolio-import-editor textarea { padding: 10px 12px; }` (base lines 1002)
+- `.portfolio-import-editor textarea { resize: vertical; }` (base lines 999)
+- `.portfolio-import-editor textarea { width: 100%; }` (base lines 997)

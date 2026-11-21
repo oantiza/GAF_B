@@ -1,0 +1,4 @@
+# Los contratos se versionan con fin de linea LF en todas las maquinas: sus
+# SHA-256 del manifiesto se calcularon sobre LF (auditoria 16-10, CRIT-08).
+# Solo esta ruta; renormalizar todo el repositorio es un cambio aparte.
+contracts_cache/*.json text eol=lf

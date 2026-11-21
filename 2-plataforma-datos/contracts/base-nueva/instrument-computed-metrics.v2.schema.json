@@ -1,0 +1,751 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-computed-metrics.v2.schema.json",
+  "title": "instruments/{instrument_id}/computed/metrics — v2",
+  "description": "Lo que CALCULAMOS de la serie que tenemos, nunca lo que publica un proveedor (eso vive en declared/provider_risk y declared/provider_returns). Es una PROYECCION del almacen analitico: el calculo se hace sobre Parquet con toda la historia y aqui se deja el ultimo resultado, con su metodo y su computed_at. No se migra nunca: se recalcula entero. Por eso el documento declara con que se calculo, no solo el numero.",
+  "x-collection": "instruments/{instrument_id}/computed/metrics",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["computed_at", "method", "frequency", "return_basis", "inputs"],
+  "allOf": [
+    {
+      "description": "El rango de la rentabilidad por tipo de instrumento (decision B-73). El documento no lleva el tipo, y no se le anade: ya lo dice `inputs`. Una ACCION es la que se calculo sobre un precio ajustado (`series_adjustment`) sin ser un ETF, que lleva ademas `series_class: MARKET_PRICE`, ni un fondo, que lleva `distribution_policy_resolution`. Si una accion llegase sin `series_adjustment`, caeria en el rango de los fondos, que es el mas estrecho: el error posible es apartar una cifra buena, nunca dejar pasar una mala.",
+      "if": {
+        "required": ["inputs"],
+        "properties": {
+          "inputs": {
+            "required": ["series_adjustment"],
+            "not": { "anyOf": [{ "required": ["series_class"] }, { "required": ["distribution_policy_resolution"] }] }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "annualized_return": { "$ref": "#/$defs/ventanas_rentabilidad_accion" },
+          "ytd_return": { "$ref": "#/$defs/cifra_rentabilidad_accion" }
+        }
+      },
+      "else": {
+        "properties": {
+          "annualized_return": { "$ref": "#/$defs/ventanas_fraction" },
+          "ytd_return": { "$ref": "#/$defs/cifra_fraction" }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "computed_at": {
+      "type": "string",
+      "description": "ISO-8601 UTC. La app puede decidir que esta viejo; el umbral de frescura es de lectura, no de escritura.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "A QUE FECHA miden las cifras: el cierre de mes en el metodo mensual y el ultimo dia de la serie en el diario. No es computed_at, que dice cuando se calcularon, ni inputs.last_date, que dice hasta donde llega la serie: un fondo con serie hasta el 29-10 cierra en septiembre, y sin este campo nadie podia saberlo. Medido el 04-11-2026: 188 fondos en septiembre y 515 en octubre, indistinguibles.",
+      "x-unit": "date",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_YET_FETCHED"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GEOMETRIC_CAGR", "EXTRACTOR_MONTHLY_V1", "EXTRACTOR_DAILY_V1", "EXTRACTOR_MONTHLY_V2", "EXTRACTOR_DAILY_V2", "EXTRACTOR_MONTHLY_V3", "EXTRACTOR_DAILY_V3", "EXTRACTOR_MONTHLY_V4", "EXTRACTOR_DAILY_V4"],
+      "description": "TRAILING_PROVIDER no esta aqui: una cifra del proveedor es un dato declarado, no un calculo nuestro con otro metodo.\n\nTres metodos porque hay tres calculadores, y decirlo es la diferencia entre comparar y creer que comparas. GEOMETRIC_CAGR es el del almacen analitico, sobre Parquet y con toda la historia, que aun no existe. EXTRACTOR_MONTHLY_V1 es el de los FONDOS: core.metricas v1 del extractor, a cierre de mes y con rentabilidades mensuales, medido el 01-11 en 469 fondos; es el que define METODO_PROPIO_METRICAS.\n\nEXTRACTOR_DAILY_V1 entra el 01-11-2026 y es el de las ACCIONES. No es el mismo metodo con otros datos: es otro metodo, leido del codigo que lo produce (core/metricas.py, metricas_diarias; estuvo dentro de fetchers/eodhd.py hasta el 02-11-2026, que es lo que se arreglo: un umbral del metodo no puede vivir en el lector de un proveedor), y se diferencia de EXTRACTOR_MONTHLY_V1 en cuatro parametros a la vez.\n\n1. **La frecuencia.** Desviacion tipica de rentabilidades DIARIAS por raiz de 252, frente a mensuales por raiz de 12.\n2. **La ventana.** Los ultimos N anios de la serie contados desde su ultimo dia, frente a 12, 36 o 60 meses CERRADOS que acaban en el ultimo mes completo. Una accion fecha sus metricas el 17-07-2026 a media semana; un fondo, a cierre de mes.\n3. **El estimador del Sharpe.** Aqui es (rentabilidad anualizada menos el ESTR medio de la ventana) partido por la volatilidad anualizada; alli es la media del exceso MENSUAL por 12 partida por su desviacion tipica por raiz de 12. Son dos estimadores distintos del mismo concepto, no dos formas de escribir el mismo.\n4. **La caida maxima.** Sobre la ventana entera de 5 anios con valores diarios, frente a una ventana de 3 anios.\n\nPor que esto tiene nombre propio y no se etiqueta como el metodo de los fondos: METODO_PROPIO_METRICAS dice que cambiar un parametro cambia la VERSION del metodo, porque las cifras nuevas no son comparables con las viejas y no pueden compartir identificador. Aqui cambian cuatro. Y la segunda regla del metodo es que nunca se ordena una cifra contra otra de escala distinta, asi que la consecuencia practica esta en la lectura y no en la escritura: una tabla que ordene fondos y acciones por volatilidad esta mezclando un muestreo mensual con uno diario, y con este campo la aplicacion puede negarse o avisar. Sin el, no podria ni enterarse.\n\nMedido el 02-11-2026 y dicho aqui porque cambia como se lee un hueco: los dos metodos no solo dan cifras de escala distinta, sino que uno puede no dar ninguna donde el otro da una. Las puertas de entrada son distintas —EXTRACTOR_MONTHLY_V1 exige 13, 37 o 61 cierres de mes CONSECUTIVOS; EXTRACTOR_DAILY_V1 exige max(60, anios*180) observaciones sin mirar como estan repartidas— y con CEVASA (ES0132955008), que cotiza en el 46-63 % de los dias habiles, el camino diario no publica nada (159 observaciones frente a 180 a un anio) mientras el mensual da 17,71 / 28,24 / 25,36 sobre esa misma serie. Asi que un computed/metrics ausente en una accion NO significa que la serie sea corta: puede ser una serie de cinco anios poco liquida. Cual de las dos puertas es la correcta sigue sin decidir, pero el 02-11-2026 se midio sobre las 306 acciones del alcance (301 con serie) y cambian 7, las 7 a favor de la cobertura: gana CEVASA, y pierden seis cuya cifra no deberia estar publicada. Cuatro de esas seis importan para leer este contrato: **hoy hay cifras etiquetadas con una ventana que su serie no cubre**, porque un umbral que cuenta observaciones lo satisface una serie corta y densa. Puig cubre 2,49 anios bajo 3a, GE Vernova 2,59, MFE 4,87 bajo 5a y Daimler Truck 4,88. Las otras dos (Ezentis, Innovative Solutions) se calculan a traves de un paron de cotizacion, de doce meses en el primer caso. Asi que, mientras el umbral sea el de hoy, la clave de la ventana (1y, 3y, 5y) es una ETIQUETA y no una garantia de que la serie la cubra: para saberlo hay que comparar inputs.first_date con inputs.last_date, y una tabla que ordene por volatilidad 3y esta mezclando ventanas de distinta longitud en dos de las 293 que la publican (cuatro contando 5y).\n\nLo que NO se sabe todavia, dicho porque importa: cuanto separa a las dos escalas en la practica. Medirlo pide las dos cifras sobre la misma serie, y la serie diaria de una accion no esta en disco —vive en la cache HTTP del extractor— asi que la comparacion se queda pendiente de una pasada. Lo que si esta medido es que son metodos distintos.\n\nEXTRACTOR_MONTHLY_V3 y EXTRACTOR_DAILY_V3 entran el 16-11-2026 (decisiones A-158 y A-166 de la auditoria integral) y son los mismos dos calculadores con tres parametros cambiados a la vez, y por eso con otra version. (1) En el mensual, el tipo sin riesgo de cada mes ya no es el ESTR medio del mes entre 12: es lo que rinde el ESTR, capitalizado en base act/360, entre las dos fechas de los valores liquidativos con que se mide ese mes; cambian el Sharpe, el Sortino, el alfa de Jensen y el tipo publicado de la ventana, sobre todo en los monetarios. (2) En el diario, la volatilidad se anualiza con la raiz de las observaciones que la ventana tiene al anio ((observations - 1) x 365,25 / dias entre first_date y last_date de la ventana) y no con la raiz de 252; cambia la volatilidad y, con ella, el Sharpe, y el punto 1 de arriba vale solo para V1 y V2. (3) En los dos, un dato suelto de la serie que salta y vuelve se descarta y no corta la serie. La version la sella el extractor en la ficha (riesgo.historial_precios.metodo, `core.metricas v3: ...`) y de ahi la toma el mapper: una ficha sin ese sello es V2 y se publica como V2. Una V2 y una V3 no se ordenan juntas.\n\nEXTRACTOR_MONTHLY_V4 y EXTRACTOR_DAILY_V4 entran el 17-11-2026 (MET-6 y MET-7 de la auditoria integral) y son los mismos dos calculadores con dos reglas mas, y por eso con otra version. (1) Un cierre de mes tiene que ser del final del mes: si tras el ultimo valor del mes quedan en el mes mas de 5 dias de lunes a viernes, ese mes no tiene cierre, y la ventana que lo necesita no se publica, como la que tiene un hueco; vale para el riesgo y las relativas mensuales y para los diciembres del anio natural, que ademas aplica la regla del hueco. En el metodo mensual, el hueco pasa a ser de mas de 33 dias y no de 31, lo que pueden separarse dos cierres de mes; el diario sigue en 31. Medido sobre la exportacion del 16-11-2026: 9 de 763 instrumentos mensuales pierden alguna cifra y ninguna cambia de valor. (2) Las relativas (beta, R2, alfa, rentabilidad activa, tracking error, ratio de informacion) se miden al mismo cierre de mes que el riesgo del instrumento, y si su indice no llega a el, no se dan: hasta la V3 podian cerrar un mes antes. Una V3 y una V4 no se ordenan juntas.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": ["DAILY", "WEEKLY", "MONTHLY"],
+      "description": "Frecuencia de las observaciones con las que se midio. Sin ella dos volatilidades no son comparables.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "return_basis": {
+      "type": "string",
+      "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+      "description": "Obligatorio en toda ventana. Se deriva de declared/profile.distribution_policy y del tipo de serie; no se supone.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["series_id", "currency"],
+      "anyOf": [
+        { "required": ["distribution_policy_resolution"] },
+        { "required": ["series_adjustment"] }
+      ],
+      "description": "Con que se calculo: que serie, en que divisa, con que tipo libre de riesgo y CON QUE DERECHO. Es la mitad del valor de la cifra.\n\nEL DERECHO SIGUE SIENDO OBLIGATORIO, y eso es lo que sostiene el anyOf: hay que declarar uno de los dos campos que lo justifican, y son dos porque la pregunta se contesta distinto segun el instrumento. En un fondo, con distribution_policy_resolution: la serie de valor liquidativo de una clase que reparte baja el dia del pago, asi que calcular sin saber si reparte es calcular sobre una serie que puede estar contaminada. En una accion, con series_adjustment: su serie es el cierre AJUSTADO, que ya lleva el dividendo dentro, asi que no hay reparto que reponer y el derecho viene del ajuste y no de una politica.\n\nPor que no se reutiliza el campo de los fondos para las acciones, que era la salida facil: ninguno de sus grados declarados es verdad en una accion. PROVIDER_NO_RECORDS —'el proveedor no tiene ningun reparto registrado'— seria el que encaja de forma, y es FALSO: 68 de las 73 acciones del universo reparten dividendo, medido el 01-11-2026. Escribir ahi ese valor seria un valor valido en un campo que afirma otra cosa, que es el defecto que esta base entera persigue, y ademas convertiria la barrera en un tramite.\n\nLo que el anyOf NO permite es escribir una metrica sin justificar ninguna de las dos cosas: un documento sin los dos campos no valida, igual que antes. La barrera no se relaja, se traduce.\n\nrisk_free_source dejo de ser obligatorio el 01-11, y no por relajar nada: el Sharpe solo se calcula en clases en EUR, contra el ESTR, asi que de los 469 fondos con metricas propias 456 lo traen y 13 no, y exigirlo tiraba la volatilidad y la caida maxima de esos 13 por no tener Sharpe. Sigue siendo obligatorio de hecho para el Sharpe, que sin el no se puede escribir.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "series_id": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "series_class": {
+          "type": "string",
+          "enum": ["MARKET_PRICE"],
+          "description": "Sobre que precio se calculo cuando NO es el valor liquidativo. Solo aparece en los ETF: el mismo calculo mensual que un fondo, sobre el cierre de mercado ajustado (Oscar, 04-11-2026). Ausente significa valor liquidativo. No cambia el metodo, porque la formula y la frecuencia son las mismas, y no se puede omitir, porque el cierre de mercado mide algo mas de volatilidad que el valor liquidativo (decision 11) y el lector tiene que poder saberlo.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "La divisa EN LA QUE SE CALCULO, que no es siempre el euro. Era const EUR con la explicacion de que la serie se convierte antes de calcular; comprobado el 01-11, eso no describe lo que producimos: el extractor calcula en la divisa de la clase y sin convertir nada, y de los 469 fondos con metricas propias 14 estan en USD. El const los habria rechazado uno a uno.\n\nLo que se pierde al abrirlo es real y conviene decirlo: dos volatilidades en divisas distintas no son directamente comparables. Pero ese problema ya existia; lo que hacia el const era esconderlo detras de una conversion que nadie hace. Declarada la divisa, una lectura puede negarse a comparar; con el const no podia ni enterarse. Cuando el almacen analitico convierta con el BCE, pondra EUR y fx_source.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "risk_free_source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hoy el ESTR del BCE. Obligatorio de hecho para el Sharpe, y ausente en las clases que no estan en euros, donde no hay tipo libre de riesgo que aplicar y por eso tampoco hay Sharpe.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "distribution_policy_resolution": {
+          "type": "string",
+          "enum": [
+            "OFFICIAL_REGISTER",
+            "OFFICIAL_KID",
+            "PROVIDER_DISTRIBUTION_RECORDS",
+            "OBSERVED_DISTRIBUTION",
+            "PROVIDER_NO_RECORDS"
+          ],
+          "description": "CON QUE DERECHO se calculo. Los mismos grados que declared/profile -cinco desde el 03-11-2026, con OFFICIAL_KID-, y obligatorio, que es lo que convierte una recomendacion en una barrera.\n\nEl porque, medido el 01-11 sobre las 843 fichas del extractor: de las 469 metricas que calculamos nosotros, 439 se apoyaban en el nombre de la clase o en 'los fondos espanoles acumulan', y solo 30 en el registro oficial o en lo que afirma el proveedor. No estaban necesariamente mal: estaban sin respaldo. Y el nombre falla: en los 16 fondos que reparten y se conocen por otra via erro en 1, y de diez sondeados ese dia cuatro repartian sin decirlo ni en el nombre ni en la jurisdiccion.\n\nImporta porque la serie de valor liquidativo de una clase que reparte baja el dia del pago, y esa caida no es mercado: contamina la volatilidad, inventa caidas maximas y sesga la rentabilidad. Calcular sin saber si reparte es calcular sobre una serie que puede estar contaminada.\n\nAl estar cerrado a esos grados y ser uno de los dos campos que el anyOf exige, una metrica apoyada en una suposicion NO SE PUEDE ESCRIBIR: el esquema la rechaza, igual que rechaza una politica conocida sin procedencia. Lo comprueba el contrato, no la disciplina. La cifra del proveedor, cuando exista, sigue en declared/provider_risk con su nombre.\n\nNO APLICA a una accion: no tiene clases ni politica de reparto, y su derecho a calcular lo declara series_adjustment. Es el anyOf el que impide que esa salida sirva para un fondo.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-applies-to": "instrument_type FUND, ETF",
+          "x-applies-when": "FONDO_O_ETF",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "series_adjustment": {
+          "type": "string",
+          "enum": ["SPLIT_AND_DIVIDEND_ADJUSTED", "SPLIT_ADJUSTED_ONLY", "UNADJUSTED"],
+          "description": "QUE AJUSTE lleva la serie con la que se calculo, y por tanto con que derecho se calculo cuando el instrumento no tiene politica de reparto que declarar. Es el campo de las acciones, el gemelo de distribution_policy_resolution, y uno de los dos que el anyOf exige.\n\nSPLIT_AND_DIVIDEND_ADJUSTED es lo que produce hoy la serie de una accion, y esta comprobado en el codigo y no supuesto: la serie se construye sobre adjusted_close de EODHD, que reparte hacia atras los desdoblamientos y los dividendos, y cae a close solo si el ajustado falta. De ahi salen dos consecuencias que hay que decir juntas, porque una es buena y la otra no.\n\nLa buena: con la serie ya ajustada no hay reparto que reponer, asi que return_basis es TOTAL_RETURN por DERIVACION y no por suposicion. Eso es lo que hace que una accion no herede el problema que retiro 449 de las 469 metricas propias de fondos el 01-11-2026.\n\nLa que no: un ajuste es una afirmacion del proveedor sobre su propia serie, no un documento que podamos leer. Lo que se declara aqui es de que clase de serie se trata, no que el ajuste sea correcto. Con UNADJUSTED, la serie es de precio puro: la rentabilidad calculada sobre ella es PRICE_RETURN y se queda corta en el dividendo entero, y en una accion con un 3 % de rendimiento eso son tres puntos al anio. SPLIT_ADJUSTED_ONLY esta declarado porque es el caso intermedio real de algunos proveedores, y hoy no lo produce nadie aqui.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-applies-to": "instrument_type STOCK",
+          "x-applies-when": "ACCION",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "source_currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "La divisa EN LA QUE COTIZA la serie, antes de convertir. Esta aqui para que la conversion se VEA: con solo `currency` y `fx_source`, una metrica calculada sobre una serie convertida y sin declarar el tipo de cambio es indistinguible de una calculada sin convertir nada.\n\nEl agujero que tapa, medido el 01-11: de los 19.278 cubos de serie de la maestra, 2.971 estan convertidos a euros SIN el tipo del BCE, repartidos en 34 instrumentos. Ninguno de los 19 que hoy reciben metricas propias esta entre ellos —son los del registro frances, con serie y calculo en EUR, asi que no hay conversion— pero eso es de hoy, no una garantia.\n\nCuando currency y source_currency no coinciden, hubo conversion y fx_source es obligatorio. Esa regla NO la puede expresar el esquema, porque JSON Schema no compara dos campos entre si, asi que la sostiene una prueba: ver `baseNuevaContratos`.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "fx_source": {
+          "type": "string",
+          "const": "ECB_REFERENCE",
+          "description": "La unica fuente de tipo de cambio admitida. Un par de un proveedor de precios en este campo hace fallar la prueba. Obligatorio de hecho cuando currency y source_currency no coinciden, y ausente cuando no hubo conversion, que es el caso de los 19 fondos con metricas propias de hoy.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "observations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000,
+          "x-unit": "count",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "first_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "last_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "series_gaps": {
+          "type": "array",
+          "maxItems": 10,
+          "description": "Los huecos de la serie que le cuestan una ventana: mas de 31 dias seguidos sin un punto (decision 111 de Oscar, 05-11-2026, y el parrafo 2 del metodo). Una ventana asi no se publica, sea la cifra que sea, y su ausencia no significa que la serie no llegue: AB American Growth tiene serie desde 1999 y ningun punto del 18-07-2018 al 07-09-2022. Por eso se dice: la ficha nombra el hueco y sus fechas. Solo quita ventanas, y lo que queda sale igual, asi que no cambia el metodo.",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "x-counts-when": "NUNCA",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "days", "windows"],
+            "x-layer": "computed",
+            "x-owner": "batch",
+            "properties": {
+              "from": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "description": "El ultimo punto antes del hueco.",
+                "x-unit": "date",
+                "x-layer": "computed",
+                "x-owner": "batch"
+              },
+              "to": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "description": "El primer punto despues del hueco.",
+                "x-unit": "date",
+                "x-layer": "computed",
+                "x-owner": "batch"
+              },
+              "days": {
+                "type": "integer",
+                "minimum": 32,
+                "x-unit": "count",
+                "x-layer": "computed",
+                "x-owner": "batch"
+              },
+              "windows": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "description": "Las ventanas que la serie cubre y este hueco deja sin medir.",
+                "x-layer": "computed",
+                "x-owner": "batch",
+                "items": {
+                  "type": "string",
+                  "enum": ["1y", "3y", "5y", "10y"],
+                  "x-unit": "code",
+                  "x-layer": "computed",
+                  "x-owner": "batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "volatility": { "$ref": "#/$defs/ventanas_fraction" },
+    "annualized_return": {
+      "$ref": "#/$defs/ventanas_rentabilidad",
+      "description": "Rentabilidad anualizada por ventana, en FRACCION. Su rango depende del tipo de instrumento (decision B-73, Oscar, 09-11-2026), y lo impone el `allOf` de la raiz: una ACCION admite [-1, 20] y un fondo o un ETF sigue en [-5, 5]. El rango de aqui, [-5, 20], es solo la envolvente de los dos, y no lo es de ningun instrumento.\n\nPor que 20 y por que solo acciones. Un fondo diversificado no multiplica su valor por veinte en un ano: una cifra asi en un fondo es un error de datos, casi siempre de escala, y el tope de 5 que ya tenia lo caza. Una accion si puede: Moderna (US60770K1079) gano un 980,95 % en el ano a 06-11-2026, con un salto del 177 % el 19-08-2026 por su vacuna contra el melanoma, una cifra real y contrastada que con el tope de 5 dejaba la accion sin ninguna metrica. Pero mas de veinte veces en un ano casi siempre es un desdoblamiento sin ajustar o un error de divisa, que es lo que el filtro quiere cazar. Y el suelo es -1 porque una accion no pierde mas del 100 %.\n\nUna cifra que se sale no tumba el documento: se deja fuera su ventana y se anota en `out_of_range`."
+    },
+    "max_drawdown": { "$ref": "#/$defs/ventanas_fraction" },
+    "sharpe": { "$ref": "#/$defs/ventanas_ratio" },
+    "sortino": { "$ref": "#/$defs/ventanas_ratio" },
+    "ytd_return": {
+      "$ref": "#/$defs/cifra_rentabilidad",
+      "description": "Rentabilidad del ano en curso, en FRACCION. Mismo rango por tipo que `annualized_return` y por la misma razon (decision B-73): [-1, 20] en una accion y [-5, 5] en un fondo o un ETF, impuesto por el `allOf` de la raiz. El [-5, 20] de aqui es solo la envolvente."
+    },
+    "relative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["benchmark"],
+      "description": "Todo lo que se mide CONTRA un indice vive junto y nombra el indice. Hoy el defecto es el contrario: la maestra guarda la volatilidad del indice, su Sharpe y el alpha contra el sin poder nombrar la referencia, y las columnas fondo/categoria/indice significan 'de quien' para la volatilidad y 'contra que' para el alpha y la beta.\n\nA una accion se le mide desde el 04-11-2026, por decision de Oscar, y solo beta y r2: el alfa, el tracking error y el ratio de informacion tienen en una accion el mismo problema que el Sharpe (paragrafo 9 del metodo), y en la medicion de ese dia solo 4 de 86 acciones americanas tenian un alfa a 3 anos distinguible de cero. Una accion no declara indice en ningun folleto, asi que la referencia la elegimos nosotros y `reference` lo dice.\n\n`x-counts-when` existe por las decisiones 15 y 16: estas rutas se pueden rellenar en una accion, pero no cuentan en su cobertura, que asi no se mueve por haberlas anadido.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-counts-when": "FONDO_O_ETF",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "reference": {
+          "type": "string",
+          "enum": ["ASSIGNED_AREA_INDEX", "ASSIGNED_MARKET_INDEX"],
+          "description": "CONTRA QUE se midio una accion, que no declara indice y por eso lo elegimos nosotros. `ASSIGNED_AREA_INDEX`: un indice de area y no el de su plaza, como MSCI Europe para una accion espanola; mide sobre todo cuanto se parece a Europa. `ASSIGNED_MARKET_INDEX`: el indice de la plaza donde cotiza, como el S&P 500. Ausente en un fondo, que se mide contra lo que declara su folleto.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-counts-when": "NUNCA",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["MONTHLY"],
+          "description": "Solo en una accion: su documento es del metodo diario, y esto se mide con rentabilidades mensuales.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-counts-when": "NUNCA",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "benchmark": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "currency", "variant", "return_basis"],
+          "description": "La identidad completa del indice contra el que se mide. Con return_basis, porque jensen_alpha exige que el fondo y el indice compartan base: si no coinciden, no se calcula. Y con la serie que hizo de indice, que es de dos clases: un INSTRUMENTO de esta base (instrument_id, el fondo indice o el ETF proxy) o el NIVEL DEL PROPIO INDICE (source_series_id, la bolsa INDX de EODHD; decision 23 del 07-11-2026). Nunca las dos a la vez, y un nivel de indice lleva la suya obligatoria.",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-reference": true,
+          "allOf": [
+            {
+              "if": { "properties": { "series_class": { "const": "INDEX_LEVEL" } }, "required": ["series_class"] },
+              "then": { "required": ["source_series_id"], "not": { "required": ["instrument_id"] } }
+            },
+            {
+              "if": { "required": ["source_series_id"] },
+              "then": { "properties": { "series_class": { "const": "INDEX_LEVEL" } }, "required": ["series_class"] }
+            }
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "x-unit": "text",
+              "x-layer": "computed",
+              "x-owner": "batch"
+            },
+            "instrument_id": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+              "description": "El instrumento de ESTA base que hizo de serie del indice: un fondo indice o un ETF proxy. Ausente, y declarado NOT_APPLICABLE por el mapper, cuando la serie es el nivel del propio indice (series_class INDEX_LEVEL): el indice no es un instrumento de la base, y poner aqui su ISIN diria que lo replica un activo que no existe.",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch",
+              "x-absence": "NOT_YET_FETCHED"
+            },
+            "source_series_id": {
+              "type": "string",
+              "pattern": "^EODHD:[A-Z0-9][A-Z0-9._-]*\\.INDX$",
+              "description": "La serie del PROPIO indice que hizo de referencia, en la forma `EODHD:IBEXTR.INDX` (proveedor y simbolo de su bolsa INDX), igual que `riesgo.historial_precios.source_listing_id` nombra la serie del instrumento. Solo con series_class INDEX_LEVEL, y entonces obligatoria. Camino C del paso 2 (decision 23 del 07-11-2026): IBEX 35 TR y PR, EURO STOXX 50 de precio, S&P 500 TR y S&P 500 Equal Weighted TR, cuyos ETF de acumulacion no existen en la variante que esos fondos declaran. Un alfa medido contra esta serie NO se ordena con uno medido contra un ETF proxy: el ETF lleva dentro su coste corriente y su tracking (0,1-0,6 puntos de alfa segun la fila) y el indice nada.",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch",
+              "x-absence": "NOT_APPLICABLE"
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch"
+            },
+            "variant": {
+              "type": "string",
+              "enum": ["NR", "GR", "PR", "TR"],
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch"
+            },
+            "return_basis": {
+              "type": "string",
+              "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch"
+            },
+            "series_class": {
+              "type": "string",
+              "enum": ["NAV", "MARKET_PRICE", "RATE", "INDEX_LEVEL"],
+              "description": "Sobre QUE se midio la serie del indice, que NO es su base de rentabilidad: la base dice si incluye los dividendos y esto dice cuanto RUIDO lleva la cifra. Son independientes, y confundirlas costo 69 fondos el 01-11-2026.\n\nDe los cuatro proxies aprobados uno es un ETF —el de MSCI ACWI, que toca a 57 fondos—, y medido ese dia un ETF cotizado infla la volatilidad 1,2 puntos a un anio frente al valor liquidativo de un fondo indice, porque XETRA cierra a las 17:30 y el VL se calcula tras el cierre de EE.UU. Quien lea un tracking error contra ese proxy tiene derecho a saberlo sin ir a buscar el ISIN.\n\n`INDEX_LEVEL` (decision 23 del 07-11-2026): la serie es el nivel del propio indice, de EODHD, sin desfase de cierre ni coste de replica. Es la clase que mas cambia la lectura del alfa: contra un ETF proxy el alfa lleva descontado el coste del ETF (0,1-0,6 puntos segun la fila) y contra el indice no, asi que dos alfas de clases distintas no se ordenan entre si. La §3 del metodo lo recoge: la identidad comparable de una relativa es (method, window, benchmark.series_class).",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "equivalent_of": {
+              "type": "string",
+              "minLength": 1,
+              "description": "El indice que DECLARA el fondo cuando el medido (`name`) es otro equivalente, porque del declarado no hay serie ni instrumento (columna `equivalente_de` de `config/indices.csv`, aprobada fila a fila). El primer caso, 08-11-2026: los fondos que declaran ICE BofA Euro Corporate se miden contra Bloomberg Euro Corp. Mismo universo, otro indice: el alfa recoge tambien la diferencia entre los dos, y por eso quien ensene la cifra tiene que decirlo. `name` sigue siendo siempre el que de verdad se midio. Ausente cuando el medido es el declarado.",
+              "x-unit": "text",
+              "x-layer": "computed",
+              "x-owner": "batch",
+              "x-applies-when": "FONDO_O_ETF",
+              "x-counts-when": "NUNCA",
+              "x-absence": "NOT_APPLICABLE"
+            },
+            "kid_confirmation": {
+              "type": "string",
+              "enum": ["NOT_CONFIRMED", "BRAND_ONLY"],
+              "description": "El KID del fondo NO confirma que este sea su indice, y aun asi se mide contra el (decision 21 del 07-11-2026): es una marca, no una retirada. `NOT_CONFIRMED`: el KID dice que usa un indice pero no lo nombra, como DWS Latin American Equities. `BRAND_ONLY`: el KID nombra la familia y no el indice exacto, como Echiquier Space, cuyo KID dice MSCI All Country sin World. Ausente cuando el KID lo confirma entero, o cuando no hay KID con que comprobarlo: entonces no hay nada que marcar, y por eso no se escribe un tercer valor. Sale de `identificacion.indice_benchmark_kid` (camino B del paso 2).",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "batch",
+              "x-applies-when": "FONDO_O_ETF",
+              "x-counts-when": "NUNCA",
+              "x-absence": "NOT_APPLICABLE"
+            }
+          }
+        },
+        "beta": { "$ref": "#/$defs/ventanas_ratio" },
+        "r2": {
+          "$ref": "#/$defs/ventanas_fraction",
+          "description": "Se guarda SIEMPRE, junto al alpha. No filtra nada al escribir: el umbral es una decision de lectura y el filtro nace apagado. Medido el 31-10 sobre la maestra: de 716 fondos con alpha y r2 a 3 anios, 214 (29,9 %) tienen r2 por debajo del 70 %, y el |alpha| mediano SUBE cuando el r2 baja (1,21 con r2>=90 %, 2,70 con r2<70 %), que es la firma del ruido. El peor caso de la base: r2 = 0,019 % con alpha +11,34 y beta 0,019."
+        },
+        "jensen_alpha": { "$ref": "#/$defs/ventanas_fraction", "x-applies-when": "FONDO_O_ETF" },
+        "active_return": {
+          "$ref": "#/$defs/ventanas_fraction",
+          "x-applies-when": "FONDO_O_ETF",
+          "description": "Rentabilidad del fondo menos la del indice, sin ajustar por beta. Es una cifra distinta del alpha de Jensen y no comparte campo con el."
+        },
+        "tracking_error": { "$ref": "#/$defs/ventanas_fraction", "x-applies-when": "FONDO_O_ETF" },
+        "information_ratio": { "$ref": "#/$defs/ventanas_ratio", "x-applies-when": "FONDO_O_ETF" }
+      }
+    },
+    "relative_absence": {
+      "type": "string",
+      "enum": ["NO_REFERENCE_FOR_MARKET", "NO_REFERENCE_DECIDED_FOR_MARKET", "KID_DECLARES_COMPOSITE", "KID_DECLARES_NO_BENCHMARK", "HEDGED_SHARE_CLASS"],
+      "description": "Por que no hay `relative`, cuando lo sabemos y lo hemos decidido. Es lo contrario de un hueco: sin este campo, en marzo nadie sabria si esta vacio porque se decidio o porque se olvido.\n\n`NO_REFERENCE_FOR_MARKET` (una accion, decision 12): cotiza donde no tenemos su referencia, como las canadienses, y no se mide contra el indice de otra plaza.\n\n`NO_REFERENCE_DECIDED_FOR_MARKET` (una accion, decision 46 del 08-11-2026): la bolsa en la que cotiza no tiene fila en `indices_de_accion.csv`, asi que el proyecto no ha decidido contra que indice se mide esa plaza. Es una decision del proyecto por bolsa, y no un dato que le falte a la accion: no se arregla con mas datos de ella, sino dando fila a la bolsa. Se distingue del valor anterior en que alli la fila existe y dice que no hay referencia. Medido el 08-11-2026: ninguna accion lo lleva, porque las cuatro bolsas sin fila la recibieron con la decision 40.\n\n`KID_DECLARES_COMPOSITE` y `KID_DECLARES_NO_BENCHMARK` (un fondo o ETF, decision 20 del 07-11-2026): su KID declara un indice compuesto, o que no tiene indice de referencia, aunque Morningstar le atribuya uno. Medirlo contra ese uno publicaba un alfa que no mide gestion: BNP Clean Energy, cuyo KID declara 50 % Wilderhill ECO y 50 % NEX, salia con alfa de -18,6 a 3 anios contra MSCI ACWI. La frase del KID viaja en `relative_absence_evidence`, y si antes se publicaban cifras, `relative_withdrawal` dice desde cuando ya no. Vuelven cuando haya proxy del compuesto.\n\n`HEDGED_SHARE_CLASS` (una clase con cobertura de divisa, decision 30 del 07-11-2026): la clase cubre el tipo de cambio y el indice que declara no, asi que medirla contra el proxy sin cubrir no mide gestion: la diferencia es la cobertura. Medido el 01-11-2026 con las dos clases del mismo fondo indice de MSCI World, una cubierta y otra no: la lectura cambia 4,9 puntos a un anio y 1,7 anuales a cinco, y no es una constante que se pueda restar, es el camino del tipo de cambio. La cobertura sale del nombre de la clase y la confirma su KID (`declared/profile.hedged_class`). Sin evidencia ni retirada: la clase nunca tuvo relativas. Medido el 07-11-2026: 5 clases en la base.\n\nHasta el 07-11-2026 este campo solo aplicaba a una accion; ensanchar a quien aplica no invalida nada de lo escrito.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-counts-when": "NUNCA",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "relative_absence_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kid_excerpt"],
+      "description": "La frase del KID que justifica `relative_absence` cuando el motivo es el KID, con la huella del documento del que sale y el dia en que se comprobo. Sin ella el motivo es una afirmacion nuestra; con ella, cualquiera lo puede comprobar en el documento. Es la frase tal como la extrajo el contraste (`identificacion.indice_benchmark_kid.texto_del_kid`, 200 caracteres como mucho), cortada por los dos lados: no es una cita completa.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-counts-when": "NUNCA",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "kid_excerpt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "kid_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "checked_on": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "relative_withdrawal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["withdrawn_on", "decision"],
+      "description": "Las cifras contra un indice que se PUBLICABAN y se retiraron, con fecha: el paragrafo 10 del metodo, que distingue retirar de faltar. Solo existe si se le retiro algo; un fondo que nunca las tuvo no lo lleva. `withdrawn_on` es el dia de la pasada que las quito y no se mueve en las siguientes. `last_as_of` es la fecha de dato de las ultimas que se publicaron, y `benchmark_name` y `benchmark_instrument_id` contra que se median, para que quien tenga un informe entregado pueda reconocerlas. Desde cuando se publicaban no se sabe por ficha: el sistema no guarda esa fecha.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-counts-when": "NUNCA",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "withdrawn_on": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "decision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Donde esta escrita la decision que las retira.",
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "benchmark_name": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "benchmark_instrument_id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+          "description": "El instrumento que hacia de serie del indice cuando se publicaban. Ausente si lo que hacia de serie era el nivel del propio indice: entonces va en benchmark_source_series_id.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "benchmark_source_series_id": {
+          "type": "string",
+          "pattern": "^EODHD:[A-Z0-9][A-Z0-9._-]*\\.INDX$",
+          "description": "La serie del propio indice contra la que se publicaban, en la forma de `relative.benchmark.source_series_id` (decision 23 del 07-11-2026). Lo mismo que benchmark_instrument_id, para la otra clase de serie: quien tenga un informe entregado tiene que poder reconocer contra que se midio.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "last_as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "out_of_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Las cifras que se calcularon y NO estan en el documento porque se salen del rango de su contrato (decision B-73, Oscar, 09-11-2026). La forma es la del propio documento: la cifra que falta en `annualized_return.1y` esta en `out_of_range.annualized_return.1y`, con el valor calculado (`value`) y el limite que rebasa (`limit`: el techo si el valor es mayor, el suelo si es menor). Asi un hueco dice por que es hueco, y se distingue de una ventana a la que la serie no llega.\n\nPOR VENTANA, NO POR DOCUMENTO. Hasta el 09-11-2026 una sola cifra fuera de rango hacia que el documento entero no se escribiera, y el instrumento perdia tambien las cifras que estaban bien: Moderna se quedaba sin volatilidad, Sharpe ni caida maxima por su rentabilidad a un ano. Ahora se aparta la ventana que no cabe y el resto se escribe.\n\nNo se recorta nunca al limite: eso seria publicar una cifra que no calculamos. Y la comprobacion la hace el mapper con ESTE esquema (`apartarFueraDeRango` en validadores.ts valida con el y aparta lo que rechaza por rango), no con limites copiados a mano: el limite anotado es el que el contrato aplica a ese tipo de instrumento. Solo se apartan las cifras que este bloque sabe anotar; cualquier otro valor fuera de rango sigue bloqueando el documento.\n\nNo cuenta en la cobertura: es la explicacion de un hueco, no un dato del instrumento.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-counts-when": "NUNCA",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "volatility": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+        "annualized_return": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+        "max_drawdown": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+        "sharpe": { "$ref": "#/$defs/ventanas_fuera_ratio" },
+        "sortino": { "$ref": "#/$defs/ventanas_fuera_ratio" },
+        "ytd_return": { "$ref": "#/$defs/fuera_fraction" },
+        "relative": {
+          "type": "object",
+          "additionalProperties": false,
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "beta": { "$ref": "#/$defs/ventanas_fuera_ratio" },
+            "r2": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+            "jensen_alpha": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+            "active_return": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+            "tracking_error": { "$ref": "#/$defs/ventanas_fuera_fraction" },
+            "information_ratio": { "$ref": "#/$defs/ventanas_fuera_ratio" }
+          }
+        }
+      }
+    },
+    "risk_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7,
+      "description": "El indicador de riesgo de 1 a 7 que muestra la ficha, con su origen declarado al lado. SIEMPRE es una copia de declared/regulatory —el SRI del KID o el SRRI— y nunca un calculo nuestro, y eso cambio el 01-11-2026: ver risk_score_source.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "risk_score_source": {
+      "type": "string",
+      "enum": ["SRI_KID", "SRRI"],
+      "description": "De donde sale el 1-7. Son dos y no tres: VOL_BUCKET se RETIRO el 01-11-2026, por decision de Oscar, y con el la posibilidad de escribir un 1-7 que no venga de un documento.\n\nQue era VOL_BUCKET: un cubo de volatilidad calculado en readmodel/mappers.py de la base vieja, que reparte la volatilidad en siete tramos y devuelve un numero del 1 al 7. Lo llevan las 312 acciones de la base vieja y NO viene de ningun KID. Es uno de los cinco defectos que motivan esta base entera: una cifra perfectamente calculable archivada en el sitio de un indicador regulatorio, donde nadie puede distinguirla de un SRI de verdad.\n\nPor que se retira del contrato en vez de dejarse sin usar, que es lo que estaba: porque la base nueva nace sin acciones y la tentacion de rellenar el hueco llega justo cuando entran. Con el valor declarado, bastaba una linea de mapper para reproducir el defecto; sin el, el esquema rechaza el documento. Es la diferencia entre una recomendacion y una barrera, y no cuesta nada: medido el 01-11-2026, ningun documento de la base nueva lo usaba.\n\nLa consecuencia, que la ficha tiene que DECIR y no esconder: una accion se queda sin indicador de riesgo de 1 a 7, porque no tiene KID de PRIIPs detras. No es una laguna de datos que se vaya a cerrar: es que el indicador no existe para ese producto. Lo que una accion si tiene es nuestra volatilidad, con su metodo y su ventana al lado, que es una medida de riesgo y no finge ser un sello regulatorio.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-absence": "NOT_PROVIDED"
+    }
+  },
+  "$defs": {
+    "cifra_rentabilidad": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 20,
+      "description": "La ENVOLVENTE de los dos rangos de la rentabilidad (decision B-73): [-5, 5] de un fondo o un ETF y [-1, 20] de una accion. No es el rango de ningun instrumento; el suyo lo pone el `allOf` de la raiz.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cifra_rentabilidad_accion": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 20,
+      "description": "La rentabilidad de una ACCION: de -100 % a +2.000 % (decision B-73).",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "ventanas_rentabilidad": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "3y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "5y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "10y": { "$ref": "#/$defs/cifra_rentabilidad" }
+      }
+    },
+    "ventanas_rentabilidad_accion": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "3y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "5y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "10y": { "$ref": "#/$defs/cifra_rentabilidad_accion" }
+      }
+    },
+    "fuera_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "limit"],
+      "description": "Una cifra en fraccion apartada por su rango: lo que se calculo y el limite que rebasa.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": -1000000,
+          "maximum": 1000000,
+          "description": "La cifra tal como se calculo, sin recortar. Este rango no es el de la magnitud, que ya se salio del suyo: es el de un numero que todavia se puede guardar. Mas alla de un millon no hay cifra que anotar, y el documento vuelve a no escribirse, que es la barrera de antes.",
+          "x-unit": "fraction",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "limit": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "description": "El limite del contrato que la cifra rebasa: el techo si es mayor, el suelo si es menor.",
+          "x-unit": "fraction",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "fuera_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "limit"],
+      "description": "Un ratio apartado por su rango: lo que se calculo y el limite que rebasa.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": -1000000,
+          "maximum": 1000000,
+          "description": "El ratio tal como se calculo, sin recortar. El rango es el de un numero que se puede guardar, no el de la magnitud.",
+          "x-unit": "ratio",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "limit": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20,
+          "description": "El limite del contrato que el ratio rebasa: el techo si es mayor, el suelo si es menor.",
+          "x-unit": "ratio",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "ventanas_fuera_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "1y": { "$ref": "#/$defs/fuera_fraction" },
+        "3y": { "$ref": "#/$defs/fuera_fraction" },
+        "5y": { "$ref": "#/$defs/fuera_fraction" },
+        "10y": { "$ref": "#/$defs/fuera_fraction" }
+      }
+    },
+    "ventanas_fuera_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "1y": { "$ref": "#/$defs/fuera_ratio" },
+        "3y": { "$ref": "#/$defs/fuera_ratio" },
+        "5y": { "$ref": "#/$defs/fuera_ratio" },
+        "10y": { "$ref": "#/$defs/fuera_ratio" }
+      }
+    },
+    "ventanas_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_fraction" },
+        "3y": { "$ref": "#/$defs/cifra_fraction" },
+        "5y": { "$ref": "#/$defs/cifra_fraction" },
+        "10y": { "$ref": "#/$defs/cifra_fraction" }
+      }
+    },
+    "ventanas_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_ratio" },
+        "3y": { "$ref": "#/$defs/cifra_ratio" },
+        "5y": { "$ref": "#/$defs/cifra_ratio" },
+        "10y": { "$ref": "#/$defs/cifra_ratio" }
+      }
+    },
+    "cifra_fraction": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 5,
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cifra_ratio": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 20,
+      "x-unit": "ratio",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

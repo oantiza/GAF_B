@@ -1,0 +1,1749 @@
+{
+"pdpResult": {
+"pagePopups": {
+"hideEntryGate": false
+},
+"pageSections": {
+"keyFacts": {
+"accordionItems": [
+{
+"id": "fundinformation-basicinformation",
+"type": "Bundle",
+"headlineText": "Fund key facts",
+"expanded": true,
+"listBundle": [
+{
+"items": [
+{
+"value": "LU0292096186",
+"key": "ISIN",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "01.06.2007",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "01.06.2007",
+"key": "Share class launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Global certificate",
+"key": "Type of investment fund shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": true,
+"key": "UCITS compliant",
+"type": "BOOL",
+"isHighlighted": false
+},
+{
+"value": "Jan 01 - Dec 31",
+"key": "Fiscal year",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "EUR",
+"key": "Share class currency",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Distributing",
+"key": "Income treatment",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Exchange traded fund",
+"key": "Exchange traded fund / Non-exchange traded fund",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-fundprofile",
+"headlineText": "Fund profile",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+},
+{
+"items": [
+{
+"value": "Indirect Replication (Swap)",
+"key": "Investment methodology",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Equity Portfolio + Swap",
+"key": "Portfolio structure",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": false,
+"key": "Securities lending",
+"type": "BOOL",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-indexreplication",
+"headlineText": "Index replication technique",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+}
+],
+"disclaimers": []
+},
+{
+"id": "fundinformation-feesandexpenses",
+"type": "List",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"expanded": true,
+"list": {
+"items": [
+{
+"value": "0.35%",
+"key": "Fund management company fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "+ 0.15%",
+"key": "Fund fixed fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "= 0.50%",
+"key": "Fund all-in fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-feesandexpenses",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"disclaimers": [],
+"scope": "fundinformation-feesandexpenses",
+"expanded": true
+},
+"disclaimers": []
+},
+{
+"id": "fundinformation-currentdata",
+"type": "Bundle",
+"headlineText": "Current data",
+"expanded": false,
+"listBundle": [
+{
+"items": [
+{
+"value": "39.90 EUR",
+"key": "NAV",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "05.11.2026",
+"key": "NAV date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "26,466,629",
+"key": "Outstanding shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "1.08 B EUR",
+"key": "Total AUM of fund",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-currentdata",
+"headlineText": "",
+"disclaimers": [],
+"scope": "fundinformation-currentdata",
+"expanded": false
+}
+],
+"disclaimers": []
+},
+{
+"id": "fundinformation-dividends",
+"type": "Table",
+"headlineText": "Dividends",
+"expanded": false,
+"table": {
+"columns": [
+{
+"key": "column_0",
+"value": "",
+"alignment": "center",
+"isVisibleOnHeader": true,
+"isEmptyHeader": true,
+"emptyHeaderText": "Year",
+"wordBreak": false
+},
+{
+"key": "column_1",
+"value": "Dividend per Share",
+"alignment": "right",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_2",
+"value": "Dividend yield",
+"alignment": "right",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_3",
+"value": "Record date",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_4",
+"value": "Ex Day",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_5",
+"value": "Paydate",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+}
+],
+"values": [
+{
+"column_0": {
+"value": "2026",
+"sortValue": 2026,
+"type": "text"
+},
+"column_1": {
+"value": "0.4129",
+"sortValue": 0.4129,
+"type": "text"
+},
+"column_2": {
+"value": "1.0627 %",
+"sortValue": 1.062737,
+"type": "text"
+},
+"column_3": {
+"value": "20.08.2026",
+"sortValue": "2026-08-20T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "19.08.2026",
+"sortValue": "2026-08-19T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "03.09.2026",
+"sortValue": "2026-09-03T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2026",
+"sortValue": 2026,
+"type": "text"
+},
+"column_1": {
+"value": "0.3301",
+"sortValue": 0.3301,
+"type": "text"
+},
+"column_2": {
+"value": "0.9011 %",
+"sortValue": 0.901134,
+"type": "text"
+},
+"column_3": {
+"value": "21.05.2026",
+"sortValue": "2026-05-21T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "20.05.2026",
+"sortValue": "2026-05-20T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "03.06.2026",
+"sortValue": "2026-06-03T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2026",
+"sortValue": 2026,
+"type": "text"
+},
+"column_1": {
+"value": "0.3918",
+"sortValue": 0.3918,
+"type": "text"
+},
+"column_2": {
+"value": "1.1138 %",
+"sortValue": 1.113818,
+"type": "text"
+},
+"column_3": {
+"value": "19.02.2026",
+"sortValue": "2026-02-19T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "18.02.2026",
+"sortValue": "2026-02-18T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "05.03.2026",
+"sortValue": "2026-03-05T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2025",
+"sortValue": 2025,
+"type": "text"
+},
+"column_1": {
+"value": "0.3967",
+"sortValue": 0.3967,
+"type": "text"
+},
+"column_2": {
+"value": "1.2559 %",
+"sortValue": 1.255908,
+"type": "text"
+},
+"column_3": {
+"value": "20.11.2025",
+"sortValue": "2025-11-20T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "19.11.2025",
+"sortValue": "2025-11-19T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "04.12.2025",
+"sortValue": "2025-12-04T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2025",
+"sortValue": 2025,
+"type": "text"
+},
+"column_1": {
+"value": "0.3932",
+"sortValue": 0.3932,
+"type": "text"
+},
+"column_2": {
+"value": "1.2733 %",
+"sortValue": 1.273279,
+"type": "text"
+},
+"column_3": {
+"value": "21.08.2025",
+"sortValue": "2025-08-21T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "20.08.2025",
+"sortValue": "2025-08-20T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "04.09.2025",
+"sortValue": "2025-09-04T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2025",
+"sortValue": 2025,
+"type": "text"
+},
+"column_1": {
+"value": "0.3814",
+"sortValue": 0.3814,
+"type": "text"
+},
+"column_2": {
+"value": "1.2909 %",
+"sortValue": 1.290877,
+"type": "text"
+},
+"column_3": {
+"value": "22.05.2025",
+"sortValue": "2025-05-22T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "21.05.2025",
+"sortValue": "2025-05-21T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "05.06.2025",
+"sortValue": "2025-06-05T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2025",
+"sortValue": 2025,
+"type": "text"
+},
+"column_1": {
+"value": "0.3735",
+"sortValue": 0.3735,
+"type": "text"
+},
+"column_2": {
+"value": "1.2622 %",
+"sortValue": 1.262208,
+"type": "text"
+},
+"column_3": {
+"value": "20.02.2025",
+"sortValue": "2025-02-20T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "19.02.2025",
+"sortValue": "2025-02-19T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "06.03.2025",
+"sortValue": "2025-03-06T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2024",
+"sortValue": 2024,
+"type": "text"
+},
+"column_1": {
+"value": "0.3865",
+"sortValue": 0.3865,
+"type": "text"
+},
+"column_2": {
+"value": "1.3301 %",
+"sortValue": 1.330052,
+"type": "text"
+},
+"column_3": {
+"value": "14.11.2024",
+"sortValue": "2024-11-14T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "13.11.2024",
+"sortValue": "2024-11-13T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "29.11.2024",
+"sortValue": "2024-11-29T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2024",
+"sortValue": 2024,
+"type": "text"
+},
+"column_1": {
+"value": "0.3904",
+"sortValue": 0.3904,
+"type": "text"
+},
+"column_2": {
+"value": "1.4244 %",
+"sortValue": 1.424354,
+"type": "text"
+},
+"column_3": {
+"value": "22.08.2024",
+"sortValue": "2024-08-22T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "21.08.2024",
+"sortValue": "2024-08-21T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "05.09.2024",
+"sortValue": "2024-09-05T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2024",
+"sortValue": 2024,
+"type": "text"
+},
+"column_1": {
+"value": "0.4744",
+"sortValue": 0.4744,
+"type": "text"
+},
+"column_2": {
+"value": "1.6661 %",
+"sortValue": 1.666098,
+"type": "text"
+},
+"column_3": {
+"value": "23.05.2024",
+"sortValue": "2024-05-23T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "22.05.2024",
+"sortValue": "2024-05-22T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "07.06.2024",
+"sortValue": "2024-06-07T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2024",
+"sortValue": 2024,
+"type": "text"
+},
+"column_1": {
+"value": "0.5579",
+"sortValue": 0.5579,
+"type": "text"
+},
+"column_2": {
+"value": "2.1206 %",
+"sortValue": 2.120599,
+"type": "text"
+},
+"column_3": {
+"value": "22.02.2024",
+"sortValue": "2024-02-22T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "21.02.2024",
+"sortValue": "2024-02-21T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "07.03.2024",
+"sortValue": "2024-03-07T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2023",
+"sortValue": 2023,
+"type": "text"
+},
+"column_1": {
+"value": "0.5670",
+"sortValue": 0.567,
+"type": "text"
+},
+"column_2": {
+"value": "2.2513 %",
+"sortValue": 2.251286,
+"type": "text"
+},
+"column_3": {
+"value": "16.11.2023",
+"sortValue": "2023-11-16T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "15.11.2023",
+"sortValue": "2023-11-15T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "30.11.2023",
+"sortValue": "2023-11-30T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2023",
+"sortValue": 2023,
+"type": "text"
+},
+"column_1": {
+"value": "0.5561",
+"sortValue": 0.5561,
+"type": "text"
+},
+"column_2": {
+"value": "2.1897 %",
+"sortValue": 2.189714,
+"type": "text"
+},
+"column_3": {
+"value": "24.08.2023",
+"sortValue": "2023-08-24T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "23.08.2023",
+"sortValue": "2023-08-23T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "07.09.2023",
+"sortValue": "2023-09-07T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2023",
+"sortValue": 2023,
+"type": "text"
+},
+"column_1": {
+"value": "0.4694",
+"sortValue": 0.4694,
+"type": "text"
+},
+"column_2": {
+"value": "1.8110 %",
+"sortValue": 1.810956,
+"type": "text"
+},
+"column_3": {
+"value": "25.05.2023",
+"sortValue": "2023-05-25T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "24.05.2023",
+"sortValue": "2023-05-24T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "07.06.2023",
+"sortValue": "2023-06-07T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2023",
+"sortValue": 2023,
+"type": "text"
+},
+"column_1": {
+"value": "0.4393",
+"sortValue": 0.4393,
+"type": "text"
+},
+"column_2": {
+"value": "1.5134 %",
+"sortValue": 1.51335,
+"type": "text"
+},
+"column_3": {
+"value": "09.02.2023",
+"sortValue": "2023-02-09T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "08.02.2023",
+"sortValue": "2023-02-08T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "24.02.2023",
+"sortValue": "2023-02-24T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2022",
+"sortValue": 2022,
+"type": "text"
+},
+"column_1": {
+"value": "0.4290",
+"sortValue": 0.429,
+"type": "text"
+},
+"column_2": {
+"value": "1.5638 %",
+"sortValue": 1.563781,
+"type": "text"
+},
+"column_3": {
+"value": "10.11.2022",
+"sortValue": "2022-11-10T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "09.11.2022",
+"sortValue": "2022-11-09T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "25.11.2022",
+"sortValue": "2022-11-25T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2022",
+"sortValue": 2022,
+"type": "text"
+},
+"column_1": {
+"value": "0.4319",
+"sortValue": 0.4319,
+"type": "text"
+},
+"column_2": {
+"value": "1.4790 %",
+"sortValue": 1.478988,
+"type": "text"
+},
+"column_3": {
+"value": "11.08.2022",
+"sortValue": "2022-08-11T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "10.08.2022",
+"sortValue": "2022-08-10T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "25.08.2022",
+"sortValue": "2022-08-25T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2022",
+"sortValue": 2022,
+"type": "text"
+},
+"column_1": {
+"value": "0.3962",
+"sortValue": 0.3962,
+"type": "text"
+},
+"column_2": {
+"value": "1.3266 %",
+"sortValue": 1.326649,
+"type": "text"
+},
+"column_3": {
+"value": "09.06.2022",
+"sortValue": "2022-06-09T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "08.06.2022",
+"sortValue": "2022-06-08T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "17.06.2022",
+"sortValue": "2022-06-17T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2022",
+"sortValue": 2022,
+"type": "text"
+},
+"column_1": {
+"value": "1.2741",
+"sortValue": 1.2741,
+"type": "text"
+},
+"column_2": {
+"value": "4.1980 %",
+"sortValue": 4.197981,
+"type": "text"
+},
+"column_3": {
+"value": "28.04.2022",
+"sortValue": "2022-04-28T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "27.04.2022",
+"sortValue": "2022-04-27T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "03.05.2022",
+"sortValue": "2022-05-03T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2021",
+"sortValue": 2021,
+"type": "text"
+},
+"column_1": {
+"value": "1.4288",
+"sortValue": 1.4288,
+"type": "text"
+},
+"column_2": {
+"value": "4.9276 %",
+"sortValue": 4.92761,
+"type": "text"
+},
+"column_3": {
+"value": "24.05.2021",
+"sortValue": "2021-05-24T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "21.05.2021",
+"sortValue": "2021-05-21T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "28.05.2021",
+"sortValue": "2021-05-28T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2020",
+"sortValue": 2020,
+"type": "text"
+},
+"column_1": {
+"value": "1.4331",
+"sortValue": 1.4331,
+"type": "text"
+},
+"column_2": {
+"value": "6.8794 %",
+"sortValue": 6.879386,
+"type": "text"
+},
+"column_3": {
+"value": "23.04.2020",
+"sortValue": "2020-04-23T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "22.04.2020",
+"sortValue": "2020-04-22T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "27.04.2020",
+"sortValue": "2020-04-27T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2019",
+"sortValue": 2019,
+"type": "text"
+},
+"column_1": {
+"value": "1.3019",
+"sortValue": 1.3019,
+"type": "text"
+},
+"column_2": {
+"value": "4.5592 %",
+"sortValue": 4.559207,
+"type": "text"
+},
+"column_3": {
+"value": "12.04.2019",
+"sortValue": "2019-04-12T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "11.04.2019",
+"sortValue": "2019-04-11T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "18.04.2019",
+"sortValue": "2019-04-18T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2018",
+"sortValue": 2018,
+"type": "text"
+},
+"column_1": {
+"value": "1.2608",
+"sortValue": 1.2608,
+"type": "text"
+},
+"column_2": {
+"value": "4.7016 %",
+"sortValue": 4.701618,
+"type": "text"
+},
+"column_3": {
+"value": "10.04.2018",
+"sortValue": "2018-04-10T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "09.04.2018",
+"sortValue": "2018-04-09T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "18.04.2018",
+"sortValue": "2018-04-18T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2017",
+"sortValue": 2017,
+"type": "text"
+},
+"column_1": {
+"value": "1.0875",
+"sortValue": 1.0875,
+"type": "text"
+},
+"column_2": {
+"value": "3.6916 %",
+"sortValue": 3.691596,
+"type": "text"
+},
+"column_3": {
+"value": "05.04.2017",
+"sortValue": "2017-04-05T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "06.04.2017",
+"sortValue": "2017-04-06T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "19.04.2017",
+"sortValue": "2017-04-19T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2016",
+"sortValue": 2016,
+"type": "text"
+},
+"column_1": {
+"value": "0.8700",
+"sortValue": 0.87,
+"type": "text"
+},
+"column_2": {
+"value": "3.3797 %",
+"sortValue": 3.37969,
+"type": "text"
+},
+"column_3": {
+"value": "01.04.2016",
+"sortValue": "2016-04-01T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "04.04.2016",
+"sortValue": "2016-04-04T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "13.04.2016",
+"sortValue": "2016-04-13T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2015",
+"sortValue": 2015,
+"type": "text"
+},
+"column_1": {
+"value": "0.5700",
+"sortValue": 0.57,
+"type": "text"
+},
+"column_2": {
+"value": "1.9786 %",
+"sortValue": 1.978623,
+"type": "text"
+},
+"column_3": {
+"value": "01.04.2015",
+"sortValue": "2015-04-01T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "02.04.2015",
+"sortValue": "2015-04-02T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "15.04.2015",
+"sortValue": "2015-04-15T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2014",
+"sortValue": 2014,
+"type": "text"
+},
+"column_1": {
+"value": "1.0600",
+"sortValue": 1.06,
+"type": "text"
+},
+"column_2": {
+"value": "4.2202 %",
+"sortValue": 4.220165,
+"type": "text"
+},
+"column_3": {
+"value": "23.07.2014",
+"sortValue": "2014-07-23T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "24.07.2014",
+"sortValue": "2014-07-24T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "31.07.2014",
+"sortValue": "2014-07-31T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2013",
+"sortValue": 2013,
+"type": "text"
+},
+"column_1": {
+"value": "1.0200",
+"sortValue": 1.02,
+"type": "text"
+},
+"column_2": {
+"value": "4.6653 %",
+"sortValue": 4.665331,
+"type": "text"
+},
+"column_3": {
+"value": "24.07.2013",
+"sortValue": "2013-07-24T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "25.07.2013",
+"sortValue": "2013-07-25T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "31.07.2013",
+"sortValue": "2013-07-31T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2012",
+"sortValue": 2012,
+"type": "text"
+},
+"column_1": {
+"value": "0.9500",
+"sortValue": 0.95,
+"type": "text"
+},
+"column_2": {
+"value": "4.4147 %",
+"sortValue": 4.414662,
+"type": "text"
+},
+"column_3": {
+"value": "24.07.2012",
+"sortValue": "2012-07-24T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "25.07.2012",
+"sortValue": "2012-07-25T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "30.07.2012",
+"sortValue": "2012-07-30T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2011",
+"sortValue": 2011,
+"type": "text"
+},
+"column_1": {
+"value": "1.1000",
+"sortValue": 1.1,
+"type": "text"
+},
+"column_2": {
+"value": "5.4838 %",
+"sortValue": 5.483795,
+"type": "text"
+},
+"column_3": {
+"value": "21.07.2011",
+"sortValue": "2011-07-21T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "22.07.2011",
+"sortValue": "2011-07-22T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "29.07.2011",
+"sortValue": "2011-07-29T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2010",
+"sortValue": 2010,
+"type": "text"
+},
+"column_1": {
+"value": "1.3000",
+"sortValue": 1.3,
+"type": "text"
+},
+"column_2": {
+"value": "6.6602 %",
+"sortValue": 6.660245,
+"type": "text"
+},
+"column_3": {
+"value": "22.07.2010",
+"sortValue": "2010-07-22T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "23.07.2010",
+"sortValue": "2010-07-23T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "30.07.2010",
+"sortValue": "2010-07-30T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2009",
+"sortValue": 2009,
+"type": "text"
+},
+"column_1": {
+"value": "0.5321",
+"sortValue": 0.5321,
+"type": "text"
+},
+"column_2": {
+"value": "3.4277 %",
+"sortValue": 3.427662,
+"type": "text"
+},
+"column_3": {
+"value": "24.07.2009",
+"sortValue": "2009-07-24T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "27.07.2009",
+"sortValue": "2009-07-27T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "31.07.2009",
+"sortValue": "2009-07-31T00:00:00",
+"type": "text"
+}
+},
+{
+"column_0": {
+"value": "2008",
+"sortValue": 2008,
+"type": "text"
+},
+"column_1": {
+"value": "0.8433",
+"sortValue": 0.8433,
+"type": "text"
+},
+"column_2": {
+"value": "4.4316 %",
+"sortValue": 4.431563,
+"type": "text"
+},
+"column_3": {
+"value": "21.08.2008",
+"sortValue": "2008-08-21T00:00:00",
+"type": "text"
+},
+"column_4": {
+"value": "22.08.2008",
+"sortValue": "2008-08-22T00:00:00",
+"type": "text"
+},
+"column_5": {
+"value": "29.08.2008",
+"sortValue": "2008-08-29T00:00:00",
+"type": "text"
+}
+}
+],
+"summary": [],
+"sortable": true,
+"isMatrix": false,
+"noRowHeader": false,
+"standAlone": true,
+"stickyHeader": false,
+"initialSort": "column_4.sortValue",
+"initialSortOrder": -1,
+"footnoteComponentId": "fundinformation-dividends",
+"rowsPerPage": 15,
+"secondSortOrder": 1,
+"id": "fundinformation-dividends",
+"headlineText": "",
+"disclaimers": [],
+"expanded": false
+},
+"disclaimers": []
+},
+{
+"id": "fundinformation-swapcounterparties",
+"type": "Table",
+"headlineText": "Swap counterparties",
+"expanded": false,
+"table": {
+"columns": [
+{
+"key": "header",
+"value": "Counterparty ",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_0",
+"value": "Gross exposure",
+"alignment": "right",
+"isVisibleOnHeader": true
+}
+],
+"values": [
+{
+"header": {
+"value": "<a href='https://www.jpmorgan.com/global'>J.P. Morgan Securities plc</a>",
+"type": "text"
+},
+"column_0": {
+"value": "98.20%",
+"sortValue": 98.1988,
+"type": "text"
+}
+},
+{
+"header": {
+"value": "<a href='https://www.goldmansachs.com'>Goldman Sachs Bank Europe SE</a>",
+"type": "text"
+},
+"column_0": {
+"value": "1.80%",
+"sortValue": 1.7996,
+"type": "text"
+}
+}
+],
+"summary": [],
+"sortable": false,
+"isMatrix": false,
+"noRowHeader": false,
+"standAlone": false,
+"stickyHeader": false,
+"initialSortOrder": 1,
+"footnoteComponentId": "fundinformation-swapcounterparties",
+"rowsPerPage": 15,
+"secondSortOrder": 1,
+"id": "fundinformation-swapcounterparties",
+"headlineText": "",
+"disclaimers": [],
+"expanded": false
+},
+"disclaimers": []
+}
+]
+},
+"indexKeyFacts": {
+"accordionItems": [
+{
+"id": "indexinformation-keyfacts",
+"type": "List",
+"headlineText": "Index key facts",
+"expanded": false,
+"list": {
+"items": [
+{
+"value": "STOXX® Global Select Dividend 100 Return Index",
+"key": "Index name",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "STOXX Ltd.",
+"key": "Index provider",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "17",
+"key": "Countries in index",
+"type": "STRING",
+"tooltip": "Note: the country classification shown is based on the securities’ countries of registration, this may differ from the index provider’s classification.",
+"isHighlighted": false
+},
+{
+"value": "100",
+"key": "Constituents count",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "4.84%",
+"key": "Dividend yield",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": ".SDGR",
+"key": "Reuters index ticker",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "SDGR",
+"key": "Bloomberg index ticker",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "EUR",
+"key": "Index base currency",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "10.44",
+"key": "P/E ratio",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "indexinformation-keyfacts",
+"headlineText": "Index key facts",
+"disclaimers": [
+{
+"text": "<p>Source: DWS 30.09.2026</p>",
+"disableDefaultWrapping": true
+}
+],
+"scope": "indexinformation-keyfacts",
+"expanded": false
+},
+"disclaimers": [
+{
+"text": "<p>Source: DWS 30.09.2026</p>",
+"disableDefaultWrapping": true
+}
+]
+}
+]
+},
+"portfolio": {
+"charts": {
+"cards": [
+{
+"title": "Security type",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "Equity",
+"weighting": 1,
+"weightingText": "1.00%"
+}
+]
+},
+{
+"title": "Country allocation",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "United States",
+"weighting": 0.8496684206535742,
+"weightingText": "0.85%"
+},
+{
+"id": "1",
+"allocationName": "Korea, Republic of",
+"weighting": 0.04884638201003944,
+"weightingText": "0.05%"
+},
+{
+"id": "2",
+"allocationName": "Ireland",
+"weighting": 0.024172622303942275,
+"weightingText": "0.02%"
+},
+{
+"id": "3",
+"allocationName": "Israel",
+"weighting": 0.023639239101648727,
+"weightingText": "0.02%"
+},
+{
+"id": "4",
+"allocationName": "Canada",
+"weighting": 0.014960600264330581,
+"weightingText": "0.01%"
+},
+{
+"id": "5",
+"allocationName": "Unknown",
+"weighting": 0.014021456560292264,
+"weightingText": "0.01%"
+},
+{
+"id": "6",
+"allocationName": "United Kingdom",
+"weighting": 0.009214924739624177,
+"weightingText": "0.01%"
+},
+{
+"id": "7",
+"allocationName": "Luxembourg",
+"weighting": 0.007455192632057329,
+"weightingText": "0.01%"
+},
+{
+"id": "8",
+"allocationName": "Netherlands",
+"weighting": 0.005434382723367845,
+"weightingText": "0.01%"
+},
+{
+"id": "9",
+"allocationName": "Switzerland",
+"weighting": 0.0025867790111231497,
+"weightingText": "0.00%"
+}
+]
+},
+{
+"title": "Sector weighting equities",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "Technology",
+"weighting": 0.44931306583204617,
+"weightingText": "0.45%"
+},
+{
+"id": "1",
+"allocationName": "Industrials",
+"weighting": 0.1364071614865508,
+"weightingText": "0.14%"
+},
+{
+"id": "2",
+"allocationName": "Unknown",
+"weighting": 0.12926082025582153,
+"weightingText": "0.13%"
+},
+{
+"id": "3",
+"allocationName": "Consumer Discretionary",
+"weighting": 0.0902825360882149,
+"weightingText": "0.09%"
+},
+{
+"id": "4",
+"allocationName": "Health Care",
+"weighting": 0.07202020020968686,
+"weightingText": "0.07%"
+},
+{
+"id": "5",
+"allocationName": "Basic Materials",
+"weighting": 0.036967000858958106,
+"weightingText": "0.04%"
+},
+{
+"id": "6",
+"allocationName": "Telecommunications",
+"weighting": 0.02939206452638588,
+"weightingText": "0.03%"
+},
+{
+"id": "7",
+"allocationName": "Consumer Staples",
+"weighting": 0.021389340391974165,
+"weightingText": "0.02%"
+},
+{
+"id": "8",
+"allocationName": "Real Estate",
+"weighting": 0.014052649560426393,
+"weightingText": "0.01%"
+},
+{
+"id": "9",
+"allocationName": "Others",
+"weighting": 0.020915160789935192,
+"weightingText": "0.02%"
+}
+]
+},
+{
+"title": "Currency weighting equities",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "USD",
+"weighting": 0.9409514283460911,
+"weightingText": "0.94%"
+},
+{
+"id": "1",
+"allocationName": "EUR",
+"weighting": 0.05428076473340729,
+"weightingText": "0.05%"
+},
+{
+"id": "2",
+"allocationName": "NOK",
+"weighting": 0.003776863516240513,
+"weightingText": "0.00%"
+},
+{
+"id": "3",
+"allocationName": "CHF",
+"weighting": 0.0009909434042610567,
+"weightingText": "0.00%"
+}
+]
+}
+]
+},
+"headlineText": "Substitute basket",
+"asOfDate": "05.11.2026"
+},
+"topProducts": {
+"topics": [],
+"cards": [
+{
+"title": "Xtrackers Artificial Intelligence & Big Data UCITS ETF 1C",
+"list": [
+{
+"value": [
+{
+"text": "Equities",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"tealiumTrackingModel": {},
+"name": "Equities",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"autoHyphenation": "custom"
+}
+],
+"key": "Asset class",
+"type": "URLLIST"
+},
+{
+"value": [
+{
+"text": "Sector",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"tealiumTrackingModel": {},
+"name": "Sector",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"autoHyphenation": "custom"
+},
+{
+"text": "Developed Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"tealiumTrackingModel": {},
+"name": "Developed Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"autoHyphenation": "custom"
+},
+{
+"text": "Emerging Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"tealiumTrackingModel": {},
+"name": "Emerging Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"autoHyphenation": "custom"
+}
+],
+"key": "Region",
+"type": "URLLIST"
+},
+{
+"value": "Strategic beta/factors",
+"key": "Strategy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Capitalizing",
+"key": "Distribution policy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "0.35%",
+"key": "All-in-fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "29.01.2019",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+}
+]
+}
+],
+"searchUrl": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"id": "top-products",
+"sideNavigationTitle": "Popular products",
+"headlineText": "Popular products",
+"asOfDate": "",
+"disclaimerHtml": []
+}
+}
+},
+"tealium": {
+"attributes": {
+"product_name": "Stoxx Global Select Dividend 100 Swap UCITS ETF 1D",
+"product_category": [
+"Equities"
+],
+"product_subcategory": [
+"Developed Markets",
+"Global",
+"Distributing",
+"Strategic beta/factors",
+"Savings Plan"
+]
+}
+}
+}

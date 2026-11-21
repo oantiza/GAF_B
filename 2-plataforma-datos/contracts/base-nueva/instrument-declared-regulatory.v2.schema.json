@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-regulatory.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/regulatory — v2",
+  "description": "Lo que dice el documento regulatorio: el indicador de riesgo y la evidencia que lo respalda. El SRI del KID y el SRRI antiguo son INDICADORES DISTINTOS y aqui no comparten campo: es el defecto que hoy tiene la maestra, un 1-7 declarado por el emisor escrito en un campo llamado srri que la app usa como si fuera calculado. El SRI no entra en ningun calculo; su unico uso es rellenar el indicador de riesgo de la ficha, y el sistema ya sabe funcionar sin el cayendo al SRRI o a un tramo de volatilidad.",
+  "x-collection": "instruments/{instrument_id}/declared/regulatory",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "sri": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7,
+      "description": "Indicador resumido de riesgo del KID de PRIIPs. Solo se escribe con el bloque de evidencia completo: hoy lo tienen 685 de 765 fondos, y otros 78 guardan el numero sin evidencia. Esos 78 no se migran: un numero sin documento detras no es un dato declarado.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "srri": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7,
+      "description": "Indicador sintetico antiguo (UCITS KIID). Campo DISTINTO del sri: no son la misma escala ni el mismo documento.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "recommended_holding_years": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "description": "Periodo de mantenimiento recomendado del KID de PRIIPs, en anos, tal como lo declara el propio documento (seccion «Cuanto tiempo debo mantener la inversion»). Lo lee el extractor del PDF del KID (`kid_gestora:*`, `cnmv_ficha:kid`, `amf_geco:kid`) en `riesgo.kid_periodo_mantenimiento_anos`, y llega en la ficha canonica como `regulatory.kid.recommended_holding_years`. Como el sri, solo se escribe con `kid_evidence` completo (documento, huella y fecha): es una cifra que se cita como del KID y tiene que poder volver a el. Es el horizonte que la ficha pone delante del que declara el fabricante en su EMT (`declared/target_market.min_holding_period`). Puede llevar decimales; un 0 no es un plazo y no se escribe. Medido el 09-11-2026 sobre el canonico `f0a599e1...`: 644 fichas traen el campo, todas de un KID, con valores enteros de 1 a 10 anos.",
+      "x-unit": "years",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "kid_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_url", "sha256", "document_date", "isin_evidence"],
+      "description": "Las ocho puertas de la evidencia del SRI, reducidas a lo que de verdad prueba algo: el documento, su huella, su fecha y QUE TAN ATADO esta ese documento a este ISIN. Sin las cuatro, no hay sri. Medido el 01-11 sobre las 844 fichas canonicas: 769 traen sri, 700 traen bloque KID, y 658 traen sri con url, huella y fecha. Los 111 restantes pierden el sri a proposito, 69 de ellos porque no hay ningun KID detras: un numero sin documento no es un dato declarado.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "document_url": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "document_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "La fecha del propio documento, no la de descarga.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "fetched_at": {
+          "type": "string",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "isin_evidence": {
+          "type": "string",
+          "enum": ["READ_FROM_DOCUMENT", "DOCUMENT_URL", "NONE"],
+          "description": "Como se sabe que este documento es de este ISIN, en tres grados y sin fingir el mas alto. READ_FROM_DOCUMENT es el ISIN leido del propio PDF, que es la unica prueba de verdad y hoy el canonico no la trae. DOCUMENT_URL es que la direccion del documento NOMBRA el ISIN: no es prueba del contenido, pero es un hecho comprobable, y lo cumplen 549 de los 700 KID medidos. NONE es que hay documento y nada lo ata a este ISIN: 150 de 700. No bloquea —se escribe y se marca, como el umbral de R2 y la politica de distribucion—, pero una cifra que vaya a un informe de cliente apoyandose en esto tiene que poder decir en que grado se apoya.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "is_priips": {
+          "type": "boolean",
+          "description": "Que el documento es un KID de PRIIPs y no un KIID antiguo. Es lo que separa el sri del srri.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-local-audit",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "process.env.VITE_FIREBASE_API_KEY='';process.env.VITE_FIREBASE_PROJECT_ID='';process.env.VITE_FIREBASE_APPCHECK_DISABLED='true';require('child_process').spawn('npx',['vite','--host','127.0.0.1','--port','5179','--strictPort'],{stdio:'inherit',shell:true})"
+      ],
+      "port": 5179
+    }
+  ]
+}

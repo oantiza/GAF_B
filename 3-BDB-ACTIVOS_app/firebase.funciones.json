@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "source": "functions_python",
+    "runtime": "python312",
+    "predeploy": ["node scripts/puertaFunciones.mjs"],
+    "ignore": [
+      "venv",
+      ".git",
+      "__pycache__",
+      "**/__pycache__",
+      "*.pyc",
+      "tests",
+      "scripts",
+      ".pytest_cache",
+      ".env",
+      ".env.*",
+      ".env.example",
+      "*.md"
+    ]
+  }
+}

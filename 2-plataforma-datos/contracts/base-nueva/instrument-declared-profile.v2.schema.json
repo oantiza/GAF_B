@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-profile.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/profile — v2",
+  "description": "Lo que el folleto dice del producto: objetivo, politica de distribucion y texto. Aqui vive distribution_policy, que es el campo que falta hoy en la maestra y que decide si una rentabilidad es comparable con otra.",
+  "x-collection": "instruments/{instrument_id}/declared/profile",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "distribution_policy"],
+  "allOf": [
+    {
+      "if": {
+        "required": ["distribution_policy"],
+        "properties": { "distribution_policy": { "not": { "const": "UNKNOWN" } } }
+      },
+      "then": { "required": ["distribution_policy_resolution"] },
+      "$comment": "Una politica que NO es UNKNOWN tiene que decir como se sabe. Sin esto, 'ACCUMULATING' a secas vuelve a ser una suposicion, que es el defecto que todo este contrato persigue. Lo comprueba el esquema, no la disciplina."
+    }
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien lo afirma. Parte del sobre comun de todo bloque declared/*.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "distribution_policy": {
+      "type": "string",
+      "enum": ["ACCUMULATING", "DISTRIBUTING", "UNKNOWN"],
+      "description": "Decidido el 01-11: OBLIGATORIO en todo fondo y ETF, con UNKNOWN como valor valido. Obligatorio significa declararlo, no conocerlo. Nunca se adivina del nombre: medido el 31-10, por nombre salen 258 Acc y 46 Dis/Inc, y 540 de 844 clases no dicen nada; distribuciones.yield_12m tiene 749 ceros exactos y solo 16 valores positivos, asi que tampoco sirve para deducirlo. En los 16 fiables el sesgo medido es de 3,05 % anual en mediana (p90 5,17 %, maximo 6,82 %), lo que a cinco anios hace que una clase de reparto parezca ~16 puntos peor que su gemela de acumulacion. De este campo se deriva return_basis, y con el la ficha marca la base en vez de bloquear la comparacion.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-coverage-target": 1
+    },
+    "distribution_policy_resolution": {
+      "type": "string",
+      "enum": [
+        "OFFICIAL_REGISTER",
+            "OFFICIAL_KID",
+        "PROVIDER_DISTRIBUTION_RECORDS",
+        "OBSERVED_DISTRIBUTION",
+        "PROVIDER_NO_RECORDS"
+      ],
+      "description": "COMO se sabe la politica, en grados declarados y sin fingir el mas alto. Obligatorio cuando la politica no es UNKNOWN, porque una politica sin procedencia vuelve a ser una suposicion.\n\nOFFICIAL_REGISTER: lo declara un registro oficial. El canonico ya lo trae en 19 fondos con procedencia amf_geco:clase, el registro frances, y mi mapper lo estaba TIRANDO: la misma leccion que el indice de referencia, un dato que existe y se pierde en el camino.\n\nPROVIDER_DISTRIBUTION_RECORDS: el proveedor tiene historial de repartos de esa clase, con fecha e importe. Prueba que REPARTE.\n\nOBSERVED_DISTRIBUTION: el rendimiento de los ultimos doce meses es mayor que cero, asi que ha repartido. Tambien prueba que reparte, y de esos hay 11 en el canonico.\n\nPROVIDER_NO_RECORDS: el proveedor dice que no tiene ningun reparto registrado para esa clase. Es evidencia de acumulacion y es el grado MAS DEBIL de los cuatro, porque es una ausencia afirmada por un tercero y no una declaracion del folleto. Viaja declarado para que un informe pueda decir en que se apoya.\n\nMedido el 01-11: con las cuatro vias se resuelven 230 de los 770, y 540 se quedan en UNKNOWN. De esos 540, la respuesta esta en un endpoint que el extractor YA llama (morningstar_lt:sal_distribution, presente en la procedencia de 755 fondos) y cuyo contenido el canonico no lleva: 568 no tienen la respuesta en cache y los trae una pasada del extractor.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Objetivo de inversion, texto del folleto. Es el unico texto libre del bloque y tiene dueno declarado: no es sitio donde dejar caer lo que no cabe en otro campo.",
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "sfdr_article": {
+      "type": "string",
+      "enum": ["ARTICLE_6", "ARTICLE_8", "ARTICLE_9"],
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "hedged_class": {
+      "type": "boolean",
+      "description": "Clase cubierta frente a divisa.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "_overrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Lo que una persona decidio por encima del canonico. El valor del canonico NO se borra: queda debajo, y la lectura sabe que hay una decision humana encima. Es la regla de desempate: cuando human y platform dicen cosas distintas, gana human y queda rastro de las dos.",
+      "x-layer": "human",
+      "x-owner": "human",
+      "properties": {
+        "distribution_policy": { "$ref": "#/$defs/override_code" },
+        "sfdr_article": { "$ref": "#/$defs/override_code" }
+      }
+    }
+  },
+  "$defs": {
+    "override_code": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "decided_by", "decided_at", "reason"],
+      "x-layer": "human",
+      "x-owner": "human",
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "decided_by": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "decided_at": {
+          "type": "string",
+          "x-unit": "date",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "supersedes": {
+          "type": "string",
+          "description": "El valor que venia del canonico, conservado.",
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human",
+          "x-absence": "NOT_APPLICABLE"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  // Typecheck de los tests de Vitest (S-11, auditoría 29-09). No forma parte de
+  // `tsc -b`: ejecutar a mano con `npx tsc -p tsconfig.test.json`.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "noEmit": true,
+    // Los tests importan scripts/*.mjs sin .d.ts: se infieren los tipos del propio JS (sin comprobarlo).
+    "allowJs": true,
+    "checkJs": false,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["tests/**/*", "src/**/*"]
+}

@@ -1,0 +1,55 @@
+# Un solo repositorio desde el 10-11-2026: la raíz lleva los documentos transversales y las tres
+# capas (`1-extractor`, `2-plataforma-datos`, `3-BDB-ACTIVOS_app`), cada una con su historia de antes
+# fusionada bajo su carpeta. Cada carpeta conserva su propio `.gitignore`; aquí va solo lo de la raíz.
+
+# --- La base nueva: su configuración SÍ se versiona, su volcado no ---
+# 24 MB de LevelDB que se reconstruyen del canónico del extractor en segundos, y que en Git
+# no se podrían revisar. Lo que va al repositorio es cómo se reconstruyen.
+4-base-nueva/datos/
+# Lo que un refresco recuerda del anterior, en esta máquina: quién entraba en el cálculo por igualar al proveedor.
+4-base-nueva/refrescos/
+
+# --- Datos reales de cliente: nunca al repositorio ---
+# pos.xls y mov.xls son posiciones y movimientos de una cartera real.
+*.xls
+*.xlsx
+# Resultados e informes generados a partir de un extracto real (purgados del
+# historial el 14-10-2026): cifras, flujos y posiciones del cliente.
+analisis_rendimiento_cartera_fase1/results.json
+analisis_rendimiento_cartera_fase1/expected.json
+analisis_rendimiento_cartera_fase1/informe.html
+analisis_rendimiento_cartera_fase1/prices/
+Informe_Rendimiento_Cartera_Real_*.html
+AUDITORIA_Rendimiento_Cartera_Real_*
+
+# --- Regenerable o pesado ---
+extractor.zip
+__pycache__/
+*.py[cod]
+*.log
+
+# --- Temporales de sesiones: nunca al repositorio (auditoría 16-10-2026) ---
+# tmp/ guarda copias de trabajo de la app y PDF de prueba; _to_delete/ es la
+# papelera de revisión; package-lock.json quedó de un npm sin package.json.
+/tmp/
+/_to_delete/
+/package-lock.json
+
+# --- Secretos, por si acaso ---
+.env
+.env.*
+!.env.example
+serviceAccount*
+*credential*
+*private_key*
+*.pem
+*.key
+4-base-nueva/sitio/
+# El registro local de quién despliega y desde qué commit (SEG-3). El sitio publicado lleva el suyo en version.json.
+4-base-nueva/despliegues.jsonl
+
+# --- Locales: la caché de la CLI, herramientas de cada máquina y los PDF de consulta de Óscar.
+4-base-nueva/.firebase/
+.agents/
+Estado_del_proyecto_*.pdf
+PLAN_REDISENO_FRONTEND_*.pdf

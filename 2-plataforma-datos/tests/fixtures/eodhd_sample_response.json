@@ -1,0 +1,82 @@
+[
+    {
+        "Code": "AAPL",
+        "Name": "Apple Inc",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Common Stock",
+        "Isin": "US0378331005"
+    },
+    {
+        "Code": "MSFT",
+        "Name": "Microsoft Corp",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Common Stock",
+        "Isin": "US5949181045"
+    },
+    {
+        "Code": "SPY",
+        "Name": "SPDR S&P 500 ETF Trust",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "ETF",
+        "Isin": "US78462F1030"
+    },
+    {
+        "Code": "QQQ",
+        "Name": "Invesco QQQ Trust",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "ETF",
+        "Isin": "US46090E1038"
+    },
+    {
+        "Code": "VFIAX",
+        "Name": "Vanguard 500 Index Fund",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Mutual Fund",
+        "Isin": "US9229087286"
+    },
+    {
+        "Code": "FXAIX",
+        "Name": "Fidelity 500 Index Fund",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Fund",
+        "Isin": "US3159117502"
+    },
+    {
+        "Code": "NOCISIN",
+        "Name": "Asset Without ISIN",
+        "Country": "UK",
+        "Exchange": "LSE",
+        "Currency": "GBP",
+        "Type": "Common Stock"
+    },
+    {
+        "Code": "BADISIN",
+        "Name": "Asset Bad ISIN",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Common Stock",
+        "Isin": "US123BAD"
+    },
+    {
+        "Code": "WEIRD",
+        "Name": "Unknown Type Asset",
+        "Country": "USA",
+        "Exchange": "US",
+        "Currency": "USD",
+        "Type": "Crypto",
+        "Isin": "US0000000001"
+    }
+]

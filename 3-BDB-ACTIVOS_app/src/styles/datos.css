@@ -1,0 +1,37 @@
+/* ============================================================================
+   Datos: Salud del catálogo y Sistema (rediseño, paso 4)
+
+   Solo para administración. Las dos pantallas se montan con las piezas —`PageHeader`, `Respuesta`,
+   `Panel`, `TablaDeDatos`, `Aviso`, `Campo`, `Distintivo`—; aquí va únicamente cómo se apilan sus
+   partes. La trae `SaludDelCatalogoPage`; Sistema ya la tiene en `.admin-page`.
+   ========================================================================== */
+
+/* Cabecera, banda, pestañas y bloques, uno bajo otro con el aire entre bloques del sistema. */
+.datos-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  min-width: 0;
+}
+
+/* --- Salud del catálogo -------------------------------------------------- */
+
+/* La banda es la abierta de la pieza (`<Respuesta abierta>`), como la de Análisis. Aquí, el rótulo en tinta y el
+   reparto de la tableta de pie. */
+.salud > .respuesta .respuesta__rotulo {
+  color: var(--tinta);
+  text-wrap: balance;
+}
+
+/* En la tableta de pie las cinco no caben en una fila: «Sin pedir» caía sola debajo. Tres y dos, en columnas. */
+@media (max-width: 899.98px) {
+  .salud > .respuesta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Las tablas y los avisos, con un tope de lectura: a 1920 y 2560 la cifra quedaba a más de un metro de su nombre. */
+.salud .panel__body {
+  max-width: var(--tabla-lectura-max);
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/portfolio-report.v2.schema.json",
+  "title": "portfolios/{portfolio_id}/reports/{report_id} — v2",
+  "description": "Un informe entregado a un cliente. Cuelga de la CARTERA y no de una fecha, porque un informe es de una cartera y lo que lleva dentro es la fecha. Lo que guarda es lo que hace falta para reproducirlo: que periodo, con que convenciones y sobre que version de los datos. NO guarda marca comercial: decidido el 01-11, el programa es neutro y el nombre comercial de un banco no es nunca su marca, asi que la identidad del informe es una sola, la nuestra, y no es un campo que se elija.",
+  "x-collection": "portfolios/{portfolio_id}/reports/{report_id}",
+  "x-layer": "human",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["report_id", "kind", "period_id", "generated_by", "generated_at", "inputs_digest"],
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["PORTFOLIO_REVIEW", "PERFORMANCE", "PROPOSAL", "XRAY"],
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "period_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "La valoracion sobre la que se construyo, por su clave. El informe no copia las cifras: las referencia, para que no puedan divergir de la valoracion que las produjo.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "generated_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "inputs_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Huella de los datos con los que se genero. Es lo que permite contestar, dos anios despues, por que el informe decia aquello: o se reproduce igual, o se sabe que los datos cambiaron.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "delivered_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "file_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Huella del PDF que se entrego, si se entrego.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_APPLICABLE"
+    }
+  }
+}

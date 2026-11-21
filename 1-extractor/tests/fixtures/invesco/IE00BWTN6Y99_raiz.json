@@ -1,0 +1,139 @@
+{
+ "effectiveDate": "2026-11-06",
+ "lastModified": "2026-10-12T20:55:04Z",
+ "primaryShareClassIndicator": true,
+ "shareClassCurrency": "USD",
+ "shareClassFullName": "Invesco S&amp;P 500 High Dividend Low Volatility UCITS ETF Dist",
+ "shareClassStatus": "open",
+ "shareClassSuffix": "Dist",
+ "shareClassInceptionDate": "2015-05-11",
+ "replicationMethod": "Physical",
+ "hedgedIndicator": false,
+ "distributionFrequency": "Quarterly",
+ "sippEligible": "Yes",
+ "ucitsCompliant": "Yes",
+ "isaEligible": "Yes",
+ "peaEligible": "Yes",
+ "shareClassReportingStatusUk": "Yes",
+ "audienceType": [
+  "Individual Investor",
+  "Financial Professional",
+  "Institutional",
+  "Discretionary"
+ ],
+ "passports": [
+  "AT",
+  "BE.PP",
+  "HR",
+  "CZ",
+  "DK",
+  "FI",
+  "FR",
+  "DE",
+  "HK (Financial Professional and Institutional)",
+  "HU",
+  "IE",
+  "IL (Financial Professional and Institutional)",
+  "IT",
+  "LU",
+  "NL",
+  "NO",
+  "PT",
+  "RO",
+  "SG",
+  "SK",
+  "ES",
+  "SE",
+  "CH",
+  "GB"
+ ],
+ "account": {
+  "accountName": "Invesco S&amp;P 500 High Dividend Low Volatility UCITS ETF",
+  "currency": "USD",
+  "domicileCountry": "IE",
+  "financialYearEnd": "--09-30",
+  "legalEntityIdentifier": "549300XVTZJFIL12CK86",
+  "accountStatus": "open",
+  "securityLendingParticipationFlag": true,
+  "accountShortName": "S&amp;P 500 High Dividend Low Volatility UCITS ETF",
+  "investmentVehicleType": "ETF",
+  "inceptionDate": "2015-05-11",
+  "fundFocus": "Large cap",
+  "region": "US",
+  "strategy": "Smart Beta",
+  "legalForm": "Yes",
+  "investability": [
+   "ISA",
+   "SIPP"
+  ],
+  "productType": "ETF",
+  "sfdrClassification": [
+   "article6"
+  ]
+ },
+ "investmentStrategy": {
+  "assetType": "Equity",
+  "managementStyle": "PASSIVE"
+ },
+ "aliases": {
+  "isin": "IE00BWTN6Y99",
+  "wkn": "A14RHD",
+  "valor": "27927617",
+  "sedol": "BWTN6Z0",
+  "ticker": "HDLV",
+  "bloombergTicker": "HDLV LN",
+  "bloombergTickerInav": "HDLVUSIV"
+ },
+ "shareclassCharges": {
+  "exitCharge": "0.0002",
+  "fundManagementCharge": "0.3%",
+  "custodyCharge": "$100",
+  "createCharge": "0.0002"
+ },
+ "shareclassListings": [
+  {
+   "listingExchangeCode": "XLON",
+   "listingExchangeName": "London Stock Exchange",
+   "listingCurrency": "USD",
+   "listingRic": "HDLV.L",
+   "listingDate": "2015-05-11",
+   "listingPrimaryIndicator": true,
+   "listingSedol": "BWTN6Z0",
+   "listingBloombergTicker": "HDLV LN",
+   "listingIsin": "IE00BWTN6Y99",
+   "listingValor": "27927617",
+   "listingWKN": "A14RHD",
+   "listingTicker": "HDLV",
+   "listingBloombergTickerInav": "HDLVUSIV",
+   "listingReutersInav": "HDLVUSiv.P",
+   "listingMarkitTickerInav": "HDLVUSiv.P",
+   "listingMarkitTickerBidOfferPrice": "HDLV.L"
+  }
+ ],
+ "benchmarkRelationships": [
+  {
+   "benchmarkFullName": "S&amp;P 500 Low Volatility High Dividend Index",
+   "baseCurrency": "USD",
+   "indexProvider": "",
+   "indexBloombergTicker": "SP5LVHDN",
+   "indexRic": ".SP5LVHDN"
+  }
+ ],
+ "links": {
+  "self": {
+   "href": "/*/en_GB/shareclasses/IE00BWTN6Y99?idType=isin"
+  },
+  "nav": {
+   "href": "/*/en_GB/shareclasses/IE00BWTN6Y99/nav?idType=isin"
+  },
+  "esg": {
+   "href": "/*/en_GB/shareclasses/IE00BWTN6Y99/esg?idType=isin"
+  },
+  "distribution": {
+   "href": "/*/en_GB/shareclasses/IE00BWTN6Y99/distribution?idType=isin"
+  },
+  "marketdata": {
+   "href": "/*/en_GB/shareclasses/IE00BWTN6Y99/marketdata?idType=isin"
+  }
+ }
+}

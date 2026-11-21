@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/master/holdings.v1.schema.json",
+  "title": "Master holdings (assets/{asset_id}/holdings/latest) — v1",
+  "description": "Holdings (cartera) de un activo en la maestra. Contenedor 'latest' (SINGLE_DOCUMENT) o manifest+chunks (CHUNKED). weight_pct en PORCENTAJE (0-100).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["storage_mode", "holdings_count", "as_of_date", "holdings"],
+  "properties": {
+    "storage_mode": { "type": ["string", "null"], "description": "SINGLE_DOCUMENT | CHUNKED." },
+    "holdings_count": { "type": ["number", "null"] },
+    "top10_weight": { "type": ["number", "null"] },
+    "as_of_date": { "type": ["string", "null"] },
+    "holdings": {
+      "type": ["array", "null"],
+      "items": { "$ref": "#/$defs/holdingRecord" }
+    },
+    "schema_version": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "$defs": {
+    "holdingRecord": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["asset_id", "source_fund_isin", "holding_id", "identifiers", "source_metadata"],
+      "properties": {
+        "asset_id": { "type": "string", "description": "ISIN del FONDO contenedor." },
+        "source_fund_isin": { "type": "string" },
+        "holding_id": { "type": "string" },
+        "as_of_date": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "identifiers": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "isin": { "type": ["string", "null"] },
+            "ticker": { "type": ["string", "null"] }
+          }
+        },
+        "holding_type": { "type": ["string", "null"] },
+        "weight_pct": { "type": ["number", "null"], "description": "Peso en PORCENTAJE (0-100)." },
+        "currency": { "type": ["string", "null"] },
+        "sector": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "source_metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "file"],
+          "properties": {
+            "source": { "type": "string", "const": "FondosDB" },
+            "file": { "type": "string" },
+            "part": { "type": ["number", "null"] },
+            "total_parts": { "type": ["number", "null"] }
+          }
+        }
+      }
+    }
+  }
+}

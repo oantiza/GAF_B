@@ -1,0 +1,21 @@
+# Keep transitive runtime dependencies reproducible across local checks and deployment.
+-c constraints.txt
+firebase-functions==0.6.0
+firebase-admin==7.4.0
+google-cloud-firestore==2.28.0
+# Incidente 25-08-2026: google-api-core 2.35.0 (publicada el 24-08) rompe las
+# lecturas de Firestore con «400 Invalid database id %28default%29». Verificado
+# en local contra la BBDD real: 2.34.0 OK, 2.35.0 falla con el resto igual
+# (grpcio 1.83.0, firestore 2.28.0). Fijada hasta que aguas arriba lo corrija;
+# para levantar el pin, probar primero el GET de meta/search_index en local.
+google-api-core==2.34.0
+pandas==3.0.3
+numpy==2.5.0
+yfinance==1.5.1
+# Timeout total de Gemini; ya estaba fijada como dependencia de yfinance.
+curl-cffi==0.16.3
+lxml==6.1.1
+PyPortfolioOpt==1.6.0
+jsonschema==4.26.0
+
+pypdf==6.21.1

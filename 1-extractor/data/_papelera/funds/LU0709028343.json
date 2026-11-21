@@ -1,0 +1,962 @@
+{
+  "identificacion": {
+    "nombre": "GBM Mexico Fund D EUR Acc",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Other Equity",
+    "fecha_lanzamiento_clase": "2011-12-23",
+    "gestora": "GBM",
+    "fecha_lanzamiento_fondo": "2011-12-23",
+    "estrategia_inversion_texto": "The Sub-Fund’s will seek to offer attractive returns by investing in stocks listed on the Mexican stock exchange market in which the Investment Manager believes there is value to be found. Specifically, the Sub-Fund will invest in companies with a solid balance sheet, growth opportunities, strong cash flow generation, and good management. Some of the advantages the Sub-Fund presents are the following: - The Sub-Fund can be invested in the stock market in any percentage, allowing an aggressive asset distribution policy, making it aggressive in bullish markets and highly defensive in bearish markets.",
+    "clase_activo": "Equity",
+    "indice_benchmark_oficial": "N/A",
+    "inversion_minima_inicial": 0.0,
+    "paraguas_legal": "MONTLAKE UCITS PLATFORM (LUX) SICAV",
+    "compartimento_legal": "GBM MEXICO FUND",
+    "clase_legal": "CLASS D",
+    "nombre_legal_registro": "MONTLAKE UCITS PLATFORM (LUX) SICAV-GBM MEXICO FUND",
+    "divisa_compartimento": "USD",
+    "fecha_autorizacion_cssf": "2022-06-29",
+    "marco_legal": "UCITS",
+    "gestora_legal": "BLI - BANQUE DE LUXEMBOURG INVESTMENTS",
+    "nombre_legal_esma": "GBM ASSET MANAGEMENT SICAV-MEXICO FUND",
+    "estado_registro_esma": "Inactive",
+    "comercializado_en_espana": true,
+    "paises_comercializacion": [
+      "ES"
+    ],
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "LUX",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "costes": {
+    "ter_pct": 2.26,
+    "comision_suscripcion_max_pct": 2.0,
+    "comision_gestion_max_pct": 1.1
+  },
+  "valoracion": {
+    "vl": 19.52,
+    "vl_fecha": "2026-09-25T05:00:00.000",
+    "vl_divisa": "EUR",
+    "patrimonio_fondo_meur": 7.9,
+    "patrimonio_fecha": "2026-09-25",
+    "patrimonio_divisa": "EUR"
+  },
+  "rentabilidad": {
+    "trailing_pct": {
+      "1m": {
+        "fondo": -0.70485
+      },
+      "3m": {
+        "fondo": -0.24933
+      },
+      "6m": {
+        "fondo": -1.326888
+      },
+      "ytd": {
+        "fondo": 13.132
+      },
+      "1a": {
+        "fondo": 28.84194
+      },
+      "3a_anualizada": {
+        "fondo": 9.644414
+      },
+      "5a_anualizada": {
+        "fondo": 11.533847
+      },
+      "10a_anualizada": {
+        "fondo": 3.114776
+      }
+    },
+    "fecha_dato": "2026-08-31",
+    "por_año_natural": {
+      "2025": {
+        "fondo": 32.91738
+      },
+      "2024": {
+        "fondo": -18.50649
+      },
+      "2023": {
+        "fondo": 32.13535
+      },
+      "2022": {
+        "fondo": 5.40955
+      },
+      "2021": {
+        "fondo": 4.92391
+      },
+      "2020": {
+        "fondo": -15.82517
+      },
+      "2019": {
+        "fondo": 5.31748
+      },
+      "2018": {
+        "fondo": -6.4588
+      },
+      "2017": {
+        "fondo": -0.44347
+      },
+      "2016": {
+        "fondo": -9.55883
+      },
+      "2015": {
+        "fondo": -3.48387
+      },
+      "2014": {
+        "fondo": 10.39887
+      },
+      "2013": {
+        "fondo": 10.55118
+      },
+      "2012": {
+        "fondo": 28.28285
+      }
+    }
+  },
+  "riesgo": {
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 11.5589686389
+      },
+      "3a": {
+        "fondo": 16.4964048359
+      },
+      "5a": {
+        "fondo": 17.5255137868
+      },
+      "10a": {
+        "fondo": 18.8397467891
+      }
+    },
+    "sharpe": {
+      "3a": {
+        "fondo": 0.4275123435
+      },
+      "1a": {
+        "fondo": 1.649351443
+      },
+      "5a": {
+        "fondo": 0.3879786225
+      },
+      "10a": {
+        "fondo": 0.1203209168
+      }
+    },
+    "fecha_dato": "2026-08-31",
+    "srri_1a7": 6
+  },
+  "esg": {
+    "globos_sostenibilidad": 4
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "cartera": {
+    "sector_principal": "industria",
+    "fecha": "2026-05-31",
+    "num_posiciones": 26,
+    "num_posiciones_rv": 22,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 96.22132,
+        "largo": 96.22132,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "convertibles": {
+        "neto": 3.33421,
+        "largo": 3.33421,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": 0.44446,
+        "largo": 0.44446,
+        "corto": 0.0
+      },
+      "otros": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      }
+    },
+    "sectores_pct": {
+      "materiales_basicos": {
+        "fondo": 12.256901
+      },
+      "consumo_ciclico": {
+        "fondo": 11.152092
+      },
+      "servicios_financieros": {
+        "fondo": 11.578465
+      },
+      "inmobiliario": {
+        "fondo": 11.729118
+      },
+      "consumo_defensivo": {
+        "fondo": 20.728022
+      },
+      "comunicacion": {
+        "fondo": 4.080757
+      },
+      "energia": {
+        "fondo": 3.973393
+      },
+      "industria": {
+        "fondo": 24.501251
+      }
+    },
+    "regiones_pct": {
+      "latinoamerica": 100.0,
+      "otros": 100.0
+    },
+    "paises_pct": {
+      "MEX": 100.0
+    },
+    "capitalizacion_pct": {
+      "gigante": 15.27826,
+      "grande": 11.07881,
+      "mediana": 63.710051,
+      "pequeña": 3.7101,
+      "micro": 0.0,
+      "media_musd": 8086.99684
+    },
+    "style_box_rv": {
+      "celdas_pct": {
+        "LV": 5.533272,
+        "LB": 22.570942,
+        "LG": 5.199102,
+        "MV": 13.685237,
+        "MB": 15.522101,
+        "MG": 37.489347,
+        "SV": 0.0,
+        "SB": 0.0,
+        "SG": 0.0
+      }
+    },
+    "renta_fija": {
+      "sectores_pct": {
+        "corporativa": 88.23766,
+        "liquidez": 11.76234
+      },
+      "fecha": "2026-05-31T05:00:00.000"
+    },
+    "valoracion_cartera": {
+      "per": 11.74593,
+      "pb": 1.75241,
+      "pventas": 1.59826,
+      "pcf": 5.60124,
+      "yield_dividendo_pct": 5.54848,
+      "crec_beneficios_pct": 10.83119,
+      "crec_beneficios_5a_pct": 7.50417,
+      "crec_valor_contable_pct": 6.1972,
+      "crec_ventas_pct": 7.3891,
+      "crec_cashflow_pct": 5.30395
+    },
+    "calidad_cartera": {
+      "roa_pct": 8.24957,
+      "roe_pct": 19.36386,
+      "roic_pct": 15.05242,
+      "margen_neto_pct": 30.06651,
+      "deuda_capital_pct": 44.92895
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "Fomento Economico Mexicano SAB de CV Units Cons. Of 1 Shs-B- And 4 Shs-D-",
+        "isin": "MXP320321310",
+        "peso_pct": 7.72676,
+        "sector": "consumo_defensivo",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Grupo Mexico SAB de CV Class B",
+        "isin": "MXP370841019",
+        "peso_pct": 7.08875,
+        "sector": "materiales_basicos",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Promotora Y Operadora de Infraestructura SAB de CV",
+        "isin": "MX01PI000005",
+        "peso_pct": 7.01057,
+        "sector": "industria",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Grupo Aeroportuario del Sureste SAB de CV Class B",
+        "isin": "MXP001661018",
+        "peso_pct": 6.96411,
+        "sector": "industria",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Corporacion Inmobiliaria Vesta SAB de CV",
+        "isin": "MX01VE0M0003",
+        "peso_pct": 6.88614,
+        "sector": "inmobiliario",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Gruma SAB de CV Class B",
+        "isin": "MXP4948K1056",
+        "peso_pct": 4.44859,
+        "sector": "consumo_defensivo",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Grupo Financiero Banorte SAB de CV Class O",
+        "isin": "MXP370711014",
+        "peso_pct": 4.37917,
+        "sector": "servicios_financieros",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "GCC SAB de CV",
+        "isin": "MX01GC2M0006",
+        "peso_pct": 4.35596,
+        "sector": "materiales_basicos",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Grupo Aeroportuario del Pacifico SAB de CV Class B",
+        "isin": "MX01GA000004",
+        "peso_pct": 4.1147,
+        "sector": "industria",
+        "pais": "MEX",
+        "divisa": "MXN"
+      },
+      {
+        "nombre": "Fibra Uno Administracion SA de CV Certificados Bursatiles Fiduciarios Inmob",
+        "isin": "MXCFFU000001",
+        "peso_pct": 4.06576,
+        "sector": "inmobiliario",
+        "pais": "MEX",
+        "divisa": "MXN"
+      }
+    ],
+    "posiciones": [
+      {
+        "nombre": "Fomento Economico Mexicano SAB de CV Units Cons. Of 1 Shs-B- And 4 Shs-D-",
+        "isin": "MXP320321310",
+        "ticker": "FEMSAUBD",
+        "tipo": "rv",
+        "peso_pct": 7.72676,
+        "divisa": "MXN",
+        "sector": "consumo_defensivo",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Mexico SAB de CV Class B",
+        "isin": "MXP370841019",
+        "ticker": "GMEXICOB",
+        "tipo": "rv",
+        "peso_pct": 7.08875,
+        "divisa": "MXN",
+        "sector": "materiales_basicos",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Promotora Y Operadora de Infraestructura SAB de CV",
+        "isin": "MX01PI000005",
+        "ticker": "PINFRA",
+        "tipo": "rv",
+        "peso_pct": 7.01057,
+        "divisa": "MXN",
+        "sector": "industria",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Aeroportuario del Sureste SAB de CV Class B",
+        "isin": "MXP001661018",
+        "ticker": "ASURB",
+        "tipo": "rv",
+        "peso_pct": 6.96411,
+        "divisa": "MXN",
+        "sector": "industria",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Corporacion Inmobiliaria Vesta SAB de CV",
+        "isin": "MX01VE0M0003",
+        "ticker": "VESTA",
+        "tipo": "rv",
+        "peso_pct": 6.88614,
+        "divisa": "MXN",
+        "sector": "inmobiliario",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Gruma SAB de CV Class B",
+        "isin": "MXP4948K1056",
+        "ticker": "GRUMAB",
+        "tipo": "rv",
+        "peso_pct": 4.44859,
+        "divisa": "MXN",
+        "sector": "consumo_defensivo",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Financiero Banorte SAB de CV Class O",
+        "isin": "MXP370711014",
+        "ticker": "GFNORTEO",
+        "tipo": "rv",
+        "peso_pct": 4.37917,
+        "divisa": "MXN",
+        "sector": "servicios_financieros",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "GCC SAB de CV",
+        "isin": "MX01GC2M0006",
+        "ticker": "GCC",
+        "tipo": "rv",
+        "peso_pct": 4.35596,
+        "divisa": "MXN",
+        "sector": "materiales_basicos",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Aeroportuario del Pacifico SAB de CV Class B",
+        "isin": "MX01GA000004",
+        "ticker": "GAPB",
+        "tipo": "rv",
+        "peso_pct": 4.1147,
+        "divisa": "MXN",
+        "sector": "industria",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Fibra Uno Administracion SA de CV Certificados Bursatiles Fiduciarios Inmob",
+        "isin": "MXCFFU000001",
+        "ticker": "FUNO11",
+        "tipo": "rv",
+        "peso_pct": 4.06576,
+        "divisa": "MXN",
+        "sector": "inmobiliario",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Aeroportuario del Centro Norte SAB de CV Class B",
+        "isin": "MX01OM000018",
+        "ticker": "OMAB",
+        "tipo": "rv",
+        "peso_pct": 3.9629,
+        "divisa": "MXN",
+        "sector": "industria",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Kimberly - Clark de Mexico SAB de CV Class A",
+        "isin": "MXP606941179",
+        "ticker": "KIMBERA",
+        "tipo": "rv",
+        "peso_pct": 3.92233,
+        "divisa": "MXN",
+        "sector": "consumo_defensivo",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "El Puerto de Liverpool SAB de CV Series C1",
+        "isin": "MXP369181377",
+        "ticker": "LIVEPOLC-1",
+        "tipo": "rv",
+        "peso_pct": 3.89514,
+        "divisa": "MXN",
+        "sector": "consumo_ciclico",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "America Movil SAB de CV Ordinary Shares - Class B",
+        "isin": "MX01AM050019",
+        "ticker": "AMXB",
+        "tipo": "rv",
+        "peso_pct": 3.81035,
+        "divisa": "MXN",
+        "sector": "comunicacion",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Alsea SAB de CV",
+        "isin": "MXP001391012",
+        "ticker": "ALSEA",
+        "tipo": "rv",
+        "peso_pct": 3.72374,
+        "divisa": "MXN",
+        "sector": "consumo_ciclico",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Esentia Energy Development SAB De CV Ordinary Shares - Class II",
+        "isin": "MX01ES050019",
+        "ticker": "ESENTIAII",
+        "tipo": "rv",
+        "peso_pct": 3.7101,
+        "divisa": "MXN",
+        "sector": "energia",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Gentera SAB de CV",
+        "isin": "MX01GE0E0004",
+        "ticker": "GENTERA",
+        "tipo": "rv",
+        "peso_pct": 3.56213,
+        "divisa": "MXN",
+        "sector": "servicios_financieros",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "BBB Foods Inc Class A",
+        "isin": "VGG0896C1032",
+        "ticker": "TBBB",
+        "tipo": "rv",
+        "peso_pct": 3.25681,
+        "divisa": "USD",
+        "sector": "consumo_defensivo",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Banco del Bajio SA",
+        "isin": "MX41BB000000",
+        "ticker": "BBAJIOO",
+        "tipo": "rv",
+        "peso_pct": 2.86994,
+        "divisa": "MXN",
+        "sector": "servicios_financieros",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Fomento Ec Npv Cbf 23",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rv",
+        "peso_pct": 2.84773,
+        "divisa": "MXN",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "La Comer SAB de CV 3 Shs -B- + 1 Sh -C-",
+        "isin": "MX01LA050010",
+        "ticker": "LACOMERUBC",
+        "tipo": "rv",
+        "peso_pct": 2.79423,
+        "divisa": "MXN",
+        "sector": "consumo_ciclico",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Orbia Advance Corp SAB de CV",
+        "isin": "MX01OR010004",
+        "ticker": "ORBIA",
+        "tipo": "rv",
+        "peso_pct": 0.82542,
+        "divisa": "MXN",
+        "sector": "industria",
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Grupo Televisa S.A.B.",
+        "isin": "MXP4987V1378",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 3.33421,
+        "divisa": "MXN",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Na",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.33717,
+        "divisa": "MXN",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Na",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.05704,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Na",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.05026,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      }
+    ],
+    "divisas_pct": {
+      "MXN": 96.64,
+      "USD": 3.31,
+      "EUR": 0.06
+    }
+  },
+  "meta": {
+    "sec_id_morningstar": "F00001F1GP",
+    "cssf_fichero": "2026-09",
+    "esma_coincidencia": {
+      "pais": "LU",
+      "modo": "tokens",
+      "consulta": "*gbm*mexico*",
+      "candidatos": 1
+    },
+    "isin": "LU0709028343",
+    "actualizado": "2026-09-29T06:48:42+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "morningstar_lt",
+        "cssf",
+        "esma",
+        "config_csv"
+      ],
+      "costes": [
+        "morningstar_lt"
+      ],
+      "valoracion": [
+        "morningstar_lt"
+      ],
+      "rentabilidad": [
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "morningstar_lt"
+      ],
+      "esg": [
+        "morningstar_lt"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "cartera": [
+        "morningstar_lt"
+      ],
+      "meta": [
+        "morningstar_lt",
+        "cssf",
+        "esma"
+      ],
+      "gestion": [
+        "morningstar_lt"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.deuda_capital_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.margen_neto_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roa_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roe_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roic_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.gigante": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.grande": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.media_musd": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.mediana": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.micro": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.pequeña": "morningstar_lt:sal_marketCap",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.divisas_pct.MXN": "derivado:derivados",
+      "cartera.divisas_pct.USD": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:ETFsnapshot",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rv": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.MEX": "morningstar_lt:ETFsnapshot",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.regiones_pct.latinoamerica": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.otros": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.corporativa": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:ETFsnapshot",
+      "cartera.sector_principal": "morningstar_lt:screener",
+      "cartera.sectores_pct.comunicacion.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.consumo_ciclico.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.consumo_defensivo.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.energia.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.industria.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.inmobiliario.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.materiales_basicos.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.servicios_financieros.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LV": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MV": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SV": "morningstar_lt:ETFsnapshot",
+      "cartera.top10_posiciones": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_beneficios_5a_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_beneficios_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_cashflow_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_valor_contable_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_ventas_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pb": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pcf": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.per": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pventas": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.yield_dividendo_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_suscripcion_max_pct": "morningstar_lt:screener",
+      "costes.ter_pct": "morningstar_lt:ETFsnapshot",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "esg.globos_sostenibilidad": "morningstar_lt:screener",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_legal": "cssf:identificadores",
+      "identificacion.comercializado_en_espana": "esma:cbdif",
+      "identificacion.compartimento_legal": "cssf:identificadores",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.divisa_compartimento": "cssf:identificadores",
+      "identificacion.domicilio": "cssf:identificadores",
+      "identificacion.estado_registro_esma": "esma:cbdif",
+      "identificacion.estrategia_inversion_texto": "morningstar_lt:sal_investmentStrategy",
+      "identificacion.fecha_autorizacion_cssf": "cssf:identificadores",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "esma:cbdif",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.inversion_minima_inicial": "morningstar_lt:ETFsnapshot",
+      "identificacion.marco_legal": "esma:cbdif",
+      "identificacion.nombre": "morningstar_lt:ETFsnapshot",
+      "identificacion.nombre_legal_esma": "esma:cbdif",
+      "identificacion.nombre_legal_registro": "cssf:identificadores",
+      "identificacion.paises_comercializacion": "esma:cbdif",
+      "identificacion.paraguas_legal": "cssf:identificadores",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "cssf:identificadores",
+      "meta.cssf_fichero": "cssf:identificadores",
+      "meta.esma_coincidencia.candidatos": "esma:cbdif",
+      "meta.esma_coincidencia.consulta": "esma:cbdif",
+      "meta.esma_coincidencia.modo": "esma:cbdif",
+      "meta.esma_coincidencia.pais": "esma:cbdif",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2012.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2013.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2014.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2015.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2016.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2017.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2018.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2019.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2020.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2021.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2022.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2023.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2024.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2025.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.10a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.5a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.sharpe.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.srri_1a7": "morningstar_lt:Mifid",
+      "riesgo.volatilidad_pct.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "morningstar_lt:sal_quote",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "cssf",
+        "morningstar_lt",
+        "kid_gestora",
+        "esma"
+      ],
+      "familias": [
+        "costes",
+        "regulatorio"
+      ],
+      "fuentes": {
+        "cssf": {
+          "hojas": 10,
+          "endpoints": {
+            "cssf:identificadores": {
+              "fichero": "2026-09"
+            }
+          },
+          "segundos": 0.0
+        },
+        "morningstar_lt": {
+          "hojas": 426,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-09-29T06:48:03+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-09-29T06:48:04+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-09-29T06:48:05+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-09-29T06:48:06+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-09-29T06:48:08+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-09-29T06:48:08+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-09-29T06:48:10+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-09-29T06:48:11+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-09-29T06:48:13+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-09-29T06:48:14+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-09-29T06:48:16+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-09-29T06:48:17+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-09-29T06:48:32+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-09-29T06:48:20+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-09-29T06:48:22+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-09-29T06:48:23+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-09-29T06:48:25+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-09-29T06:48:19+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-09-29T06:48:26+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-09-29T06:48:30+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-09-29T06:48:31+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-09-29T06:48:28+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-09-29T06:48:34+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-09-29T06:48:35+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-09-29T06:48:37+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-09-29T06:48:39+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-09-29T06:48:40+00:00"
+            }
+          },
+          "segundos": 38.23
+        },
+        "esma": {
+          "hojas": 13,
+          "endpoints": {
+            "esma:cbdif": {
+              "fetched_at": "2026-09-29T06:48:42+00:00",
+              "consulta": "*gbm*mexico*",
+              "modo": "tokens"
+            }
+          },
+          "segundos": 1.48
+        }
+      }
+    }
+  },
+  "gestion": {
+    "gestora": {
+      "nombre": "GBM Administradora de Activos SA de CV"
+    }
+  },
+  "calidad": {
+    "score": 90,
+    "bucket": "ALTO",
+    "esenciales": "9/10",
+    "flags": []
+  }
+}

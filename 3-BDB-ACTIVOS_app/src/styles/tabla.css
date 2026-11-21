@@ -1,0 +1,1206 @@
+/* ============================================================================
+   La tabla del sistema — dirección A + B (02-11-2026)
+
+   Los colores están en tokens.css (sistema del 13-11-2026). Aquí no hay ninguno en crudo, ni
+   espaciados fuera de la escala --s-* (MAR-18).
+
+   Una tabla de verdad, con filetes en vez de cajas y sin una sola barra. Las
+   tres clases de ausencia se pintan igual que en la ficha, porque son la misma
+   distinción: confundirlas es la mentira más barata que puede contar una
+   pantalla de asesoramiento.
+   ========================================================================== */
+
+.tabla__marco {
+  background: var(--papel);
+  color: var(--tinta);
+  min-width: 0;
+  /* El marco existe para acotar la tabla, y hasta el 03-11-2026 solo lo hacia bajo
+     `.buscador-nuevo`: en cualquier otra pantalla una tabla ancha empujaba la PAGINA.
+     Medido en Rendimiento a 768 px, el ancho minimo declarado: 53 px de desborde
+     horizontal con ocho columnas. Se arregla aqui, en la pieza, porque el defecto no
+     era de esa pantalla sino de todas las que la usan. */
+  overflow-x: auto;
+}
+
+/* Una tabla suelta sobre el lienzo es una tarjeta desde 1.800 px, el corte del monitor grande, con este relleno. El
+   Buscador y Planes y EPSV la adelantan a 1.440 con un relleno menor, en sus propias reglas (`.buscador-nuevo` aquí y
+   `.planes-lista` en planes.css): con el de aquí, a 1.440 la tabla del Buscador empujaba la página 66 px (medido el
+   14-11-2026). Por debajo de 1.440 las dos son una zona que se desplaza de lado hasta el borde de la ventana, con la
+   primera y la última columna fijas, y un borde cortaría las filas. */
+@media (min-width: 1800px) {
+  .tabla__marco:not(.panel .tabla__marco):not(.ui-dialog .tabla__marco) {
+    padding: var(--s-4) var(--s-8) var(--s-6);
+    border: 1px solid var(--filete);
+    border-radius: var(--radio-bloque);
+  }
+}
+
+/* `cabeceraFija`: el marco mide como mucho lo que queda de ventana bajo la barra superior y se desplaza por dentro, y
+   la cabecera se queda arriba. Sin el tope, el marco nunca se desplaza en vertical y la cabecera se va con la página. */
+.tabla__marco--cabecera-fija {
+  max-height: calc(100dvh - var(--topbar-h) - var(--s-12));
+  overflow: auto;
+}
+
+/* La cabecera se pega al borde de arriba de su marco cuando este se desplaza. Lo dice la pieza y no la regla general
+   de `thead th` de components.css, que desaparecerá cuando las tablas sueltas pasen a esta. El fondo tapa las filas que
+   pasan por debajo, y el filete viaja como sombra: un borde no se mueve con una celda pegada. En la dirección A
+   (18-11-2026) ese filete es de tinta y es el único de la cabecera: el borde que heredaría de `.tabla th` se quita. */
+.tabla thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--papel);
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 var(--tinta);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-md);
+  line-height: 1.43;
+}
+
+/* El título de una columna: 12 px con 16 de interlínea, seminegra y en la tinta 2. */
+.tabla th {
+  text-align: left;
+  font-size: var(--texto-xxs);
+  font-weight: 600;
+  line-height: 1.3333;
+  letter-spacing: 0;
+  color: var(--tinta-2);
+  border-bottom: 1px solid var(--filete-fuerte);
+  padding: var(--s-4) var(--s-5) var(--s-3) 0;
+  vertical-align: bottom;
+  /* El título puede partirse en dos líneas: «Volatilidad / 3 años» sobre una cifra de 70 px deja el sitio al nombre,
+     que es lo que hay que leer. Sin partirse, cada columna medía lo que su título y el nombre se quedaba con lo que
+     sobraba: en Planes, a 1.440 px, ochenta píxeles y siete líneas por plan (14-11-2026). Lo mide el recorrido de
+     capturas («tablas apretadas», scripts/auditoriaFrontend.mjs). */
+  white-space: normal;
+}
+
+/* La columna del nombre de un activo (`nombre` en la columna) no baja de un ancho: si la tabla no cabe, desplaza
+   dentro de su marco, pero el nombre no se parte en cinco líneas. */
+.tabla .tabla__celda--nombre {
+  min-width: var(--columna-nombre-corta);
+}
+
+/* Una columna de prosa (`prosa` en la columna) tampoco: una frase larga en una columna estrecha son diez líneas por
+   fila. Si la tabla no cabe, desplaza dentro de su marco. */
+.tabla .tabla__celda--prosa {
+  min-width: var(--columna-prosa-min);
+}
+
+/* El encabezado ordena, así que es un botón: con el teclado se llega y se pulsa. */
+.tabla th button {
+  font: inherit;
+  letter-spacing: inherit;
+  /* Parte en dos líneas: que siga a su columna, no al centrado de un botón. */
+  text-align: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tabla th[aria-sort] button {
+  color: var(--tinta);
+}
+
+/* La flecha de esta tabla la escribe el componente: el triángulo de la tabla general, además
+   de repetirla, dejaba el título separado del borde de sus cifras. */
+.tabla th button::after {
+  content: none;
+}
+
+.tabla__flecha {
+  color: var(--marca);
+  margin-left: var(--s-2);
+}
+
+.tabla__flecha--delante {
+  margin-left: 0;
+  margin-right: var(--s-2);
+}
+
+/* MAR-18: los 7 px de arriba y abajo no estaban en la escala. Pasaron a 6 y 8 (hoy, en la dirección A, a 8 y 12): la
+   fila medía lo mismo (14 px de relleno) y el texto subió 1 px. Igual en los encabezados de fila, para que rótulo y
+   cifra sigan en la misma línea. */
+.tabla td {
+  border-bottom: 1px solid var(--filete-fila);
+  padding: var(--s-4) var(--s-5) var(--s-5) 0;
+  vertical-align: baseline;
+}
+
+.tabla td:last-child,
+.tabla th:last-child {
+  padding-right: 0;
+}
+
+/* Un encabezado de fila es un nombre: se parte como cualquier texto y va en la misma línea que sus
+   cifras. Heredaba del de columna el no partirse, y a 768 obligaba a desplazar la tabla. */
+.tabla tbody th[scope="row"] {
+  white-space: normal;
+  vertical-align: baseline;
+}
+
+/* Y se lee como cualquier celda de su fila: heredaba del de columna los 11 px y el filete fuerte, que
+   se cortaba donde empezaba la cifra. `:where` deja el peso por debajo de la comparativa y de la fila
+   que no se puede comparar, que llevan el suyo; el pie de totales ni lo mira, porque va en `tfoot`. */
+.tabla :where(tbody) th[scope="row"] {
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--tinta);
+  border-bottom: 1px solid var(--filete-fila);
+  padding: var(--s-4) var(--s-5) var(--s-5) 0;
+}
+
+/* La última fila no lleva filete en ninguna celda, tampoco en el rótulo: si no, se cortaba en la cifra. */
+.tabla :where(tbody) tr:last-child th[scope="row"] {
+  border-bottom: 0;
+}
+
+/* Las cifras, en el peso de su fila (dirección A, 18-11-2026): con la seminegrita, doce filas de cifras pesaban más que
+   los nombres de las columnas. La negrita queda para el pie de totales (`tfoot td`, components.css) y los encabezados. */
+.tabla__celda--cifra {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* El título de una columna de cifras o de botones va sobre su contenido: `.tabla th` pesa
+   más que la clase sola, y la intención estaba escrita en el componente pero no se cumplía. */
+.tabla th.tabla__celda--cifra,
+.tabla th.tabla__celda--acciones {
+  text-align: right;
+}
+
+/* La segunda línea de una celda: el ISIN, el método con que se calculó la cifra. */
+.tabla__apunte {
+  display: block;
+  font-size: var(--texto-xxs);
+  font-weight: 400;
+  line-height: 1.3333;
+  color: var(--tinta-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* MAR-07: sobre la fila elegida la tinta 3 daba 4,14:1 cuando se escribió la regla, por debajo del 4,5:1 del texto; con
+   la dirección A, sobre la banda fuerte, da 5,05:1, con poco margen, y la regla se queda. Ahí, y bajo el ratón, el apunte
+   va en tinta 2. Medido en tests/contrastePaleta.test.ts. */
+tbody tr.is-selected .tabla__apunte,
+tbody tr:hover .tabla__apunte {
+  color: var(--tinta-2);
+}
+
+/* Una palabra de una columna de texto que no se parte: «Sin cambio» en dos líneas descuadra la fila. */
+.tabla__sin-partir {
+  white-space: nowrap;
+}
+
+.tabla__fila--abrible {
+  cursor: pointer;
+}
+
+.tabla tbody tr:hover td,
+.tabla tbody tr:hover .tabla__celda--fila {
+  background: var(--lienzo);
+}
+
+/* La fila elegida se pinta en el `<tr>` (`tbody tr.is-selected`) y el realce de arriba en sus celdas, que
+   lo tapaban justo al pulsar la casilla, con el puntero encima. La selección manda sobre el realce. */
+.tabla tbody tr.is-selected:hover td,
+.tabla tbody tr.is-selected:hover .tabla__celda--fila {
+  background: none;
+}
+
+/* El encabezado de fila de una tabla de datos es un nombre: se lee como cualquier celda, aunque
+   `.tabla th` lo quiera de encabezado de columna. */
+.tabla th.tabla__celda--fila {
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--tinta);
+  border-bottom: 1px solid var(--filete-fila);
+  padding: var(--s-4) var(--s-5) var(--s-5) 0;
+  vertical-align: baseline;
+  white-space: normal;
+}
+
+/* La cabecera de un grupo de filas, y las filas que dependen de ella. */
+.tabla__fila--cabecera-de-grupo > td {
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+.tabla .tabla__fila--cabecera-de-grupo > th.tabla__celda--fila {
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+
+.tabla .tabla__fila--de-grupo > th.tabla__celda--fila {
+  padding-left: var(--s-6);
+}
+
+/* --- las tres ausencias, las mismas que en la ficha --------------------- */
+
+.tabla__celda--no-aplica .tabla__ausencia {
+  color: var(--tinta-3);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--texto-xs);
+}
+
+.tabla__celda--falta {
+  border-bottom: 1px dashed var(--aviso);
+}
+
+.tabla__celda--falta .tabla__ausencia {
+  color: var(--aviso);
+  font-size: var(--texto-xs);
+  font-weight: 500;
+}
+
+.tabla__celda--sin-pedir {
+  border-bottom: 1px solid var(--marca);
+}
+
+.tabla__celda--sin-pedir .tabla__ausencia {
+  color: var(--marca);
+  font-size: var(--texto-sm);
+}
+
+/* --- el grupo por escala ------------------------------------------------ */
+
+/* La banda de un grupo no es una fila que se pueda pulsar: bajo el ratón no cambia. Sin esto, el realce de toda fila
+   (`.tabla tbody tr:hover td`, más arriba) y el azul de las tablas de activos le quitaban su fondo. */
+.tabla tbody tr.tabla__grupo:hover td {
+  background: var(--banda-fuerte);
+}
+
+.tabla__grupo td {
+  background: var(--banda-fuerte);
+  border-bottom: 1px solid var(--filete-fuerte);
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+  padding: var(--s-3) var(--s-5) var(--s-3) 0;
+}
+
+.tabla__grupo td b {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.tabla__aviso {
+  font-size: var(--texto-sm);
+  line-height: 1.55;
+  color: var(--tinta-2);
+  border-left: 3px solid var(--marca);
+  padding: var(--s-1) 0 var(--s-1) var(--s-5);
+  margin: var(--s-5) 0 0;
+  max-width: 62em;
+}
+
+.tabla__aviso b {
+  color: var(--marca);
+  font-weight: 600;
+}
+
+/* --- la página del buscador --------------------------------------------
+   Las reglas propias del Buscador.
+   ----------------------------------------------------------------------- */
+
+/* Los mandos, en su tarjeta (dirección A, 18-11-2026): el marfil es el fondo y lo que se usa va en blanco. */
+.buscador-nuevo__mandos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-7);
+  align-items: flex-end;
+  margin: var(--s-6) 0 var(--s-5);
+  padding: var(--s-6) var(--s-7);
+  background: var(--papel);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+}
+
+/* El buscar crece con lo que sobre de su fila, hasta dos desplegables. */
+.buscador-nuevo__buscar {
+  display: grid;
+  gap: var(--s-2);
+  flex: 1 1 var(--mando-filtro);
+  max-width: calc(2 * var(--mando-filtro));
+}
+
+.buscador-nuevo__buscar span {
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--tinta-3);
+}
+
+/* Los dos desplegables y la casilla. Los desplegables, con el mismo rótulo que el buscar y que los filtros del
+   Comparador, en minúscula de 13 px (la casilla lleva el suyo a 14): son mandos del mismo grupo y tienen que leerse como una
+   fila, no como tres cosas. Todos del mismo ancho: si mide su opción más larga, la barra se parte distinto según el
+   catálogo («Categoría» sola en otra fila a 1.440). Lo que no cabe se corta dentro del desplegable cerrado. */
+.buscador-nuevo__select {
+  display: grid;
+  gap: var(--s-2);
+  flex: 0 1 var(--mando-filtro);
+  min-width: 0;
+}
+
+.buscador-nuevo__select select {
+  text-overflow: ellipsis;
+}
+
+.buscador-nuevo__select span {
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--tinta-3);
+}
+
+.buscador-nuevo__casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  padding-bottom: var(--s-3);
+}
+
+
+/* Las acciones de la fila (17-11-2026): texto corto con su icono y sin caja. Dos botones con borde en cada fila
+   ocupaban más que dos columnas de cifras y hacían de la columna una barra de herramientas; el fondo aparece al pasar
+   el ratón, que es cuando hace falta. Añadir va en el marino de la marca porque es la acción de la pantalla; Comparar, en la
+   tinta, como una casilla. */
+.tabla__accion.ui-button--sm {
+  height: var(--control-xs);
+  padding: 0 var(--s-3);
+  gap: var(--s-2);
+  border-radius: var(--radio-pieza);
+  font-weight: 500;
+  color: var(--tinta-2);
+}
+
+.tabla__accion.ui-button--sm:hover:not(:disabled) {
+  background: var(--marca-tenue);
+  color: var(--marca-fuerte);
+}
+
+.tabla__accion--principal.ui-button--sm:not(:disabled) {
+  color: var(--marca);
+}
+
+.tabla__accion[aria-pressed="true"].ui-button--sm {
+  color: var(--marca-fuerte);
+}
+
+/* Lo que no se puede pulsar se lee sin caja: «Añadido», «No disponible». */
+.tabla__accion.ui-button--sm:disabled {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Con el dedo, 46 px para ordenar y para el corazón del favorito. El encabezado cede su relleno al botón, así
+   que crece lo justo: la tabla no pierde filas por esto. */
+@media (pointer: coarse) {
+  .tabla thead th {
+    padding-block: 0;
+  }
+
+  .tabla thead th button {
+    min-height: var(--control-lg);
+  }
+
+
+  /* Con el dedo, las acciones vuelven al alto de un botón pequeño: 28 px no se aciertan. */
+  .tabla__accion.ui-button--sm {
+    height: var(--control-sm);
+  }
+}
+
+.buscador-nuevo__cuantos {
+  margin: 0 0 var(--s-2) auto;
+  font-size: var(--texto-sm);
+  color: var(--tinta-3);
+}
+
+/* Por qué no se añade: bajo su fila, que es donde se ha pulsado. */
+.buscador-nuevo__aviso {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--aviso);
+}
+
+/* Las cifras no se quedan nunca sin su encabezado: son veinticinco filas por página, y al bajar se puede
+   leer una volatilidad como una rentabilidad. Y el nombre no baja de 260 px: a 768 una fila llegó a
+   ocupar seis líneas. Sin caja por debajo de 1.440 px, con filetes como las demás tablas: la caja se comía 34 px justo
+   donde hacían falta. */
+.buscador-nuevo .tabla th:first-child,
+.buscador-nuevo .tabla td:first-child {
+  min-width: var(--columna-nombre-min);
+}
+
+/* El título se parte en dos líneas, como en toda tabla (`.tabla th`); aquí va además sobre papel, porque se
+   queda pegado mientras las filas pasan por debajo. */
+.buscador-nuevo .tabla thead th {
+  background: var(--papel);
+}
+
+/* Quien recorre la tabla con el tabulador no se queda con el foco debajo de lo que está fijo. */
+.buscador-nuevo .tabla tbody :is(a, button) {
+  scroll-margin: calc(var(--topbar-h) + var(--s-12) + var(--s-6)) 0 var(--s-6) calc(var(--columna-nombre-min) + var(--s-6));
+}
+
+.buscador-nuevo .tabla__grupo td:first-child {
+  min-width: 0;
+}
+
+/* El rótulo del grupo, separado del canto de su banda, como en la lámina. `tr.` para pesar más que la columna fija de
+   abajo, que quita el relleno izquierdo a toda primera celda. */
+.buscador-nuevo .tabla tr.tabla__grupo td {
+  padding-left: var(--s-5);
+}
+
+/* La fila marcada para comparar se tiñe entera, también las columnas fijas y bajo el ratón: con veinticinco filas, la
+   casilla sola pesaba poco. La marca la sigue diciendo la casilla (`aria-pressed`), no el color. */
+.buscador-nuevo .tabla__marco .tabla tbody tr:has(.tabla__accion[aria-pressed="true"]) td {
+  background: var(--banda);
+}
+
+
+/* De 1.440 en adelante caben todas las columnas: desplaza la página, y el encabezado se queda pegado
+   bajo la barra superior. El marco deja de desplazarse porque, si lo hace, es él quien contiene al
+   encabezado y este se va con las filas. */
+@media screen and (min-width: 1440px) {
+  /* Tarjeta también de 1.440 a 1.800, con un relleno lateral menor que el de la tarjeta general (que manda desde 1.800):
+     con él, la tabla cabe sin empujar la página (medido el 18-11-2026 a 1.440, 1.600 y 1.799). */
+  .buscador-nuevo .tabla__marco {
+    overflow: visible;
+    padding: var(--s-4) var(--s-5) var(--s-6);
+    border: 1px solid var(--filete);
+    border-radius: var(--radio-bloque);
+    /* Al pasar de página, la tabla queda bajo la barra y no detrás de ella. */
+    scroll-margin-top: var(--topbar-h);
+  }
+
+  .buscador-nuevo .tabla thead th {
+    top: var(--topbar-h);
+  }
+}
+
+/* Por debajo no caben, y la pantalla entera pasa a ser una sola zona de desplazamiento del alto de la
+   ventana. Hacia abajo, los mandos se van y el encabezado se queda; de lado, se mueven las columnas y
+   se quedan el nombre y todo lo que no es la tabla. Así no hay dos desplazamientos uno dentro de otro,
+   y la barra horizontal está siempre a la vista: antes quedaba al final de las ochenta filas, a más de
+   7.000 px. Los márgenes negativos la llevan hasta el borde de la ventana, sobre el relleno de la página. */
+@media screen and (max-width: 1439.98px) {
+  .app-content > .buscador-nuevo {
+    height: calc(100dvh - var(--topbar-h));
+    margin-block: calc(-1 * var(--page-py)) calc(-1 * var(--s-12));
+    margin-right: calc(-1 * var(--page-px));
+    padding-block: 0 var(--s-6);
+    padding-right: var(--page-px);
+    overflow: auto;
+  }
+
+  .buscador-nuevo > * {
+    flex: none;
+  }
+
+  /* En el primero y no como relleno de la zona: el encabezado fijo se pega al borde del relleno, y con
+     relleno arriba las filas asomaban por encima de él. */
+  .buscador-nuevo > :first-child {
+    margin-top: var(--page-py);
+  }
+
+  .buscador-nuevo__mandos {
+    margin: 0;
+  }
+
+  .buscador-nuevo > :not(.tabla__marco, .sr-only) {
+    position: sticky;
+    left: 0;
+  }
+
+  .buscador-nuevo .tabla__marco {
+    overflow: visible;
+  }
+
+  .buscador-nuevo .tabla th:first-child,
+  .buscador-nuevo .tabla td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: var(--z-pegado);
+    background: var(--papel);
+    box-shadow: var(--shadow-columna-fija);
+    padding-left: 0;
+  }
+
+  .buscador-nuevo .tabla thead th:first-child {
+    z-index: calc(var(--z-sticky) + 1);
+    box-shadow: var(--shadow-columna-fija-cabecera);
+  }
+
+  /* La columna fija pinta su propio fondo: bajo el ratón repite el de su fila, que en una tabla de activos es el azul
+     tenue (más abajo, `.tabla--activos tbody tr:hover td`). La banda de un grupo no es una fila: conserva la suya
+     (`:where()` para excluirla sin que la regla pese más, que la fila marcada para comparar tiene que seguir ganándole). */
+  .buscador-nuevo .tabla tbody tr:where(:not(.tabla__grupo)):hover td:first-child {
+    background: var(--marca-tenue);
+  }
+
+  /* La fila de grupo no es columna fija: conserva su banda, que el papel de la columna fija le quitaba. */
+  .buscador-nuevo .tabla__grupo td:first-child {
+    position: static;
+    box-shadow: none;
+    background: var(--banda-fuerte);
+  }
+}
+
+/* El corte era 1.280 hasta el 16-11-2026: con las ocho columnas de la decisión A-172 la tabla pasaba 16 px de su zona a
+   1.280, y bajar la letra no gana nada, porque el ancho lo marcan los títulos y los botones, que ya van en el tamaño más
+   pequeño del sistema. Con los botones uno sobre otro cabe de 1.280 a 1.439.
+
+   Por debajo de 1.280 tampoco caben los botones: a 1.024 «Comparar» se cortaba y a 768 había que ir a buscarlos al final
+   de la fila. Se quedan fijos a la derecha, como el nombre a la izquierda, y uno sobre otro, para dejar sitio a las
+   cifras, que son lo que se mueve. La columna llega al borde de la ventana y su relleno la alinea con la página: con el
+   relleno en la zona, las cifras asomaban por el hueco de su derecha. */
+@media screen and (max-width: 1439.98px) {
+  .app-content > .buscador-nuevo {
+    padding-right: 0;
+  }
+
+  .buscador-nuevo > :not(.tabla__marco, .sr-only) {
+    margin-right: var(--page-px);
+  }
+
+  /* La tarjeta de los mandos llega al borde de la ventana, como la tabla de debajo, y su contenido acaba en el margen
+     de la página, como el de las acciones de la tabla: así los dos bloques acaban en la misma vertical. */
+  .buscador-nuevo > .buscador-nuevo__mandos {
+    margin-right: 0;
+    padding-right: var(--page-px);
+    border-right: 0;
+    border-radius: var(--radio-bloque) 0 0 var(--radio-bloque);
+  }
+
+  .buscador-nuevo .tabla .tabla__celda--acciones {
+    position: sticky;
+    right: 0;
+    z-index: var(--z-pegado);
+    padding-left: var(--s-4);
+    padding-right: var(--page-px);
+    background: var(--papel);
+    box-shadow: var(--shadow-columna-fija-derecha);
+  }
+
+  .buscador-nuevo .tabla__celda--acciones > * {
+    display: inline-grid;
+    gap: var(--s-2);
+    justify-items: start;
+  }
+
+  .buscador-nuevo .tabla thead .tabla__celda--acciones {
+    z-index: calc(var(--z-sticky) + 1);
+    box-shadow: var(--shadow-columna-fija-derecha-cabecera);
+  }
+
+  .buscador-nuevo .tabla tbody tr:hover .tabla__celda--acciones {
+    background: var(--marca-tenue);
+  }
+}
+
+/* Lo que no cabe en su columna baja al nombre: la pieza pinta las dos y aquí se elige. */
+.tabla__apunte--estrecho {
+  display: none;
+}
+
+@media (max-width: 1439.98px) {
+  .tabla__columna--solo-ancho {
+    display: none;
+  }
+
+  .tabla__apunte--estrecho {
+    display: block;
+  }
+}
+
+/* --- páginas ------------------------------------------------------------ */
+
+.tabla__paginas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+  margin-top: var(--s-5);
+  font-size: var(--texto-sm);
+  color: var(--tinta-3);
+}
+
+.tabla__paginas strong {
+  font-weight: 600;
+  color: var(--tinta-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla__paginas span {
+  font-variant-numeric: tabular-nums;
+}
+
+/* El recuento a la izquierda y el paso de página a la derecha, como la lámina. */
+.tabla__paginas > span:first-child {
+  margin-right: auto;
+}
+
+/* --- la comparativa -----------------------------------------------------
+   Los instrumentos son las columnas, así que el encabezado de FILA es un
+   `<th scope="row">`: la cifra de una celda se lee sabiendo de qué campo y de
+   qué instrumento es.
+   ----------------------------------------------------------------------- */
+
+.tabla--comparativa th[scope="row"] {
+  text-align: left;
+  font-size: var(--texto-sm);
+  font-weight: 400;
+  color: var(--tinta-2);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: normal;
+  border-bottom: 1px solid var(--filete-fila);
+  padding: var(--s-3) var(--s-6) var(--s-4) 0;
+  vertical-align: baseline;
+}
+
+/* «Rentabilidad anualizada 10 años» en una línea donde hay sitio: sin mínimo, las columnas de cifras (140 px cada una)
+   se quedaban el aire y el rótulo partía. Solo desde 1.440 px, donde caben cinco activos con él; por debajo el rótulo
+   sigue partiendo antes que obligar a desplazar la tabla (a 768 px, con tres activos, la desplazaba). */
+@media (min-width: 1440px) {
+  .tabla--comparativa th[scope="row"] {
+    min-width: 16em;
+  }
+}
+
+/* Dos textos vecinos alineados a la derecha («…Growth» y «RV USA Alto Dividendo») se leían de corrido con 12 px entre
+   ellos: cada valor lleva aire también a su izquierda. */
+.tabla--comparativa td {
+  padding-left: var(--s-6);
+}
+
+.tabla--comparativa thead th {
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  color: var(--tinta);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: normal;
+  min-width: 140px;
+}
+
+/* «EAA Fund Global Large-Cap Growth Equity» no empuja la quinta columna fuera de la vista. */
+.tabla--comparativa .tabla__celda--texto-largo {
+  white-space: normal;
+}
+
+/* La fila que no se puede comparar: el filete se rompe de lado a lado. */
+.tabla__fila--incomparable th[scope="row"],
+.tabla__fila--incomparable td {
+  border-bottom: 1px dashed var(--aviso);
+}
+
+.tabla__marca-incomparable {
+  display: block;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  color: var(--aviso);
+}
+
+/* --- el plano riesgo-retorno -------------------------------------------
+   Un panel por método: los ejes son las cifras cuya escala no se puede
+   mezclar. Un solo color y etiqueta directa en cada punto, porque la paleta
+   de series del proyecto no separa cinco entidades a la vez —medido con el
+   validador de la guía de gráficos sobre este papel— y no tiene por qué:
+   con la etiqueta pegada al punto, el color no identifica nada.
+   ----------------------------------------------------------------------- */
+
+.plano__conjunto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  gap: var(--s-6);
+  margin-top: var(--s-6);
+}
+
+.plano {
+  margin: 0;
+  min-width: 0;
+}
+
+/* El aviso explica el conjunto, no un panel: ocupa la fila entera. */
+.plano__conjunto > .tabla__aviso {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.plano__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  align-items: baseline;
+  font-family: var(--fuente-titulos);
+  font-weight: 600;
+  /* Un rótulo dentro del bloque, por debajo del título de su tarjeta (`--texto-ml`). */
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--filete-fuerte);
+}
+
+.plano__titulo span {
+  font-family: var(--fuente);
+  font-weight: 400;
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+.plano__lienzo {
+  display: block;
+  width: 100%;
+  /* El tope NO es decorativo. El lienzo se dibuja con un viewBox de 420×300 y sin
+     limite se estira al ancho del contenedor: montado en el comparador, que es una
+     seccion ancha, los rotulos salian al triple de tamano y el punto como una mancha.
+     Medido el 03-11-2026 la primera vez que esta pieza vivio fuera de su columna. */
+  max-width: 460px;
+  height: auto;
+  margin-top: var(--s-3);
+}
+
+.plano__vacio {
+  font-size: var(--texto-sm);
+  color: var(--tinta-3);
+  margin: var(--s-4) 0 0;
+}
+
+.plano__eje {
+  stroke: var(--filete-fuerte);
+  stroke-width: 1;
+}
+
+/* La rejilla de las marcas, por debajo de todo: da la escala y no compite con los puntos. */
+.plano__rejilla {
+  stroke: var(--filete);
+  stroke-width: 1;
+}
+
+/* El valor de cada marca: cada panel tiene su escala, y tiene que decirla. */
+.plano__marca-eje {
+  fill: var(--tinta-2);
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El cero de rentabilidad: la única referencia que significa algo en este plano. */
+.plano__cero {
+  stroke: var(--tinta-3);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+/* MAR-17: a 13 px, como las marcas del eje; antes 10,5 px, por debajo del suelo de la escala. */
+.plano__eje-rotulo {
+  fill: var(--tinta-3);
+  font-size: var(--texto-xs);
+  text-anchor: middle;
+  letter-spacing: 0.03em;
+}
+
+.plano__diana {
+  fill: transparent;
+}
+
+/* Anillo del papel: dos puntos que se tocan se siguen leyendo como dos. */
+.plano__halo {
+  fill: var(--papel);
+}
+
+.plano__marca {
+  fill: var(--marca);
+}
+
+.plano__etiqueta {
+  fill: var(--tinta-2);
+  font-size: var(--texto-xs);
+}
+
+.plano__cifras {
+  fill: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+.plano__numero {
+  fill: var(--tinta);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.plano__punto {
+  cursor: default;
+}
+
+.plano__punto:hover .plano__marca {
+  r: 7;
+}
+
+.plano__punto:hover .plano__etiqueta {
+  fill: var(--tinta);
+  font-weight: 600;
+}
+
+/* Lo que no cabe junto al punto, debajo y con el nombre entero. Como el índice de la matriz. */
+.plano__indice {
+  list-style: none;
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  max-width: 460px;
+  font-size: var(--texto-sm);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+}
+
+.plano__indice b {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.plano__indice-cifras {
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Un panel con un solo instrumento: sus dos cifras, sin un plano donde su posición no significaría nada. */
+.plano__solo {
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 0;
+  font-size: var(--texto-md);
+  color: var(--tinta);
+}
+
+.plano__solo b {
+  font-weight: 600;
+}
+
+.plano__solo-cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- la radiografía de cartera -----------------------------------------
+   Cada desglose dice cuánta cartera explica, y los pesos van sobre esa
+   parte. Lo que no aporta no se rellena con ceros: se nombra.
+   ----------------------------------------------------------------------- */
+
+.radiografia__conjunto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: var(--s-7);
+  margin-top: var(--s-6);
+}
+
+/* --- las carteras guardadas -------------------------------------------- */
+
+/* La búsqueda y la tabla, en una tarjeta blanca como la de `.panel`, en todos los anchos (lámina de la dirección A). La
+   tabla se desplaza de lado dentro de la tarjeta, no hasta el borde de la ventana. */
+.carteras__lista {
+  min-width: 0;
+  padding: calc(var(--s-6) + var(--s-1)) var(--s-7);
+  background: var(--papel);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+/* A 768 el relleno de la tarjeta se lo quitaba a la columna «Propuesta», y su apunte pasaba de cuatro líneas a siete. */
+@media (max-width: 899.98px) {
+  .carteras__lista {
+    padding-inline: var(--s-5);
+  }
+}
+
+.carteras .tabla__marco {
+  margin-top: var(--s-6);
+}
+
+/* Desde 1.800 px una tabla suelta es su propia tarjeta; dentro de esta, no: sería una caja dentro de otra. Mismo
+   selector que la regla de la pieza, para ganarle sin más peso que el suyo. */
+@media (min-width: 1800px) {
+  .carteras__lista .tabla__marco:not(.panel .tabla__marco):not(.ui-dialog .tabla__marco) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.carteras__pie {
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+  margin: var(--s-4) 0 0;
+}
+
+.carteras__detalle {
+  margin-top: var(--s-7);
+  border-top: 2px solid var(--tinta);
+  padding-top: var(--s-5);
+}
+
+.carteras__detalle-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.carteras__detalle-cabecera h2 {
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  font-size: var(--cifra-lg);
+  letter-spacing: -0.006em;
+  color: var(--tinta);
+  margin: 0;
+}
+
+/* --- la salud del catálogo --------------------------------------------- */
+
+/* Sin tope propio: acaba donde acaban las tablas de la pantalla, en el tope de lectura de su panel (datos.css). */
+.salud__avisos {
+  margin: 0;
+}
+
+.salud__avisos > div {
+  border-bottom: 1px solid var(--filete);
+  padding: var(--s-3) 0;
+}
+
+.salud__avisos dt {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  align-items: baseline;
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.salud__avisos dt b {
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta-2);
+}
+
+.salud__avisos dd {
+  margin: var(--s-1) 0 0;
+  font-size: var(--texto-xs);
+  line-height: 1.5;
+  color: var(--tinta-3);
+  max-width: var(--filas-max-w);
+}
+
+/* --- la columna de acciones -------------------------------------------- *
+ *
+ * No es un dato: son los botones de añadir a cartera y comparar, que el buscador
+ * monta desde su propio estado. Van a la derecha y sin envolver, para que la fila no
+ * crezca de alto cuando el nombre del botón cambia de «Añadir a cartera» a
+ * «En cartera».
+ */
+.tabla__celda--acciones {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+}
+
+.tabla__celda--acciones > * {
+  display: inline-flex;
+  gap: var(--s-3);
+  justify-content: flex-end;
+}
+
+/* El título de una columna que no se ordena: mismo sitio que el del botón, sin su
+   afordancia. Un encabezado pulsable que no hace nada es peor que uno quieto. */
+.tabla__titulo-fijo {
+  display: inline-block;
+  padding: 0;
+  color: var(--tinta-2);
+}
+
+/* --- pie de totales y fila de detalle ----------------------------------- *
+ *
+ * Las dos entran el 03-11-2026 con la tabla de Posiciones, que las tenía escritas a
+ * mano. El pie va separado por un filete más marcado que los de las filas: un total no
+ * es una fila más, y si se lee como una se suma dos veces de un vistazo. En la dirección A
+ * (18-11-2026) ese filete es el de tinta de la cabecera: la tabla se abre y se cierra igual.
+ * El rótulo del total y su cifra van a la misma letra y sobre la misma línea de base; con
+ * `.tabla` delante, para ganar a la tabla de activos, que centra sus filas y dejaba la cifra
+ * y el rótulo a alturas distintas bajo el filete.
+ */
+.tabla .tabla__pie > th,
+.tabla .tabla__pie > td {
+  border-top: 1px solid var(--tinta);
+  border-bottom: 0;
+  padding-top: var(--s-4);
+  padding-bottom: var(--s-4);
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  line-height: 1.43;
+  color: var(--tinta);
+  vertical-align: baseline;
+}
+
+.tabla__pie > th {
+  text-align: left;
+}
+
+/* En la tableta de pie la primera columna es estrecha y el rótulo del total, a 14 px, doblaba: un punto menos y cabe
+   en una línea; sigue sobre la línea de base de su cifra. */
+@media (max-width: 899.98px) {
+  .tabla .tabla__pie > th {
+    font-size: var(--texto-xs);
+  }
+}
+
+/* El detalle cuelga de su fila, así que comparte su fondo y pierde el filete de
+   arriba: con filete pareciera otra fila y no el desarrollo de la anterior. */
+.tabla__detalle > td {
+  border-top: 0;
+  padding-top: 0;
+  padding-bottom: var(--s-4);
+  background: var(--banda);
+}
+
+/* --- las tablas de activos (`deActivos`) ---------------------------------- *
+ *
+ * Óscar, 17-11-2026, sobre una captura del aspecto anterior: la tabla en IBM Plex Sans y el ISIN en IBM Plex Mono; el
+ * nombre en medio negro y las cifras en peso normal, del mismo tamaño que él; la categoría y la divisa, un punto más
+ * pequeñas y en gris; la cabecera en una línea fina; las filas centradas en vertical, con el nombre y su ISIN como un
+ * bloque, y la fila bajo el ratón en el azul más tenue. La letra, IBM Plex, es desde el mismo día la de toda la pantalla.
+ */
+.tabla--activos {
+  font-size: var(--texto-sm);
+}
+
+/* La cabecera, con la letra, el peso y la tinta de toda tabla (`.tabla th`): desde la dirección A (18-11-2026) no se
+   aparta de la pieza. */
+.tabla--activos thead th {
+  padding-block: var(--s-5) var(--s-4);
+  /* Títulos cortos y en una línea (Óscar, 17-11-2026): «Vol. 3A», no «Volatilidad / 3 años» en dos. Cada uno acaba en el
+     mismo borde que su columna, a la izquierda el texto y a la derecha las cifras; el nombre entero, al pasar el ratón. */
+  white-space: nowrap;
+}
+
+.tabla--activos td,
+.tabla--activos :where(tbody) th[scope="row"],
+.tabla--activos th.tabla__celda--fila {
+  padding-block: var(--s-4);
+  vertical-align: middle;
+}
+
+/* Las cifras, sin negrita y en tinta como en toda tabla (`.tabla__celda--cifra`). La categoría, la divisa y las demás
+   columnas de texto: un punto más pequeñas y en gris, como en la captura. */
+.tabla--activos tbody td:not(:first-child, .tabla__celda--cifra, .tabla__celda--acciones) {
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+}
+
+/* El nombre, en medio negro y sin subrayar: el subrayado aparece bajo el ratón, que es cuando dice que lleva a la ficha. */
+.tabla--activos tbody :is(td, th):first-child {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.tabla--activos .enlace-a-ficha {
+  text-decoration-color: transparent;
+}
+
+.tabla--activos .enlace-a-ficha:hover {
+  text-decoration-color: currentColor;
+}
+
+.tabla--activos .tabla__apunte {
+  margin-top: var(--s-1);
+  line-height: var(--lh-snug);
+}
+
+/* La fila bajo el ratón, en el azul más tenue (apartado 13.1 del sistema). La migración a la dirección A la dejó el
+   18-11-2026 en el marfil del lienzo, como las demás tablas de la pieza, sin que nadie lo decidiera; vuelve el 19-11
+   (apartado 14.7). Sobre ese azul toda tinta de la fila pasa de 4,5:1 (tests/contrastePaleta.test.ts). La fila elegida
+   manda sobre el realce, como en toda tabla (`.tabla tbody tr.is-selected:hover td`, más arriba). */
+.tabla--activos tbody tr:hover td,
+.tabla--activos tbody tr:hover .tabla__celda--fila {
+  background: var(--marca-tenue);
+}
+
+/* El ISIN, en la mono de la tabla y sin espaciar: doce caracteres que se leen de uno en uno. */
+.tabla--activos .tabla__isin {
+  font-family: var(--fuente-codigo);
+  letter-spacing: 0;
+  color: var(--tinta-3);
+}
+
+/* Donde la tabla cabe holgada, la clase de un activo no se parte en dos líneas. */
+@media (min-width: 1380px) {
+  .tabla .clase-con-color {
+    white-space: nowrap;
+  }
+}
+
+/* El corazón delante del nombre y el bloque del nombre con su ISIN a su lado, centrados entre sí. */
+.tabla__con-antes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+
+/* El título «Activo» va sobre el nombre, no sobre el corazón, como en la captura: se corre lo que mide el corazón y su
+   hueco. El ancho del corazón vive en una variable para que el título lo siga también con el dedo, donde crece. */
+.buscador-nuevo {
+  --ancho-del-favorito: var(--control-xs);
+}
+
+.buscador-nuevo .tabla--activos thead th:first-child {
+  padding-left: calc(var(--ancho-del-favorito) + var(--s-5));
+}
+
+.tabla__favorito {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--ancho-del-favorito, var(--control-xs));
+  height: var(--ancho-del-favorito, var(--control-xs));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-pieza);
+  background: none;
+  color: var(--tinta-3);
+  cursor: pointer;
+}
+
+.tabla__favorito svg {
+  width: var(--s-6);
+  height: var(--s-6);
+}
+
+.tabla__favorito:hover {
+  color: var(--marca);
+}
+
+.tabla__favorito[aria-pressed="true"] {
+  color: var(--marca);
+}
+
+@media (pointer: coarse) {
+  .buscador-nuevo {
+    --ancho-del-favorito: var(--control-lg);
+  }
+}

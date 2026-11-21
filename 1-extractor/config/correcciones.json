@@ -1,0 +1,917 @@
+{
+  "version": 1,
+  "correcciones": {
+    "DE0008404005": {
+      "identificacion.nombre": {
+        "valor": "Allianz SE",
+        "motivo": "Decision 49: EODHD da en ALV.XETRA Allianz SE VNA O.N.; FIRDS y la ficha anterior dicen Allianz SE.",
+        "autor": "oscar",
+        "fecha": "2026-11-08T10:59:20Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "ALV.XETRA",
+        "motivo": "Decision 49 (08-11-2026): Allianz pasa a su mercado de origen, Xetra. EODHD tiene ALV.XETRA.",
+        "autor": "oscar",
+        "fecha": "2026-11-08T10:55:08Z"
+      }
+    },
+    "ES0105027009": {
+      "identificacion.nombre": {
+        "valor": "Logista Integral, S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD da un nombre recortado y sin acentos, Cia de Distribucion Integral. El nombre es el de la descripcion de la propia ficha y el de config/fondos.csv",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:51Z"
+      }
+    },
+    "ES0105046009": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "6.4 auditoria 16-10: codigo EODHD verificado por la serie viva de la maestra (price_series EODHD:<simbolo>); Yahoo daba la bolsa MCE/IOB",
+        "autor": "claude-autorizado-por-oscar-17-10-2026-decision-6-4",
+        "fecha": "2026-10-17T04:07:11Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "AENA.MC",
+        "motivo": "6.4 auditoria 16-10: codigo EODHD verificado por la serie viva de la maestra (price_series EODHD:<simbolo>); Yahoo daba la bolsa MCE/IOB",
+        "autor": "claude-autorizado-por-oscar-17-10-2026-decision-6-4",
+        "fecha": "2026-10-17T04:07:11Z"
+      }
+    },
+    "ES0105376059": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (figura con otro ISIN, ES0105376000). Codigo verificado con la llamada real: Arima Real Estate SOCIMI SA, EUR; 2.051 de 2.051 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:ARM.MC); 13,30 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:40Z"
+      },
+      "identificacion.nombre": {
+        "valor": "Árima Real Estate SOCIMI, S.A.",
+        "motivo": "Oscar 05-11-2026: al pasar la serie de Yahoo a EODHD no cambia el nombre que ya tenia la ficha; EODHD lo da sin el acento, como Arima Real Estate SOCIMI SA",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:45:28Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "ARM.MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (figura con otro ISIN, ES0105376000). Codigo verificado con la llamada real: Arima Real Estate SOCIMI SA, EUR; 2.051 de 2.051 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:ARM.MC); 13,30 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:39Z"
+      }
+    },
+    "ES0105394003": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "6.4 auditoria 16-10: codigo EODHD verificado por la serie viva de la maestra (price_series EODHD:<simbolo>); Yahoo daba la bolsa MCE/IOB",
+        "autor": "claude-autorizado-por-oscar-17-10-2026-decision-6-4",
+        "fecha": "2026-10-17T04:07:12Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "TSK.MC",
+        "motivo": "6.4 auditoria 16-10: codigo EODHD verificado por la serie viva de la maestra (price_series EODHD:<simbolo>); Yahoo daba la bolsa MCE/IOB",
+        "autor": "claude-autorizado-por-oscar-17-10-2026-decision-6-4",
+        "fecha": "2026-10-17T04:07:12Z"
+      }
+    },
+    "ES0105449005": {
+      "identificacion.nombre": {
+        "valor": "Izertis SA",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD lo manda con un espacio duro, por el que Izertis Sa no se encontraba",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:48Z"
+      }
+    },
+    "ES0106043005": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "Oscar 05-11-2026, decision 62: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: DIGI Spain Telecom, S.A., EUR; 80 cotizaciones del 16-07-2026 al 04-11-2026; 6,255 EUR el 02-11, igual que el vl de la ficha; 78 cotizaciones hasta esa fecha desde el mismo primer dia, las mismas que traia de Yahoo",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T13:13:52Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "DIGIS.MC",
+        "motivo": "Oscar 05-11-2026, decision 62: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: DIGI Spain Telecom, S.A., EUR; 80 cotizaciones del 16-07-2026 al 04-11-2026; 6,255 EUR el 02-11, igual que el vl de la ficha; 78 cotizaciones hasta esa fecha desde el mismo primer dia, las mismas que traia de Yahoo",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T13:13:51Z"
+      }
+    },
+    "ES0125240038": {
+      "cartera.renta_fija.calidad_media": {
+        "valor": "BBB+",
+        "motivo": "trea a 2026-08-31 (https://treaam.com/wp-content/uploads/2026/09/Trea-Renta-Fija-Ahorro.pdf): TIR 4,08%; Rating Medio BBB+; Duración 1,10 (tipo no especificado)",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:33Z"
+      }
+    },
+    "ES0126251018": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: Desarrollos Especiales de Sistemas de Anclaje, S.A., EUR; 4.880 de 4.880 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:DESA.MC); 22,60 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:39Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "DESA.MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: Desarrollos Especiales de Sistemas de Anclaje, S.A., EUR; 4.880 de 4.880 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:DESA.MC); 22,60 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:38Z"
+      }
+    },
+    "ES0132526031": {
+      "valoracion.vl_divisa": {
+        "valor": "EUR",
+        "motivo": "Divisa de la clase según el informe semestral de la CNMV (auditoría 16-10, 6.12)",
+        "autor": "claude-auditoria-autorizado-por-oscar-2026-10-17",
+        "fecha": "2026-10-17T09:31:54Z"
+      }
+    },
+    "ES0137397008": {
+      "costes.kid.entrada_pct": {
+        "valor": 0.0,
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:21Z"
+      },
+      "costes.kid.fecha": {
+        "valor": "2026-05-29",
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:22Z"
+      },
+      "costes.kid.gestion_y_otros_pct": {
+        "valor": 0.98,
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:20Z"
+      },
+      "costes.kid.idioma": {
+        "valor": "es",
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:22Z"
+      },
+      "costes.kid.salida_pct": {
+        "valor": 0.0,
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:21Z"
+      },
+      "costes.kid.transaccion_pct": {
+        "valor": 0.0,
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: composición de costes (gestión y otros 0,98 %, operación 0,00 %, sin entrada ni salida)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:21Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 3,
+        "motivo": "Fineco, KID Clase A (idFicha 12334, www.fineco.com) de 29-05-2026: clase de riesgo 3 en una escala de 7",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:20Z"
+      }
+    },
+    "ES0139113007": {
+      "costes.ter_pct": {
+        "valor": 0.54,
+        "motivo": "CNMV, informe semestral 1S2026: ratio total de gastos de los 4 últimos trimestres 0,14+0,13+0,13+0,14 = 0,54 % (12 meses a 30-06-2026)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T12:30:29Z"
+      }
+    },
+    "ES0148396007": {
+      "identificacion.nombre": {
+        "valor": "Industria de Diseño Textil, S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD lo da sin la eñe, Industria de Diseno Textil SA. El nombre es el de la descripcion de la propia ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:51Z"
+      }
+    },
+    "ES0161560018": {
+      "identificacion.nombre": {
+        "valor": "NH Hoteles",
+        "motivo": "Oscar 12-11-2026: NH Hotel Group se queda dada de alta valorada a su ultimo precio (PRICE_FROZEN_DELISTED en functions_python/fund_history_policies.json). EODHD sirve la serie de NHH.MC pero /api/search no le da identidad, y sin nombre la guarda QUALITY_REGRESSION_BLOCKED (critical_field_lost:identificacion.nombre) tiraba la serie (pasada del 10-11-2026). El nombre es el que la ficha ya tenia, de la copia verificada de la maestra 2026-10-31T13-35-09-399Z: se conserva, no se cambia.",
+        "autor": "claude-autorizado-por-oscar-12-11-2026",
+        "fecha": "2026-11-12T19:24:09Z"
+      },
+      "identificacion.pais": {
+        "valor": "Spain",
+        "motivo": "Oscar 12-11-2026, NH valorado a su ultimo precio: /api/search de EODHD no da identidad a NHH.MC, asi que la ficha se queda sin el pais del mercado. Spain es el Country que EODHD da a las 114 acciones de MC (Bolsa de Madrid) del export; sin el, tests/baseNuevaAcciones.test.ts de la plataforma no encuentra el pais de la bolsa.",
+        "autor": "claude-autorizado-por-oscar-12-11-2026",
+        "fecha": "2026-11-12T19:37:43Z"
+      }
+    },
+    "ES0162600003": {
+      "identificacion.nombre": {
+        "valor": "Duro Felguera, S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD da su nombre de bolsa recortado, DURO FELGUE. INH. EO-05. El nombre es el de la descripcion de la propia ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:50Z"
+      }
+    },
+    "ES0162916037": {
+      "cartera.renta_fija.calidad_crediticia_pct.A": {
+        "valor": 50.55,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:18Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.AA": {
+        "valor": 3.3,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:18Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.AAA": {
+        "valor": 0.0,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:17Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.B": {
+        "valor": 0.0,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:19Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.BB": {
+        "valor": 3.3,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:19Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.BBB": {
+        "valor": 42.86,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:18Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.inferior_B": {
+        "valor": 0.0,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:19Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.sin_rating": {
+        "valor": 0.0,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: composición por rating (AAA..<B-, NR) agregada a 8 clases y normalizada a 100 sobre el 91 % invertido en bonos",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:20Z"
+      },
+      "cartera.renta_fija.duracion_modificada": {
+        "valor": 3.28,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: Duración 3,28 (sustituye 2,5 del semestral CNMV 1S2026)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:17Z"
+      },
+      "cartera.renta_fija.ytm_pct": {
+        "valor": 3.98,
+        "motivo": "Fineco, ficha estrategia (idFicha 13303) datos a 30-09-2026: TIR bruta 3,98 % (sustituye 3,21 del semestral CNMV 1S2026)",
+        "autor": "oscar",
+        "fecha": "2026-10-13T13:30:17Z"
+      }
+    },
+    "ES01717430J3": {
+      "identificacion.mercado": {
+        "valor": "MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (figura con otro ISIN, ES0171743901). Codigo verificado con la llamada real: Promotora de Informaciones SA, EUR; 6.702 de 6.702 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:PRS.MC); 2,11 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:38Z"
+      },
+      "identificacion.nombre": {
+        "valor": "Promotora de Informaciones, S.A.",
+        "motivo": "Oscar 05-11-2026: al pasar la serie de Yahoo a EODHD no cambia el nombre que ya tenia la ficha; EODHD lo da como Promotora de Informaciones SA",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:45:27Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "PRS.MC",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (figura con otro ISIN, ES0171743901). Codigo verificado con la llamada real: Promotora de Informaciones SA, EUR; 6.702 de 6.702 cierres ajustados iguales a la serie de la base vieja (price_series EODHD:PRS.MC); 2,11 EUR el 02-11, igual que el vl de la ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:37Z"
+      }
+    },
+    "ES0173093024": {
+      "identificacion.nombre": {
+        "valor": "Redeia Corporación, S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD lo da sin el acento, Redeia Corporacion S.A. El nombre es el de la descripcion de la propia ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:52Z"
+      }
+    },
+    "ES0175604000": {
+      "identificacion.nombre": {
+        "valor": "GESCONSULT LEON VALORES MIXTO FLEXIBLE, FI",
+        "motivo": "Oscar 05-11-2026, decision 93: CNMV lo manda con un espacio doble",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:48Z"
+      }
+    },
+    "ES0175604034": {
+      "identificacion.nombre": {
+        "valor": "GESCONSULT LEON VALORES MIXTO FLEXIBLE, FI",
+        "motivo": "Oscar 05-11-2026, decision 93: CNMV lo manda con un espacio doble",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:49Z"
+      }
+    },
+    "ES0180918015": {
+      "identificacion.nombre": {
+        "valor": "Grupo Empresarial San José, S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD lo da sin el acento, Grupo Empresarial San Jose SA. El nombre es el de la descripcion de la propia ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:52Z"
+      }
+    },
+    "FR0000120321": {
+      "identificacion.nombre": {
+        "valor": "L'Oréal S.A.",
+        "motivo": "Oscar 05-11-2026, decision 93: EODHD lo da sin el apostrofo, LOréal S.A. El nombre es el de la descripcion de la propia ficha",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:50Z"
+      }
+    },
+    "FR0010286013": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-03-06",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): manufacturer_copy_morningstar, documento de 2026-03-06, ISIN FR0010286013 comprobado; clase de riesgo 2 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:00Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "manufacturer_copy_morningstar",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): manufacturer_copy_morningstar, documento de 2026-03-06, ISIN FR0010286013 comprobado; clase de riesgo 2 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:00Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "096ba2c2f31ec42e5941242975bd9f5735fd5a6e8ec2c19f6842788247392f0a",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): manufacturer_copy_morningstar, documento de 2026-03-06, ISIN FR0010286013 comprobado; clase de riesgo 2 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:01Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.finect.com/doclegal?language=471&investmentid=F0GBR04ES1&documenttype=299&market=1440&investmenttype=1&format=PDF&frame=0",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): manufacturer_copy_morningstar, documento de 2026-03-06, ISIN FR0010286013 comprobado; clase de riesgo 2 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:52:59Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 2,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): manufacturer_copy_morningstar, documento de 2026-03-06, ISIN FR0010286013 comprobado; clase de riesgo 2 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:01Z"
+      }
+    },
+    "IE000DR59CI3": {
+      "identificacion.mercado": {
+        "valor": "AS",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: iShares Energy Storage & Hydrog, ETF, USD; 439 de 439 cierres iguales a la serie de la base vieja (price_series EODHD:STOR.AS, source_value); 1m, 3m, 6m y YTD de Morningstar iguales a los de esa serie en dolares",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:37Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "STOR.AS",
+        "motivo": "Oscar 05-11-2026: traer la serie. EODHD no lo encuentra por ISIN (el listado figura sin ISIN). Codigo verificado con la llamada real: iShares Energy Storage & Hydrog, ETF, USD; 439 de 439 cierres iguales a la serie de la base vieja (price_series EODHD:STOR.AS, source_value); 1m, 3m, 6m y YTD de Morningstar iguales a los de esa serie en dolares",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T08:39:36Z"
+      }
+    },
+    "IE0031069499": {
+      "identificacion.nombre": {
+        "valor": "AXA IM Equity Trust - AXA IM All Country Asia Pacific Ex-Japan Small Cap Equity QI B (€)",
+        "motivo": "Oscar 05-11-2026, decision 93: Morningstar lo manda con la codificacion rota, (â‚¬) donde dice (€)",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:47Z"
+      }
+    },
+    "IE0034277479": {
+      "identificacion.nombre": {
+        "valor": "AXA IM Equity Trust - AXA IM All Country Asia Pacific Ex-Japan Small Cap Equity QI E (€)",
+        "motivo": "Oscar 05-11-2026, decision 93: Morningstar lo manda con la codificacion rota, (â‚¬) donde dice (€)",
+        "autor": "claude-autorizado-por-oscar-05-11-2026",
+        "fecha": "2026-11-05T14:50:47Z"
+      }
+    },
+    "IT0000062072": {
+      "identificacion.mercado": {
+        "valor": "XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ASG.XETRA (antes 0K78.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:31Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "ASG.XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ASG.XETRA (antes 0K78.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:31Z"
+      }
+    },
+    "IT0000072618": {
+      "identificacion.mercado": {
+        "valor": "XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es IES.XETRA (antes 0HBC.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:32Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "IES.XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es IES.XETRA (antes 0HBC.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:32Z"
+      }
+    },
+    "IT0003128367": {
+      "identificacion.mercado": {
+        "valor": "XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ENL.XETRA (antes 0NRE.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:33Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "ENL.XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ENL.XETRA (antes 0NRE.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:33Z"
+      }
+    },
+    "IT0003132476": {
+      "identificacion.mercado": {
+        "valor": "XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ENI.XETRA (antes 0N9S.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:34Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "ENI.XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es ENI.XETRA (antes 0N9S.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:34Z"
+      }
+    },
+    "IT0005239360": {
+      "identificacion.mercado": {
+        "valor": "XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es CRIN.XETRA (antes 0RLS.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:35Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "CRIN.XETRA",
+        "motivo": "Decision 41: Milan no esta en EODHD; la linea en EUR con mas sesiones efectivas a 12 meses es CRIN.XETRA (antes 0RLS.LSE).",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:02:34Z"
+      }
+    },
+    "IT0005482333": {
+      "identificacion.mercado": {
+        "valor": "F",
+        "motivo": "Decision 41: la linea 0AB7.LSE de EODHD esta corrupta; va por K8B.F.",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:08:01Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "K8B.F",
+        "motivo": "Decision 41: la linea 0AB7.LSE de EODHD esta corrupta (el cierre oscila entre 35 y 6,96 desde junio de 2026 y su ultimo cierre es 6,96); K8B.F es la otra linea en EUR, sin ese defecto.",
+        "autor": "oscar-decision-41-sesion-de-datos-08-11-2026",
+        "fecha": "2026-11-08T08:08:01Z"
+      }
+    },
+    "LU0102737904": {
+      "cartera.renta_fija.calidad_crediticia_pct.A": {
+        "valor": 57.6,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:42Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.AA": {
+        "valor": 15.9,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:34Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.AAA": {
+        "valor": 7.1,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:41Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.B": {
+        "valor": 0,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:43Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.BB": {
+        "valor": 0,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:39Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.BBB": {
+        "valor": 19.4,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:36Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.inferior_B": {
+        "valor": 0,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:40Z"
+      },
+      "cartera.renta_fija.calidad_crediticia_pct.sin_rating": {
+        "valor": 0,
+        "motivo": "Invesco a 2026-08-31 (https://dng-api.invesco.com/cache/v1/accounts/en_IE/shareclasses/LU0102737904/factsheet?documentType=MR&idType=isin&productType=GPR): Bond quality (%): AAA 7.1, AA 15.9, A 57.6, BBB 19.4. Total 100%.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:38Z"
+      }
+    },
+    "LU0252970834": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-08-28",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-08-28, ISIN LU0252970834 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:03Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "blackrock",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-08-28, ISIN LU0252970834 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:03Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "e9cc635689db28666977d760e42ece066e0d283d6ceba1048f8df1984424a5a8",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-08-28, ISIN LU0252970834 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:05Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.blackrock.com/es/profesionales/literature/kiid/eu-priips-bgf-european-equity-transition-fund-class-a2-usd-lu0252970834-es.pdf",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-08-28, ISIN LU0252970834 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:02Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 5,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-08-28, ISIN LU0252970834 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:05Z"
+      }
+    },
+    "LU0270905242": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-09-17",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): deutsche_bank_es, documento de 2026-09-17, ISIN LU0270905242 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:08Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "deutsche_bank_es",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): deutsche_bank_es, documento de 2026-09-17, ISIN LU0270905242 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:07Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "14589f1668f2dc70d6bac0dd20e80fd5e781f1ac2a90491e1d10e4e7ce559227",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): deutsche_bank_es, documento de 2026-09-17, ISIN LU0270905242 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:10Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0270905242&idioma=ES&codSus=KIID&codCont=NA",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): deutsche_bank_es, documento de 2026-09-17, ISIN LU0270905242 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:06Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 5,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): deutsche_bank_es, documento de 2026-09-17, ISIN LU0270905242 comprobado; clase de riesgo 5 en una escala de 7, en la que 5 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:10Z"
+      }
+    },
+    "LU0284394821": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-09-13",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-09-13, ISIN LU0284394821 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:13Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "morningstar_via_finect",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-09-13, ISIN LU0284394821 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:12Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "810acf71ded3cc2faea4e0efa60f42b1b31901afba57726ea488e088953a9462",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-09-13, ISIN LU0284394821 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:13Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.finect.com/doclegal?language=471&investmentid=F000001A89&documenttype=299&market=1440&investmenttype=1&format=PDF&frame=0",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-09-13, ISIN LU0284394821 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:11Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 4,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-09-13, ISIN LU0284394821 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:14Z"
+      }
+    },
+    "LU0331286574": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-06-24",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-06-24, ISIN LU0331286574 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:16Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "blackrock",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-06-24, ISIN LU0331286574 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:15Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "753f1c9c81142c109219384ff84718145dd1c93c58ee958c3a1a1fe436d72358",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-06-24, ISIN LU0331286574 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:17Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.blackrock.com/es/profesionales/literature/kiid/eu-priips-bgf-sustainable-energy-fund-class-c2-eur-lu0331286574-es.pdf",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-06-24, ISIN LU0331286574 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:14Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 4,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): blackrock, documento de 2026-06-24, ISIN LU0331286574 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:17Z"
+      }
+    },
+    "LU0469270010": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-08-11",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-08-11, ISIN LU0469270010 comprobado; classified as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:19Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "morningstar_via_finect",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-08-11, ISIN LU0469270010 comprobado; classified as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:19Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "f81daadaa30316dfc2c09990dc15d917d6ca111915a786e88edb862e02a02e1c",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-08-11, ISIN LU0469270010 comprobado; classified as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:20Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.finect.com/doclegal?language=451&investmentid=F00000LWN3&documenttype=299&market=1440&investmenttype=1&format=PDF&frame=0",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-08-11, ISIN LU0469270010 comprobado; classified as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:18Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 5,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-08-11, ISIN LU0469270010 comprobado; classified as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:20Z"
+      }
+    },
+    "LU0546917344": {
+      "cartera.renta_fija.calidad_media": {
+        "valor": "AA-",
+        "motivo": "manufacturer_copy_morningstar a 2026-08-31 (https://www.finect.com/doclegal?language=471&investmentid=F00000ME39&documenttype=52&market=1440&investmenttype=1&format=PDF&frame=0): Estadísticas del fondo: YTM 4.71; YTW 4.69; calidad media AA-; duración 13.03 sin tipo especificado. Tabla de clases incluye el ISIN revisado.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:44Z"
+      }
+    },
+    "LU0563745743": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-06-25",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-06-25, ISIN LU0563745743 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:25Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "morningstar_via_finect",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-06-25, ISIN LU0563745743 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:23Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "2b7b0477cda31ba21520872fed9d982d6678d2af8cead2e2d623564632a80e7e",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-06-25, ISIN LU0563745743 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:27Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.finect.com/doclegal?language=471&investmentid=F00000QEMO&documenttype=299&market=1440&investmenttype=1&format=PDF&frame=0",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-06-25, ISIN LU0563745743 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:21Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 4,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): morningstar_via_finect, documento de 2026-06-25, ISIN LU0563745743 comprobado; clase de riesgo 4 en una escala de 7, en la que 4 significa",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:28Z"
+      }
+    },
+    "LU0769137737": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-04-22",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): blackrock, documento de 2026-04-22, ISIN LU0769137737 comprobado; classified this product as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:34Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "blackrock",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): blackrock, documento de 2026-04-22, ISIN LU0769137737 comprobado; classified this product as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:32Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "e5431bb98f7bb7735c459eab3e34ba2f4e788208360a71bf5f4e1cf4bdf9753f",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): blackrock, documento de 2026-04-22, ISIN LU0769137737 comprobado; classified this product as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:36Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.blackrock.com/gls-download/literature/kiid/eu-priips-bgf-continental-european-flexible-fund-class-a2-usd-lu0769137737-en.pdf",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): blackrock, documento de 2026-04-22, ISIN LU0769137737 comprobado; classified this product as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:30Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 5,
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): blackrock, documento de 2026-04-22, ISIN LU0769137737 comprobado; classified this product as 5 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:37Z"
+      }
+    },
+    "LU0861897477": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-02-20",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): manufacturer_copy_allfunds, documento de 2026-02-20, ISIN LU0861897477 comprobado; clasificado este producto en la categoría de riesgo 4 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:39Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "manufacturer_copy_allfunds",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): manufacturer_copy_allfunds, documento de 2026-02-20, ISIN LU0861897477 comprobado; clasificado este producto en la categoría de riesgo 4 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:38Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "d3a1aa273c5cb3771064a0b726b418415eb46224f499559b39530caa03e5b401",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): manufacturer_copy_allfunds, documento de 2026-02-20, ISIN LU0861897477 comprobado; clasificado este producto en la categoría de riesgo 4 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:40Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://app.allfunds.com/docs/legal/fund/21835674341",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): manufacturer_copy_allfunds, documento de 2026-02-20, ISIN LU0861897477 comprobado; clasificado este producto en la categoría de riesgo 4 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:38Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 4,
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): manufacturer_copy_allfunds, documento de 2026-02-20, ISIN LU0861897477 comprobado; clasificado este producto en la categoría de riesgo 4 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:40Z"
+      }
+    },
+    "LU1080015693": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-07-01",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): morningstar_via_finect, documento de 2026-07-01, ISIN LU1080015693 comprobado; classified this Product as 2 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:42Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "morningstar_via_finect",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): morningstar_via_finect, documento de 2026-07-01, ISIN LU1080015693 comprobado; classified this Product as 2 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:42Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "36ef2ead5729f48f5a63b484fd1c457027b4ef56c9b1d7dbf0ba0815b3595a20",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): morningstar_via_finect, documento de 2026-07-01, ISIN LU1080015693 comprobado; classified this Product as 2 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:43Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.finect.com/doclegal?language=451&investmentid=F00000U3I4&documenttype=299&market=1440&investmenttype=1&format=PDF&frame=0",
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): morningstar_via_finect, documento de 2026-07-01, ISIN LU1080015693 comprobado; classified this Product as 2 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:41Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 2,
+        "motivo": "KID PRIIPs verificado por la app (fund-risk-reconciliation-2026-09-28): morningstar_via_finect, documento de 2026-07-01, ISIN LU1080015693 comprobado; classified this Product as 2 out of 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:43Z"
+      }
+    },
+    "LU1254412460": {
+      "cartera.renta_fija.duracion_efectiva": {
+        "valor": 6.84,
+        "motivo": "manufacturer_copy_morningstar a 2026-08-31 (https://www.finect.com/doclegal?language=451&investmentid=F00000WABX&documenttype=52&market=1440&investmenttype=1&format=PDF&frame=0): Duración efectiva 6.84 años; rentabilidad hasta vencimiento 7,37%. Datos a 31/08/2026.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:44Z"
+      }
+    },
+    "LU1706854152": {
+      "cartera.renta_fija.calidad_media": {
+        "valor": "BBB",
+        "motivo": "manufacturer_copy_morningstar a 2026-08-31 (https://www.finect.com/doclegal?language=451&investmentid=F000010AFA&documenttype=52&market=1440&investmenttype=1&format=PDF&frame=0): Modified Duration 1.94; Average Credit Quality BBB; Yield 4.20 sin especificar YTM/YTW: permanece como rendimiento sin tipificar.",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T18:08:44Z"
+      }
+    },
+    "LU1899018870": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2025-12-27",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): andbank, documento de 2025-12-27, ISIN LU1899018870 comprobado; clase de riesgo 3 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:45Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "andbank",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): andbank, documento de 2025-12-27, ISIN LU1899018870 comprobado; clase de riesgo 3 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:45Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "252a56647cb4e07277181bb1ec64579c3e7c621e779eb603e5355d49710c9fd2",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): andbank, documento de 2025-12-27, ISIN LU1899018870 comprobado; clase de riesgo 3 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:46Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.andbank.com/funds/luxemburg/pdf/lu1899018870_kiid_es_202601291230.pdf",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): andbank, documento de 2025-12-27, ISIN LU1899018870 comprobado; clase de riesgo 3 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:44Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 3,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): andbank, documento de 2025-12-27, ISIN LU1899018870 comprobado; clase de riesgo 3 en una escala de 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:46Z"
+      }
+    },
+    "LU2240056445": {
+      "documentos_oficiales.kid_fecha": {
+        "valor": "2026-07-28",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): sunny, documento de 2026-07-28, ISIN LU2240056445 comprobado; classe de risque 5 sur 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:48Z"
+      },
+      "documentos_oficiales.kid_fuente": {
+        "valor": "sunny",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): sunny, documento de 2026-07-28, ISIN LU2240056445 comprobado; classe de risque 5 sur 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:48Z"
+      },
+      "documentos_oficiales.kid_sha256": {
+        "valor": "179457e9d9e5775ff1724b7c8464259234321e28c862a986a9d5b5717223aa2a",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): sunny, documento de 2026-07-28, ISIN LU2240056445 comprobado; classe de risque 5 sur 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:49Z"
+      },
+      "documentos_oficiales.kid_url": {
+        "valor": "https://www.sunny-am.com/wp-content/themes/as-template/docs/2026-04-30-LONVIA-MID-CAP-EURO-R-LU2240056445-DIC.pdf",
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): sunny, documento de 2026-07-28, ISIN LU2240056445 comprobado; classe de risque 5 sur 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:47Z"
+      },
+      "riesgo.sri_kid_1a7": {
+        "valor": 5,
+        "motivo": "KID PRIIPs verificado por la app (fund-quality-phase2-2026-09-28): sunny, documento de 2026-07-28, ISIN LU2240056445 comprobado; classe de risque 5 sur 7",
+        "autor": "claude-auditoria-autorizado-por-oscar-14-10-2026",
+        "fecha": "2026-10-14T17:53:49Z"
+      }
+    },
+    "NL0015001FS8": {
+      "identificacion.nombre": {
+        "valor": "Ferrovial SE",
+        "motivo": "Decision 49: EODHD da en FER.MC el nombre de la sociedad anterior a la fusion. Nombre actual segun Form 20-F (SEC, Ferrovial SE).",
+        "autor": "oscar",
+        "fecha": "2026-11-08T10:59:20Z"
+      },
+      "identificacion.simbolo_eodhd": {
+        "valor": "FER.MC",
+        "motivo": "Decision 49 (08-11-2026): Ferrovial pasa a su mercado de origen, Madrid, determinado por FIRDS (autoridad ES, admision XMAD). EODHD tiene FER.MC.",
+        "autor": "oscar",
+        "fecha": "2026-11-08T10:55:08Z"
+      }
+    }
+  }
+}

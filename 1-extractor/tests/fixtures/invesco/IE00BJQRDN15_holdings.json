@@ -1,0 +1,101 @@
+{
+ "effectiveDate": "2026-11-05",
+ "numberOfHoldings": 197,
+ "holdings": [
+  {
+   "name": "NVIDIA CORP USD0.001",
+   "isin": "US67066G1040",
+   "weight": 6.63,
+   "currency": "USD"
+  },
+  {
+   "name": "MICROSOFT CORP USD0.00000625",
+   "isin": "US5949181045",
+   "weight": 5.8,
+   "currency": "USD"
+  },
+  {
+   "name": "ABBVIE INC USD0.01",
+   "isin": "US00287Y1091",
+   "weight": 2.31,
+   "currency": "USD"
+  },
+  {
+   "name": "TORONTO-DOMINION BANK NPV",
+   "isin": "CA8911605092",
+   "weight": 2.03,
+   "currency": "CAD"
+  },
+  {
+   "name": "BROADCOM INC NPV",
+   "isin": "US11135F1012",
+   "weight": 2,
+   "currency": "USD"
+  },
+  {
+   "name": "LINDE PLC USD NPV",
+   "isin": "IE000S9YS762",
+   "weight": 1.62,
+   "currency": "USD"
+  },
+  {
+   "name": "CENTENE CORP USD0.001",
+   "isin": "US15135B1017",
+   "weight": 1.61,
+   "currency": "USD"
+  },
+  {
+   "name": "GILEAD SCIENCES INC USD0.001",
+   "isin": "US3755581036",
+   "weight": 1.46,
+   "currency": "USD"
+  },
+  {
+   "name": "CROWN HOLDINGS INC USD5",
+   "isin": "US2283681060",
+   "weight": 1.41,
+   "currency": "USD"
+  },
+  {
+   "name": "CAN IMPERIAL BK OF COMMERCE NPV",
+   "isin": "CA1360691010",
+   "weight": 1.36,
+   "currency": "CAD"
+  },
+  {
+   "name": "BANK OF NEW YORK MELLON CORP USD0.01",
+   "isin": "US0640581007",
+   "weight": 1.33,
+   "currency": "USD"
+  },
+  {
+   "name": "HOME DEPOT INC USD0.05",
+   "isin": "US4370761029",
+   "weight": 1.31,
+   "currency": "USD"
+  },
+  {
+   "name": "SOFTBANK CORP NPV",
+   "isin": "JP3732000009",
+   "weight": 1.3,
+   "currency": "JPY"
+  },
+  {
+   "name": "BEST BUY CO INC USD0.1",
+   "isin": "US0865161014",
+   "weight": 1.27,
+   "currency": "USD"
+  },
+  {
+   "name": "TEXAS INSTRUMENTS INC USD1",
+   "isin": "US8825081040",
+   "weight": 0,
+   "currency": "USD"
+  },
+  {
+   "name": "Cash and/or Derivatives",
+   "weight": 0.15,
+   "currency": "USD"
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/canonical/fondosdb-stock.v1.schema.json",
+  "title": "FondosDB canonical stock/equity (export_bdb/{ISIN}.json, classification_v2.asset_type='stock') — v1",
+  "description": "Forma del fichero canonico que produce fondosdb para una ACCION (classification_v2.asset_type==='stock'). Es la ENTRADA de la ingesta de acciones (src/ingestion/fondosdbStockAssets.ts -> buildStockRow). Distinta del fondo: trae ms.stock (ticker/exchange/fundamentals) y suele carecer de perfil de fondo (costs/fixed_income). additionalProperties=true en todos los niveles: fondosdb es el upstream y puede crecer; el contrato valida los tipos de lo que consume el mapper stock, no prohibe que fondosdb anada campos. Las reglas de ACEPTACION viven en el mapper, no aqui. Unidades: portfolio_exposure_v2 en fracciones (0-1).",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "generated_at": { "type": ["string", "null"], "description": "ISO timestamp de generacion." },
+    "isin": { "type": ["string", "null"], "description": "ISIN del activo; el mapper stock lo normaliza a mayusculas y lo usa como asset_id." },
+    "name": { "type": ["string", "null"] },
+    "currency": { "type": ["string", "null"], "description": "Divisa base (p.ej. EUR)." },
+    "fileName": { "type": ["string", "null"] },
+    "stableBaseName": { "type": ["string", "null"] },
+    "report_date": { "type": ["string", "null"], "description": "YYYY-MM-DD." },
+    "ms": { "$ref": "#/$defs/ms" },
+    "derived": { "$ref": "#/$defs/derived" },
+    "classification_v2": { "$ref": "#/$defs/classification_v2" },
+    "portfolio_exposure_v2": { "type": ["object", "null"], "additionalProperties": true, "description": "Exposicion en FRACCIONES (0-1). En una accion suele ser null o minima." },
+    "quality": { "$ref": "#/$defs/quality" },
+    "validation": { "$ref": "#/$defs/validation" },
+    "routing": { "type": ["object", "null"], "additionalProperties": true }
+  },
+  "$defs": {
+    "ms": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "Bloque Morningstar. Para acciones la clave es el subobjeto `stock`.",
+      "properties": {
+        "stock": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "description": "Datos de la accion que consume buildStockRow.",
+          "properties": {
+            "ticker": { "type": ["string", "null"] },
+            "exchange": { "type": ["string", "null"], "description": "Sufijo de mercado EODHD (p.ej. XETRA). eodhd_code = `${ticker}.${exchange}`." },
+            "fundamentals": { "type": ["object", "null"], "additionalProperties": true }
+          }
+        }
+      }
+    },
+    "derived": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "asset_class": { "type": ["string", "null"], "description": "EQUITY para acciones." },
+        "asset_subtype": { "type": ["string", "null"] },
+        "primary_region": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"] }
+      }
+    },
+    "classification_v2": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "asset_type DEBE ser 'stock' para que la ingesta enrute esta accion a la tuberia de acciones.",
+      "properties": {
+        "asset_type": { "type": ["string", "null"], "description": "'stock' para acciones." },
+        "asset_subtype": { "type": ["string", "null"] },
+        "region_primary": { "type": ["string", "null"] },
+        "classification_confidence": { "type": ["number", "null"] }
+      }
+    },
+    "quality": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "bucket": { "type": ["string", "null"] },
+        "warnings": { "type": ["array", "null"], "items": { "type": "string" } }
+      }
+    },
+    "validation": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "errors": { "type": ["array", "null"], "items": { "type": "string" } },
+        "warnings": { "type": ["array", "null"], "items": { "type": "string" } },
+        "diagnostics": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "calidad_fondosdb": { "type": ["string", "null"], "description": "ALTO | MEDIO | BAJO | BLOQUEADO (sin enum para no rechazar variantes del upstream)." }
+          }
+        }
+      }
+    }
+  }
+}

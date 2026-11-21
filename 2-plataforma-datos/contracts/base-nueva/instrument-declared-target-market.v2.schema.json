@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-target-market.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/target_market — v2",
+  "description": "El mercado objetivo que declara el fabricante de un fondo o ETF en su EMT (European MiFID Template de FinDatEx), tal como lo deja el bloque `mercado_objetivo` del extractor (decision 58 de Oscar, 09-11-2026). Contesta a la pregunta del asesor: para que tipo de cliente, con que conocimiento, con que capacidad de asumir perdidas, con que objetivo, a que plazo minimo y por que canal lo piensa el fabricante.\n\nSOLO EL EMT. El EET (European ESG Template) queda aplazado hasta tener cobertura (2 de 32 el 09-11-2026); `esg_preferences_considered` es el campo `05105` del propio EMT, no del EET. No lleva SRI, SRRI, costes ni politica de reparto, que ya estan en `declared/regulatory`, `declared/costs` y `declared/profile` con su fuente: el EMT no se guarda como segunda cifra de nada.\n\nEs un documento propio y no una seccion de `declared/issuer_data` porque el mercado objetivo es un dato del instrumento, no del emisor de un ETF: vale para cualquier fuente que traiga un EMT, tambien un fondo activo de una gestora o un proveedor. Hoy lo traen tres ficheros de emisor (iShares, que incluye los fondos de BlackRock, Vanguard e Invesco), y `source` queda abierto a mas.\n\nUSO INTERNO PARA EL DESARROLLO (decision 53): son datos del emisor y no entran nunca en un informe de cliente. Vanguard marca su fichero como solo para profesionales.\n\nVALE PARA TODO FONDO O ETF CUYO FABRICANTE PUBLIQUE EMT (decision B-63 de Oscar, 09-11-2026), de cualquier emisor y no solo para los ETF: el lector aplica el fichero del emisor a todo ISIN que contenga, fondos activos incluidos. Medido en la pasada local del 09-11-2026 (canonico `f0a599e1...`): el bloque `mercado_objetivo` llega a 91 fichas del canonico (23 ETF, el ETC de oro, 66 fondos activos de iShares, BlackRock, Invesco y Vanguard y 1 ETF mas) y salen 90 documentos (66 FUND y 24 ETF); el oro no entra porque en la base es OTHER y este contrato solo admite fondo o ETF.\n\nNo cuenta en la cobertura (`x-counts-when: NUNCA`): lo traen 90 de los 800 fondos y ETF de ese canonico, y mover la calidad de unos pocos por tenerlo no diria nada de ellos.\n\nEL CAMPO `03050` (compatible con clientes que soportan perdidas mas alla del capital) SE EXCLUYE A PROPOSITO. En los tres ficheros medidos dice Y en el 100 % de las filas, UCITS incluidos, y lo que significa es que el producto es compatible con un cliente capaz de soportar esa perdida, no que el producto pueda perder mas que el capital. Ensenarlo tal cual llevaria a leer que un UCITS puede perder mas de lo invertido, que es un error grave; por eso no tiene sitio aqui y el extractor no lo trae.\n\nEn un ETF UCITS sencillo el bloque casi no distingue (los 23 medidos dicen minorista, profesional y contraparte; conocimiento basico; capital en riesgo): lo que aporta es el plazo minimo (`min_holding_period`) y, fuera de ese universo, el mercado objetivo NEGATIVO de los productos complejos (un NO en minorista o en conocimiento basico). Medicion en `INFORME_EMT_EET_2026-11-09.md`.",
+  "x-collection": "instruments/{instrument_id}/declared/target_market",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF con EMT de su fabricante en el extractor",
+  "x-applies-when": "FONDO_O_ETF",
+  "x-counts-when": "NUNCA",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "source_url",
+    "sha256",
+    "template_version",
+    "target_market_as_of"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "pattern": "^issuer:[a-z0-9_-]+$",
+      "description": "De donde sale el EMT, con el prefijo `issuer:` (`issuer:ishares`, `issuer:vanguard`, `issuer:invesco`). Sale de `mercado_objetivo.fuente` (`emisor:*`). Abierto a mas fuentes: un fondo activo traera la suya.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 1,
+      "description": "El fichero EMT del que sale la fila (`mercado_objetivo.url_fichero`). Es un fichero de toda la gama del emisor, no un documento de este instrumento: la fila se identifica por el ISIN. Por eso no se llama `document_url`, que en los demas bloques es el documento del propio instrumento (el KID).",
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "La huella del fichero EMT (`mercado_objetivo.sha256_fichero`). Con `source_url` y `file_generated_at` es lo que permite volver a la fila de origen.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "template_version": {
+      "type": "string",
+      "pattern": "^V[0-9]+(\\.[0-9]+)?$",
+      "description": "La version de la plantilla EMT del fichero (`mercado_objetivo.version_plantilla`). Medidas el 09-11-2026: V4 en iShares, V4.2 en Vanguard e Invesco. FinDatEx publica tambien una V4.3, no leida.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "file_generated_at": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "description": "La fecha de generacion del fichero, campo EMT `00005` (`mercado_objetivo.fichero_generado`). No es la del mercado objetivo, que va en `target_market_as_of`.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "target_market_as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "description": "La fecha a la que el fabricante declara el mercado objetivo, campo EMT `01000` (`mercado_objetivo.fecha_mercado_objetivo`). Obligatoria: sin ella el extractor no escribe el bloque y la plataforma no escribe el documento. Medidas entre el 31-12-2025 y el 30-09-2026: cada instrumento lleva la suya.",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "investor_type": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Tipo de cliente con el que el fabricante declara compatible el producto (seccion 1 del EMT). NEUTRAL quiere decir que el fabricante no se pronuncia, y no es un si.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "retail": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Cliente minorista, campo EMT `01010` (`tipo_inversor.minorista`). Un NO es mercado objetivo negativo: el fabricante no lo piensa para minoristas. Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "professional": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Cliente profesional, campo EMT `01020` (`tipo_inversor.profesional`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "eligible_counterparty": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Contraparte elegible, campo EMT `01030` (`tipo_inversor.contraparte_elegible`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "knowledge": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Conocimiento y experiencia del cliente con los que el fabricante declara compatible el producto (seccion 2 del EMT). NEUTRAL quiere decir que el fabricante no se pronuncia, y no es un si.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "basic": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Inversor basico, campo EMT `02010` (`conocimiento.basico`). Un NO es mercado objetivo negativo: hace falta experiencia. Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "informed": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Inversor informado, campo EMT `02020` (`conocimiento.informado`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "advanced": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Inversor avanzado, campo EMT `02030` (`conocimiento.avanzado`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "loss_capacity": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Capacidad de asumir perdidas con la que el fabricante declara compatible el producto (seccion 3 del EMT). Lleva solo `03010` y `03040`: el `03050` se excluye a proposito, ver la descripcion del documento. NEUTRAL quiere decir que el fabricante no se pronuncia, y no es un si.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "no_loss": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Compatible con clientes que no pueden soportar perdida de capital, campo EMT `03010` (`capacidad_perdidas.sin_perdidas`). Un NO dice que el producto no es para quien no puede perder nada. Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "no_guarantee": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Compatible con clientes que no necesitan garantia de capital: el capital esta en riesgo, campo EMT `03040` (`capacidad_perdidas.sin_garantia`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Objetivo del cliente con el que el fabricante declara compatible el producto (seccion 5 del EMT). NEUTRAL quiere decir que el fabricante no se pronuncia, y no es un si.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "capital_growth": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Crecimiento del capital, campo EMT `05020` (`objetivos.crecimiento`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "income": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "NEUTRAL"
+          ],
+          "description": "Busca rentas, campo EMT `05030` (`objetivos.rentas`). Medido: responde mas a la costumbre del emisor (iShares todo Y, Vanguard casi todo NEUTRAL) que al producto. Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "min_holding_period": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "description": "Periodo minimo de tenencia recomendado, campo EMT `05080`, normalizado por el extractor (`mercado_objetivo.periodo_minimo`). Lleva o `years` o `code`, nunca los dos: el EMT admite las dos formas y no se convierte una en la otra. Es lo que el bloque aporta de verdad en un ETF sencillo; coincide con el del KID en 8 de 8, y la propuesta para la app es KID primero y EMT donde no haya.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "years": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "En anos, tal como lo declara el fabricante (`periodo_minimo.anos`). Puede llevar decimales (0,92) y ser 0 en un monetario. Ausente cuando el fabricante declara un codigo.",
+          "x-unit": "years",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "V",
+            "S",
+            "M",
+            "L",
+            "H"
+          ],
+          "description": "El codigo del EMT cuando el fabricante no da anos (`periodo_minimo.codigo`): V muy corto plazo, S corto, M medio, L largo, H hasta vencimiento, segun la definicion de FinDatEx. En los 23 medidos llega siempre en anos. Ausente cuando el fabricante declara anos.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "esg_preferences_considered": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NEUTRAL"
+      ],
+      "description": "Si el producto considera las preferencias de sostenibilidad del cliente, campo EMT `05105` (`mercado_objetivo.preferencias_esg_consideradas`). El EMT no admite NO aqui: NEUTRAL es que no se pronuncia. No sustituye al EET, que esta aplazado. Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Canal de distribucion que el fabricante considera adecuado, y para que clientes (seccion 6 del EMT).",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "execution_only": {
+          "type": "string",
+          "enum": [
+            "R",
+            "P",
+            "B",
+            "N"
+          ],
+          "description": "Solo ejecucion, campo EMT `06010` (`distribucion.solo_ejecucion`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar. R: solo a minoristas; P: solo a profesionales; B: a los dos; N: a ninguno.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "appropriateness": {
+          "type": "string",
+          "enum": [
+            "R",
+            "P",
+            "B",
+            "N"
+          ],
+          "description": "Servicio sin asesoramiento con test de conveniencia, campo EMT `06020` (`distribucion.conveniencia`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar. R: solo a minoristas; P: solo a profesionales; B: a los dos; N: a ninguno.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "advice": {
+          "type": "string",
+          "enum": [
+            "R",
+            "P",
+            "B",
+            "N"
+          ],
+          "description": "Asesoramiento, campo EMT `06030` (`distribucion.asesoramiento`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar. R: solo a minoristas; P: solo a profesionales; B: a los dos; N: a ninguno.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "portfolio_management": {
+          "type": "string",
+          "enum": [
+            "R",
+            "P",
+            "B",
+            "N"
+          ],
+          "description": "Gestion discrecional de carteras, campo EMT `06040` (`distribucion.gestion_cartera`). Ausente si el emisor deja la celda vacia: no se escribe NEUTRAL en su lugar. R: solo a minoristas; P: solo a profesionales; B: a los dos; N: a ninguno.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    }
+  }
+}

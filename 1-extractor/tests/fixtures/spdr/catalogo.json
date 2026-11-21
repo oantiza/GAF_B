@@ -1,0 +1,298 @@
+{
+"data": {
+"fundType": [
+{
+"key": "uk-etfs",
+"name": "UCITS ETFs",
+"size": 179
+},
+{
+"key": "us-etfs",
+"name": "US ETFs",
+"size": 30
+}
+],
+"funds": {
+"uk-etfs": {
+"datas": [
+{
+"domicile": "IE",
+"fundName": "State Street® SPDR® Bloomberg Euro Corporate Bond UCITS ETF (Dist)",
+"fundTicker": "EUCO LN",
+"fundUri": "/uk/en_gb/intermediary/etfs/state-street-spdr-bloomberg-euro-corporate-bond-ucits-etf-dist-sybc-gy",
+"ter": [
+"0.12%",
+0.12
+],
+"nav": "€52.00",
+"aum": "€668.72 M",
+"asOfDate": [
+"06 Nov 2026",
+"2026-11-06"
+],
+"inceptionDate": [
+"23 May 2011",
+"2011-05-23"
+],
+"fundFilter": "SYBC-GY",
+"keywords": "State Street® SPDR® Bloomberg Euro Corporate Bond UCITS ETF Dist, State Street® SPDR® Bloomberg Euro Corporate Bond UCITS ETF (Dist), SYBC, EUCO, Fixed Income, SYBC GY, EUCO IM, EUCO LN, IE00B3T9LM79, Corporate and Credit, Investment Grade",
+"documentPdf": [
+{
+"docType": "Navhist",
+"docs": [
+{
+"language": "",
+"name": "NAV History",
+"path": "/library-content/products/fund-data/etfs/emea/navhist-emea-en-sybc-gy.xlsx",
+"canDownload": true
+}
+]
+},
+{
+"docType": "Holdings-daily",
+"docs": [
+{
+"language": "",
+"name": "Daily Holdings",
+"path": "/library-content/products/fund-data/etfs/emea/holdings-daily-emea-en-sybc-gy.xlsx",
+"canDownload": true
+}
+]
+}
+]
+},
+{
+"domicile": "IE",
+"fundName": "State Street® SPDR® MSCI Europe Small Cap UCITS ETF",
+"fundTicker": "SMC FP^",
+"fundUri": "/uk/en_gb/intermediary/etfs/state-street-spdr-msci-europe-small-cap-ucits-etf-smc-fp",
+"ter": [
+"0.30%",
+0.3
+],
+"nav": "€396.42",
+"aum": "€289.39 M",
+"asOfDate": [
+"06 Nov 2026",
+"2026-11-06"
+],
+"inceptionDate": [
+"31 Mar 2005",
+"2005-03-31"
+],
+"fundFilter": "SMC-FP",
+"keywords": "State Street® SPDR® MSCI Europe Small Cap UCITS ETF, SMC, SMCX, Equity, SMC FP, SMCX SE, SMCX IM, IE00BKWQ0M75, Core",
+"documentPdf": [
+{
+"docType": "Navhist",
+"docs": [
+{
+"language": "",
+"name": "NAV History",
+"path": "/library-content/products/fund-data/etfs/emea/navhist-emea-en-smc-fp.xlsx",
+"canDownload": true
+}
+]
+},
+{
+"docType": "Holdings-daily",
+"docs": [
+{
+"language": "",
+"name": "Daily Holdings",
+"path": "/library-content/products/fund-data/etfs/emea/holdings-daily-emea-en-smc-fp.xlsx",
+"canDownload": true
+}
+]
+}
+]
+},
+{
+"domicile": "IE",
+"fundName": "State Street® SPDR® MSCI World UCITS ETF (Acc)",
+"fundTicker": "SWRD LN",
+"fundUri": "/uk/en_gb/intermediary/etfs/state-street-spdr-msci-world-ucits-etf-acc-sppw-gy",
+"ter": [
+"0.12%",
+0.12
+],
+"nav": "$51.55",
+"aum": "$21,987.81 M",
+"asOfDate": [
+"06 Nov 2026",
+"2026-11-06"
+],
+"inceptionDate": [
+"28 Feb 2019",
+"2019-02-28"
+],
+"fundFilter": "SPPW-GY",
+"keywords": "State Street® SPDR® MSCI World UCITS ETF Acc, State Street® SPDR® MSCI World UCITS ETF (Acc), SPPW, SWRD, SWLD, Equity, SPPW GY, SWRD IM, SWRD NA, SWLD LN, SWRD LN, SWRD SE, IE00BFY0GT14, Core",
+"documentPdf": [
+{
+"docType": "Navhist",
+"docs": [
+{
+"language": "",
+"name": "NAV History",
+"path": "/library-content/products/fund-data/etfs/emea/navhist-emea-en-sppw-gy.xlsx",
+"canDownload": true
+}
+]
+},
+{
+"docType": "Holdings-daily",
+"docs": [
+{
+"language": "",
+"name": "Daily Holdings",
+"path": "/library-content/products/fund-data/etfs/emea/holdings-daily-emea-en-sppw-gy.xlsx",
+"canDownload": true
+}
+]
+}
+]
+}
+],
+"categories": [
+{
+"key": "assetclass",
+"name": "Asset Class",
+"subCategories": [
+{
+"key": "Commodities",
+"name": "Commodities",
+"funds": "",
+"size": 0
+},
+{
+"key": "equity",
+"name": "Equity",
+"funds": "SMC-FP|SPPW-GY",
+"size": 2
+},
+{
+"key": "fixed-income",
+"name": "Fixed Income",
+"funds": "SYBC-GY",
+"size": 1
+},
+{
+"key": "Multi-Asset",
+"name": "Multi-Asset",
+"funds": "",
+"size": 0
+},
+{
+"key": "real-estate",
+"name": "Real Estate",
+"funds": "",
+"size": 0
+}
+]
+},
+{
+"key": "fund-income-treatment",
+"name": "Income Treatment",
+"subCategories": [
+{
+"key": "Accumulation",
+"name": "Accumulation",
+"funds": "SMC-FP|SPPW-GY",
+"size": 2
+},
+{
+"key": "Distribution",
+"name": "Distribution",
+"funds": "SYBC-GY",
+"size": 1
+}
+]
+}
+]
+},
+"us-etfs": {
+"datas": [
+{
+"domicile": "US",
+"fundName": "State Street® SPDR® S&P 500® ETF Trust",
+"fundTicker": "SPY",
+"fundUri": "/uk/en_gb/intermediary/etfs/state-street-spdr-sp-500-etf-trust-spy",
+"ger": [
+"0.0945%",
+0.0945
+],
+"nav": [
+"$733.08",
+733.08
+],
+"aum": [
+"$777,748.88 M",
+777748.88
+],
+"asOfDate": [
+"05 Nov 2026",
+"2026-11-05"
+],
+"inceptionDate": [
+"22 Jan 1993",
+"1993-01-22"
+],
+"fundFilter": "SPY",
+"keywords": "State Street® SPDR® SP 500® ETF Trust, State Street® SPDR® S&P 500® ETF Trust, SPY, Equity, SPY US, US78462F1030, 78462F103, Core",
+"documentPdf": [
+{
+"docType": "Navhist",
+"docs": [
+{
+"language": "",
+"name": "NAV History",
+"path": "/library-content/products/fund-data/etfs/emea/navhist-emea-en-spy.xlsx",
+"canDownload": true
+}
+]
+},
+{
+"docType": "Holdings-daily",
+"docs": [
+{
+"language": "",
+"name": "Daily Holdings",
+"path": "/library-content/products/fund-data/etfs/emea/holdings-daily-emea-en-spy.xlsx",
+"canDownload": true
+}
+]
+}
+]
+}
+],
+"categories": [
+{
+"key": "assetclass",
+"name": "Asset Class",
+"subCategories": [
+{
+"key": "alternative",
+"name": "Alternative Sector",
+"funds": "",
+"size": 0
+},
+{
+"key": "equity",
+"name": "Equity",
+"funds": "SPY",
+"size": 1
+},
+{
+"key": "fixed-income",
+"name": "Fixed Income",
+"funds": "",
+"size": 0
+}
+]
+}
+]
+}
+}
+}
+}

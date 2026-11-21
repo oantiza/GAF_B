@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-quality.v2.schema.json",
+  "title": "instruments/{instrument_id}/quality/latest — v2",
+  "description": "La cobertura y los avisos de ESTE instrumento, uno por instrumento. Sustituye a meta/fund_data_quality, que hoy son 388 KB y 765 filas en un solo documento y revienta hacia los 2.064 activos. Aqui tambien vive la respuesta a la pregunta que sustituye a los centinelas: si un campo no esta, este documento dice por que. Nunca un 0, nunca un 'NA', nunca un 1970-01-01.",
+  "x-collection": "instruments/{instrument_id}/quality/latest",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "x-obsolete-root-keys": ["coverage_status"],
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["computed_at", "fitness", "coverage", "absences"],
+  "x-obsolete-note": "coverage_status era un semaforo de cuatro estados colgado de la cobertura, y se retiro el 01-11 porque no discriminaba: metia 761 de 769 instrumentos en el mismo cajon. Lo sustituye fitness. Esta nombrado aqui porque el escritor NO borra una clave no declarada: la bloquea, que es la diferencia entre 'no se que es esto' y 'esto sobra'. Nombrarla es la unica forma de decir que sobra, y es el mismo mecanismo que x-obsolete-root-keys de asset.v1.3 en la maestra de hoy.",
+  "properties": {
+    "computed_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "fitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "COMPARAR_COSTE",
+        "RADIOGRAFIA_DE_CARTERA",
+        "COMPARAR_RENTABILIDAD",
+        "MOSTRAR_ALPHA",
+        "METRICAS_PROPIAS",
+        "COMPARAR_CON_SU_GRUPO"
+      ],
+      "description": "PARA QUE SIRVE este instrumento, uso por uso. Decidido el 01-11 y sustituye al semaforo de cuatro estados que colgaba de la cobertura.\n\nPor que cambio: la cobertura es un numero honesto pero NO discrimina. Medida sobre los 769 instrumentos escritos, mediana 59,1 % con p10 en 49,0 % y p90 en 63,8 %: quince puntos entre el mejor y el peor, y 761 de 769 caian en el mismo cajon. La razon es que la mayor parte del denominador son rutas que le faltan a casi todos a la vez, asi que ese 59 % media cuanto declara el contrato de mas, no cuanto tiene el instrumento. Era una propiedad del contrato disfrazada de propiedad del fondo.\n\nLa pregunta que alguien hace de verdad no es que fraccion de campos tiene, es para que sirve, y eso es un si o un no por uso. Y NO es un permiso: mismo criterio que el umbral del R2 y que la politica de distribucion, no bloquear sino marcar. Un instrumento no apto para mostrar alpha se sigue ensenando; lo que no se ensena es el alpha, y se dice por que.\n\nCada aptitud nombra las rutas que le faltan, para que la respuesta sea una tarea y no un lamento.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "COMPARAR_COSTE": { "$ref": "#/$defs/aptitud" },
+        "RADIOGRAFIA_DE_CARTERA": { "$ref": "#/$defs/aptitud" },
+        "COMPARAR_RENTABILIDAD": { "$ref": "#/$defs/aptitud" },
+        "MOSTRAR_ALPHA": { "$ref": "#/$defs/aptitud" },
+        "METRICAS_PROPIAS": { "$ref": "#/$defs/aptitud" },
+        "COMPARAR_CON_SU_GRUPO": { "$ref": "#/$defs/aptitud" }
+      }
+    },
+    "coverage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Rutas presentes entre rutas APLICABLES a este instrumento, no entre todas las del contrato. El denominador es la poblacion a la que el campo aplica: esa es la leccion que corrigio las cifras del 30-10. Se queda porque mide bien lo que mide y sirve para decidir donde poner el esfuerzo de datos; lo que se fue es el semaforo de cuatro estados que colgaba de ella, que no discriminaba. Para saber si un instrumento sirve para algo, mirar fitness, no este numero.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "applicable_paths": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2000,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "present_paths": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2000,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "absences": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "Por que falta cada ruta que falta. Esto es lo que los 22 centinelas intentaban decir metidos dentro del valor.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "reason"],
+        "x-layer": "computed",
+        "x-owner": "batch",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["NOT_APPLICABLE", "NOT_PROVIDED", "NOT_YET_FETCHED"],
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 100,
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "severity", "message"],
+        "x-layer": "computed",
+        "x-owner": "batch",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["INFO", "WARN", "ERROR"],
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "aptitud": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["apt"],
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "apt": {
+          "type": "boolean",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "missing": {
+          "type": "array",
+          "maxItems": 10,
+          "description": "Las rutas que faltan, nombradas. Ausente cuando es apto.",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          }
+        }
+      }
+    }
+  }
+}

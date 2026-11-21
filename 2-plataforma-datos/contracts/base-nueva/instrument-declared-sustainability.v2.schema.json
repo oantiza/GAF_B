@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-sustainability.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/sustainability — v2",
+  "description": "Lo que el proveedor declara de sostenibilidad. Bloque pequeno y aislado a proposito: no entra en ningun calculo financiero, asi que si falta no degrada nada mas.",
+  "x-collection": "instruments/{instrument_id}/declared/sustainability",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "esg_globes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "La calificacion de sostenibilidad del proveedor en su escala de 1 a 5. Entra como campo propio por una correccion del 01-11: la primera version de este bloque no tenia donde guardarla, y el mapper estaba metiendo en esg_rating el medalist_rating del proveedor, que es la opinion de un analista sobre el fondo y NO tiene nada que ver con la sostenibilidad. Esa es la forma exacta de defecto que este diseno persigue: un dato bueno en un campo que significa otra cosa. Medido: 717 de 769 instrumentos la traen.",
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "esg_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Puntuacion absoluta de riesgo ESG, distinta de la escala de 1 a 5. El canonico de hoy no la trae.",
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "carbon_intensity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10000,
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

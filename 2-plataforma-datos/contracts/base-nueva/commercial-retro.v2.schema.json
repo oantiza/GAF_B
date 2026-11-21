@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/commercial-retro.v2.schema.json",
+  "title": "commercial_retro/{isin} — v2",
+  "description": "La retrocesion comercial de una clase: un margen acordado, dato de negocio sensible que no esta en ninguna fuente publica ni se puede reproducir. La escribe el administrador desde la aplicacion y la leen solo los administradores. Su forma es la que ya escribe `commercialRetroStore.ts` y comprueba la regla, por eso conserva el nombre `retro_pct`. No lleva schema_version porque la regla cierra las claves del documento.",
+  "x-collection": "commercial_retro/{isin}",
+  "x-layer": "human",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["isin", "retro_pct", "as_of_date", "source", "updated_at", "updated_by"],
+  "properties": {
+    "isin": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "retro_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "En POR CIENTO: 0,7881 es un 0,7881 %. Es la unica cifra de la base que no va en fraccion, y es una excepcion declarada: este campo lo escriben la pantalla de administracion, las importaciones y sus recibos, y traducirlo solo en la base abriria dos escalas para el mismo margen. Por eso su unidad es `percent` y no `fraction`.",
+      "x-unit": "percent",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "as_of_date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app"
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 2000,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["CONFIRMED", "PENDING_CONFIRMATION"],
+      "description": "Sin el campo, la aplicacion lo lee como CONFIRMED: asi estan 350 de los 376 documentos traidos.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "app",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "updated_at": {
+      "description": "Marca de tiempo de Firestore, no texto, y por eso no declara `type`: la regla exige que sea la hora del servidor y el deshacer de una importacion compara sus segundos y nanosegundos para saber si el documento cambio despues.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    },
+    "updated_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 320,
+      "x-unit": "text",
+      "x-layer": "metadata",
+      "x-owner": "app"
+    }
+  }
+}

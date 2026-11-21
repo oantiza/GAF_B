@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BizData xmlns="urn:iso:std:iso:20022:tech:xsd:head.003.001.01">
+  <Pyld>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:auth.017.001.02">
+      <FinInstrmRptgRefDataRpt>
+        <!-- 6. ETF reportado como CE, en dos centros, divisa USD -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>IE0000000003</Id><FullNm>Índice Mundial UCITS ETF USD (Acc)</FullNm><ShrtNm>IDX MUNDIAL</ShrtNm><ClssfctnTp>CEOGLS</ClssfctnTp><NtnlCcy>USD</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>549300PRUEBA0000IE03</Issr>
+          <TradgVnRltdAttrbts><Id>XETA</Id><FrstTradDt>2009-09-25T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>IE</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>IE0000000003</Id><FullNm>Índice Mundial UCITS ETF USD (Acc)</FullNm><ShrtNm>IDX MUNDIAL</ShrtNm><ClssfctnTp>CEOGLS</ClssfctnTp><NtnlCcy>USD</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>549300PRUEBA0000IE03</Issr>
+          <TradgVnRltdAttrbts><Id>XAMS</Id><FrstTradDt>2010-01-04T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>IE</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+        <!-- 7. ETF reportado como fondo estándar (CI): el caso real que hay que ver -->
+        <RefData>
+          <FinInstrmGnlAttrbts><Id>LU0000000008</Id><FullNm>Europa Renta Variable UCITS ETF 1C</FullNm><ClssfctnTp>CIOGLS</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+          <Issr>222100PRUEBA0000LU08</Issr>
+          <TradgVnRltdAttrbts><Id>XETA</Id><FrstTradDt>2008-01-10T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          <TechAttrbts><RlvntCmptntAuthrty>LU</RlvntCmptntAuthrty></TechAttrbts>
+        </RefData>
+      </FinInstrmRptgRefDataRpt>
+    </Document>
+  </Pyld>
+</BizData>

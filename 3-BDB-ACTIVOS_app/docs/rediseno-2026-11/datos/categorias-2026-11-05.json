@@ -1,0 +1,4635 @@
+{
+ "lote": "R7-categorias",
+ "medido": "2026-11-05",
+ "lineas_de_codigo_a_las": "14:37: otros lotes siguen moviendo estos ficheros",
+ "como_leerlo": "`filas` es la tabla, una por categoría de la base nueva y por número de instrumentos. `regla` es lo que decide Óscar. Lo demás es dónde se lee hoy una categoría y qué pasa al aplicarla. No se ha aplicado nada.",
+ "resumen": {
+  "instrumentos_en_la_base_nueva": 1104,
+  "categorias_distintas": 145,
+  "aviso_146": "La decisión decía 146. Con nombre son 145: 146 sale si se cuenta como una más el vacío de los 307 sin categoría.",
+  "con_prefijo_EAA_Fund": 124,
+  "ya_en_espanol": 19,
+  "large_sin_zona": 2,
+  "instrumentos_con_categoria": 797,
+  "instrumentos_sin_categoria": 307,
+  "sin_categoria_por_tipo": {
+   "STOCK": 305,
+   "FUND": 2
+  },
+  "fondos_sin_categoria": [
+   [
+    "ES0132526031",
+    "OPORTUNIDAD BURSATIL, S.A., SICAV"
+   ],
+   [
+    "LU2504555777",
+    "Fidelity Funds - Global Industrials Fund A-Acc-EUR"
+   ]
+  ],
+  "reglas_de_traduccion_hoy": 10,
+  "categorias_que_alcanzan_esas_reglas": 19,
+  "instrumentos_que_alcanzan_esas_reglas": 162,
+  "hoy_mal_ex_japon": {
+   "categorias": 4,
+   "instrumentos": 28
+  },
+  "propuesta_nombre_del_proveedor_tal_cual": 119,
+  "propuesta_proveedor_normalizado": 21,
+  "propuesta_excepcion": 5,
+  "dudosas": 10,
+  "instrumentos_en_dudosas": 37,
+  "etiquetas_distintas_tras_la_tabla": 125,
+  "fusiones": 19,
+  "fusiones_misma_categoria_probada": 17,
+  "instrumentos_en_fusiones": 246,
+  "nombres_donde_junto_yo_una_que_el_proveedor_no_prueba": [
+   "RV USA Cap. Grande Blend",
+   "RV USA Cap. Grande Growth"
+  ],
+  "parejas_que_el_proveedor_prueba": 18,
+  "base_vieja_distintas": 138,
+  "base_vieja_sin_categoria": 1,
+  "en_las_dos_bases": 131,
+  "solo_base_nueva": [
+   "EAA Fund Global Short-Term Bond - EUR Hedged",
+   "Large Blend",
+   "Large Growth",
+   "Mercado Monetario Otros",
+   "RF Deuda Corporativa EUR",
+   "RF Diversificada Global - Cubierto  EUR",
+   "RV Asia (ex-Japón)",
+   "RV Asia Pacífico (ex-Japón)",
+   "RV España",
+   "RV Europa Cap. Grande Blend",
+   "RV Europa Cap. Pequeña",
+   "RV Japón Cap. Grande Blend",
+   "RV Latinoamérica",
+   "RV Sector Salud"
+  ],
+  "solo_base_vieja": [
+   "EAA Fund Sector Equity Alternative Energy",
+   "EAA Fund Sector Equity Ecology",
+   "ETF",
+   "Global",
+   "RF Ultra Corto Plazo EUR",
+   "Renta variable Asia ex Japon",
+   "accion"
+  ]
+ },
+ "regla": {
+  "texto": "El nombre que Morningstar España da a esa categoría, con RV y RF como él los abrevia: el que devuelve en español para ese mismo ISIN. Solo se toca lo que escribe de varias formas para lo mismo, y la sigla RU, que un cliente no lee. La misma regla en todas.",
+  "ejemplo": {
+   "original": "EAA Fund Global Large-Cap Blend Equity",
+   "propuesta": "RV Global Cap. Grande Blend"
+  },
+  "alternativa": {
+   "texto": "Lo mismo, con Renta Variable y Renta Fija enteros. Está ya calculada en cada fila, en alternativa_sin_abreviar.",
+   "ejemplo": "Renta Variable Global Cap. Grande Blend",
+   "consecuencia": "Ocho o doce letras más por fila: media 33.1 letras frente a 24.3, y hasta 61. Se lee mejor sin saber qué es RV, y deja de ser el nombre que se puede buscar en Morningstar."
+  },
+  "recomendacion": "RV y RF. Es el nombre tal como lo publica el proveedor, cabe mejor, y ya se imprime así en la hoja 3 del informe de cliente: con la muestra, «RV Global Cap. Grande Blend» y «RV USA Cap. Grande Blend». Si un cliente no lee RV, se explica una vez en la guía del informe.",
+  "por_que_no_mixta": "El ejemplo del encargo decía «RV Global Gran Cap. Mixta». «Mixta» no: en España «Renta Variable Mixta» es una vocación de la CNMV, un fondo con parte en renta fija, y Blend aquí es un estilo dentro de un fondo de renta variable. Morningstar España escribe «Blend».",
+  "se_aparta_del_encargo": [
+   {
+    "termino": "Large Cap",
+    "encargo": "No traducir",
+    "proveedor": "Cap. Grande",
+    "filas": 20,
+    "instrumentos": 155,
+    "propongo": "Cap. Grande, porque ya es lo que el proveedor escribe y lo que hoy se lee en los ETF. Alternativa: «RV Global Large Cap Blend»."
+   },
+   {
+    "termino": "High Yield",
+    "encargo": "No traducir",
+    "proveedor": "Bonos Alto Rendimiento",
+    "filas": 4,
+    "instrumentos": 22,
+    "propongo": "Bonos Alto Rendimiento, por la misma razón. Alternativa: «RF High Yield EUR». Es lo más discutible: la pantalla dice high yield en el panel de renta fija (decisión 11)."
+   },
+   {
+    "termino": "ESG",
+    "encargo": "No traducir",
+    "proveedor": "No aparece",
+    "filas": 0,
+    "instrumentos": 0,
+    "propongo": "Ninguna categoría lo lleva."
+   }
+  ],
+  "sin_traducir_porque_el_proveedor_no_lo_traduce": [
+   "Blend",
+   "Growth",
+   "Value",
+   "Market Neutral",
+   "Long/Short"
+  ],
+  "otras_palabras_que_no_son_las_de_la_pantalla": [
+   {
+    "tabla": "USA",
+    "pantalla": "Estados Unidos / EE. UU. en regiones",
+    "filas": 8
+   },
+   {
+    "tabla": "Zona Euro",
+    "pantalla": "Eurozona en regiones",
+    "filas": 6
+   },
+   {
+    "tabla": "Growth, Value, Blend",
+    "pantalla": "Crecimiento, Valor, Mixto en el reparto de estilo",
+    "filas": 16
+   }
+  ],
+  "normalizaciones": [
+   {
+    "clave": "espacios",
+    "texto": "Espacios de más o de no separación en el texto del proveedor.",
+    "filas": 4
+   },
+   {
+    "clave": "cobertura",
+    "texto": "Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos.",
+    "filas": 5
+   },
+   {
+    "clave": "emergente",
+    "texto": "«Global Emergente» en singular, como en RV y RF.",
+    "filas": 2
+   },
+   {
+    "clave": "reino-unido",
+    "texto": "«RU» se escribe «Reino Unido»: un cliente no lee RU.",
+    "filas": 4
+   },
+   {
+    "clave": "excluye",
+    "texto": "Lo que se excluye va entre paréntesis, como «(ex-Japón)».",
+    "filas": 3
+   },
+   {
+    "clave": "pequena-mediana",
+    "texto": "Una sola forma para Small/Mid: el proveedor usa tres.",
+    "filas": 5
+   },
+   {
+    "clave": "clase-delante",
+    "texto": "La clase delante y la divisa detrás, como todas las demás.",
+    "filas": 1
+   },
+   {
+    "clave": "zona-detras",
+    "texto": "La zona detrás del tipo de bono, como en «RF Flexible Global».",
+    "filas": 1
+   },
+   {
+    "clave": "dividendo",
+    "texto": "«Alto Dividendo», como en Global, Europa y Asia Pacífico.",
+    "filas": 1
+   },
+   {
+    "clave": "mayusculas",
+    "texto": "Mayúsculas, como el resto de sus nombres.",
+    "filas": 2
+   }
+  ]
+ },
+ "fuente": {
+  "que_es": "CategoryName del buscador de Morningstar pedido en español (languageId es-ES, 1-extractor/fetchers/morningstar_lt.py:280), que el extractor guarda por ISIN. No es traducción mía: es el nombre del proveedor para ese mismo fondo.",
+  "donde": "1-extractor/cache/raw_morningstar_lt/<ISIN>/screener.json, fuera de Git. Copia de lo leído: screener_categorias.json, junto a este fichero en la carpeta del lote.",
+  "leidos": {
+   "ficheros": 795,
+   "con_nombre": 791,
+   "escritos_el": "2026-11-05"
+  },
+  "por_que_conviven_dos_idiomas": "El extractor escribe primero ese nombre en español y luego lo pisa con el de otra consulta, en inglés (sal-service quote/v7, categoryName; 1-extractor/fetchers/morningstar_lt.py:252 y 1-extractor/fetchers/morningstar.py:228). Comprobado: en 764 de 764 instrumentos con esa consulta, lo guardado en la base es exactamente su texto en inglés. Los 30 sin ella, todos ETF o ETC, se quedan con lo que da el buscador. Otros 3 llevan «EAA Fund» y hoy no tienen ninguna de las dos respuestas en la caché.",
+  "sin_contrastar": "No he abierto morningstar.es: no se sale a internet. Lo comprobado es lo que el proveedor devuelve a esa petición y que cada categoría inglesa da un solo nombre español, en todos sus fondos.",
+  "cruce": {
+   "categorias_inglesas_con_nombre_espanol": 122,
+   "de": 124,
+   "categoria_con_dos_nombres_espanoles": 0
+  }
+ },
+ "quien_ve_que_base": {
+  "web": "Todo lee la base nueva: las 145 de esta tabla.",
+  "local": {
+   "base_nueva": [
+    "Buscador",
+    "ficha",
+    "fila «Categoría o sector» del Comparador, si el activo tiene tarjeta"
+   ],
+   "base_vieja": [
+    "Análisis",
+    "Posiciones",
+    "sustitución de un fondo",
+    "selector del Comparador",
+    "Mejorar cartera",
+    "todos los papeles"
+   ],
+   "por_que": "En local las Functions leen gestor-activos-local (MASTER_PROJECT_ID); el Buscador y la ficha leen siempre la base nueva."
+  },
+  "base_vieja": {
+   "distintas": 138,
+   "sin_categoria": 1,
+   "campo": "product.commercial_type, el último candidato de map_category"
+  },
+  "en_las_dos": 131,
+  "solo_base_nueva": [
+   "EAA Fund Global Short-Term Bond - EUR Hedged",
+   "Large Blend",
+   "Large Growth",
+   "Mercado Monetario Otros",
+   "RF Deuda Corporativa EUR",
+   "RF Diversificada Global - Cubierto  EUR",
+   "RV Asia (ex-Japón)",
+   "RV Asia Pacífico (ex-Japón)",
+   "RV España",
+   "RV Europa Cap. Grande Blend",
+   "RV Europa Cap. Pequeña",
+   "RV Japón Cap. Grande Blend",
+   "RV Latinoamérica",
+   "RV Sector Salud"
+  ],
+  "solo_base_vieja": [
+   "EAA Fund Sector Equity Alternative Energy",
+   "EAA Fund Sector Equity Ecology",
+   "ETF",
+   "Global",
+   "RF Ultra Corto Plazo EUR",
+   "Renta variable Asia ex Japon",
+   "accion"
+  ],
+  "mismo_isin_con_texto_distinto": 17,
+  "tarjeta_frente_a_raiz": "Las 1.104 tarjetas de la base nueva dicen la misma categoría que su raíz: 0 diferencias."
+ },
+ "donde_vive_la_traduccion_hoy": {
+  "sitio": "src/reports/informeDeClientePdf.tsx:245, función categoryLabel. No es una tabla: son 10 reglas con «contiene», que quitan antes el prefijo.",
+  "cuantos_sitios_la_leen": 1,
+  "quien": "src/reports/informeDeClientePdf.tsx:1191, «Composición por categoría», hoja 3 del informe de cliente.",
+  "alcance": {
+   "reglas": 10,
+   "categorias": 19,
+   "instrumentos": 162
+  },
+  "defectos": [
+   {
+    "que": "«Renta variable Japón» a lo que excluye Japón",
+    "categorias": 4,
+    "instrumentos": 28,
+    "por_que": "La regla es «contiene japan y equity», y «Asia ex-Japan Equity» lo contiene."
+   },
+   {
+    "que": "Blend, Growth y Value de EE. UU. con un solo nombre, «Renta variable EE.UU.»",
+    "categorias": 3,
+    "instrumentos": 20
+   },
+   {
+    "que": "High yield global cubierto y sin cubrir con un solo nombre",
+    "categorias": 2,
+    "instrumentos": 10
+   },
+   {
+    "que": "Monetario y monetario a corto plazo con un solo nombre",
+    "categorias": 2,
+    "instrumentos": 6
+   },
+   {
+    "que": "«ETF» sale «Etf», solo en local",
+    "categorias": 1,
+    "instrumentos": 8
+   },
+   {
+    "que": "Como se traduce después de agrupar, esas categorías salen en filas separadas con el mismo nombre, y el rótulo es la clave de la fila"
+   }
+  ],
+  "visto_en_papel": {
+   "cartera": "Cinco fondos en local: Nordea Asia ex Japan 30 %, Fidelity Japan Value 20 %, Fidelity US Equity 20 %, AB American Growth 20 %, Fidelity Asia Pacific Opportunities 10 %.",
+   "hoja": 3,
+   "imprime": [
+    "Renta variable Japón 30,0 %",
+    "Renta variable Japón 20,0 %",
+    "Renta variable EE.UU. 20,0 %",
+    "Renta variable EE.UU. 20,0 %",
+    "Renta variable Japón 10,0 %"
+   ],
+   "japon_de_verdad": "20 %: el 60 % que dice Japón incluye un 40 % en fondos que lo excluyen. El mapa de la misma hoja dice Asia 60,8 %.",
+   "consola": "React avisa de dos hijos con la misma clave, «Renta variable Japón» y «Renta variable EE.UU.»: el rótulo es la clave de la fila.",
+   "imagen": "papel/pdf-img/asia-japon-03.png",
+   "con_la_tabla_diria": [
+    "RV Asia (ex-Japón) 30,0 %",
+    "RV Japón Cap. Grande Blend 20,0 %",
+    "RV USA Cap. Grande Blend 20,0 %",
+    "RV USA Cap. Grande Growth 20,0 %",
+    "RV Asia Pacífico (ex-Japón) 10,0 %"
+   ],
+   "desde_cuando": "La regla es del 18-07-2026 (c875302). La web no se ha podido mirar."
+  }
+ },
+ "donde_tendria_que_ir": {
+  "sitio": "En src/core, detrás de categoriaLegible (src/core/etiquetasDeReparto.ts:106), con la tabla en su propio módulo. Por texto exacto, sin «contiene», y lo que no esté en la tabla sale como lo da el proveedor, sin el prefijo.",
+  "por_que": [
+   "Ya es la función única del nombre de una categoría: la leen 9 ficheros en 12 llamadas, entre ellos cuatro de los cinco papeles que imprimen categoría: solo la Propuesta de mejora la recibe por otro camino.",
+   "Los papeles se generan en el navegador, así que un solo módulo llega a pantalla y papel. Con eso basta publicar el sitio: ni Functions ni catálogo.",
+   "El dato de la base no se toca: sigue el texto del proveedor, y sobre él se apoyan el servidor y el extractor."
+  ],
+  "ya_pasan_por_ahi": [
+   "src/reports/assetComparePdf.tsx:305",
+   "src/core/internalPortfolioReport.ts:363 y 525",
+   "src/core/entradaDeComparativa.ts:125 y 126",
+   "src/components/AssetPicker.tsx:238 y 290",
+   "src/components/PortfolioComparator.tsx:118",
+   "src/components/PortfolioXray.tsx:42",
+   "src/adapters/tablaDeComposicion.tsx:148",
+   "src/adapters/comparativaDeActivos.ts:321"
+  ],
+  "tienen_que_empezar_a_leerla": [
+   "src/adapters/componerLista.ts:84",
+   "src/adapters/componerFicha.ts:1294",
+   "src/adapters/componerFicha.ts:440",
+   "src/components/AssetDetail.tsx:140, 164 y 294",
+   "src/components/FundSwapModal.tsx:255 y 160",
+   "src/components/PositionsWorkbench.tsx:825",
+   "src/core/fundEquivalence.ts:247 y 402"
+  ],
+  "se_borra": "categoryLabel del informe de cliente, con sus 10 reglas.",
+  "alternativa_no_recomendada": "Dejar de pisar el español en el extractor y traerlo a la base: no hay que mantener tabla, pero pide cambio de contrato, pasada y subir el catálogo, deja fuera a la base vieja, y llegan tal cual sus erratas y sus distintas formas de escribir lo mismo.",
+  "lo_nuevo": "Una categoría que aparezca en una pasada y no esté en la tabla sale con el texto del proveedor sin prefijo, y hay que añadirla. La caché del extractor dice cómo se llama en español."
+ },
+ "sin_pasar_por_la_traduccion": {
+  "papel": [
+   {
+    "documento": "Informe de cliente (muestra)",
+    "veces": 0,
+    "por_hoja": {},
+    "hojas_del_documento": 9,
+    "muestras": [],
+    "pdf": "Q4-cliente/final/pdf/muestra.pdf",
+    "generado": "12:47"
+   },
+   {
+    "documento": "Informe interno (muestra)",
+    "veces": 18,
+    "por_hoja": {
+     "4": 6,
+     "5": 6,
+     "22": 1,
+     "23": 3,
+     "24": 2
+    },
+    "hojas_del_documento": 24,
+    "muestras": [
+     "EAA Fund Global Diversified Bond - EUR Hedged",
+     "EAA Fund Thematic Equity Ecology",
+     "EAA Fund EUR Diversified Bond"
+    ],
+    "pdf": "Q3-interno\\d4\\muestra-sincapital\\pdf\\interno.pdf",
+    "generado": "12:49"
+   },
+   {
+    "documento": "Comparativa de carteras (muestra)",
+    "veces": 8,
+    "por_hoja": {
+     "4": 2,
+     "6": 6
+    },
+    "hojas_del_documento": 8,
+    "muestras": [
+     "EAA Fund EUR Diversified",
+     "EAA Fund Global Diversi-",
+     "EAA Fund EUR Diversified Bond · Compartida"
+    ],
+    "pdf": "Q4-cliente/final-comparativa/pdf/muestra-3a-informes.pdf",
+    "generado": "12:49"
+   },
+   {
+    "documento": "Comparativa de activos, salida para el cliente",
+    "veces": 2,
+    "por_hoja": {
+     "1": 2
+    },
+    "hojas_del_documento": 2,
+    "muestras": [
+     "EAA Fund EUR Governme…",
+     "EAA Fund Global Large…"
+    ],
+    "pdf": "Q5-activos/despues/pdf/muestra-agresivo-cliente.pdf",
+    "generado": "13:25"
+   },
+   {
+    "documento": "Comparativa de activos, uso interno",
+    "veces": 2,
+    "por_hoja": {
+     "1": 2
+    },
+    "hojas_del_documento": 2,
+    "muestras": [
+     "EAA Fund EUR Governme…",
+     "EAA Fund Global Large…"
+    ],
+    "pdf": "Q5-activos/despues/pdf/muestra-agresivo-interno.pdf",
+    "generado": "13:25"
+   },
+   {
+    "documento": "Propuesta de mejora",
+    "veces": 1,
+    "por_hoja": {
+     "3": 1
+    },
+    "hojas_del_documento": 4,
+    "muestras": [
+     "EAA Fund Global Diversified Bond - EUR Hedged; Región: Global; Política de dis"
+    ],
+    "pdf": "Q5-activos/despues-mejora/pdf/mejora-desde-informes.pdf",
+    "generado": "13:23"
+   },
+   {
+    "documento": "Costes de la cartera",
+    "veces": 0,
+    "por_hoja": {},
+    "hojas_del_documento": 3,
+    "muestras": [],
+    "pdf": "Q2-costes/vieja2/pdf/muestra-capital-informes.pdf",
+    "generado": "12:28"
+   },
+   {
+    "documento": "Propuesta de cambio",
+    "veces": 0,
+    "por_hoja": {},
+    "hojas_del_documento": 3,
+    "muestras": [],
+    "pdf": "P6-documentos/puerta/pdf/activa-sincapital-sincliente.pdf",
+    "generado": "10:15"
+   },
+   {
+    "documento": "Seguimiento periódico",
+    "veces": 0,
+    "por_hoja": {},
+    "hojas_del_documento": 2,
+    "muestras": [],
+    "pdf": "Q6-pantalla/seguimiento-despues/pdf/largo.pdf",
+    "generado": "11:28"
+   }
+  ],
+  "papel_sitios": {
+   "Informe interno": [
+    "src/reports/internalPortfolioReportPdf.tsx:958 (tabla de posiciones)",
+    "src/reports/internalPortfolioReportPdf.tsx:1012 (lista Categoría)",
+    "src/reports/internalPortfolioReportPdf.tsx:2005 (anexo, por posición)",
+    "src/reports/internalPortfolioReportPdf.tsx:1779 (texto de equivalencia)"
+   ],
+   "Comparativa de carteras": [
+    "src/reports/comparePdf.tsx:314 (Por categoría)",
+    "src/reports/comparePdf.tsx:334 (línea de cada posición)"
+   ],
+   "Comparativa de activos": [
+    "src/reports/assetComparePdf.tsx:305: además se corta a 22 letras"
+   ],
+   "Propuesta de mejora": [
+    "src/reports/improvementProposalPdf.tsx:176, 178 y 179 (motivo, Comparten y Difieren)"
+   ]
+  },
+  "pantalla": [
+   {
+    "donde": "Buscador, columna «Categoría o sector» y su apunte en estrecho",
+    "sitio": "src/adapters/componerLista.ts:84",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Visto: 49 veces en su primera página"
+   },
+   {
+    "donde": "Ficha, línea de identificación",
+    "sitio": "src/adapters/componerFicha.ts:1294",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Visto, en un fondo"
+   },
+   {
+    "donde": "Ficha, «Comparar con su grupo»",
+    "sitio": "src/adapters/componerFicha.ts:440",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Visto, en un fondo"
+   },
+   {
+    "donde": "Ficha anterior, para lo que no está en la base nueva",
+    "sitio": "src/components/AssetDetail.tsx:140, 164 y 294",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Leído en el código"
+   },
+   {
+    "donde": "Comparador, fila «Categoría o sector»",
+    "sitio": "src/adapters/comparativaDeActivos.ts:321",
+    "pasa_por_categoriaLegible": "Solo si no hay tarjeta: lee antes clasificacionDeTarjeta",
+    "comprobado": "Leído en el código"
+   },
+   {
+    "donde": "Selector del Comparador: filtro y línea de cada activo",
+    "sitio": "src/components/AssetPicker.tsx:238 y 290",
+    "pasa_por_categoriaLegible": true,
+    "comprobado": "Visto: 91 veces al abrir el Comparador"
+   },
+   {
+    "donde": "Sustituir un fondo: filtro y aviso «categoría: X → Y»",
+    "sitio": "src/components/FundSwapModal.tsx:255 y 160",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Leído en el código"
+   },
+   {
+    "donde": "Posiciones, detalle de la fila",
+    "sitio": "src/components/PositionsWorkbench.tsx:825",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Leído en el código: solo al desplegar la fila"
+   },
+   {
+    "donde": "Análisis, composición de la cartera",
+    "sitio": "src/adapters/tablaDeComposicion.tsx:148",
+    "pasa_por_categoriaLegible": true,
+    "comprobado": "Visto: 12 veces en Análisis, entre esta tabla y el reparto"
+   },
+   {
+    "donde": "Análisis, reparto Categoría",
+    "sitio": "src/components/PortfolioXray.tsx:42",
+    "pasa_por_categoriaLegible": true,
+    "comprobado": "Visto: 12 veces en Análisis, entre este reparto y la composición"
+   },
+   {
+    "donde": "Comparar carteras, Por categoría",
+    "sitio": "src/components/PortfolioComparator.tsx:118",
+    "pasa_por_categoriaLegible": true,
+    "comprobado": "Leído en el código"
+   },
+   {
+    "donde": "Mejorar cartera: «Categoría distinta (X → Y)», «Categoría: X»",
+    "sitio": "src/core/fundEquivalence.ts:247 y 402; src/components/PortfolioImprovementPanel.tsx:396 y 443",
+    "pasa_por_categoriaLegible": false,
+    "comprobado": "Leído en el código; en el papel de la Propuesta de mejora, visto"
+   }
+  ],
+  "pantalla_medida": {
+   "/buscador": {
+    "eaa": 49,
+    "muestras": [
+     "EAA Fund EUR Ultra Short-Term Bond\tEUR\t+1,45 %\t0,60 %\t−1,01\t0,61 %\t87,9 M€\t53 %",
+     "EAA Fund Asia ex-Japan Equity\tEUR\t+22,48 %\t32,35 %\t0,72\t2,45 %\t409,3 M€\t64 %",
+     "EAA Fund USD Flexible Bond\tEUR\t+6,62 %\t4,40 %\t1,02\t1,31 %\tFalta\t51 %",
+     "EAA Fund US Large-Cap Growth Equity\tEUR\t+2,95 %\t14,24 %\t0,12\t1,72 %\tFalta\t54 %",
+     "EAA Fund Sector Equity Healthcare\tEUR\t+26,73 %\t16,40 %\t1,41\t1,94 %\tFalta\t68 %"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/activo/LU0173782102": {
+    "eaa": 2,
+    "muestras": [
+     "LU0173782102 · Clase en EUR · EAA Fund Asia ex-Japan Equity · MSCI AC Asia Ex Japan NR USD",
+     "EAA Fund Asia ex-Japan Equity"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/activo/IE00B4L5Y983": {
+    "eaa": 0,
+    "muestras": [],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/analisis": {
+    "eaa": 12,
+    "muestras": [
+     "IE00B11XZ103 · EAA Fund Global Diversified Bond - EUR Hedged",
+     "LU1883318740 · EAA Fund Thematic Equity Ecology",
+     "LU0430492750 · EAA Fund EUR Diversified Bond",
+     "FR0013367265 · EAA Fund EUR Moderate Allocation - Global",
+     "LU0329355670 · EAA Fund Global Emerging Markets Equity"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/cartera": {
+    "eaa": 0,
+    "muestras": [],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/comparador": {
+    "eaa": 91,
+    "muestras": [
+     "EAA Fund EUR Aggressive Allocation - Global",
+     "EAA Fund EUR Cautious Allocation",
+     "EAA Fund EUR Cautious Allocation - Global",
+     "EAA Fund EUR Diversified Bond",
+     "EAA Fund EUR Diversified Bond - Short Term"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/carteras-guardadas": {
+    "eaa": 0,
+    "muestras": [],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/posiciones": {
+    "eaa": 0,
+    "muestras": [],
+    "algoNoCargo": false,
+    "errores": []
+   }
+  },
+  "pantalla_medida_en_modo_cliente": {
+   "/buscador": {
+    "eaa": 49,
+    "muestras": [
+     "EAA Fund EUR Ultra Short-Term Bond\tEUR\t+1,45 %\t0,60 %\t−1,01\t0,61 %\t87,9 M€",
+     "EAA Fund Asia ex-Japan Equity\tEUR\t+22,48 %\t32,35 %\t0,72\t2,45 %\t409,3 M€",
+     "EAA Fund USD Flexible Bond\tEUR\t+6,62 %\t4,40 %\t1,02\t1,31 %\tFalta",
+     "EAA Fund US Large-Cap Growth Equity\tEUR\t+2,95 %\t14,24 %\t0,12\t1,72 %\tFalta",
+     "EAA Fund Sector Equity Healthcare\tEUR\t+26,73 %\t16,40 %\t1,41\t1,94 %\tFalta"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/activo/LU0173782102": {
+    "eaa": 2,
+    "muestras": [
+     "LU0173782102 · Clase en EUR · EAA Fund Asia ex-Japan Equity · MSCI AC Asia Ex Japan NR USD",
+     "EAA Fund Asia ex-Japan Equity"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/analisis": {
+    "eaa": 12,
+    "muestras": [
+     "IE00B11XZ103 · EAA Fund Global Diversified Bond - EUR Hedged",
+     "LU1883318740 · EAA Fund Thematic Equity Ecology",
+     "LU0430492750 · EAA Fund EUR Diversified Bond",
+     "FR0013367265 · EAA Fund EUR Moderate Allocation - Global",
+     "LU0329355670 · EAA Fund Global Emerging Markets Equity"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   },
+   "/comparador": {
+    "eaa": 91,
+    "muestras": [
+     "EAA Fund EUR Aggressive Allocation - Global",
+     "EAA Fund EUR Cautious Allocation",
+     "EAA Fund EUR Cautious Allocation - Global",
+     "EAA Fund EUR Diversified Bond",
+     "EAA Fund EUR Diversified Bond - Short Term"
+    ],
+    "algoNoCargo": false,
+    "errores": []
+   }
+  },
+  "no_llega_a_nadie": "src/core/assetMapping.ts:164 busca por categoría, pero solo con las fuentes de muestra. Ningún CSV ni correo lleva la categoría."
+ },
+ "comparaciones_con_el_texto_original": {
+  "conclusion": "Si se traduce solo al enseñar, ninguna deja de funcionar, porque todas siguen comparando el texto del proveedor. Lo que aparece es otra cosa: dos categorías iguales en español pero distintas por dentro, y eso hay que resolverlo al aplicar.",
+  "filtros": [
+   {
+    "sitio": "src/components/AssetPicker.tsx:168 y 178; src/core/assetComparisonCatalog.ts:66",
+    "al_aplicar": "Saldrían dos opciones con el mismo nombre en el desplegable. Hay que agrupar las opciones por nombre."
+   },
+   {
+    "sitio": "src/components/FundSwapModal.tsx:119; src/core/fundSwapper.ts:157",
+    "al_aplicar": "Lo mismo."
+   }
+  ],
+  "agrupaciones": [
+   {
+    "sitio": "src/core/portfolio.ts:358",
+    "lee": "Informe de cliente, interno y Análisis",
+    "al_aplicar": "Dos filas con el mismo nombre. Hay que agrupar por nombre."
+   },
+   {
+    "sitio": "src/core/portfolioComparison.ts:196",
+    "lee": "Comparar carteras y Comparativa de carteras",
+    "al_aplicar": "Lo mismo."
+   },
+   {
+    "sitio": "src/adapters/tablaDeComposicion.tsx:106",
+    "lee": "Composición en Análisis",
+    "al_aplicar": "Lo mismo: dos cabeceras de grupo con el mismo nombre."
+   }
+  ],
+  "igualdades": [
+   {
+    "sitio": "src/core/fundEquivalence.ts:244",
+    "al_aplicar": "Diría «Categoría distinta (X → X)». Hay que comparar por el nombre traducido."
+   },
+   {
+    "sitio": "src/components/FundSwapModal.tsx:159",
+    "al_aplicar": "Avisaría «categoría: X → X»."
+   },
+   {
+    "sitio": "src/core/fundSwapper.ts:108 y 122; src/core/portfolioImprovement.ts:49, 56 y 63",
+    "al_aplicar": "Siguen funcionando. Comparar por el nombre traducido solo cambia el orden en muy pocos casos."
+   }
+  ],
+  "cuantos_pares_cambian_si_se_compara_por_nombre": {
+   "mismo_producto": {
+    "ETF": 3
+   },
+   "detalle": "Las propuestas solo comparan fondos con fondos y ETF con ETF, y ahí cada producto va en un idioma. Solo cambian los 3 pares de SPDR S&P 500 con los ETF de RV USA.",
+   "con_distinto_texto_en_toda_la_tabla": 361
+  },
+  "si_se_tradujera_en_la_base_o_el_servidor": {
+   "medido": "Pasados los 797 instrumentos con categoría por el código real del servidor, con el texto original y con la propuesta: 0 cambian de clase y 0 de región. El extractor también entiende el español: «rf », «deuda», «mixto», «monetario». No hace falta traducir ahí, y se perdería el texto del proveedor.",
+   "sitios_que_leen_palabras_de_la_categoria": [
+    "functions_python/readmodel/mappers.py:64 y 66: convertibles a Mixto y materias primas, por palabras de la categoría",
+    "functions_python/readmodel/mappers.py:148: región Global o Emergentes, por palabras de la categoría (decisión 13)",
+    "functions_python/readmodel/mappers.py:49 y functions_python/optimization/repository.py:577: tipo de producto por commercial_type, cuando no hay otro",
+    "1-extractor/core/derivados.py:21, 1-extractor/core/calidad.py:54 y 1-extractor/core/adaptador_bdb.py:532: monetario, renta fija y mixto por palabras de la categoría",
+    "functions_python/scripts/dryrun_mejorar_cartera.py:40: lista de categorías, solo para ensayos: esta sí dejaría de encontrarlas"
+   ]
+  },
+  "pruebas_que_llevan_estos_textos": "27 apariciones en 9 ficheros de tests/: se miran al aplicar, no ahora."
+ },
+ "fusiones": [
+  {
+   "propuesta": "Materias Primas - Metales Preciosos",
+   "originales": [
+    {
+     "original": "EAA Fund Commodities - Precious Metals",
+     "n": 1,
+     "instrument_types": {
+      "FUND": 1
+     }
+    },
+    {
+     "original": "Materias Primas - Metales Preciosos",
+     "n": 1,
+     "instrument_types": {
+      "OTHER": 1
+     }
+    }
+   ],
+   "n_total": 2,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RF Deuda Corporativa EUR",
+   "originales": [
+    {
+     "original": "EAA Fund EUR Corporate Bond",
+     "n": 17,
+     "instrument_types": {
+      "FUND": 17
+     }
+    },
+    {
+     "original": "RF Deuda Corporativa EUR",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 18,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RF Diversificada Global - EUR Cubierto",
+   "originales": [
+    {
+     "original": "EAA Fund Global Diversified Bond - EUR Hedged",
+     "n": 3,
+     "instrument_types": {
+      "FUND": 3
+     }
+    },
+    {
+     "original": "RF Diversificada Global - Cubierto  EUR",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 4,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Asia (ex-Japón)",
+   "originales": [
+    {
+     "original": "EAA Fund Asia ex-Japan Equity",
+     "n": 20,
+     "instrument_types": {
+      "FUND": 20
+     }
+    },
+    {
+     "original": "RV Asia (ex-Japón)",
+     "n": 2,
+     "instrument_types": {
+      "ETF": 2
+     }
+    }
+   ],
+   "n_total": 22,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Asia Pacífico (ex-Japón)",
+   "originales": [
+    {
+     "original": "EAA Fund Asia-Pacific ex-Japan Equity",
+     "n": 6,
+     "instrument_types": {
+      "FUND": 6
+     }
+    },
+    {
+     "original": "RV Asia Pacífico (ex-Japón)",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 7,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV España",
+   "originales": [
+    {
+     "original": "EAA Fund Spain Equity",
+     "n": 9,
+     "instrument_types": {
+      "FUND": 9
+     }
+    },
+    {
+     "original": "RV España",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 10,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Europa Cap. Grande Blend",
+   "originales": [
+    {
+     "original": "EAA Fund Europe Large-Cap Blend Equity",
+     "n": 26,
+     "instrument_types": {
+      "FUND": 26
+     }
+    },
+    {
+     "original": "RV Europa Cap. Grande Blend",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 27,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Europa Cap. Pequeña",
+   "originales": [
+    {
+     "original": "EAA Fund Europe Small-Cap Equity",
+     "n": 8,
+     "instrument_types": {
+      "FUND": 8
+     }
+    },
+    {
+     "original": "RV Europa Cap. Pequeña",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 9,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Global Cap. Grande Blend",
+   "originales": [
+    {
+     "original": "EAA Fund Global Large-Cap Blend Equity",
+     "n": 22,
+     "instrument_types": {
+      "FUND": 22
+     }
+    },
+    {
+     "original": "RV Global Cap. Grande Blend",
+     "n": 3,
+     "instrument_types": {
+      "ETF": 3
+     }
+    }
+   ],
+   "n_total": 25,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Japón Cap. Grande Blend",
+   "originales": [
+    {
+     "original": "EAA Fund Japan Large-Cap Blend Equity",
+     "n": 6,
+     "instrument_types": {
+      "FUND": 6
+     }
+    },
+    {
+     "original": "RV Japón Cap. Grande Blend",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 7,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Latinoamérica",
+   "originales": [
+    {
+     "original": "EAA Fund Latin America Equity",
+     "n": 8,
+     "instrument_types": {
+      "FUND": 8
+     }
+    },
+    {
+     "original": "RV Latinoamérica",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 9,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Otros",
+   "originales": [
+    {
+     "original": "EAA Fund Other Equity",
+     "n": 24,
+     "instrument_types": {
+      "FUND": 24
+     }
+    },
+    {
+     "original": "RV Otros",
+     "n": 2,
+     "instrument_types": {
+      "ETF": 2
+     }
+    }
+   ],
+   "n_total": 26,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Sector Finanzas",
+   "originales": [
+    {
+     "original": "EAA Fund Sector Equity Financial Services",
+     "n": 5,
+     "instrument_types": {
+      "FUND": 5
+     }
+    },
+    {
+     "original": "RV Sector Finanzas",
+     "n": 2,
+     "instrument_types": {
+      "ETF": 2
+     }
+    }
+   ],
+   "n_total": 7,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Sector Recursos Naturales",
+   "originales": [
+    {
+     "original": "EAA Fund Sector Equity Natural Resources",
+     "n": 7,
+     "instrument_types": {
+      "FUND": 7
+     }
+    },
+    {
+     "original": "RV Sector Recursos Naturales",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 8,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Sector Salud",
+   "originales": [
+    {
+     "original": "EAA Fund Sector Equity Healthcare",
+     "n": 11,
+     "instrument_types": {
+      "FUND": 11
+     }
+    },
+    {
+     "original": "RV Sector Salud",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 12,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV Sector Tecnología",
+   "originales": [
+    {
+     "original": "EAA Fund Sector Equity Technology",
+     "n": 21,
+     "instrument_types": {
+      "FUND": 21
+     }
+    },
+    {
+     "original": "RV Sector Tecnología",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 22,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  },
+  {
+   "propuesta": "RV USA Cap. Grande Blend",
+   "originales": [
+    {
+     "original": "EAA Fund US Large-Cap Blend Equity",
+     "n": 10,
+     "instrument_types": {
+      "FUND": 10
+     }
+    },
+    {
+     "original": "RV USA Cap. Grande Blend",
+     "n": 3,
+     "instrument_types": {
+      "ETF": 3
+     }
+    },
+    {
+     "original": "Large Blend",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 14,
+   "es_la_misma_categoria": false,
+   "prueba": "La zona la pongo yo: ver la fila, que es dudosa."
+  },
+  {
+   "propuesta": "RV USA Cap. Grande Growth",
+   "originales": [
+    {
+     "original": "EAA Fund US Large-Cap Growth Equity",
+     "n": 4,
+     "instrument_types": {
+      "FUND": 4
+     }
+    },
+    {
+     "original": "Large Growth",
+     "n": 1,
+     "instrument_types": {
+      "ETF": 1
+     }
+    }
+   ],
+   "n_total": 5,
+   "es_la_misma_categoria": false,
+   "prueba": "La zona la pongo yo: ver la fila, que es dudosa."
+  },
+  {
+   "propuesta": "RV Zona Euro Cap. Grande",
+   "originales": [
+    {
+     "original": "EAA Fund Eurozone Large-Cap Equity",
+     "n": 9,
+     "instrument_types": {
+      "FUND": 9
+     }
+    },
+    {
+     "original": "RV Zona Euro Cap. Grande",
+     "n": 3,
+     "instrument_types": {
+      "ETF": 3
+     }
+    }
+   ],
+   "n_total": 12,
+   "es_la_misma_categoria": true,
+   "prueba": "El proveedor da ese mismo nombre en español a los fondos de la inglesa."
+  }
+ ],
+ "agrupaciones_medidas": {
+  "respuesta": "Ninguna pareja de categorías distintas se queda con el mismo nombre. Las 18 parejas que se funden son la misma categoría en los dos idiomas: el proveedor da a los fondos de la inglesa el nombre de la española. Solo Large Blend y Large Growth se juntan por decisión mía, y están como dudosas.",
+  "en_el_catalogo": {
+   "etiquetas_antes": 145,
+   "etiquetas_despues": 125,
+   "nombres_que_juntan_mas_de_una": 19,
+   "instrumentos_en_ellos": 246
+  },
+  "en_carteras_guardadas": {
+   "base_vieja": {
+    "carteras": 32,
+    "con_filas_repetidas_hoy": 0,
+    "con_filas_fundibles_con_la_tabla": 0,
+    "filas_antes": 248,
+    "filas_despues": 248,
+    "nombres_hoy": [],
+    "nombres_tabla": []
+   },
+   "base_nueva": {
+    "carteras": 32,
+    "con_filas_repetidas_hoy": 0,
+    "con_filas_fundibles_con_la_tabla": 0,
+    "filas_antes": 248,
+    "filas_despues": 248,
+    "nombres_hoy": [],
+    "nombres_tabla": []
+   },
+   "limite": "Son las 32 carteras de prueba del emulador local: en ninguna coinciden dos categorías que se funden. Las reales de la nube no se pueden leer desde aquí, y ahí sí puede haber un ETF y un fondo de la misma categoría."
+  },
+  "muestra": {
+   "vieja": [
+    {
+     "original": "RV Global Cap. Grande Blend",
+     "peso": 24,
+     "hoy_informe_de_cliente": "RV Global Cap. Grande Blend",
+     "propuesta": "RV Global Cap. Grande Blend"
+    },
+    {
+     "original": "EAA Fund Global Diversified Bond - EUR Hedged",
+     "peso": 20,
+     "hoy_informe_de_cliente": "Global Diversified Bond - EUR Hedged",
+     "propuesta": "RF Diversificada Global - EUR Cubierto"
+    },
+    {
+     "original": "RV USA Cap. Grande Blend",
+     "peso": 12,
+     "hoy_informe_de_cliente": "RV USA Cap. Grande Blend",
+     "propuesta": "RV USA Cap. Grande Blend"
+    },
+    {
+     "original": "EAA Fund Thematic Equity Ecology",
+     "peso": 10,
+     "hoy_informe_de_cliente": "Thematic Equity Ecology",
+     "propuesta": "RV Sector Ecología"
+    },
+    {
+     "original": "EAA Fund EUR Diversified Bond",
+     "peso": 10,
+     "hoy_informe_de_cliente": "EUR Diversified Bond",
+     "propuesta": "RF Diversificada EUR"
+    },
+    {
+     "original": "EAA Fund EUR Moderate Allocation - Global",
+     "peso": 9,
+     "hoy_informe_de_cliente": "EUR Moderate Allocation - Global",
+     "propuesta": "Mixtos Moderados EUR - Global"
+    },
+    {
+     "original": "EAA Fund Global Emerging Markets Equity",
+     "peso": 8,
+     "hoy_informe_de_cliente": "Global Emerging Markets Equity",
+     "propuesta": "RV Global Emergente"
+    },
+    {
+     "original": "EAA Fund Multistrategy EUR",
+     "peso": 7,
+     "hoy_informe_de_cliente": "Multistrategy EUR",
+     "propuesta": "Alternativo Multiestrategia EUR"
+    }
+   ],
+   "nueva": [
+    {
+     "original": "RV Global Cap. Grande Blend",
+     "peso": 24,
+     "hoy_informe_de_cliente": "RV Global Cap. Grande Blend",
+     "propuesta": "RV Global Cap. Grande Blend"
+    },
+    {
+     "original": "EAA Fund Global Diversified Bond - EUR Hedged",
+     "peso": 20,
+     "hoy_informe_de_cliente": "Global Diversified Bond - EUR Hedged",
+     "propuesta": "RF Diversificada Global - EUR Cubierto"
+    },
+    {
+     "original": "RV USA Cap. Grande Blend",
+     "peso": 12,
+     "hoy_informe_de_cliente": "RV USA Cap. Grande Blend",
+     "propuesta": "RV USA Cap. Grande Blend"
+    },
+    {
+     "original": "EAA Fund Thematic Equity Ecology",
+     "peso": 10,
+     "hoy_informe_de_cliente": "Thematic Equity Ecology",
+     "propuesta": "RV Sector Ecología"
+    },
+    {
+     "original": "EAA Fund EUR Diversified Bond",
+     "peso": 10,
+     "hoy_informe_de_cliente": "EUR Diversified Bond",
+     "propuesta": "RF Diversificada EUR"
+    },
+    {
+     "original": "EAA Fund EUR Moderate Allocation - Global",
+     "peso": 9,
+     "hoy_informe_de_cliente": "EUR Moderate Allocation - Global",
+     "propuesta": "Mixtos Moderados EUR - Global"
+    },
+    {
+     "original": "EAA Fund Global Emerging Markets Equity",
+     "peso": 8,
+     "hoy_informe_de_cliente": "Global Emerging Markets Equity",
+     "propuesta": "RV Global Emergente"
+    },
+    {
+     "original": "EAA Fund Multistrategy EUR",
+     "peso": 7,
+     "hoy_informe_de_cliente": "Multistrategy EUR",
+     "propuesta": "Alternativo Multiestrategia EUR"
+    }
+   ]
+  }
+ },
+ "longitudes": {
+  "original_tal_cual": {
+   "media": 32.1,
+   "maximo": 60,
+   "mas_de_22": 125,
+   "mas_de_40": 26
+  },
+  "original_sin_prefijo": {
+   "media": 24.4,
+   "maximo": 51,
+   "mas_de_22": 89,
+   "mas_de_40": 4
+  },
+  "propuesta_RV_RF": {
+   "media": 24.3,
+   "maximo": 52,
+   "mas_de_22": 86,
+   "mas_de_40": 7
+  },
+  "alternativa_sin_abreviar": {
+   "media": 33.1,
+   "maximo": 61,
+   "mas_de_22": 122,
+   "mas_de_40": 24
+  }
+ },
+ "corte_comparativa_de_activos": {
+  "hoy": {
+   "cortadas": 125,
+   "de": 145,
+   "distintas_tras_el_corte": 99
+  },
+  "con_la_propuesta": {
+   "cortadas": 74,
+   "de": 125,
+   "distintas_tras_el_corte": 106
+  },
+  "con_la_alternativa": {
+   "cortadas": 104,
+   "de": 125,
+   "distintas_tras_el_corte": 67
+  },
+  "ejemplo_hoy": [
+   "EAA Fund Global Large…"
+  ],
+  "ejemplo_propuesta": [
+   "RV Global Cap. Grande…"
+  ]
+ },
+ "composicion_por_categoria_de_la_muestra": {
+  "hoy": "RV Global Cap. Grande Blend 24,0 % Global Diversified Bond - EUR Hedged 20,0 % RV USA Cap. Grande Blend 12,0 % EUR Diversified Bond 10,0 % Thematic Equity Ecology 10,0 % Otras categorías 24,0 %",
+  "con_la_tabla": "RV Global Cap. Grande Blend 24,0 % · RF Diversificada Global - EUR Cubierto 20,0 % · RV USA Cap. Grande Blend 12,0 % · RF Diversificada EUR 10,0 % · RV Sector Ecología 10,0 % · Otras categorías 24,0 %"
+ },
+ "de_paso": [
+  "Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C (LU0290358497) consta como Fondo en la base nueva y como ETF en la vieja: es el único con «ETF» en el nombre y tipo Fondo."
+ ],
+ "filas": [
+  {
+   "original": "EAA Fund EUR Ultra Short-Term Bond",
+   "n": 30,
+   "n_base_vieja": 28,
+   "ejemplos": [
+    "A&G RENTA FIJA CORTO PLAZO, FI",
+    "AMUNDI CORTO PLAZO, FI",
+    "ATL CAPITAL CORTO PLAZO, FI"
+   ],
+   "propuesta": "RF Ultra Corto Plazo EUR",
+   "alternativa_sin_abreviar": "Renta Fija Ultra Corto Plazo EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta fija ultracorta EUR",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Ultra Corto Plazo EUR",
+   "isin_con_ese_nombre": 30,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Large-Cap Growth Equity",
+   "n": 27,
+   "n_base_vieja": 27,
+   "ejemplos": [
+    "CPR Invest - Global Disruptive Opportunities Class A EUR Acc",
+    "Capital Group New Economy Fund (LUX) B",
+    "Capital Group New Perspective Fund (LUX) B"
+   ],
+   "propuesta": "RV Global Cap. Grande Growth",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Grande Growth",
+   "nota": "Nombre de Morningstar España, tal cual. «Growth» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Cap. Grande Growth",
+   "isin_con_ese_nombre": 26,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Large-Cap Blend Equity",
+   "n": 26,
+   "n_base_vieja": 25,
+   "ejemplos": [
+    "BlackRock Funds I ICAV - BlackRock Advantage Europe Equity Fund D EUR Acc",
+    "BlackRock Global Funds - European Equity Transition Fund A2",
+    "CT (Lux) Pan European Equities - DE"
+   ],
+   "propuesta": "RV Europa Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Grande Blend",
+   "isin_con_ese_nombre": 26,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Europa Cap. Grande Blend"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Flexible Allocation - Global",
+   "n": 24,
+   "n_base_vieja": 24,
+   "ejemplos": [
+    "AVANTAGE FUND, FI",
+    "Acatis Value Event Fonds A",
+    "BNY Mellon Global Real Return Fund (EUR) C Acc"
+   ],
+   "propuesta": "Mixtos Flexibles EUR - Global",
+   "alternativa_sin_abreviar": "Mixtos Flexibles EUR - Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Flexibles EUR - Global",
+   "isin_con_ese_nombre": 24,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Moderate Allocation - Global",
+   "n": 24,
+   "n_base_vieja": 23,
+   "ejemplos": [
+    "ABANTE INDICE SELECCION, FI",
+    "ABANTE SELECCION, FI",
+    "Aegon Global Diversified Income Fund A Acc EUR"
+   ],
+   "propuesta": "Mixtos Moderados EUR - Global",
+   "alternativa_sin_abreviar": "Mixtos Moderados EUR - Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Moderados EUR - Global",
+   "isin_con_ese_nombre": 24,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Other Equity",
+   "n": 24,
+   "n_base_vieja": 24,
+   "ejemplos": [
+    "Allianz Pet and Animal Wellbeing AT EUR",
+    "BlackRock Global Funds - World Gold Fund E2 EUR Hedged",
+    "BlackRock Global Funds - World Mining Fund E2 EUR Hedged"
+   ],
+   "propuesta": "RV Otros",
+   "alternativa_sin_abreviar": "Renta Variable Otros",
+   "nota": "Nombre de Morningstar España, tal cual. Cajón del proveedor: es cierto y dice poco.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Otros",
+   "isin_con_ese_nombre": 24,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Otros"
+   ]
+  },
+  {
+   "original": "EAA Fund Global Large-Cap Blend Equity",
+   "n": 22,
+   "n_base_vieja": 22,
+   "ejemplos": [
+    "Amundi Funds - Global Equity A EUR (C)",
+    "Amundi Funds - Global Equity C EUR (C)",
+    "BlackRock Global Funds - Global Long-Horizon Equity Fund E2"
+   ],
+   "propuesta": "RV Global Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Cap. Grande Blend",
+   "isin_con_ese_nombre": 22,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Global Cap. Grande Blend"
+   ]
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Equity",
+   "n": 21,
+   "n_base_vieja": 20,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz High Dividend Emerging Markets Equity AT EUR",
+    "Allianz Global Investors Fund - Allianz High Dividend Emerging Markets Equity CT EUR",
+    "BlackRock Global Funds - Emerging Markets Equity Income Fund A2"
+   ],
+   "propuesta": "RV Global Emergente",
+   "alternativa_sin_abreviar": "Renta Variable Global Emergente",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Emergente",
+   "isin_con_ese_nombre": 21,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Technology",
+   "n": 21,
+   "n_base_vieja": 21,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Global Artificial Intelligence AT EUR",
+    "Allianz Global Investors Fund - Allianz Global Artificial Intelligence CT EUR",
+    "BNP Paribas Funds Disruptive Technology Classic Capitalisation"
+   ],
+   "propuesta": "RV Sector Tecnología",
+   "alternativa_sin_abreviar": "Renta Variable Sector Tecnología",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable tecnológica",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Tecnología",
+   "isin_con_ese_nombre": 21,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Sector Tecnología"
+   ]
+  },
+  {
+   "original": "EAA Fund Asia ex-Japan Equity",
+   "n": 20,
+   "n_base_vieja": 19,
+   "ejemplos": [
+    "AB FCP I - Asia Ex-Japan Equity Portfolio C EUR Acc",
+    "Federated Hermes Asia ex-Japan Equity Fund Class R EUR Accumulating",
+    "Fidelity Funds - Asian Special Situations Fund E-Acc-EUR"
+   ],
+   "propuesta": "RV Asia (ex-Japón)",
+   "alternativa_sin_abreviar": "Renta Variable Asia (ex-Japón)",
+   "nota": "HOY MAL: el informe de cliente lo imprime «Renta variable Japón», y es justo lo que este fondo excluye. Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia (ex-Japón)",
+   "isin_con_ese_nombre": 20,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Asia (ex-Japón)"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Diversified Bond - Short Term",
+   "n": 19,
+   "n_base_vieja": 19,
+   "ejemplos": [
+    "Amundi S.F. - Diversified Short-Term Bond Select A EUR ND",
+    "Amundi S.F. - Diversified Short-Term Bond Select E EUR ND",
+    "Carmignac Portfolio Sécurité A EUR Acc"
+   ],
+   "propuesta": "RF Diversificada Corto Plazo EUR",
+   "alternativa_sin_abreviar": "Renta Fija Diversificada Corto Plazo EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Diversificada Corto Plazo EUR",
+   "isin_con_ese_nombre": 19,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Bond - EUR Hedged",
+   "n": 18,
+   "n_base_vieja": 18,
+   "ejemplos": [
+    "Allianz Emerging Markets Short Duration Bond AT (H2-EUR)",
+    "Amundi Funds - Emerging Markets Blended Bond A EUR (C)",
+    "Amundi Funds - Emerging Markets Short Term Bond A2 EUR Hgd (C)"
+   ],
+   "propuesta": "RF Global Emergente - Sesgo EUR",
+   "alternativa_sin_abreviar": "Renta Fija Global Emergente - Sesgo EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": true,
+   "motivo": "Dos textos del mismo proveedor que no dicen lo mismo: en inglés «EUR Hedged» (cubierto) y en español «Sesgo EUR» (predomina el euro). De sus 18 fondos, 13 dicen cubierto en el nombre y 5 no. Propongo el español porque no afirma una cobertura que en esos 5 no consta. Alternativa: «RF Global Emergente - EUR Cubierto».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Global Emergente - Sesgo EUR",
+   "isin_con_ese_nombre": 18,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Corporate Bond",
+   "n": 17,
+   "n_base_vieja": 17,
+   "ejemplos": [
+    "BlackRock Global Funds - Euro Corporate Bond Fund A1",
+    "BlackRock Global Funds - Euro Corporate Bond Fund A2",
+    "CPR Invest - Climate Bonds Euro - A EUR - Acc"
+   ],
+   "propuesta": "RF Deuda Corporativa EUR",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Corporativa EUR",
+   "isin_con_ese_nombre": 17,
+   "normalizaciones": [],
+   "funde_con": [
+    "RF Deuda Corporativa EUR"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Flexible Bond",
+   "n": 16,
+   "n_base_vieja": 16,
+   "ejemplos": [
+    "AXA World Funds - Euro Credit Total Return A Capitalisation EUR",
+    "AXA World Funds - Euro Credit Total Return E Capitalisation EUR",
+    "Allianz Global Investors Fund - Allianz Credit Opportunities AT EUR"
+   ],
+   "propuesta": "RF Flexible EUR",
+   "alternativa_sin_abreviar": "Renta Fija Flexible EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta fija flexible EUR",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Flexible EUR",
+   "isin_con_ese_nombre": 15,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Aggressive Allocation - Global",
+   "n": 12,
+   "n_base_vieja": 12,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Dynamic Multi Asset Strategy SRI 75 AT EUR",
+    "Allianz Global Investors Fund - Allianz Dynamic Multi Asset Strategy SRI 75 CT EUR",
+    "Allianz Strategy 75 CT EUR"
+   ],
+   "propuesta": "Mixtos Agresivos EUR - Global",
+   "alternativa_sin_abreviar": "Mixtos Agresivos EUR - Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Agresivos EUR - Global",
+   "isin_con_ese_nombre": 12,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Flex-Cap Equity",
+   "n": 12,
+   "n_base_vieja": 12,
+   "ejemplos": [
+    "Alken Fund - European Opportunities Class A",
+    "Alken Fund - European Opportunities Class R",
+    "BESTINFOND, FI"
+   ],
+   "propuesta": "RV Europa Cap. Flexible",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Flexible",
+   "nota": "Nombre de Morningstar España, tal cual. Flex-Cap: Morningstar España sí lo traduce, «Cap. Flexible».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Flexible",
+   "isin_con_ese_nombre": 12,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Flex-Cap Equity",
+   "n": 12,
+   "n_base_vieja": 12,
+   "ejemplos": [
+    "Azvalor Lux SICAV Altum Faith - Consistent Equity R",
+    "Azvalor Lux SICAV Azvalor International R",
+    "Buy & Hold Luxembourg B&H Equity Class 2"
+   ],
+   "propuesta": "RV Global Cap. Flexible",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Flexible",
+   "nota": "Nombre de Morningstar España, sin los espacios de más que trae. Flex-Cap: Morningstar España sí lo traduce, «Cap. Flexible».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Global  Cap. Flexible",
+   "isin_con_ese_nombre": 12,
+   "normalizaciones": [
+    "espacios"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Small/Mid-Cap Equity",
+   "n": 12,
+   "n_base_vieja": 12,
+   "ejemplos": [
+    "AZVALOR MANAGERS, FI",
+    "CT (Lux) - Global Smaller Companies AE (EUR Accumulation Shares)",
+    "CT (Lux) - Global Smaller Companies DE (EUR Accumulation Shares)"
+   ],
+   "propuesta": "RV Global Cap. Pequeña y Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Pequeña y Mediana",
+   "nota": "Morningstar España escribe «RV Global Capitalización Pequeña y Mediana». Una sola forma para Small/Mid: el proveedor usa tres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Global Capitalización Pequeña y Mediana",
+   "isin_con_ese_nombre": 12,
+   "normalizaciones": [
+    "pequena-mediana"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Healthcare",
+   "n": 11,
+   "n_base_vieja": 11,
+   "ejemplos": [
+    "AB SICAV I - International Health Care Portfolio Class A EUR Acc",
+    "Bellevue Funds (Lux) - Bellevue Medtech & Services B EUR",
+    "BlackRock Global Funds - World Healthscience Fund A2"
+   ],
+   "propuesta": "RV Sector Salud",
+   "alternativa_sin_abreviar": "Renta Variable Sector Salud",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Salud",
+   "isin_con_ese_nombre": 11,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Sector Salud"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Cautious Allocation",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "CARTESIO X, FI",
+    "Cartesio Funds Income R",
+    "DNCA Invest - Eurose Class B shares EUR"
+   ],
+   "propuesta": "Mixtos Defensivos EUR",
+   "alternativa_sin_abreviar": "Mixtos Defensivos EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Defensivos EUR",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Diversified Bond",
+   "n": 10,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "AXA World Funds - Euro Strategic Bonds E Capitalisation EUR",
+    "BNY Mellon Euroland Bond Fund EUR C Acc",
+    "Franklin European Total Return Fund A(acc)EUR"
+   ],
+   "propuesta": "RF Diversificada EUR",
+   "alternativa_sin_abreviar": "Renta Fija Diversificada EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Diversificada EUR",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Flexible Allocation",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "CARTESIO Y, FI",
+    "DNCA Invest Évolutif B EUR",
+    "DUNAS VALOR EQUILIBRADO FI"
+   ],
+   "propuesta": "Mixtos Flexibles EUR",
+   "alternativa_sin_abreviar": "Mixtos Flexibles EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Flexibles EUR",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR High Yield Bond",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "AXA IM Fixed Income Investment Strategies - Europe Short Duration High Yield E Capitalisation EUR",
+    "BlackRock Global Funds - European High Yield Bond Fund A2",
+    "Candriam Bonds Euro High Yield Class N EUR Cap"
+   ],
+   "propuesta": "RF Bonos Alto Rendimiento EUR",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Alto Rendimiento EUR",
+   "nota": "Nombre de Morningstar España, tal cual. High Yield: Morningstar España sí lo traduce, «Bonos Alto Rendimiento». Si lo prefieres sin traducir: «RF High Yield EUR».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Bonos Alto Rendimiento EUR",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Large-Cap Growth Equity",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Europe Equity Growth CT EUR",
+    "Allianz Global Investors Fund - Allianz Europe Equity Growth Select CT EUR",
+    "Carmignac Portfolio Grande Europe E EUR Acc"
+   ],
+   "propuesta": "RV Europa Cap. Grande Growth",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Grande Growth",
+   "nota": "Nombre de Morningstar España, tal cual. «Growth» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Grande Growth",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Large-Cap Value Equity",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "Artisan Global Value Fund Class I Euro Accumulating Shares",
+    "Brandes Global Value Fund A Euro Acc",
+    "DWS Invest CROCI Sectors Plus LC"
+   ],
+   "propuesta": "RV Global Cap. Grande Value",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Grande Value",
+   "nota": "Nombre de Morningstar España, tal cual. «Value» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Cap. Grande Value",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund India Equity",
+   "n": 10,
+   "n_base_vieja": 10,
+   "ejemplos": [
+    "Franklin India Fund N(acc)EUR",
+    "Goldman Sachs India Equity Portfolio E Acc EUR",
+    "Invesco Funds - Invesco India Equity Fund E Accumulation EUR"
+   ],
+   "propuesta": "RV India",
+   "alternativa_sin_abreviar": "Renta Variable India",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV India",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Thematic Equity Alternative Energy",
+   "n": 10,
+   "n_base_vieja": 8,
+   "ejemplos": [
+    "BNP Clean Energy Solutions - Classic Capitalisation",
+    "BNP Clean Energy Solutions N Capitalisation",
+    "BlackRock Global Funds - Sustainable Energy Fund A2"
+   ],
+   "propuesta": "RV Sector Energía Alternativa",
+   "alternativa_sin_abreviar": "Renta Variable Sector Energía Alternativa",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés es «Thematic Equity» desde su última clasificación; en español el proveedor sigue diciendo «RV Sector».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Energía Alternativa",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Thematic Equity Ecology",
+   "n": 10,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "Amundi Funds - Global Equity Responsible A EUR (C)",
+    "Amundi Funds - Global Equity Responsible C EUR (C)",
+    "Fidelity Funds - Climate Solutions Fund A-ACC-EUR"
+   ],
+   "propuesta": "RV Sector Ecología",
+   "alternativa_sin_abreviar": "Renta Variable Sector Ecología",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés es «Thematic Equity» desde su última clasificación; en español el proveedor sigue diciendo «RV Sector».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Ecología",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund US Large-Cap Blend Equity",
+   "n": 10,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "AB SICAV I - Select US Equity Portfolio A Acc",
+    "AB SICAV I - Select US Equity Portfolio A EUR Acc",
+    "BlackRock Global Funds - US Flexible Equity Fund E2"
+   ],
+   "propuesta": "RV USA Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Blend",
+   "nota": "Hoy «Renta variable EE.UU.» da un solo nombre a Blend, Growth y Value. Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable EE.UU.",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV USA Cap. Grande Blend",
+   "isin_con_ese_nombre": 10,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV USA Cap. Grande Blend",
+    "Large Blend"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Cautious Allocation - Global",
+   "n": 9,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Dynamic Multi Asset Strategy SRI 15 AT EUR",
+    "Amundi Funds - Euro Multi-Asset Target Income A2 EUR (C)",
+    "Amundi Funds - Global Multi-Asset Conservative A EUR (C)"
+   ],
+   "propuesta": "Mixtos Defensivos EUR - Global",
+   "alternativa_sin_abreviar": "Mixtos Defensivos EUR - Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Defensivos EUR - Global",
+   "isin_con_ese_nombre": 9,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Large-Cap Value Equity",
+   "n": 9,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "BlackRock Global Funds - European Value Fund A2",
+    "Brandes European Value Fund A Euro Acc",
+    "DNCA Invest - Value Europe Class B shares EUR"
+   ],
+   "propuesta": "RV Europa Cap. Grande Value",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Grande Value",
+   "nota": "Nombre de Morningstar España, tal cual. «Value» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable europea value",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Grande Value",
+   "isin_con_ese_nombre": 9,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Eurozone Large-Cap Equity",
+   "n": 9,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "CAIXABANK BOLSA GESTION EURO, FI",
+    "Fidelity Funds - Euro 50 Index Fund A-Acc-EUR",
+    "GESCONSULT RENTA VARIABLE EUROZONA, FI"
+   ],
+   "propuesta": "RV Zona Euro Cap. Grande",
+   "alternativa_sin_abreviar": "Renta Variable Zona Euro Cap. Grande",
+   "nota": "Nombre de Morningstar España, tal cual. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Zona Euro Cap. Grande",
+   "isin_con_ese_nombre": 9,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Zona Euro Cap. Grande"
+   ]
+  },
+  {
+   "original": "EAA Fund Global High Yield Bond - EUR Hedged",
+   "n": 9,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "Aviva Investors - Short Duration Global High Yield Bond Fund Ah EUR Acc",
+    "BNY Mellon Global Short-Dated High Yield Bond Fund EUR H Acc Hedged",
+    "Candriam Bonds Global High Yield Class N EUR Cap"
+   ],
+   "propuesta": "RF Bonos Alto Rendimiento Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Alto Rendimiento Global - EUR Cubierto",
+   "nota": "Hoy da un solo nombre al cubierto y al no cubierto. Nombre de Morningstar España, tal cual. High Yield: Morningstar España sí lo traduce, «Bonos Alto Rendimiento». Si lo prefieres sin traducir: «RF High Yield Global - EUR Cubierto».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta fija high yield global",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Bonos Alto Rendimiento Global - EUR Cubierto",
+   "isin_con_ese_nombre": 9,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Spain Equity",
+   "n": 9,
+   "n_base_vieja": 9,
+   "ejemplos": [
+    "Abante Global Funds Spanish Opportunities Class B",
+    "Bestinver Tordesillas SICAV Iberia A",
+    "CAIXABANK SMALL & MID CAPS ESPAÑA, FI"
+   ],
+   "propuesta": "RV España",
+   "alternativa_sin_abreviar": "Renta Variable España",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable España",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV España",
+   "isin_con_ese_nombre": 9,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV España"
+   ]
+  },
+  {
+   "original": "EAA Fund Europe Small-Cap Equity",
+   "n": 8,
+   "n_base_vieja": 8,
+   "ejemplos": [
+    "Alken Fund - Small Cap Europe Class A",
+    "Alken Fund - Small Cap Europe Class R",
+    "CT (Lux) - Pan European Small Cap Opportunities Class AE (EUR Accumulation Shares)"
+   ],
+   "propuesta": "RV Europa Cap. Pequeña",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Pequeña",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Pequeña",
+   "isin_con_ese_nombre": 8,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Europa Cap. Pequeña"
+   ]
+  },
+  {
+   "original": "EAA Fund Fixed Term Bond",
+   "n": 8,
+   "n_base_vieja": 8,
+   "ejemplos": [
+    "BlackRock Global Funds - Euro High Yield Fixed Maturity Bond Fund 2027 Class A2",
+    "CARTERA RENTA FIJA HORIZONTE 2026 FI",
+    "CARTERA RENTA FIJA HORIZONTE 2027, FI"
+   ],
+   "propuesta": "RF Deuda a Plazo Fijo",
+   "alternativa_sin_abreviar": "Renta Fija Deuda a Plazo Fijo",
+   "nota": "Morningstar España escribe «RF Deuda A Plazo Fijo». Mayúsculas, como el resto de sus nombres.",
+   "dudosa": true,
+   "motivo": "Es el nombre del proveedor, pero «plazo fijo» en España suena a depósito, y son fondos con fecha de vencimiento (Cartera Renta Fija Horizonte 2026, Millesima 2028). Alternativa: «RF a Vencimiento», como se les llama aquí.",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Deuda A Plazo Fijo",
+   "isin_con_ese_nombre": 8,
+   "normalizaciones": [
+    "mayusculas"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Equity Income",
+   "n": 8,
+   "n_base_vieja": 8,
+   "ejemplos": [
+    "Amundi Funds - Global Equity Income Select A2 EUR (C)",
+    "BNY Mellon Global Equity Income Fund EUR A Acc",
+    "Fidelity Funds - Global Dividend Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Global Alto Dividendo",
+   "alternativa_sin_abreviar": "Renta Variable Global Alto Dividendo",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Alto Dividendo",
+   "isin_con_ese_nombre": 8,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Latin America Equity",
+   "n": 8,
+   "n_base_vieja": 8,
+   "ejemplos": [
+    "Amundi Funds - Latin America Equity A EUR (C)",
+    "Amundi Funds - Latin America Equity G EUR (C)",
+    "DWS Invest Latin American Equities LC"
+   ],
+   "propuesta": "RV Latinoamérica",
+   "alternativa_sin_abreviar": "Renta Variable Latinoamérica",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Latinoamérica",
+   "isin_con_ese_nombre": 8,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Latinoamérica"
+   ]
+  },
+  {
+   "original": "EAA Fund China Equity",
+   "n": 7,
+   "n_base_vieja": 7,
+   "ejemplos": [
+    "Fidelity Funds - China Consumer Fund A-Acc-EUR",
+    "Fidelity Funds - China Focus Fund A-Acc-EUR",
+    "Fidelity Funds - China Focus Fund E-Acc-EUR"
+   ],
+   "propuesta": "RV China",
+   "alternativa_sin_abreviar": "Renta Variable China",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV China",
+   "isin_con_ese_nombre": 7,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Flexible Bond - EUR Hedged",
+   "n": 7,
+   "n_base_vieja": 7,
+   "ejemplos": [
+    "BlackRock ESG Fixed Income Strategies Fund E2 EUR",
+    "Candriam Bonds Credit Opportunities Class N EUR Cap",
+    "Flossbach von Storch - Bond Opportunities RT"
+   ],
+   "propuesta": "RF Flexible Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Flexible Global - EUR Cubierto",
+   "nota": "Morningstar España escribe «RF Flexible Global-EUR Cubierto». Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Flexible Global-EUR Cubierto",
+   "isin_con_ese_nombre": 7,
+   "normalizaciones": [
+    "cobertura"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Inflation-Linked Bond - EUR Hedged",
+   "n": 7,
+   "n_base_vieja": 7,
+   "ejemplos": [
+    "AXA World Funds - Global Inflation Short Duration Bonds E Capitalisation EUR (Hedged)",
+    "BlackRock Global Funds - Global Inflation Linked Bond Fund A2 EUR Hedged",
+    "Candriam Bonds Global Inflation Short Duration Class C EUR Cap"
+   ],
+   "propuesta": "RF Bonos Ligados Inflación Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Ligados Inflación Global - EUR Cubierto",
+   "nota": "Morningstar España escribe «RF Global Bonos Ligados Inflación - EUR Cubierto». La zona detrás del tipo de bono, como en «RF Flexible Global».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Global Bonos Ligados Inflación - EUR Cubierto",
+   "isin_con_ese_nombre": 7,
+   "normalizaciones": [
+    "zona-detras"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Natural Resources",
+   "n": 7,
+   "n_base_vieja": 7,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Global Metals and Mining AT EUR",
+    "BlackRock Global Funds - World Mining Fund A2",
+    "BlackRock Global Funds - World Mining Fund E2"
+   ],
+   "propuesta": "RV Sector Recursos Naturales",
+   "alternativa_sin_abreviar": "Renta Variable Sector Recursos Naturales",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Recursos Naturales",
+   "isin_con_ese_nombre": 7,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Sector Recursos Naturales"
+   ]
+  },
+  {
+   "original": "EAA Fund Asia-Pacific ex-Japan Equity",
+   "n": 6,
+   "n_base_vieja": 6,
+   "ejemplos": [
+    "AXA IM Equity Trust - AXA IM All Country Asia Pacific Ex-Japan Small Cap Equity QI B (â‚¬)",
+    "AXA IM Equity Trust - AXA IM All Country Asia Pacific Ex-Japan Small Cap Equity QI E (â‚¬)",
+    "Fidelity Funds - Asia Pacific Opportunities Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Asia Pacífico (ex-Japón)",
+   "alternativa_sin_abreviar": "Renta Variable Asia Pacífico (ex-Japón)",
+   "nota": "HOY MAL: el informe de cliente lo imprime «Renta variable Japón», y es justo lo que este fondo excluye. Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia Pacífico (ex-Japón)",
+   "isin_con_ese_nombre": 6,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Asia Pacífico (ex-Japón)"
+   ]
+  },
+  {
+   "original": "EAA Fund Japan Large-Cap Blend Equity",
+   "n": 6,
+   "n_base_vieja": 6,
+   "ejemplos": [
+    "Fidelity Funds - Japan Value Fund A-Acc-EUR",
+    "GVCGAESCO JAPON, FI",
+    "JPMorgan Investment Funds - Japan Strategic Value Fund D (acc) EUR"
+   ],
+   "propuesta": "RV Japón Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Japón Cap. Grande Blend",
+   "nota": "Hoy «Renta variable Japón» es la zona correcta, pero el mismo nombre lo llevan los fondos que excluyen Japón. Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Japón Cap. Grande Blend",
+   "isin_con_ese_nombre": 6,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Japón Cap. Grande Blend"
+   ]
+  },
+  {
+   "original": "EAA Fund US Large-Cap Value Equity",
+   "n": 6,
+   "n_base_vieja": 6,
+   "ejemplos": [
+    "Brandes US Value Fund A Euro Acc",
+    "Edmond de Rothschild Fund - US Value A EUR",
+    "Fidelity Funds - America Fund E-Acc-EUR"
+   ],
+   "propuesta": "RV USA Cap. Grande Value",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Value",
+   "nota": "Hoy «Renta variable EE.UU.» da un solo nombre a Blend, Growth y Value. Nombre de Morningstar España, tal cual. «Value» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable EE.UU.",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV USA Cap. Grande Value",
+   "isin_con_ese_nombre": 6,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD Moderate Allocation",
+   "n": 6,
+   "n_base_vieja": 6,
+   "ejemplos": [
+    "Amundi Funds - Income Opportunities A2 EUR (C)",
+    "BlackRock Global Funds - Global Allocation Fund A2",
+    "CT (Lux) - Global Multi Asset Income Class AE (EUR Accumulation Shares)"
+   ],
+   "propuesta": "Mixtos Moderados USD",
+   "alternativa_sin_abreviar": "Mixtos Moderados USD",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Moderados USD",
+   "isin_con_ese_nombre": 6,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Mid-Cap Equity",
+   "n": 5,
+   "n_base_vieja": 5,
+   "ejemplos": [
+    "BNP Paribas Funds Europe Small Cap Classic Capitalisation",
+    "CT (Lux) - Pan European Smaller Companies 1E (EUR Accumulation Shares)",
+    "Echiquier Agenor Mid Cap Europe A"
+   ],
+   "propuesta": "RV Europa Cap. Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Mediana",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Mediana",
+   "isin_con_ese_nombre": 5,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Consumer Goods & Services",
+   "n": 5,
+   "n_base_vieja": 5,
+   "ejemplos": [
+    "BNP Paribas Funds Consumer InnovatorsClassic Capitalisation",
+    "GAM Multistock - Luxury Brands Equity EUR B",
+    "GAM Multistock - Luxury Brands Equity EUR E"
+   ],
+   "propuesta": "RV Sector Consumo",
+   "alternativa_sin_abreviar": "Renta Variable Sector Consumo",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Consumo",
+   "isin_con_ese_nombre": 5,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Financial Services",
+   "n": 5,
+   "n_base_vieja": 5,
+   "ejemplos": [
+    "BlackRock Global Funds - World Financials Fund A2",
+    "BlackRock Global Funds - World Financials Fund E2",
+    "Fidelity Funds - Global Financial Services Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Sector Finanzas",
+   "alternativa_sin_abreviar": "Renta Variable Sector Finanzas",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Finanzas",
+   "isin_con_ese_nombre": 5,
+   "normalizaciones": [],
+   "funde_con": [
+    "RV Sector Finanzas"
+   ]
+  },
+  {
+   "original": "EAA Fund Sector Equity Precious Metals",
+   "n": 5,
+   "n_base_vieja": 5,
+   "ejemplos": [
+    "BlackRock Global Funds - World Gold Fund E2",
+    "DWS Invest Gold and Precious Metals Equities LC",
+    "DWS Invest Gold and Precious Metals Equities NC"
+   ],
+   "propuesta": "RV Sector Oro y Metales Preciosos",
+   "alternativa_sin_abreviar": "Renta Variable Sector Oro y Metales Preciosos",
+   "nota": "Morningstar España escribe «RV Sector Oro y Metales preciosos». Mayúsculas, como el resto de sus nombres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Sector Oro y Metales preciosos",
+   "isin_con_ese_nombre": 5,
+   "normalizaciones": [
+    "mayusculas"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Thematic Equity Infrastructure",
+   "n": 5,
+   "n_base_vieja": 5,
+   "ejemplos": [
+    "BNY Mellon Global Infrastructure Income Fund EUR A Inc",
+    "FTGF ClearBridge Infrastructure Value Fund Class A Euro Accumulating",
+    "M&G (Lux) Global Listed Infrastructure Fund EUR A Acc"
+   ],
+   "propuesta": "RV Sector Infraestructura",
+   "alternativa_sin_abreviar": "Renta Variable Sector Infraestructura",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés es «Thematic Equity» desde su última clasificación; en español el proveedor sigue diciendo «RV Sector».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Infraestructura",
+   "isin_con_ese_nombre": 5,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Convertible Bond - Global, EUR Hedged",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "BNP Paribas Funds Global Convertible Classic RH EUR Capitalisation",
+    "CT (Lux) Global Convertible Bond Fund A Acc EUR Hdg",
+    "Lazard Global Convertibles Recovery Fund BP Acc EUR Hedged"
+   ],
+   "propuesta": "RF Convertibles Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Convertibles Global - EUR Cubierto",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": true,
+   "motivo": "Morningstar los llama RF y tu decisión 13 los clasifica como Mixto: en la misma ficha se leerá «Mixto» y «RF Convertibles». Alternativa: quitar el RF, «Convertibles Global - EUR Cubierto».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Convertibles Global - EUR Cubierto",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Money Market",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "Amundi Funds - Cash EUR A2 EUR (C)",
+    "Amundi Funds - Cash EUR G2 EUR (C)",
+    "Candriam Money Market Euro C Acc EUR"
+   ],
+   "propuesta": "Mercado Monetario EUR",
+   "alternativa_sin_abreviar": "Mercado Monetario EUR",
+   "nota": "Hoy da un solo nombre al monetario y al monetario a corto plazo. Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Monetario EUR",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mercado Monetario EUR",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Equity Market Neutral EUR",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "BlackRock Strategic Funds - European Absolute Return Fund E2 EUR",
+    "BlackRock Systematic Global Equity Absolute Return Fund A2 EUR Hedged",
+    "Fidelity Funds - Absolute Return Global Equity Fund A-PF-Acc-Euro (Euro/USD hedged)"
+   ],
+   "propuesta": "Alternativo Market Neutral - RV EUR",
+   "alternativa_sin_abreviar": "Alternativo Market Neutral - Renta Variable EUR",
+   "nota": "Nombre de Morningstar España, tal cual. «Market Neutral» no se traduce. Lo de hoy, «Retorno absoluto RV», es otra cosa: retorno absoluto es una vocación de la CNMV más amplia.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Retorno absoluto RV",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Alternativo Market Neutral - RV EUR",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe Equity Income",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "BlackRock Global Funds - European Equity Income Fund E2",
+    "Fidelity Funds - European Dividend Fund A-Acc-EUR",
+    "Fidelity Funds - European Dividend Fund A-MINCOME(G)-EUR"
+   ],
+   "propuesta": "RV Europa Alto Dividendo",
+   "alternativa_sin_abreviar": "Renta Variable Europa Alto Dividendo",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Alto Dividendo",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Eurozone Mid-Cap Equity",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "BNY Mellon Small Cap Euroland Fund EUR A Acc",
+    "Generali Investments SICAV - Euro Future Leaders EX",
+    "Groupama Avenir Euro NC"
+   ],
+   "propuesta": "RV Zona Euro Cap. Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Zona Euro Cap. Mediana",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Zona Euro Cap. Mediana",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Bond",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "Amundi Funds - Emerging Markets Short Term Bond A2 EUR (C)",
+    "BlackRock Global Funds - Emerging Markets Bond Fund E2",
+    "M&G (Lux) Emerging Markets Bond Fund EUR A Acc"
+   ],
+   "propuesta": "RF Global Emergente",
+   "alternativa_sin_abreviar": "Renta Fija Global Emergente",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Global Emergente",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Multistrategy EUR",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "BlackRock Strategic Funds - BLK Systematic Style Factor Absolute Return Fund Class E2 Hedged EUR",
+    "Goldman Sachs Absolute Return Tracker Portfolio Other Currency Acc EUR-Hedged",
+    "Goldman Sachs Alternative Beta - P Cap EUR (hedged i)"
+   ],
+   "propuesta": "Alternativo Multiestrategia EUR",
+   "alternativa_sin_abreviar": "Alternativo Multiestrategia EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Alternativo Multiestrategia EUR",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Other Bond",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "Candriam Bonds Credit Alpha C EUR",
+    "MERCHRENTA, FI",
+    "Morgan Stanley Investment Funds - Euro Corporate Bond - Duration Hedged Fund A"
+   ],
+   "propuesta": "RF Otros",
+   "alternativa_sin_abreviar": "Renta Fija Otros",
+   "nota": "Nombre de Morningstar España, tal cual. Cajón del proveedor: es cierto y dice poco.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Otros",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund US Large-Cap Growth Equity",
+   "n": 4,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "AB SICAV I - American Growth Portfolio A EUR Acc",
+    "Brown Advisory US Equity Growth $ P",
+    "Franklin U.S. Opportunities Fund A(acc)EUR"
+   ],
+   "propuesta": "RV USA Cap. Grande Growth",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Growth",
+   "nota": "Hoy «Renta variable EE.UU.» da un solo nombre a Blend, Growth y Value. Nombre de Morningstar España, tal cual. «Growth» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable EE.UU.",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV USA Cap. Grande Growth",
+   "isin_con_ese_nombre": 4,
+   "normalizaciones": [],
+   "funde_con": [
+    "Large Growth"
+   ]
+  },
+  {
+   "original": "EAA Fund Asia-Pacific Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Allianz Global Investors Fund - Allianz Oriental Income AT EUR",
+    "Fidelity Funds - Pacific Fund A-Acc-EUR",
+    "Robeco Asia-Pacific Equities D €"
+   ],
+   "propuesta": "RV Asia Pacífico",
+   "alternativa_sin_abreviar": "Renta Variable Asia Pacífico",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia Pacífico",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Brazil Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "BNY Mellon Brazil Equity Fund EUR A Acc",
+    "DWS Invest Brazilian Equities LC",
+    "DWS Invest Brazilian Equities NC"
+   ],
+   "propuesta": "RV Brasil",
+   "alternativa_sin_abreviar": "Renta Variable Brasil",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Brasil",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Corporate Bond - Short Term",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Evli Short Corporate Bond B",
+    "M&G (Lux) Short Dated Corporate Bond Fund EUR A Acc",
+    "Nordea 1 - Low Duration European Covered Bond Fund BP EUR"
+   ],
+   "propuesta": "RF Deuda Corporativa Corto Plazo EUR",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa Corto Plazo EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Corporativa Corto Plazo EUR",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Moderate Allocation",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "DUX MIXTO VARIABLE, FI",
+    "GESCONSULT LEON VALORES  MIXTO FLEXIBLE, FI"
+   ],
+   "propuesta": "Mixtos Moderados EUR",
+   "alternativa_sin_abreviar": "Mixtos Moderados EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Moderados EUR",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Subordinated Bond",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Algebris UCITS Funds plc - Algebris Financial Credit Fund R EUR Acc",
+    "Amundi Funds - Global Subordinated Bond A EUR (C)",
+    "GESCONSULT OPORTUNIDAD RENTA FIJA, FI"
+   ],
+   "propuesta": "RF Deuda Subordinada EUR",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Subordinada EUR",
+   "nota": "Morningstar España escribe «EUR Deuda Subordinada». La clase delante y la divisa detrás, como todas las demás.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "EUR Deuda Subordinada",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [
+    "clase-delante"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Emerging Europe ex-Russia Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Schroder International Selection Fund Emerging Europe A Accumulation EUR",
+    "Schroder International Selection Fund Emerging Europe A1 Accumulation EUR",
+    "Schroder International Selection Fund Emerging Europe B Accumulation EUR"
+   ],
+   "propuesta": "RV Europa Emergente (ex-Rusia)",
+   "alternativa_sin_abreviar": "Renta Variable Europa Emergente (ex-Rusia)",
+   "nota": "Morningstar España escribe «RV Europa Emergente ex-Rusia». Lo que se excluye va entre paréntesis, como «(ex-Japón)».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Europa Emergente ex-Rusia",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [
+    "excluye"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe ex-UK Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "BlackRock Global Funds - Continental European Flexible Fund Class A2",
+    "BlackRock Global Funds - Continental European Flexible Fund E2"
+   ],
+   "propuesta": "RV Europa (ex-Reino Unido)",
+   "alternativa_sin_abreviar": "Renta Variable Europa (ex-Reino Unido)",
+   "nota": "Morningstar España escribe «RV Europa ex-RU». «RU» se escribe «Reino Unido»: un cliente no lee RU. Lo que se excluye va entre paréntesis, como «(ex-Japón)».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Europa ex-RU",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [
+    "reino-unido",
+    "excluye"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Diversified Bond - EUR Hedged",
+   "n": 3,
+   "n_base_vieja": 4,
+   "ejemplos": [
+    "PIMCO GIS Global Bond Fund E Class EUR (Hedged) Accumulation",
+    "PIMCO GIS Low Duration Opportunities Fund E Class EUR (Hedged) Accumulation",
+    "Vanguard Global Bond Index Fund EUR Hedged Acc"
+   ],
+   "propuesta": "RF Diversificada Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Diversificada Global - EUR Cubierto",
+   "nota": "Morningstar España escribe «RF Diversificada Global - Cubierto  EUR». Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Diversificada Global - Cubierto  EUR",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [
+    "espacios",
+    "cobertura"
+   ],
+   "funde_con": [
+    "RF Diversificada Global - Cubierto  EUR"
+   ]
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Corporate Bond",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Amundi Funds - Emerging Markets Corporate High Yield Bond A EUR (C)",
+    "Amundi Funds - Emerging Markets Corporate High Yield Bond C EUR (C)",
+    "Nordea 1 - Emerging Market Corporate Bond Fund BP EUR"
+   ],
+   "propuesta": "RF Deuda Corporativa Global Emergente",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa Global Emergente",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Corporativa Global Emergente",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Flexible Bond",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Carmignac Pf Global Bond E EUR Acc",
+    "DNCA Invest - Alpha Bonds A EUR",
+    "M&G (Lux) Global Macro Bond Fund EUR C Acc"
+   ],
+   "propuesta": "RF Flexible Global",
+   "alternativa_sin_abreviar": "Renta Fija Flexible Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Flexible Global",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Greater China Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "JPMorgan Funds - Greater China Fund D (acc) EUR",
+    "Schroder International Selection Fund Greater China A Accumulation EUR",
+    "UBS (Lux) Equity Fund - Greater China (USD) P-acc"
+   ],
+   "propuesta": "RV Gran China",
+   "alternativa_sin_abreviar": "Renta Variable Gran China",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Gran China",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Japan Small/Mid-Cap Equity",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Amundi Funds - Equity Japan Target A EUR (C)",
+    "BNP Paribas Funds Japan Small Cap Classic EUR Capitalisation",
+    "M&G (Lux) Japan Smaller Companies Fund EUR A Acc"
+   ],
+   "propuesta": "RV Japón Cap. Pequeña y Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Japón Cap. Pequeña y Mediana",
+   "nota": "Hoy «Renta variable Japón» es la zona correcta, pero el mismo nombre lo llevan los fondos que excluyen Japón. Morningstar España escribe «RV Japón Cap. Med/Peq». Una sola forma para Small/Mid: el proveedor usa tres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Japón Cap. Med/Peq",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [
+    "pequena-mediana"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Long/Short Equity - Europe",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "BNP Paribas Funds Euro Defensive Equity Classic Capitalisation",
+    "Carmignac Portfolio Long-Short European Equities E EUR Acc",
+    "Eleva Absolute Return Europe A1 (EUR) acc"
+   ],
+   "propuesta": "RV Long/Short Europa",
+   "alternativa_sin_abreviar": "Renta Variable Long/Short Europa",
+   "nota": "Nombre de Morningstar España, tal cual. «Long/Short» no se traduce. Empieza por RV y es un alternativo: así lo escribe el proveedor.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Long/Short Europa",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Biotechnology",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Candriam Equities L Biotechnology Class C EUR Cap",
+    "Candriam Equities L Biotechnology Class N USD Cap",
+    "Polar Capital Funds PLC - Biotechnology Fund R Inc"
+   ],
+   "propuesta": "RV Sector Biotecnología",
+   "alternativa_sin_abreviar": "Renta Variable Sector Biotecnología",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Biotecnología",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD Aggressive Allocation",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "First Eagle Amundi International Fund Class AE-C Shares",
+    "First Eagle Amundi International Fund Class FE-C Shares",
+    "First Eagle Amundi International Fund Class FU-C Shares"
+   ],
+   "propuesta": "Mixtos Agresivos USD",
+   "alternativa_sin_abreviar": "Mixtos Agresivos USD",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Agresivos USD",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "RV Global Cap. Grande Blend",
+   "n": 3,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "iShares Core MSCI World UCITS ETF USD (Acc)",
+    "iShares MSCI All Country World UCITS ETF USD Acc",
+    "iShares MSCI World UCITS ETF USD (Dist)"
+   ],
+   "propuesta": "RV Global Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Global Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Global Cap. Grande Blend",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Global Large-Cap Blend Equity"
+   ]
+  },
+  {
+   "original": "RV USA Cap. Grande Blend",
+   "n": 3,
+   "n_base_vieja": 3,
+   "ejemplos": [
+    "Invesco S&P 500 UCITS ETF",
+    "Vanguard S&P 500 UCITS ETF",
+    "iShares Core S&P 500 UCITS ETF USD (Acc)"
+   ],
+   "propuesta": "RV USA Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV USA Cap. Grande Blend",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund US Large-Cap Blend Equity",
+    "Large Blend"
+   ]
+  },
+  {
+   "original": "RV Zona Euro Cap. Grande",
+   "n": 3,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "iShares Core EURO STOXX 50 UCITS ETF (DE)",
+    "iShares VII PLC - iShares Core EURO STOXX 50 ETF EUR Acc",
+    "iShares VII PLC -iShares Core MSCI EMU UCITS ETF EUR (Acc)"
+   ],
+   "propuesta": "RV Zona Euro Cap. Grande",
+   "alternativa_sin_abreviar": "Renta Variable Zona Euro Cap. Grande",
+   "nota": "Nombre de Morningstar España, tal cual. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Zona Euro Cap. Grande",
+   "isin_con_ese_nombre": 3,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Eurozone Large-Cap Equity"
+   ]
+  },
+  {
+   "original": "EAA Fund EUR Bond - Long Term",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "AXA World Funds - Euro Long Duration Bonds E Capitalisation EUR",
+    "Goldman Sachs Euro Long Duration Bond - P Cap EUR"
+   ],
+   "propuesta": "RF Largo Plazo EUR",
+   "alternativa_sin_abreviar": "Renta Fija Largo Plazo EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Largo Plazo EUR",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Government Bond",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "DPAM B - Bonds Eur Government B EUR Cap",
+    "Generali Investments SICAV - Euro Bond Fund EX"
+   ],
+   "propuesta": "RF Deuda Pública EUR",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Pública EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Pública EUR",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Inflation-Linked Bond",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "M&G (Lux) European Inflation Linked Corporate Bond Fund EUR A Acc",
+    "Natixis AM Funds - Ostrum Euro Inflation R/A (EUR)"
+   ],
+   "propuesta": "RF Bonos Ligados Inflación EUR",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Ligados Inflación EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Bonos Ligados Inflación EUR",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund EUR Money Market - Short Term",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "JPMorgan Funds - EUR Money Market VNAV Fund D (acc) EUR",
+    "JPMorgan Liquidity Funds - EUR Liquidity LVNAV Fund A (acc.)"
+   ],
+   "propuesta": "Mercado Monetario Corto Plazo EUR",
+   "alternativa_sin_abreviar": "Mercado Monetario Corto Plazo EUR",
+   "nota": "Hoy da un solo nombre al monetario y al monetario a corto plazo. Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Monetario EUR",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mercado Monetario Corto Plazo EUR",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Eurozone Flex-Cap Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "INTERMONEY VARIABLE EURO, FI",
+    "Sycomore Fund SICAV - Sycomore Europe Happy@Work RC EUR"
+   ],
+   "propuesta": "RV Zona Euro Cap. Flexible",
+   "alternativa_sin_abreviar": "Renta Variable Zona Euro Cap. Flexible",
+   "nota": "Nombre de Morningstar España, tal cual. Flex-Cap: Morningstar España sí lo traduce, «Cap. Flexible».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Zona Euro Cap. Flexible",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Eurozone Small-Cap Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Lazard Small Caps Euro I",
+    "Sextant PME A"
+   ],
+   "propuesta": "RV Zona Euro Cap. Pequeña",
+   "alternativa_sin_abreviar": "Renta Variable Zona Euro Cap. Pequeña",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Zona Euro Cap. Pequeña",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Germany Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "DWS Deutschland LC",
+    "Fidelity Funds - Germany Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Alemania",
+   "alternativa_sin_abreviar": "Renta Variable Alemania",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Alemania",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Bond - Local Currency",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "BNY Mellon Emerging Markets Debt Local Currency Fund EUR A Acc",
+    "PIMCO GIS Emerging Local Bond Fund E Class EUR (Unhedged) Accumulation"
+   ],
+   "propuesta": "RF Global Emergente - Moneda Local",
+   "alternativa_sin_abreviar": "Renta Fija Global Emergente - Moneda Local",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Global Emergente - Moneda Local",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Corporate Bond - EUR Hedged",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Edmond de Rothschild Fund - Emerging Credit A EUR Hedged",
+    "IVO Funds - IVO Emerging Markets Corporate Debt EUR R Acc"
+   ],
+   "propuesta": "RF Deuda Corporativa Global Emergente - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa Global Emergente - EUR Cubierto",
+   "nota": "Morningstar España escribe «RF Deuda Corporativa Global Emergentes - Cubierto EUR». Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos. «Global Emergente» en singular, como en RV y RF.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Deuda Corporativa Global Emergentes - Cubierto EUR",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [
+    "cobertura",
+    "emergente"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Taiwan Large-Cap Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "JPMorgan Funds - Taiwan Fund A (dist) USD",
+    "JPMorgan Funds - Taiwan Fund D (acc) USD"
+   ],
+   "propuesta": "RV Taiwán Cap. Grande",
+   "alternativa_sin_abreviar": "Renta Variable Taiwán Cap. Grande",
+   "nota": "Nombre de Morningstar España, tal cual. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Taiwán Cap. Grande",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Thematic Equity Water",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Pictet-Water R EUR",
+    "Robeco Sustainable Water D-EUR Capitalisation"
+   ],
+   "propuesta": "RV Sector Agua",
+   "alternativa_sin_abreviar": "Renta Variable Sector Agua",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés es «Thematic Equity» desde su última clasificación; en español el proveedor sigue diciendo «RV Sector».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Agua",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund UK Flex-Cap Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Fidelity Funds - UK Special Situations Fund A-ACC-EUR",
+    "Liontrust GF Special Situations Fund A1 Acc EUR"
+   ],
+   "propuesta": "RV Reino Unido Cap. Flexible",
+   "alternativa_sin_abreviar": "Renta Variable Reino Unido Cap. Flexible",
+   "nota": "Morningstar España escribe «RV RU Cap. Flexible». «RU» se escribe «Reino Unido»: un cliente no lee RU. Flex-Cap: Morningstar España sí lo traduce, «Cap. Flexible».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV RU Cap. Flexible",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [
+    "reino-unido"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund US Small-Cap Equity",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Schroder International Selection Fund US Smaller Companies Impact B Accumulation USD",
+    "T. Rowe Price Funds SICAV - US Smaller Companies Equity Fund A (EUR)"
+   ],
+   "propuesta": "RV USA Cap. Pequeña",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Pequeña",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV USA Cap. Pequeña",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD Flexible Bond",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "AB FCP I - Mortgage Income Portfolio A2 EUR Acc",
+    "SIH FCP - Flexible Fixed Income USD"
+   ],
+   "propuesta": "RF Flexible USD",
+   "alternativa_sin_abreviar": "Renta Fija Flexible USD",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Flexible USD",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD High Yield Bond",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Nomura Funds Ireland plc - US High Yield Bond Fund Class A EUR",
+    "PIMCO GIS US High Yield Bond Fund E Class Accumulation"
+   ],
+   "propuesta": "RF Bonos Alto Rendimiento USD",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Alto Rendimiento USD",
+   "nota": "Nombre de Morningstar España, tal cual. High Yield: Morningstar España sí lo traduce, «Bonos Alto Rendimiento». Si lo prefieres sin traducir: «RF High Yield USD».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Bonos Alto Rendimiento USD",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "RV Asia (ex-Japón)",
+   "n": 2,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Amundi MSCI AC Asia Ex Japan UCITS ETF Acc",
+    "iShares VII PLC - iShares MSCI EM Asia ETF USD Acc"
+   ],
+   "propuesta": "RV Asia (ex-Japón)",
+   "alternativa_sin_abreviar": "Renta Variable Asia (ex-Japón)",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia (ex-Japón)",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Asia ex-Japan Equity"
+   ]
+  },
+  {
+   "original": "RV Otros",
+   "n": 2,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "VanEck Uranium and Nuclear Technologies UCITS ETF A USD Acc",
+    "iShares Energy Storage & Hydrogen UCITS ETF USD (Acc)"
+   ],
+   "propuesta": "RV Otros",
+   "alternativa_sin_abreviar": "Renta Variable Otros",
+   "nota": "Nombre de Morningstar España, tal cual. Cajón del proveedor: es cierto y dice poco.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Otros",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Other Equity"
+   ]
+  },
+  {
+   "original": "RV Sector Finanzas",
+   "n": 2,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Invesco EURO STOXX Optimised Banks UCITS ETF",
+    "iShares STOXX Europe 600 Banks UCITS ETF (DE) (Dist)"
+   ],
+   "propuesta": "RV Sector Finanzas",
+   "alternativa_sin_abreviar": "Renta Variable Sector Finanzas",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Finanzas",
+   "isin_con_ese_nombre": 2,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Sector Equity Financial Services"
+   ]
+  },
+  {
+   "original": "EAA Fund ASEAN Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Barings International Umbrella Fund - Barings ASEAN Frontiers Fund Class A EUR Inc"
+   ],
+   "propuesta": "RV ASEAN",
+   "alternativa_sin_abreviar": "Renta Variable ASEAN",
+   "nota": "",
+   "dudosa": true,
+   "motivo": "Me aparto del proveedor: en español dice «RV Asia» y en inglés ASEAN, que es solo una parte de Asia (Barings ASEAN Frontiers). «RV Asia» es correcto pero dice menos. Alternativa: «RV Asia».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "excepcion",
+   "nombre_del_proveedor": "RV Asia",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Asia ex-Japan Small/Mid-Cap Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Fidelity Funds - Asian Smaller Companies Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Asia (ex-Japón) Cap. Pequeña y Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Asia (ex-Japón) Cap. Pequeña y Mediana",
+   "nota": "HOY MAL: el informe de cliente lo imprime «Renta variable Japón», y es justo lo que este fondo excluye. Morningstar España escribe «RV Asia (ex-Japón) Cap. Peq/Mediana». Una sola forma para Small/Mid: el proveedor usa tres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Asia (ex-Japón) Cap. Peq/Mediana",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "pequena-mediana"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Asia-Pacific ex-Japan Equity Income",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Jupiter Asia Pacific Income Fund C USD Acc"
+   ],
+   "propuesta": "RV Asia Pacífico (ex-Japón) Alto Dividendo",
+   "alternativa_sin_abreviar": "Renta Variable Asia Pacífico (ex-Japón) Alto Dividendo",
+   "nota": "HOY MAL: el informe de cliente lo imprime «Renta variable Japón», y es justo lo que este fondo excluye. Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta variable Japón",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia Pacífico (ex-Japón) Alto Dividendo",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund China Bond",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "BlackRock Global Funds - China Bond Fund Class A2 USD"
+   ],
+   "propuesta": "RF China",
+   "alternativa_sin_abreviar": "Renta Fija China",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF China",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Commodities - Broad Basket",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Invesco Funds SICAV - Invesco Commodity Allocation Fund E (EUR)-Acc Shares"
+   ],
+   "propuesta": "Materias Primas - Diversificado",
+   "alternativa_sin_abreviar": "Materias Primas - Diversificado",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Materias Primas - Diversificado",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Commodities - Precious Metals",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Ofi Invest Precious Metals R"
+   ],
+   "propuesta": "Materias Primas - Metales Preciosos",
+   "alternativa_sin_abreviar": "Materias Primas - Metales Preciosos",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Materias Primas - Metales Preciosos",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "Materias Primas - Metales Preciosos"
+   ]
+  },
+  {
+   "original": "EAA Fund Convertible Bond - Europe",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Groupama Europe Convertible NC"
+   ],
+   "propuesta": "RF Convertibles Europa",
+   "alternativa_sin_abreviar": "Renta Fija Convertibles Europa",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": true,
+   "motivo": "Morningstar los llama RF y tu decisión 13 los clasifica como Mixto: en la misma ficha se leerá «Mixto» y «RF Convertibles». Alternativa: quitar el RF, «Convertibles Europa».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Convertibles Europa",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Convertible Bond - Global",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "M&G (Lux) Global Convertibles Fund EUR B Acc"
+   ],
+   "propuesta": "RF Convertibles Global",
+   "alternativa_sin_abreviar": "Renta Fija Convertibles Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": true,
+   "motivo": "Morningstar los llama RF y tu decisión 13 los clasifica como Mixto: en la misma ficha se leerá «Mixto» y «RF Convertibles». Alternativa: quitar el RF, «Convertibles Global».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Convertibles Global",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund DKK Bond",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Nordea 1 - Danish Covered Bond Fund BP EUR"
+   ],
+   "propuesta": "RF DKK",
+   "alternativa_sin_abreviar": "Renta Fija DKK",
+   "nota": "Nombre de Morningstar España, tal cual. DKK es la corona danesa: el proveedor deja el código.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF DKK",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Europe ex-UK Small/Mid-Cap Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Bellevue Funds (Lux) - Bellevue Entrepreneur Europe Small B EUR"
+   ],
+   "propuesta": "RV Europa (ex-Reino Unido) Cap. Pequeña y Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Europa (ex-Reino Unido) Cap. Pequeña y Mediana",
+   "nota": "Morningstar España escribe «RV Europa ex-RU Cap. Med/Peq». «RU» se escribe «Reino Unido»: un cliente no lee RU. Lo que se excluye va entre paréntesis, como «(ex-Japón)». Una sola forma para Small/Mid: el proveedor usa tres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Europa ex-RU Cap. Med/Peq",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "reino-unido",
+    "excluye",
+    "pequena-mediana"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund France Small/Mid-Cap Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Oddo BHF Avenir CR-EUR"
+   ],
+   "propuesta": "RV Francia Cap. Pequeña y Mediana",
+   "alternativa_sin_abreviar": "Renta Variable Francia Cap. Pequeña y Mediana",
+   "nota": "Morningstar España escribe «RV Francia Cap. Peq/Mediana». Una sola forma para Small/Mid: el proveedor usa tres.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV Francia Cap. Peq/Mediana",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "pequena-mediana"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Corporate Bond - EUR Hedged",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Man Funds plc - Man Global Investment Grade Opportunities D H EUR"
+   ],
+   "propuesta": "RF Deuda Corporativa Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa Global - EUR Cubierto",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Corporativa Global - EUR Cubierto",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Diversified Bond",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "PIMCO GIS Global Advantage Fund E Class EUR (Partially Hedged) Accumulation"
+   ],
+   "propuesta": "RF Diversificada Global",
+   "alternativa_sin_abreviar": "Renta Fija Diversificada Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Diversificada Global",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Emerging Markets Allocation",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Carmignac Portfolio Emerging Patrimoine E EUR Acc"
+   ],
+   "propuesta": "Mixtos Global Emergente",
+   "alternativa_sin_abreviar": "Mixtos Global Emergente",
+   "nota": "Morningstar España escribe «Mixtos Global Emergentes». «Global Emergente» en singular, como en RV y RF.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "Mixtos Global Emergentes ",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "espacios",
+    "emergente"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Flexible Bond - USD Hedged",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "MFS Meridian Funds - Global Opportunistic Bond Fund A1 EUR"
+   ],
+   "propuesta": "RF Flexible Global - USD Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Flexible Global - USD Cubierto",
+   "nota": "Morningstar España escribe «RF Flexible Global-USD Cubierto». Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Flexible Global-USD Cubierto",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "cobertura"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global High Yield Bond",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Robeco High Yield Bonds D €"
+   ],
+   "propuesta": "RF Bonos Alto Rendimiento Global",
+   "alternativa_sin_abreviar": "Renta Fija Bonos Alto Rendimiento Global",
+   "nota": "Hoy da un solo nombre al cubierto y al no cubierto. Nombre de Morningstar España, tal cual. High Yield: Morningstar España sí lo traduce, «Bonos Alto Rendimiento». Si lo prefieres sin traducir: «RF High Yield Global».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": true,
+   "traduccion_hoy": "Renta fija high yield global",
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Bonos Alto Rendimiento Global",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Global Short-Term Bond - EUR Hedged",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "UBS (Lux) Bond SICAV - Global Short Term Flexible (USD) (EUR hedged) P-acc"
+   ],
+   "propuesta": "RF Corto Plazo Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Corto Plazo Global - EUR Cubierto",
+   "nota": "",
+   "dudosa": true,
+   "motivo": "El proveedor no devuelve nombre en español para su único fondo (UBS Global Short Term Flexible). Compuesto con sus palabras: «Corto Plazo», «Global», «EUR Cubierto».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "excepcion",
+   "nombre_del_proveedor": null,
+   "isin_con_ese_nombre": 0,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Italy Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Fidelity Funds - Italy Fund A-Acc-EUR"
+   ],
+   "propuesta": "RV Italia",
+   "alternativa_sin_abreviar": "Renta Variable Italia",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Italia",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Other Allocation",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "GLOBAL ALLOCATION, FI"
+   ],
+   "propuesta": "Mixtos Otros",
+   "alternativa_sin_abreviar": "Mixtos Otros",
+   "nota": "Nombre de Morningstar España, tal cual. Cajón del proveedor: es cierto y dice poco.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Otros",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Property - Indirect Europe",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "DPAM B - Real Estate Europe Dividend Sustainable B EUR Cap"
+   ],
+   "propuesta": "Inmobiliario - Indirecto Europa",
+   "alternativa_sin_abreviar": "Inmobiliario - Indirecto Europa",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Inmobiliario - Indirecto Europa",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Property - Indirect Eurozone",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Oddo BHF Immobilier CR-EUR"
+   ],
+   "propuesta": "Inmobiliario - Indirecto Zona Euro",
+   "alternativa_sin_abreviar": "Inmobiliario - Indirecto Zona Euro",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Inmobiliario - Indirecto Zona Euro",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Property - Indirect Global",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Janus Henderson Horizon Global Property Equities Fund A2 EUR"
+   ],
+   "propuesta": "Inmobiliario - Indirecto Global",
+   "alternativa_sin_abreviar": "Inmobiliario - Indirecto Global",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Inmobiliario - Indirecto Global",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund RMB Bond - Onshore",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Eurizon Fund - Bond Aggregate RMB Class R EUR Acc"
+   ],
+   "propuesta": "RF RMB Local",
+   "alternativa_sin_abreviar": "Renta Fija RMB Local",
+   "nota": "Nombre de Morningstar España, tal cual. «Local» es su forma de decir onshore: renminbi del mercado interior.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF RMB Local",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Energy",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "BlackRock Global Funds - World Energy Fund E2"
+   ],
+   "propuesta": "RV Sector Energía",
+   "alternativa_sin_abreviar": "Renta Variable Sector Energía",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Energía",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Sector Equity Industrial Materials",
+   "n": 1,
+   "n_base_vieja": 2,
+   "ejemplos": [
+    "Fidelity Funds - Global Industrials Fund E-Acc-EUR"
+   ],
+   "propuesta": "RV Sector Materiales Industriales",
+   "alternativa_sin_abreviar": "Renta Variable Sector Materiales Industriales",
+   "nota": "",
+   "dudosa": true,
+   "motivo": "El proveedor no devuelve nombre en español para su único fondo (Fidelity Global Industrials). Traducción literal mía: no he visto cómo lo escribe Morningstar España.",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "excepcion",
+   "nombre_del_proveedor": null,
+   "isin_con_ese_nombre": 0,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Switzerland Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "AXA World Funds - Switzerland Equity A Capitalisation EUR"
+   ],
+   "propuesta": "RV Suiza",
+   "alternativa_sin_abreviar": "Renta Variable Suiza",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Suiza",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Systematic Trend EUR",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Candriam Diversified Futures Classique"
+   ],
+   "propuesta": "Alternativo Futuros Gestionados EUR",
+   "alternativa_sin_abreviar": "Alternativo Futuros Gestionados EUR",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés cambió de nombre a Systematic Trend; en español sigue «Futuros Gestionados», que es lo mismo.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Alternativo Futuros Gestionados EUR",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Target Date 2026 - 2030",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Fidelity Funds - Fidelity Target™ 2030 Fund A-Acc-EUR"
+   ],
+   "propuesta": "Fecha Objetivo 2026-2030",
+   "alternativa_sin_abreviar": "Fecha Objetivo 2026-2030",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Fecha Objetivo 2026-2030",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Target Date 2031 - 2035",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Fidelity Funds - Fidelity Target™ 2035 Fund A-Acc-EUR"
+   ],
+   "propuesta": "Fecha Objetivo 2031-2035",
+   "alternativa_sin_abreviar": "Fecha Objetivo 2031-2035",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Fecha Objetivo 2031-2035",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund Thematic Equity Food",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "PANDA AGRICULTURE & WATER FUND, FI"
+   ],
+   "propuesta": "RV Sector Agricultura",
+   "alternativa_sin_abreviar": "Renta Variable Sector Agricultura",
+   "nota": "Nombre de Morningstar España, tal cual. En inglés dice Food y en español Agricultura: es el mismo proveedor, y su único fondo es Panda Agriculture & Water. En inglés es «Thematic Equity» desde su última clasificación; en español el proveedor sigue diciendo «RV Sector».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Agricultura",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund UK Large-Cap Equity",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Invesco Funds - Invesco UK Equity Fund E Accumulation EUR"
+   ],
+   "propuesta": "RV Reino Unido Cap. Grande",
+   "alternativa_sin_abreviar": "Renta Variable Reino Unido Cap. Grande",
+   "nota": "Morningstar España escribe «RV RU Cap. Grande». «RU» se escribe «Reino Unido»: un cliente no lee RU. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV RU Cap. Grande",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "reino-unido"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund US Equity Income",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "DPAM B - Equities US Dividend Sustainable B EUR Cap"
+   ],
+   "propuesta": "RV USA Alto Dividendo",
+   "alternativa_sin_abreviar": "Renta Variable USA Alto Dividendo",
+   "nota": "Morningstar España escribe «RV USA Dividendo». «Alto Dividendo», como en Global, Europa y Asia Pacífico.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RV USA Dividendo",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "dividendo"
+   ],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD Cautious Allocation",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Amundi Funds - Global Multi-Asset Target Income A2 EUR (C)"
+   ],
+   "propuesta": "Mixtos Defensivos USD",
+   "alternativa_sin_abreviar": "Mixtos Defensivos USD",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Defensivos USD",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "EAA Fund USD Flexible Allocation",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "Amundi Funds - Pioneer Flexible Opportunities A EUR (C)"
+   ],
+   "propuesta": "Mixtos Flexibles USD",
+   "alternativa_sin_abreviar": "Mixtos Flexibles USD",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mixtos Flexibles USD",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "Large Blend",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "State Street® SPDR® S&P 500® ETF Trust"
+   ],
+   "propuesta": "RV USA Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Blend",
+   "nota": "«Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": true,
+   "motivo": "Morningstar da este nombre aun en español: es su clasificación de EE. UU., sin zona, para un ETF domiciliado allí (SPDR S&P 500). La zona la pongo yo, y por eso se junta con «RV USA Cap. Grande Blend».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "excepcion",
+   "nombre_del_proveedor": "Large Blend",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund US Large-Cap Blend Equity",
+    "RV USA Cap. Grande Blend"
+   ]
+  },
+  {
+   "original": "Large Growth",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Invesco QQQ Trust"
+   ],
+   "propuesta": "RV USA Cap. Grande Growth",
+   "alternativa_sin_abreviar": "Renta Variable USA Cap. Grande Growth",
+   "nota": "«Growth» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": true,
+   "motivo": "Morningstar da este nombre aun en español: es su clasificación de EE. UU., sin zona, para un ETF domiciliado allí (Invesco QQQ). La zona la pongo yo, y por eso se junta con «RV USA Cap. Grande Growth».",
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "excepcion",
+   "nombre_del_proveedor": "Large Growth",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund US Large-Cap Growth Equity"
+   ]
+  },
+  {
+   "original": "Materias Primas - Metales Preciosos",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "iShares Physical Gold ETC"
+   ],
+   "propuesta": "Materias Primas - Metales Preciosos",
+   "alternativa_sin_abreviar": "Materias Primas - Metales Preciosos",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Materias Primas - Metales Preciosos",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Commodities - Precious Metals"
+   ]
+  },
+  {
+   "original": "Mercado Monetario Otros",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C"
+   ],
+   "propuesta": "Mercado Monetario Otros",
+   "alternativa_sin_abreviar": "Mercado Monetario Otros",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "Mercado Monetario Otros",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": []
+  },
+  {
+   "original": "RF Deuda Corporativa EUR",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "State Street SPDR Bloomberg Euro Corporate Bond UCITS ETF"
+   ],
+   "propuesta": "RF Deuda Corporativa EUR",
+   "alternativa_sin_abreviar": "Renta Fija Deuda Corporativa EUR",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RF Deuda Corporativa EUR",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund EUR Corporate Bond"
+   ]
+  },
+  {
+   "original": "RF Diversificada Global - Cubierto  EUR",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged (Acc)"
+   ],
+   "propuesta": "RF Diversificada Global - EUR Cubierto",
+   "alternativa_sin_abreviar": "Renta Fija Diversificada Global - EUR Cubierto",
+   "nota": "Morningstar España escribe «RF Diversificada Global - Cubierto  EUR». Cobertura, siempre « - EUR Cubierto»: es la forma del proveedor en 29 de los 34 fondos cubiertos.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor_normalizado",
+   "nombre_del_proveedor": "RF Diversificada Global - Cubierto  EUR",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [
+    "espacios",
+    "cobertura"
+   ],
+   "funde_con": [
+    "EAA Fund Global Diversified Bond - EUR Hedged"
+   ]
+  },
+  {
+   "original": "RV Asia Pacífico (ex-Japón)",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Amundi MSCI AC Asia Pacific Ex Japan UCITS ETF Acc"
+   ],
+   "propuesta": "RV Asia Pacífico (ex-Japón)",
+   "alternativa_sin_abreviar": "Renta Variable Asia Pacífico (ex-Japón)",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Asia Pacífico (ex-Japón)",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Asia-Pacific ex-Japan Equity"
+   ]
+  },
+  {
+   "original": "RV España",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "ACCION IBEX 35 ETF, FI COTIZADO ARMONIZADO"
+   ],
+   "propuesta": "RV España",
+   "alternativa_sin_abreviar": "Renta Variable España",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV España",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Spain Equity"
+   ]
+  },
+  {
+   "original": "RV Europa Cap. Grande Blend",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Amundi Core Stoxx Europe 600 UCITS ETF Acc"
+   ],
+   "propuesta": "RV Europa Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Grande Blend",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Europe Large-Cap Blend Equity"
+   ]
+  },
+  {
+   "original": "RV Europa Cap. Pequeña",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "State Street SPDR® MSCI Europe Small Cap UCITS ETF"
+   ],
+   "propuesta": "RV Europa Cap. Pequeña",
+   "alternativa_sin_abreviar": "Renta Variable Europa Cap. Pequeña",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Europa Cap. Pequeña",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Europe Small-Cap Equity"
+   ]
+  },
+  {
+   "original": "RV Japón Cap. Grande Blend",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Amundi Index Solutions - Amundi Japan Topix UCITS ETF-C EUR"
+   ],
+   "propuesta": "RV Japón Cap. Grande Blend",
+   "alternativa_sin_abreviar": "Renta Variable Japón Cap. Grande Blend",
+   "nota": "Nombre de Morningstar España, tal cual. «Blend» no se traduce: así lo deja Morningstar España. Large Cap: Morningstar España sí lo traduce, «Cap. Grande».",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Japón Cap. Grande Blend",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Japan Large-Cap Blend Equity"
+   ]
+  },
+  {
+   "original": "RV Latinoamérica",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "iShares MSCI EM Latin America UCITS ETF USD (Dist)"
+   ],
+   "propuesta": "RV Latinoamérica",
+   "alternativa_sin_abreviar": "Renta Variable Latinoamérica",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Latinoamérica",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Latin America Equity"
+   ]
+  },
+  {
+   "original": "RV Sector Recursos Naturales",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "VanEck Rare Earth and Strategic Metals UCITS ETF A USD Acc"
+   ],
+   "propuesta": "RV Sector Recursos Naturales",
+   "alternativa_sin_abreviar": "Renta Variable Sector Recursos Naturales",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Recursos Naturales",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Sector Equity Natural Resources"
+   ]
+  },
+  {
+   "original": "RV Sector Salud",
+   "n": 1,
+   "n_base_vieja": 0,
+   "ejemplos": [
+    "Xtrackers MSCI World Health Care UCITS ETF 1C"
+   ],
+   "propuesta": "RV Sector Salud",
+   "alternativa_sin_abreviar": "Renta Variable Sector Salud",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Salud",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Sector Equity Healthcare"
+   ]
+  },
+  {
+   "original": "RV Sector Tecnología",
+   "n": 1,
+   "n_base_vieja": 1,
+   "ejemplos": [
+    "iShares AI Infrastructure UCITS ETF USD (Acc)"
+   ],
+   "propuesta": "RV Sector Tecnología",
+   "alternativa_sin_abreviar": "Renta Variable Sector Tecnología",
+   "nota": "Nombre de Morningstar España, tal cual.",
+   "dudosa": false,
+   "motivo": null,
+   "ya_traducida": false,
+   "traduccion_hoy": null,
+   "origen": "proveedor",
+   "nombre_del_proveedor": "RV Sector Tecnología",
+   "isin_con_ese_nombre": 1,
+   "normalizaciones": [],
+   "funde_con": [
+    "EAA Fund Sector Equity Technology"
+   ]
+  }
+ ],
+ "solo_base_vieja": [
+  {
+   "original": "accion",
+   "n_base_vieja": 312,
+   "propuesta": "Acción",
+   "nota": "No es una categoría: la base vieja la escribe en sus 312 acciones. `categoriaLegible` ya la escribe bien.",
+   "ejemplos": [
+    "3M CO",
+    "ABBOTT LABORATORIES",
+    "ABBVIE"
+   ]
+  },
+  {
+   "original": "ETF",
+   "n_base_vieja": 8,
+   "propuesta": "ETF",
+   "nota": "No es una categoría: es el producto, en 8 ETF de la base vieja. Hoy el informe de cliente lo imprime «Etf». En la base nueva llevan su categoría.",
+   "ejemplos": [
+    "Accion IBEX 35 Cotizado Armonizado FI",
+    "Invesco QQQ Trust",
+    "SPDR S&P 500 ETF Trust"
+   ]
+  },
+  {
+   "original": "EAA Fund Sector Equity Alternative Energy",
+   "n_base_vieja": 2,
+   "propuesta": "RV Sector Energía Alternativa",
+   "nota": "Nombre de Morningstar España para ese mismo ISIN.",
+   "ejemplos": [
+    "BlackRock Global Funds - Sustainable Energy Fund A2",
+    "BlackRock Global Funds - Sustainable Energy Fund E2"
+   ]
+  },
+  {
+   "original": "RF Ultra Corto Plazo EUR",
+   "n_base_vieja": 2,
+   "propuesta": "RF Ultra Corto Plazo EUR",
+   "nota": "Nombre de Morningstar España para ese mismo ISIN.",
+   "ejemplos": [
+    "MARCH PAGARES, FI",
+    "MARCH RENTA FIJA CORTO PLAZO, FI"
+   ]
+  },
+  {
+   "original": "EAA Fund Sector Equity Ecology",
+   "n_base_vieja": 1,
+   "propuesta": "RV Sector Ecología",
+   "nota": "Nombre de Morningstar España para ese mismo ISIN.",
+   "ejemplos": [
+    "Amundi Funds - Global Equity Responsible C EUR (C)"
+   ]
+  },
+  {
+   "original": "Global",
+   "n_base_vieja": 1,
+   "propuesta": "Global",
+   "nota": "Vocación que trae un solo fondo de la base vieja (River Patrimonio). En la base nueva, «EAA Fund EUR Moderate Allocation - Global». No se traduce.",
+   "ejemplos": [
+    "RIVER PATRIMONIO, FI"
+   ]
+  },
+  {
+   "original": "Renta variable Asia ex Japon",
+   "n_base_vieja": 1,
+   "propuesta": "RV Asia (ex-Japón)",
+   "nota": "Nombre de Morningstar España para ese mismo ISIN.",
+   "ejemplos": [
+    "Robeco Asian Stars Equities D EUR"
+   ]
+  }
+ ]
+}

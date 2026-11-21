@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "noEmit": true
+  },
+  "include": ["src", "scripts", "tests", "contracts"],
+  "exclude": ["node_modules", "dist", "data", "imports", "runs"]
+}

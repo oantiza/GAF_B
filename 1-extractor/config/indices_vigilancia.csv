@@ -1,0 +1,20 @@
+benchmark,variante,indice,nota
+MSCI Europe,NR,,MSCI no esta en EODHD
+MSCI World,NR,,MSCI no esta en EODHD
+MSCI EM,NR,,MSCI no esta en EODHD
+MSCI ACWI,NR,,MSCI no esta en EODHD
+MSCI AC Asia Ex Japan,NR,,MSCI no esta en EODHD
+MSCI Europe Small Cap,NR,,MSCI no esta en EODHD
+MSCI EM Latin America 10/40,NR,,MSCI no esta en EODHD
+MSCI EM Asia,NR,,MSCI no esta en EODHD
+TOPIX,TR,,TOPXDV lleva dividendos pero el catalogo no dice si bruto o neto; sin verificar con la metodologia de JPX no se usa
+MSCI EMU,NR,,MSCI no esta en EODHD
+MSCI AC Asia Pac Ex JPN,NR,,MSCI no esta en EODHD
+MSCI World/Health Care,NR,,MSCI no esta en EODHD
+Bloomberg Euro Corp,TR,,"de Bloomberg, EODHD solo tiene los de materias primas"
+STOXX Europe 600,NR,SXXR,"STXE 600 NRT en el catalogo, EUR, desde 1991; INFORME_CRITERIO_INDICE_ETF_2026-11-07.md"
+Bloomberg Euro Agg Bond,TR,,"de Bloomberg, EODHD solo tiene los de materias primas"
+S&P 500,NR,SPXNTR,"S&P 500 Net TR, USD convertida con el BCE, desde 1996; INFORME_CRITERIO_INDICE_ETF_2026-11-07.md"
+MSCI India,NR,,MSCI no esta en EODHD
+EURO STOXX 50,NR,SX5T,"ESTX 50 EUR NRt, EUR, desde 1986, hueco 12-2012..02-2013 fuera de las ventanas; INFORME_CRITERIO_INDICE_ETF_2026-11-07.md"
+MSCI EMU Small Cap,NR,,MSCI no esta en EODHD

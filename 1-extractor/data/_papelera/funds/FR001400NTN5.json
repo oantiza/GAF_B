@@ -1,0 +1,1806 @@
+{
+  "identificacion": {
+    "nombre": "Lazard High Yield 2029 EC EUR",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Fixed Term Bond",
+    "fecha_lanzamiento_clase": "2024-03-20",
+    "gestora": "Lazard",
+    "fecha_lanzamiento_fondo": "2024-03-20",
+    "clase_activo": "Fixed Income",
+    "indice_benchmark_oficial": "Not Benchmarked",
+    "inversion_minima_inicial": 1.0,
+    "lei": "969500I90M3FXLPFGR69",
+    "nombre_legal_lei": "LAZARD HIGH YIELD 2029",
+    "fecha_constitucion": "2024-02-25",
+    "estado_lei": "ISSUED",
+    "marco_legal": "OPCVM",
+    "gestora_legal": "LAZARD FRERES GESTION",
+    "gestora_lei": "969500X727PNIAL33P77",
+    "nombre_legal_registro": "LAZARD HIGH YIELD 2029",
+    "depositario": "CACEIS Bank",
+    "fecha_creacion_compartimento": "2024-02-02",
+    "fecha_autorizacion_amf": "2024-02-20",
+    "numero_autorizacion_amf": "SCV20240009",
+    "clasificacion_amf": "Obligations et/ou titres de créances libellés en euros",
+    "forma_juridica": "SICAV - Société d'investissement à capital variable",
+    "clase_legal": "EC EUR",
+    "politica_distribucion": "acumulacion",
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "FRA",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "costes": {
+    "comision_suscripcion_max_pct": 5.0,
+    "comision_reembolso_max_pct": 0.0,
+    "ter_pct": 0.5,
+    "comision_gestion_max_pct": 0.485,
+    "mifid_emt_exante": {
+      "corrientes_pct": 0.479,
+      "transaccion_pct": 0.364,
+      "incidentales_pct": 0.0,
+      "fecha": "2025-09-30"
+    },
+    "ter_vs_categoria": {
+      "mediana_categoria_pct": 0.89,
+      "nivel": 2
+    }
+  },
+  "valoracion": {
+    "vl": 1148.61,
+    "vl_fecha": "2026-07-09T05:00:00.000",
+    "vl_divisa": "EUR",
+    "patrimonio_fondo_meur": 190.7,
+    "patrimonio_fecha": "2026-07-09",
+    "patrimonio_divisa": "EUR"
+  },
+  "rentabilidad": {
+    "trailing_pct": {
+      "1m": {
+        "fondo": 0.59383
+      },
+      "3m": {
+        "fondo": 3.31321
+      },
+      "6m": {
+        "fondo": 2.165704
+      },
+      "ytd": {
+        "fondo": 2.1657
+      },
+      "1a": {
+        "fondo": 4.8833
+      },
+      "desde_lanzamiento_anualizada": {
+        "fondo": 6.542572
+      }
+    },
+    "fecha_dato": "2026-06-30",
+    "por_año_natural": {
+      "2025": {
+        "fondo": 5.52241
+      }
+    }
+  },
+  "riesgo": {
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 3.126
+      }
+    },
+    "fecha_dato": "2026-06-30",
+    "sharpe": {
+      "1a": {
+        "fondo": 0.936
+      }
+    },
+    "srri_1a7": 3,
+    "sri_kid_1a7": 3
+  },
+  "cartera": {
+    "renta_fija": {
+      "calidad_media": "BB-",
+      "duracion_efectiva": 1.85881,
+      "sectores_pct": {
+        "gobierno": -0.02656,
+        "corporativa": 99.46633,
+        "liquidez": 0.56023
+      },
+      "duracion_modificada": 1.85881,
+      "vencimiento_efectivo": 2.93522,
+      "ytm_pct": 4.91267,
+      "cupon_medio_pct": 5.87748,
+      "precio_medio": 102.70371,
+      "fecha": "2026-06-30T05:00:00.000",
+      "vencimientos_pct": {
+        "1_3": 39.47247,
+        "3_5": 21.23137,
+        "5_7": 0.00031,
+        "7_10": 0.00117,
+        "10_15": 0.00047,
+        "15_20": 0.00027,
+        "20_30": 0.002,
+        "mas_30": 4.50157
+      },
+      "ytw_distribucion_pct": {
+        "1_3": 4.02,
+        "3_5": 75.458,
+        "desconocido": 1.504,
+        "negativo": 3.098,
+        "0_1": 0.757,
+        "5_7": 10.23,
+        "7_10": 3.54,
+        "10_20": 1.393,
+        "mas_20": 0.0
+      },
+      "calidad_crediticia_pct": {
+        "AAA": 0.0,
+        "AA": 0.0,
+        "A": 0.0,
+        "BBB": 7.35479,
+        "BB": 70.35465,
+        "B": 22.29056,
+        "inferior_B": 0.0,
+        "sin_rating": 0.0
+      },
+      "pct_investment_grade": 7.35,
+      "pct_high_yield": 92.65
+    },
+    "fecha": "2026-06-30",
+    "num_posiciones": 96,
+    "num_posiciones_rf": 92,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 99.39109,
+        "largo": 99.50194,
+        "corto": 0.11085
+      },
+      "convertibles": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": 0.60887,
+        "largo": 1.44003,
+        "corto": 0.83116
+      },
+      "otros": {
+        "neto": 5e-05,
+        "largo": 5e-05,
+        "corto": 0.0
+      }
+    },
+    "paises_pct": {
+      "FRA": 29.1858,
+      "DEU": 16.9682,
+      "ESP": 9.4323,
+      "GBR": 8.8361,
+      "NLD": 7.8492,
+      "USA": 7.1655,
+      "ITA": 4.3029,
+      "PRT": 3.0525,
+      "IRL": 2.0291,
+      "SWE": 1.9186,
+      "BEL": 1.6379,
+      "DNK": 1.4891,
+      "MEX": 1.4557,
+      "CHE": 1.0136,
+      "ISR": 1.0071,
+      "POL": 0.971,
+      "AUT": 0.8424,
+      "JPN": 0.8402
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "EDP SA 1.875%",
+        "isin": "PTEDPYOM0020",
+        "peso_pct": 2.55046,
+        "sector": null,
+        "pais": "PRT",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Societe Generale S.A. 7.875%",
+        "isin": "FR001400F877",
+        "peso_pct": 2.31872,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "BNP Paribas SA 6.875%",
+        "isin": "FR001400BBL2",
+        "peso_pct": 2.02708,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Amber Finco PLC 6.625%",
+        "isin": "XS2857868942",
+        "peso_pct": 2.00573,
+        "sector": null,
+        "pais": "GBR",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Volkswagen International Finance N.V. 3.875%",
+        "isin": "XS2187689380",
+        "peso_pct": 2.00366,
+        "sector": null,
+        "pais": "DEU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Accor SA 7.25%",
+        "isin": "FR001400L5X1",
+        "peso_pct": 1.99846,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Progroup AG 5.125%",
+        "isin": "DE000A383CQ2",
+        "peso_pct": 1.99613,
+        "sector": null,
+        "pais": "DEU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Alstom SA 5.868%",
+        "isin": "FR001400Q7G7",
+        "peso_pct": 1.99065,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Forvia SE 5.125%",
+        "isin": "XS2774391580",
+        "peso_pct": 1.98843,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Banco Santander SA 7%",
+        "isin": "XS2817323749",
+        "peso_pct": 1.92949,
+        "sector": null,
+        "pais": "ESP",
+        "divisa": "EUR"
+      }
+    ],
+    "posiciones": [
+      {
+        "nombre": "EDP SA 1.875%",
+        "isin": "PTEDPYOM0020",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.55046,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "PRT"
+      },
+      {
+        "nombre": "Societe Generale S.A. 7.875%",
+        "isin": "FR001400F877",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.31872,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "BNP Paribas SA 6.875%",
+        "isin": "FR001400BBL2",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.02708,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Amber Finco PLC 6.625%",
+        "isin": "XS2857868942",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.00573,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Volkswagen International Finance N.V. 3.875%",
+        "isin": "XS2187689380",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.00366,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Accor SA 7.25%",
+        "isin": "FR001400L5X1",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.99846,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Progroup AG 5.125%",
+        "isin": "DE000A383CQ2",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.99613,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Alstom SA 5.868%",
+        "isin": "FR001400Q7G7",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.99065,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Forvia SE 5.125%",
+        "isin": "XS2774391580",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.98843,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Banco Santander SA 7%",
+        "isin": "XS2817323749",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.92949,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "V.F. Corp 4.25%",
+        "isin": "XS2592659671",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.92437,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "TUI AG 5.875%",
+        "isin": "XS2776523669",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.91606,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Intesa Sanpaolo S.p.A. 9.125%",
+        "isin": "XS2678939427",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.83529,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Telefonica Europe B V 2.376%",
+        "isin": "XS2293060658",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.8063,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Roquette Freres 5.494%",
+        "isin": "FR001400U3Q9",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.72585,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "ZF Europe Finance B.V. 6.125%",
+        "isin": "XS2681541327",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.65259,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Banco de Sabadell SA 9.375%",
+        "isin": "XS2471862040",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.64122,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Caixabank S.A. 8.25%",
+        "isin": "ES0840609046",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.61971,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Credit Agricole S.A. 6.5%",
+        "isin": "FR001400N2U2",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.55023,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Avis Budget Finance plc 7%",
+        "isin": "XS2769426623",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.53226,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Q-Park Holding I B.V. 5.125%",
+        "isin": "XS2747580319",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.52149,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "INEOS Finance PLC 6.375%",
+        "isin": "XS2762276967",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.5158,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Azelis Finance NV 4.75%",
+        "isin": "BE6355549120",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.51207,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "BEL"
+      },
+      {
+        "nombre": "Loxam SAS 6.375%",
+        "isin": "XS2732357525",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.50789,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Schaeffler AG 4.75%",
+        "isin": "DE000A3823S1",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.50308,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Cooperatieve Rabobank U.A. 4.875%",
+        "isin": "XS2456432413",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.4908,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Orsted A/S 5.125%",
+        "isin": "XS2778385240",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.48004,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DNK"
+      },
+      {
+        "nombre": "Boels Topholding Bv 6.25%",
+        "isin": "XS2679767082",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47816,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "TUI Cruises GmbH 6.25%",
+        "isin": "XS2804599509",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.46943,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Nemak Sab De CV 2.25%",
+        "isin": "XS2362994068",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.44688,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "AIB Group PLC 7.125%",
+        "isin": "XS2808268390",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.3688,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "IRL"
+      },
+      {
+        "nombre": "Maya S.A.S. 5.625%",
+        "isin": "XS2397781944",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.27914,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Ceconomy AG 6.25%",
+        "isin": "XS2854329104",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.27828,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Deutsche Bank AG 8.125%",
+        "isin": "DE000A383JS3",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.27136,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Commerzbank AG 6.5%",
+        "isin": "DE000CB94MF6",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.24012,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Wintershall Dea Finance 2 B.V. 3%",
+        "isin": "XS2286041947",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.23848,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Holding D' Infrastructures Des Metiers De L' Environnement SAS HIME 4.875%",
+        "isin": "XS2918553855",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.21755,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Zegona Finance PLC 6.75%",
+        "isin": "XS2859406139",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.20575,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Asmodee Group AB 5.75%",
+        "isin": "XS2954187378",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.19272,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Eramet S.A. 6.5%",
+        "isin": "FR001400QC85",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.1323,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Electricite de France SA 5.125%",
+        "isin": "FR001400SMS8",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.10517,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Essendi SA 6.375%",
+        "isin": "XS2900445375",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.09997,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "OI European Group B.V. 5.25%",
+        "isin": "XS2825597656",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.01613,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "United Group B.V. 4.625%",
+        "isin": "XS2010027881",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.01353,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Flora Food Management BV 6.875%",
+        "isin": "XS2848926239",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.00875,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Sunrise Holdco IV BV 3.875%",
+        "isin": "XS1629969327",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.00741,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Teva Pharmaceutical Finance Netherlands II B.V 7.375%",
+        "isin": "XS2592804434",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.00094,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ISR"
+      },
+      {
+        "nombre": "Heimstaden Bostad AB 6.25%",
+        "isin": "XS2930588657",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.99817,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "CMA CGM SA 5.5%",
+        "isin": "XS2852136816",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.99334,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Synthos SA 2.5%",
+        "isin": "XS2348767836",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.9651,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "POL"
+      },
+      {
+        "nombre": "Celanese US Holdings Llc 6.337%",
+        "isin": "XS2497520887",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.96419,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "HT Troplast GmbH 9.375%",
+        "isin": "XS2649707846",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.95248,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Cirsa Finance International S.a.r.l. 6.5%",
+        "isin": "XS2760863329",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.9333,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Techem Verwaltungsgesellschaft 675 mbh 5.375%",
+        "isin": "XS2767965853",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.92058,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Abertis Infraestructuras Finance B.V. 4.87%",
+        "isin": "XS2937255193",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.92015,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Verisure Midholding AB (publ) 5.25%",
+        "isin": "XS2287912450",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.90876,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Fnac Darty SA 6%",
+        "isin": "XS2778270772",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.87752,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Picard Groupe S.A.S. 6.375%",
+        "isin": "XS2852970016",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.86466,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Nissan Motor Co Ltd. 5.25%",
+        "isin": "XS2999659704",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.83508,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "New Immo Holding SA. 6%",
+        "isin": "FR001400KWR6",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.82182,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "VZ Vendor Financing II BV 2.875%",
+        "isin": "XS2272845798",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.81659,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Mobilux Finance SAS 4.25%",
+        "isin": "XS2357737910",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.79968,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Flos B&B Italia S.p.A. 10%",
+        "isin": "XS2719293826",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.79911,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Rossini S.a.r.l. 6.75%",
+        "isin": "XS2854303729",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.75922,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "OPmobility 4.875%",
+        "isin": "FR001400OLD1",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.70863,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Deutsche Bank AG 6.75%",
+        "isin": "DE000DL19WG7",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.66071,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Eircom Finance Designated Activity Company 5.75%",
+        "isin": "XS2849598417",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.6479,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "IRL"
+      },
+      {
+        "nombre": "Pinnacle Bidco PLC 8.25%",
+        "isin": "XS2696090286",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.616,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "ams OSRAM AG 10.5%",
+        "isin": "XS2724532333",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.60506,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "AUT"
+      },
+      {
+        "nombre": "Banijay Entertainment S.A.S. 7%",
+        "isin": "XS2690055996",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59984,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "BPER Banca S.p.A. 8.375%",
+        "isin": "IT0005579492",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59028,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "INEOS Quattro Finance 2 PLC 8.5%",
+        "isin": "XS2719090636",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.58589,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Electricite de France SA 7.5%",
+        "isin": "FR001400EFQ6",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.58483,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Grifols S.A. 3.875%",
+        "isin": "XS2393001891",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.52475,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Transportes Aereos Portugueses SGPS SA 5.125%",
+        "isin": "PTTAPFOM0003",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.48345,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "PRT"
+      },
+      {
+        "nombre": "Versuni Group BV 3.125%",
+        "isin": "XS2355515516",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47212,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Vodafone Group PLC 6.5%",
+        "isin": "XS2630490717",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47106,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Playtech PLC 5.875%",
+        "isin": "XS2641928036",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.42659,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Energizer Gamma Acquisition B.V. 3.5%",
+        "isin": "XS2353416386",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.41036,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "BCP V Modular Services Finance II PLC 4.75%",
+        "isin": "XS2397447025",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39878,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Kronos International Inc 9.5%",
+        "isin": "XS2763521643",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.37181,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Constellium SE 3.125%",
+        "isin": "XS2335148024",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.36591,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Carnival UK Ltd. 1%",
+        "isin": "XS2066744231",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3445,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Dana Financing Luxembourg S.A.R.L. 3%",
+        "isin": "XS2345050251",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3329,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Synthomer PLC 7.375%",
+        "isin": "XS2805249641",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32275,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Erste Group Bank AG 8.5%",
+        "isin": "AT0000A36XD5",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.23205,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "AUT"
+      },
+      {
+        "nombre": "SCIL IV LLC / SCIL USA Holdings LLC 9.5%",
+        "isin": "XS2644942737",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.22535,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Valeo SE 5.875%",
+        "isin": "FR001400L9Q7",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.22376,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Telecom Italia S.p.A. 7.875%",
+        "isin": "XS2637954582",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1748,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Banco BPM S.p.A. 9.5%",
+        "isin": "IT0005571309",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.11797,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "House Of HR Group BV 9%",
+        "isin": "XS2541618299",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1154,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "BEL"
+      },
+      {
+        "nombre": "Air France KLM 4.625%",
+        "isin": "FR001400Q6Z9",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.10836,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Lazard Euro Short Term Money Market C",
+        "isin": "FR0011291657",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.95613,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "CACEIS Bank",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.35716,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "LiquditÃ©s Ã recevoir (PICARD GROUPE 6.375% 01-07-29)",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.02659,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Souscriptions/payer",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.02465,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -7e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0002,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00026,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00043,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00059,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00081,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00153,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00165,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov-Fr Fonc et Serv",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00305,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Admi",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00446,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Prov com depositaire",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00803,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00816,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Rachats a payer",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0089,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01271,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01357,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Frais de Gest. Fixe",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01904,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Ach rglt diffÃ©rÃ©",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.74737,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      }
+    ],
+    "divisas_pct": {
+      "EUR": 100.0
+    }
+  },
+  "esg": {
+    "globos_sostenibilidad": 3,
+    "fecha": "2025-10-31",
+    "sustainability_score": 18.75012,
+    "score_ambiental": 3.85,
+    "score_social": 5.63,
+    "score_gobernanza": 2.84,
+    "cobertura_cartera_pct": 74.21525,
+    "carbono": {
+      "carbon_risk_score": 7.57,
+      "clasificacion": "Low Risk",
+      "score_exposicion": 22.36,
+      "score_gestion": 14.79
+    }
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "meta": {
+    "sec_id_morningstar": "F00001K66F",
+    "geco_id": "c79224",
+    "geco_clase_id": "sh75727",
+    "isin": "FR001400NTN5",
+    "actualizado": "2026-09-05T04:04:03+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "morningstar_lt",
+        "gleif",
+        "amf_geco",
+        "config_csv"
+      ],
+      "costes": [
+        "morningstar_lt"
+      ],
+      "valoracion": [
+        "morningstar_lt"
+      ],
+      "rentabilidad": [
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "morningstar_lt"
+      ],
+      "cartera": [
+        "morningstar_lt"
+      ],
+      "esg": [
+        "morningstar_lt"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "meta": [
+        "morningstar_lt",
+        "amf_geco"
+      ],
+      "gestion": [
+        "morningstar_lt"
+      ],
+      "documentos": [
+        "morningstar_lt"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:ETFsnapshot",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rf": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.AUT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.BEL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CHE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DEU": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DNK": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ESP": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.FRA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.GBR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.IRL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ISR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ITA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.JPN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.MEX": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.NLD": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.POL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.PRT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.SWE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.USA": "morningstar_lt:ETFsnapshot",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.renta_fija.calidad_crediticia_pct.A": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.AA": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.AAA": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.B": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.BB": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.BBB": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.inferior_B": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.sin_rating": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_media": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.cupon_medio_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.duracion_efectiva": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.duracion_modificada": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.pct_high_yield": "derivado:derivados",
+      "cartera.renta_fija.pct_investment_grade": "derivado:derivados",
+      "cartera.renta_fija.precio_medio": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.corporativa": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.gobierno": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.vencimiento_efectivo": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.vencimientos_pct.10_15": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.15_20": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.1_3": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.20_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.3_5": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.5_7": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.7_10": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.mas_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.ytm_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.ytw_distribucion_pct.0_1": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.10_20": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.1_3": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.3_5": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.5_7": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.7_10": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.desconocido": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.mas_20": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.negativo": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.top10_posiciones": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_reembolso_max_pct": "morningstar_lt:screener",
+      "costes.comision_suscripcion_max_pct": "morningstar_lt:screener",
+      "costes.mifid_emt_exante.corrientes_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.fecha": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.incidentales_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.transaccion_pct": "morningstar_lt:Mifid",
+      "costes.ter_pct": "morningstar_lt:ETFsnapshot",
+      "costes.ter_vs_categoria.mediana_categoria_pct": "morningstar_lt:sal_feeLevel",
+      "costes.ter_vs_categoria.nivel": "morningstar_lt:sal_feeLevel",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "documentos.n": "morningstar_lt:MFsnapshot",
+      "documentos.ultima_fecha": "morningstar_lt:MFsnapshot",
+      "esg.carbono.carbon_risk_score": "morningstar_lt:sustainability",
+      "esg.carbono.clasificacion": "morningstar_lt:sustainability",
+      "esg.carbono.score_exposicion": "morningstar_lt:sustainability",
+      "esg.carbono.score_gestion": "morningstar_lt:sustainability",
+      "esg.cobertura_cartera_pct": "morningstar_lt:sustainability",
+      "esg.fecha": "morningstar_lt:sustainability",
+      "esg.globos_sostenibilidad": "morningstar_lt:sustainability",
+      "esg.score_ambiental": "morningstar_lt:sustainability",
+      "esg.score_gobernanza": "morningstar_lt:sustainability",
+      "esg.score_social": "morningstar_lt:sustainability",
+      "esg.sustainability_score": "morningstar_lt:sustainability",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "gestion.gestores": "morningstar_lt:ETFsnapshot",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_legal": "amf_geco:clase",
+      "identificacion.clasificacion_amf": "amf_geco:compartimento",
+      "identificacion.depositario": "amf_geco:compartimento",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.domicilio": "gleif:lei-record",
+      "identificacion.estado_lei": "gleif:lei-record",
+      "identificacion.fecha_autorizacion_amf": "amf_geco:compartimento",
+      "identificacion.fecha_constitucion": "gleif:lei-record",
+      "identificacion.fecha_creacion_compartimento": "amf_geco:compartimento",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.forma_juridica": "amf_geco:compartimento",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "amf_geco:compartimento",
+      "identificacion.gestora_lei": "amf_geco:compartimento",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.inversion_minima_inicial": "morningstar_lt:ETFsnapshot",
+      "identificacion.lei": "gleif:lei-record",
+      "identificacion.marco_legal": "amf_geco:compartimento",
+      "identificacion.nombre": "morningstar_lt:ETFsnapshot",
+      "identificacion.nombre_legal_lei": "gleif:lei-record",
+      "identificacion.nombre_legal_registro": "amf_geco:compartimento",
+      "identificacion.numero_autorizacion_amf": "amf_geco:compartimento",
+      "identificacion.politica_distribucion": "amf_geco:clase",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "amf_geco:compartimento",
+      "meta.geco_clase_id": "amf_geco:clase",
+      "meta.geco_id": "amf_geco:compartimento",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2025.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.desde_lanzamiento_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sri_kid_1a7": "morningstar_lt:Mifid",
+      "riesgo.srri_1a7": "morningstar_lt:Mifid",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "morningstar_lt:sal_quote",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "gleif",
+        "amf_geco",
+        "morningstar_lt",
+        "kid_gestora",
+        "esma"
+      ],
+      "familias": "todas",
+      "fuentes": {
+        "gleif": {
+          "hojas": 5,
+          "endpoints": {
+            "gleif:lei-record": {
+              "fetched_at": "2026-09-04T21:50:14+00:00"
+            }
+          },
+          "segundos": 0.0
+        },
+        "amf_geco": {
+          "hojas": 20,
+          "endpoints": {
+            "amf_geco:compartimento": {
+              "fetched_at": "2026-09-04T21:50:14+00:00"
+            },
+            "amf_geco:clase": {
+              "fetched_at": "2026-09-04T21:50:16+00:00"
+            }
+          },
+          "segundos": 0.0
+        },
+        "morningstar_lt": {
+          "hojas": 848,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-07-10T21:06:29+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-07-10T21:06:30+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-07-10T21:06:31+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-07-10T21:06:33+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-07-10T21:06:34+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-07-10T21:06:35+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-07-10T21:06:36+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-07-10T21:06:38+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-07-10T21:06:39+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-07-10T21:06:41+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-07-10T21:06:42+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-07-10T21:06:44+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-07-10T21:06:59+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-07-10T21:06:46+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-07-10T21:06:49+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-07-10T21:06:49+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-07-10T21:06:51+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-07-10T21:06:45+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-07-10T21:06:52+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-07-10T21:06:56+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-07-10T21:06:57+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-07-10T21:06:54+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-07-10T21:07:01+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-07-10T21:07:02+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-07-10T21:07:04+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-07-10T21:07:05+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-07-10T21:07:06+00:00"
+            }
+          },
+          "segundos": 0.02
+        }
+      }
+    }
+  },
+  "gestion": {
+    "gestores": [
+      {
+        "nombre": "Alexia Latorre",
+        "desde": "2024-03-20"
+      }
+    ],
+    "gestora": {
+      "nombre": "Lazard Frères Gestion"
+    }
+  },
+  "documentos": {
+    "n": 1,
+    "ultima_fecha": "2026-06-30"
+  },
+  "calidad": {
+    "score": 79,
+    "bucket": "MEDIO",
+    "esenciales": "8/10",
+    "flags": [
+      "info_pesos_negativos"
+    ]
+  }
+}

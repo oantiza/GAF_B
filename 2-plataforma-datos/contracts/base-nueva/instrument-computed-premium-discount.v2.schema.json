@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-computed-premium-discount.v2.schema.json",
+  "title": "instruments/{instrument_id}/computed/premium_discount — v2",
+  "description": "La prima o el descuento de un ETF frente al VL de su emisor: cierre de mercado / VL del emisor - 1 (decision 52). Lo calcula la plataforma en la pasada de escritura de la base, con los ficheros de la propia pasada: `export_series/` (cierre ajustado de la cotizacion), `export/series.ndjson` (VL) y `export_fx/` (BCE). Toda cifra se puede reproducir con `price_series`, `issuer_nav`, `declared/issuer_data.distributions` y `fx_rates`.\n\nNo es una metrica de riesgo ni de rentabilidad, y no entra en ninguna: las del ETF siguen sobre precio de mercado. Se puede leer como senal de que el ETF cotiza lejos de su VL, con una limitacion que se dice en la ficha: el cierre de XETRA es de las 17:30, el VL se forma despues del cierre de EE. UU. y el cambio del BCE es de las 14:15, asi que la cifra de un dia suelto lleva mucho desfase horario. La media a 12 meses es lo que dice algo.\n\nLa identidad comparable es (method, window, nav_series_class, nav_adjustment).\n\nEl documento se escribe tambien cuando no hay cifra, con `status: NOT_PUBLISHED` y `absence_reason`, porque un documento que falta no puede decir por que. Un fondo no lo lleva: no tiene precio de mercado.",
+  "x-collection": "instruments/{instrument_id}/computed/premium_discount",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "x-applies-to": "instrument_type ETF con VL del emisor",
+  "x-applies-when": "FONDO_O_ETF",
+  "x-counts-when": "NUNCA",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "computed_at",
+    "method",
+    "window",
+    "status"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "PUBLISHED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "as_of",
+          "window_start",
+          "observations",
+          "mean",
+          "latest",
+          "market_series_id",
+          "market_currency",
+          "nav_series_id",
+          "nav_series_class",
+          "nav_currency",
+          "nav_adjustment"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "NOT_PUBLISHED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "absence_reason"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "computed_at": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "method": {
+      "type": "string",
+      "description": "Cierre ajustado / VL del emisor - 1, con el VL en la divisa de la cotizacion (BCE del dia) y, si la clase reparte, ajustado hacia atras con los pagos del emisor.",
+      "enum": [
+        "PREMIUM_DISCOUNT_V1"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "window": {
+      "type": "string",
+      "description": "12 meses naturales hacia atras desde `as_of`, ambos dias inclusive.",
+      "enum": [
+        "1y"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PUBLISHED",
+        "NOT_PUBLISHED"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "absence_reason": {
+      "type": "string",
+      "description": "Por que no hay cifra. ISSUER_SERIES_IS_CUMULATIVE_RETURN: el emisor publica rentabilidad acumulada que reinvierte, no VL. SCALE_MISMATCH: alguna observacion se sale mas del 20 %, que no es una prima sino una linea, un desdoblamiento o una divisa que no cuadran.",
+      "enum": [
+        "ISSUER_SERIES_IS_CUMULATIVE_RETURN",
+        "DERIVED_WITHOUT_ANCHOR",
+        "NO_MARKET_SERIES",
+        "NO_NAV_POINTS",
+        "DISTRIBUTIONS_UNAVAILABLE",
+        "DISTRIBUTION_CURRENCY_MISMATCH",
+        "NO_FX_RATE",
+        "INSUFFICIENT_OVERLAP",
+        "SCALE_MISMATCH"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "El ultimo dia con cierre y VL a la vez. Es la fecha de `latest`.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "window_start": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "observations": {
+      "type": "integer",
+      "description": "Dias con cierre y VL a la vez dentro de la ventana.",
+      "minimum": 200,
+      "maximum": 400,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "mean": {
+      "type": "number",
+      "description": "Media de la prima diaria en la ventana. Sin redondear: el redondeo es de quien la ensena.",
+      "minimum": -0.2,
+      "maximum": 0.2,
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "latest": {
+      "type": "number",
+      "description": "La prima de `as_of`. Lleva todo el desfase horario de un dia suelto.",
+      "minimum": -0.2,
+      "maximum": 0.2,
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "market_series_id": {
+      "type": "string",
+      "description": "El `series_id` de `price_series` con que se calculo: la linea de mercado (`EODHD:EUNL.XETRA`).",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "market_currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "nav_series_id": {
+      "type": "string",
+      "pattern": "^ISSUER:",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "nav_series_class": {
+      "type": "string",
+      "description": "Sobre que VL se calculo. ISSUER_CUMULATIVE_RETURN no aparece: esa serie no da prima.",
+      "enum": [
+        "ISSUER_NAV",
+        "ISSUER_NAV_DERIVED"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "nav_currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "nav_adjustment": {
+      "type": "string",
+      "description": "DISTRIBUTIONS_BACK_ADJUSTED: el cierre ajustado de EODHD descuenta los repartos hacia atras y el VL declarado no; sin ajustar, una clase de reparto daria un descuento que no existe (medido: -0,49 % sin ajustar y -0,03 % ajustado en IE00B0M62Q58).",
+      "enum": [
+        "NONE",
+        "DISTRIBUTIONS_BACK_ADJUSTED"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "distributions_in_window": {
+      "type": "integer",
+      "description": "Cuantos pagos del emisor entraron en el ajuste.",
+      "minimum": 0,
+      "maximum": 400,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "fx_source": {
+      "type": "string",
+      "description": "Ausente si cierre y VL van en la misma divisa.",
+      "enum": [
+        "ECB_REFERENCE"
+      ],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    }
+  }
+}

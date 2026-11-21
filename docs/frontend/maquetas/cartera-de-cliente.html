@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Maqueta · Cartera de un cliente</title>
+<link rel="stylesheet" href="sistema.css">
+</head>
+<body>
+<main class="pagina">
+  <a class="volver" href="#">← Carteras de clientes</a>
+
+  <div class="cabecera">
+    <div>
+      <p class="cabecera__ceja">Cartera de cliente · Marta García · Banco de demostración · en euros</p>
+      <h1>Familia García</h1>
+      <p class="cabecera__meta">Guardada en tu equipo hace 2 minutos · 81 movimientos · precios hasta el 13/11/2026</p>
+    </div>
+    <div class="cabecera__acciones">
+      <span class="boton boton--discreto">Más ▾</span>
+      <span class="boton">Informes</span>
+      <span class="boton">Importar extractos</span>
+      <span class="boton boton--principal">Añadir movimiento</span>
+    </div>
+  </div>
+
+  <section class="respuesta respuesta--ancha" aria-label="Cuánto vale y cuánto ha ganado">
+    <div class="respuesta__dato respuesta__dato--principal">
+      <p class="respuesta__rotulo">Patrimonio</p>
+      <p class="respuesta__cifra">201.298 €</p>
+      <p class="respuesta__apunte">a 13/11/2026 · 170.678 € en valores y 30.620 € en efectivo</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Resultado del periodo</p>
+      <p class="respuesta__cifra sube">+18.582 €</p>
+      <p class="respuesta__apunte">del 31/12/2025 al 13/11/2026</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Rentabilidad de la cartera</p>
+      <p class="respuesta__cifra sube">+10,39 %</p>
+      <p class="respuesta__apunte">su referencia, +13,88 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Rentabilidad del cliente</p>
+      <p class="respuesta__cifra sube">+10,44 %</p>
+      <p class="respuesta__apunte">cuenta cuándo aportó: 10.000 € en el periodo</p>
+    </div>
+  </section>
+
+  <div class="fila-de-mandos">
+    <nav class="pestanas" aria-label="Secciones de la cartera" style="flex: 1">
+      <a class="pestana" aria-selected="true" href="#">Resumen</a>
+      <a class="pestana" href="#">Cuentas</a>
+      <a class="pestana" href="#">Movimientos</a>
+      <a class="pestana" href="#">Análisis</a>
+      <a class="pestana" href="#">Comparar</a>
+    </nav>
+    <span class="opciones" role="radiogroup" aria-label="Periodo" style="margin-top: var(--e-4)"><span aria-checked="true">Año en curso</span><span>1 año</span><span>3 años</span><span>Desde el inicio</span><span>Entre dos fechas</span></span>
+  </div>
+
+  <div class="rejilla">
+    <section class="col-8">
+      <div class="bloque__cabecera">
+        <div>
+          <h2 class="bloque__titulo">Evolución del patrimonio</h2>
+          <p class="bloque__procedencia">La distancia entre las dos líneas es lo ganado o perdido · del 31/12/2025 al 13/11/2026</p>
+        </div>
+      </div>
+      <svg class="grafico" id="patrimonio" role="img" aria-label="Valor de la cartera y dinero aportado durante el año en curso"></svg>
+    </section>
+
+    <section class="col-4">
+      <div class="bloque__cabecera"><div><h2 class="bloque__titulo">De dónde viene el resultado</h2><p class="bloque__procedencia">Las partes suman el resultado del periodo</p></div><a class="bloque__enlace" href="#">Ver el análisis</a></div>
+      <dl class="filas">
+        <div><dt>Variación de precio<small>Lo que han subido o bajado los precios</small></dt><dd class="sube">+17.170,13 €</dd></div>
+        <div><dt>Ingresos<small>Dividendos, cupones e intereses</small></dt><dd class="sube">+614,97 €</dd></div>
+        <div><dt>Efecto de la divisa<small>Lo que ha movido el tipo de cambio</small></dt><dd class="sube">+971,70 €</dd></div>
+        <div><dt>Comisiones y gastos<small>Custodia, asesoramiento e impuestos de la cuenta</small></dt><dd class="baja">−175,20 €</dd></div>
+        <div class="total"><dt>Resultado</dt><dd class="sube">+18.581,60 €</dd></div>
+      </dl>
+    </section>
+
+    <section class="col-8">
+      <div class="bloque__cabecera">
+        <div><h2 class="bloque__titulo">Últimos movimientos</h2><p class="bloque__procedencia">81 movimientos en el libro</p></div>
+        <a class="bloque__enlace" href="#">Ver todos</a>
+      </div>
+      <table class="tabla">
+        <thead><tr><th>Fecha</th><th>Movimiento</th><th>Activo</th><th class="cifra">Títulos</th><th class="cifra">Importe</th></tr></thead>
+        <tbody>
+          <tr><td class="fecha">13/10/2026</td><td>Aportación</td><td><span class="no-aplica">No aplica</span></td><td class="cifra"></td><td class="cifra">+1.000,00 €</td></tr>
+          <tr><td class="fecha">14/09/2026</td><td>Aportación</td><td><span class="no-aplica">No aplica</span></td><td class="cifra"></td><td class="cifra">+1.000,00 €</td></tr>
+          <tr><td class="fecha">17/08/2026</td><td>Comisión o gasto</td><td>Custodia y administración</td><td class="cifra"></td><td class="cifra">−58,40 €</td></tr>
+          <tr><td class="fecha">14/08/2026</td><td>Suscripción de fondo</td><td><a href="#">Bolsa Global Indexada, FI</a></td><td class="cifra">17,6642</td><td class="cifra">−3.000,00 €</td></tr>
+          <tr><td class="fecha">13/08/2026</td><td>Aportación</td><td><span class="no-aplica">No aplica</span></td><td class="cifra"></td><td class="cifra">+1.000,00 €</td></tr>
+        </tbody>
+      </table>
+      <p class="bloque__nota">El importe de un movimiento es dinero que entra o sale de la cuenta, y va sin color: el verde y el rojo se reservan para lo que se gana o se pierde.</p>
+    </section>
+
+    <section class="col-4">
+      <div class="bloque__cabecera"><div><h2 class="bloque__titulo">En qué está invertida</h2><p class="bloque__procedencia">A 13/11/2026 · mirando dentro de cada fondo</p></div><a class="bloque__enlace" href="#">Ver las cuentas</a></div>
+      <div class="partes">
+        <div><span>Renta variable</span><span class="barra-de-parte"><b style="width: 58.8%"></b></span><em>58,8 %</em></div>
+        <div><span>Renta fija</span><span class="barra-de-parte"><b style="width: 24.3%"></b></span><em>24,3 %</em></div>
+        <div><span>Liquidez</span><span class="barra-de-parte"><b style="width: 16.9%"></b></span><em>16,9 %</em></div>
+      </div>
+      <p class="bloque__nota">La liquidez, 34.081 €, incluye el efectivo de la cuenta (30.620 €) y la que mantienen los fondos.</p>
+    </section>
+  </div>
+</main>
+<script src="marco.js"></script>
+<script>
+  montarMarco({ activa: "Carteras de clientes", migas: ["Clientes", "Carteras de clientes", "Familia García"] });
+  const valor = acabarEn(serie(3, 220, 0.0007, 0.012, 172716), 201298);
+  const aportado = Array.from({ length: 220 }, (_, i) => 172716 + Math.floor(i / 22) * 1000);
+  dibujarLineas(document.getElementById("patrimonio"), {
+    series: [
+      { valores: valor, color: "var(--serie-1)", rotulo: "Valor", apunte: "201.298 €" },
+      { valores: aportado, color: "var(--serie-referencia)", trazos: true, rotulo: "Aportado", apunte: "182.716 €" }
+    ],
+    ejeX: ["dic 2025", "feb 2026", "abr 2026", "jun 2026", "ago 2026", "oct 2026"],
+    formato: (valor) => `${new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 }).format(valor)} €`,
+    alto: 280
+  });
+</script>
+</body>
+</html>

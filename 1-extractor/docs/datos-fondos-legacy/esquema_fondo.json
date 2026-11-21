@@ -1,0 +1,129 @@
+{
+  "$comment": "Esquema v2 (10-06-2026) — ejemplo con todos los bloques del CATALOGO_DATOS.md. Campos sin dato = null, nunca inventados. Cada bloque registra su fuente y fecha en meta.fuentes.",
+  "meta": {
+    "isin": "IE00B4L5Y983",
+    "sec_id_morningstar": null,
+    "actualizado": "2026-06-10T09:00:00Z",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": { "fuente": "morningstar.quote", "fecha": null },
+      "costes": { "fuente": "morningstar.feeMifid", "fecha": null },
+      "cartera": { "fuente": "morningstar.position", "fecha": null }
+    },
+    "errores": []
+  },
+  "identificacion": {
+    "nombre": null, "ticker": null, "wkn": null, "tipo": "etf|fondo|monetario|cerrado",
+    "gestora": null, "domicilio": null, "divisa_base": null, "divisa_cubierta": null,
+    "fecha_lanzamiento_clase": null, "fecha_lanzamiento_fondo": null,
+    "categoria_morningstar": null, "indice_benchmark_oficial": null, "indice_benchmark_morningstar": null,
+    "estructura_legal": null, "ucits": null, "estado_comercializacion": "abierto|cerrado|soft-close",
+    "inversion_minima_inicial": null, "inversion_minima_adicional": null,
+    "replicacion": null, "prestamo_valores": null, "politica_distribucion": "acumulacion|distribucion",
+    "registro_cnmv": null, "depositario": null,
+    "descripcion": null, "estrategia_inversion_texto": null
+  },
+  "valoracion": {
+    "vl": null, "vl_fecha": null, "vl_divisa": null, "variacion_dia_pct": null,
+    "max_52sem": null, "min_52sem": null,
+    "patrimonio_clase_meur": null, "patrimonio_fondo_meur": null, "patrimonio_fecha": null,
+    "etf_intradia": { "ultimo": null, "bid": null, "ask": null, "spread_pct": null,
+                      "prima_descuento_nav_pct": null, "volumen": null, "bolsa": null }
+  },
+  "costes": {
+    "ter_pct": null, "comision_gestion_max_pct": null, "comision_gestion_aplicada_pct": null,
+    "comision_exito_pct": null, "comision_deposito_pct": null,
+    "comision_suscripcion_max_pct": null, "comision_reembolso_max_pct": null,
+    "ter_vs_categoria": { "mediana_categoria_pct": null, "nivel": "Bajo|InferiorMedia|Media|SuperiorMedia|Alto", "percentil": null },
+    "ter_historico": { "2025": null, "2024": null, "2023": null },
+    "mifid_emt_exante": { "entrada_pct": null, "salida_pct": null, "corrientes_pct": null,
+                          "transaccion_pct": null, "incidentales_pct": null, "total_pct": null },
+    "priips_kid": { "riy_pct": null, "coste_total_periodo_recomendado_pct": null },
+    "proyeccion_costes_eur": { "1a": null, "3a": null, "5a": null, "10a": null }
+  },
+  "rentabilidad": {
+    "fecha_dato": null,
+    "trailing_pct": {
+      "$comment": "cada horizonte: {fondo, categoria, indice, percentil_categoria, n_fondos_categoria}",
+      "1d": {}, "1sem": {}, "1m": {}, "3m": {}, "6m": {}, "ytd": {},
+      "1a": {}, "3a_anualizada": {}, "5a_anualizada": {}, "10a_anualizada": {},
+      "15a_anualizada": {}, "desde_lanzamiento_anualizada": {}
+    },
+    "por_año_natural": { "$comment": "año: {fondo, categoria, indice}", "2025": {}, "2024": {}, "2023": {} },
+    "por_trimestre": { "$comment": "'2025': [T1,T2,T3,T4]" },
+    "crecimiento_10000": { "$comment": "serie [fecha, fondo, categoria, indice] para gráfico" },
+    "escenarios_priips": { "tension": null, "desfavorable": null, "moderado": null, "favorable": null, "horizonte_años": null }
+  },
+  "riesgo": {
+    "$comment": "métricas vs benchmark: cada una {1a, 3a, 5a, 10a} y donde aplique fondo/categoria/indice",
+    "volatilidad_pct": {}, "sharpe": {}, "alpha": {}, "beta": {}, "r2": {},
+    "sortino": null, "tracking_error_pct": null, "information_ratio": null,
+    "max_drawdown": { "pct": null, "fecha_pico": null, "fecha_valle": null, "meses_caida": null, "meses_recuperacion": null, "peor_mes_pct": null },
+    "rating_riesgo_morningstar": { "3a": null, "5a": null, "10a": null },
+    "risk_score": null, "sri_kid_1a7": null
+  },
+  "rating": {
+    "estrellas": { "overall": null, "3a": null, "5a": null, "10a": null },
+    "estrellas_historico": { "$comment": "serie mensual [fecha, estrellas]" },
+    "medalist": { "rating": "Gold|Silver|Bronze|Neutral|Negative", "fecha": null, "cobertura": "analista|algoritmo",
+                  "pilares": { "people": null, "process": null, "parent": null } },
+    "comparables": [ { "nombre": null, "secId": null, "medalist": null, "estrellas": null } ]
+  },
+  "cartera": {
+    "fecha": null, "num_posiciones": null, "num_posiciones_rv": null, "num_posiciones_rf": null,
+    "peso_top10_pct": null, "rotacion_pct": null,
+    "asignacion_activos": {
+      "$comment": "cada clase: {largo, corto, neto} y fondo/categoria/indice",
+      "rv": {}, "rf": {}, "liquidez": {}, "otros": {}, "convertibles": {}, "preferentes": {}
+    },
+    "posiciones": [
+      { "nombre": null, "isin": null, "ticker": null, "tipo": "rv|rf|iic|liquidez|derivado|otro",
+        "peso_pct": null, "num_titulos": null, "valor_mercado": null, "divisa": null,
+        "sector": null, "pais": null, "primera_compra": null, "cambio_peso_pct": null, "nueva": null }
+    ],
+    "sectores_pct": { "$comment": "11 sectores: {fondo, categoria, indice}" },
+    "regiones_pct": {}, "paises_pct": {},
+    "capitalizacion_pct": { "gigante": null, "grande": null, "mediana": null, "pequeña": null, "micro": null, "media_musd": null },
+    "style_box_rv": { "celdas_pct": { "LV": null, "LB": null, "LG": null, "MV": null, "MB": null, "MG": null, "SV": null, "SB": null, "SG": null },
+                      "historico": {} },
+    "valoracion_cartera": { "per": null, "pb": null, "pcf": null, "pventas": null, "yield_dividendo_pct": null,
+                            "crec_beneficios_pct": null, "crec_ventas_pct": null, "crec_cashflow_pct": null, "crec_valor_contable_pct": null },
+    "calidad_cartera": { "roa_pct": null, "roe_pct": null, "roic_pct": null, "margen_neto_pct": null, "deuda_capital_pct": null },
+    "factores": { "$comment": "exposición + media 5a + rango categoría", "estilo": {}, "yield": {}, "momentum": {}, "calidad": {}, "volatilidad": {}, "liquidez": {}, "tamaño": {} },
+    "renta_fija": {
+      "duracion_efectiva": null, "duracion_modificada": null, "vencimiento_efectivo": null,
+      "calidad_media": null, "ytm_pct": null, "cupon_medio_pct": null,
+      "calidad_crediticia_pct": { "AAA": null, "AA": null, "A": null, "BBB": null, "BB": null, "B": null, "inferior_B": null, "sin_rating": null },
+      "vencimientos_pct": { "1_3": null, "3_5": null, "5_7": null, "7_10": null, "10_15": null, "15_20": null, "20_30": null, "mas_30": null },
+      "style_box_rf": null
+    }
+  },
+  "esg": {
+    "globos_sostenibilidad": null, "sustainability_score": null, "percentil_categoria": null,
+    "esg_risk_corporativo": null, "esg_risk_soberano": null, "cobertura_cartera_pct": null,
+    "sfdr_articulo": "6|8|9",
+    "carbono": { "carbon_risk_score": null, "intensidad": null, "ingresos_fosiles_pct": null, "low_carbon": null },
+    "involucramiento_pct": { "armas_controvertidas": null, "armas_fuego": null, "contratos_militares": null,
+      "tabaco": null, "alcohol": null, "juego": null, "entretenimiento_adulto": null,
+      "carbon_termico": null, "petroleo_gas": null, "arenas_bituminosas": null, "nuclear": null,
+      "pieles": null, "ogm": null, "ensayos_animales": null }
+  },
+  "gestion": {
+    "gestores": [ { "nombre": null, "desde": null, "hasta": null, "años_en_fondo": null, "titulacion": null, "otros_fondos": [] } ],
+    "tenure_medio_años": null, "tenure_max_años": null,
+    "gestora": { "nombre": null, "aum_total_meur": null, "num_fondos": null, "tenure_medio_gestores": null,
+                 "retencion_gestores_pct": null, "rating_medio_fondos": null,
+                 "flujos_netos_historicos": {}, "aum_historico": {} }
+  },
+  "distribuciones": {
+    "yield_12m_pct": null, "frecuencia": null,
+    "historial": [ { "fecha": null, "importe_por_participacion": null, "divisa": null } ]
+  },
+  "documentos": [
+    { "tipo": "KID|folleto|informe_anual|informe_semestral", "idioma": null, "fecha": null, "url_o_archivo_local": null }
+  ],
+  "series": {
+    "$comment": "guardadas aparte en data/series/{ISIN}.parquet o .jsonl si se activan; aquí solo el resumen",
+    "vl_disponible_desde": null, "ultima_fecha": null, "frecuencia": "diaria"
+  }
+}

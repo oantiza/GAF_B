@@ -1,0 +1,711 @@
+{
+  "isin": "LU0011889846",
+  "etiqueta": "fondo-doce-secciones",
+  "raiz": {
+    "instrument_id": "LU0011889846",
+    "instrument_type": "FUND",
+    "schema_version": "base-nueva.instrument.v2",
+    "updated_at": "2026-11-02T07:43:32.087Z",
+    "identity": {
+      "name": "Janus Henderson Horizon Euroland Fund A2 EUR",
+      "name_folded": "janus henderson horizon euroland fund a2 eur",
+      "currency": "EUR"
+    },
+    "classification": {
+      "category": "EAA Fund Eurozone Large-Cap Equity",
+      "asset_class": "EQUITY",
+      "official_benchmark": {
+        "name": "MSCI EMU NR EUR",
+        "currency": "EUR",
+        "variant": "NR",
+        "return_basis": "TOTAL_RETURN",
+        "resolution": "DERIVED_FROM_NAME"
+      }
+    },
+    "product": {
+      "domicile": "LU",
+      "legal_structure": "UCITS",
+      "inception_date": "1984-07-02"
+    }
+  },
+  "tarjeta": {
+    "instrument_id": "LU0011889846",
+    "computed_at": "2026-11-02T10:12:40.806Z",
+    "instrument_type": "FUND",
+    "identity": {
+      "name": "Janus Henderson Horizon Euroland Fund A2 EUR",
+      "currency": "EUR"
+    },
+    "classification": {
+      "category": "EAA Fund Eurozone Large-Cap Equity",
+      "asset_class": "EQUITY",
+      "benchmark_name": "MSCI EMU NR EUR"
+    },
+    "costs": {
+      "ongoing_charge": 0.0187,
+      "management_fee": 0.012
+    },
+    "quote": {
+      "price": 99.55,
+      "as_of": "2026-10-30",
+      "price_class": "NAV"
+    },
+    "metrics": {
+      "source": "PROVIDER",
+      "method": "TRAILING_PROVIDER",
+      "frequency": "PROVIDER",
+      "as_of": "2026-10-31",
+      "return_basis": "TOTAL_RETURN",
+      "distribution_policy": "DISTRIBUTING",
+      "distribution_policy_resolution": "PROVIDER_DISTRIBUTION_RECORDS",
+      "volatility": {
+        "1y": 0.14842,
+        "3y": 0.11471999999999999,
+        "5y": 0.14847,
+        "10y": 0.16295
+      },
+      "annualized_return": {
+        "1y": 0.1583663,
+        "3y": 0.19958337,
+        "5y": 0.09753494,
+        "10y": 0.0864385
+      },
+      "sharpe": {
+        "3y": 1.42,
+        "1y": 0.928,
+        "5y": 0.565,
+        "10y": 0.545
+      },
+      "ytd_return": 0.1394071,
+      "relative": {
+        "source": "PROVIDER",
+        "reference": "PROVIDER_CATEGORY_INDEX",
+        "category": "EAA Fund Eurozone Large-Cap Equity",
+        "as_of": "2026-10-31",
+        "beta": {
+          "1y": 1.062,
+          "3y": 0.948,
+          "5y": 0.988,
+          "10y": 1.022
+        },
+        "r2": {
+          "1y": 0.93047,
+          "3y": 0.86688,
+          "5y": 0.8837,
+          "10y": 0.90889
+        },
+        "jensen_alpha": {
+          "1y": 0.03721,
+          "3y": 0.02565,
+          "5y": 0.00632,
+          "10y": -0.006750000000000001
+        }
+      },
+      "risk_score": 4,
+      "risk_score_source": "SRI_KID"
+    },
+    "exposure": {
+      "asset_mix": {
+        "equity": 0.986727,
+        "fixed_income": 0,
+        "cash": 0.013273,
+        "other": 0
+      },
+      "sectors": {
+        "basic_materials": 0.014665,
+        "consumer_cyclical": 0.068366,
+        "financial_services": 0.229753,
+        "consumer_defensive": 0.041475,
+        "healthcare": 0.056435,
+        "utilities": 0.04309,
+        "communication_services": 0.049399,
+        "energy": 0.043724,
+        "industrials": 0.22749,
+        "technology": 0.225603
+      },
+      "equity_regions": {
+        "united_kingdom": 0.034725,
+        "eurozone": 0.965275
+      },
+      "equity_styles": {
+        "value": 0.315504,
+        "blend": 0.368929,
+        "growth": 0.315567
+      },
+      "market_caps": {
+        "small": 0.043362,
+        "mid": 0.225356,
+        "large": 0.731282
+      },
+      "confidence": 0.9,
+      "derivation": "DECLARED"
+    },
+    "holdings_summary": {
+      "positions_count": 50,
+      "top10_weight": 0.4322907,
+      "as_of": "2026-09-30"
+    },
+    "size": {
+      "aum": 1007800000,
+      "currency": "EUR",
+      "as_of": "2026-10-30"
+    },
+    "sustainability": {
+      "esg_globes": 4,
+      "as_of": "2026-10-31"
+    },
+    "quality": {
+      "fitness": {
+        "COMPARAR_COSTE": {
+          "apt": true
+        },
+        "RADIOGRAFIA_DE_CARTERA": {
+          "apt": true
+        },
+        "COMPARAR_RENTABILIDAD": {
+          "apt": true
+        },
+        "MOSTRAR_ALPHA": {
+          "apt": true
+        },
+        "METRICAS_PROPIAS": {
+          "apt": false,
+          "missing": [
+            "computed/metrics (sin evidencia de la politica, o sin almacen analitico)"
+          ]
+        }
+      },
+      "coverage": 0.462555
+    },
+    "available_sections": [
+      "costs",
+      "distributions",
+      "exposure",
+      "holdings",
+      "profile",
+      "provenance",
+      "provider_returns",
+      "provider_risk",
+      "quote",
+      "regulatory",
+      "size",
+      "sustainability"
+    ]
+  },
+  "calidad": {
+    "computed_at": "2026-11-02T10:12:40.806Z",
+    "fitness": {
+      "COMPARAR_COSTE": {
+        "apt": true
+      },
+      "RADIOGRAFIA_DE_CARTERA": {
+        "apt": true
+      },
+      "COMPARAR_RENTABILIDAD": {
+        "apt": true
+      },
+      "MOSTRAR_ALPHA": {
+        "apt": true
+      },
+      "METRICAS_PROPIAS": {
+        "apt": false,
+        "missing": [
+          "computed/metrics (sin evidencia de la politica, o sin almacen analitico)"
+        ]
+      }
+    },
+    "coverage": 0.462555,
+    "applicable_paths": 227,
+    "present_paths": 105,
+    "absences": [
+      {
+        "path": "identifiers.ticker",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "identifiers.figi",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "classification.official_benchmark.instrument_id",
+        "reason": "NOT_YET_FETCHED"
+      },
+      {
+        "path": "product.share_class",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "availability.state",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "availability.since",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "availability.last_checked",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "availability.reason",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/profile.sfdr_article",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "declared/costs.performance_fee",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "declared/costs.exit_charge",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "declared/regulatory.kid_evidence.fetched_at",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/regulatory.kid_evidence.is_priips",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/exposure.asset_mix.alternative",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/exposure.asset_mix.real_asset",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.1y.fund",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.1y.category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.1y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.3y.fund",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.3y.category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.3y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.5y.fund",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.5y.category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.5y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.10y.fund",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.10y.category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.max_drawdown.10y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.beta.1y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.beta.3y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.beta.5y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.beta.10y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.r2.1y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.r2.3y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.r2.5y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.r2.10y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.provider_alpha.1y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.provider_alpha.3y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.provider_alpha.5y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.provider_alpha.10y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.tracking_error.1y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.tracking_error.3y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.tracking_error.5y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.tracking_error.10y.vs_benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.tracking_error.10y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.information_ratio.1y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.information_ratio.3y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.information_ratio.5y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.information_ratio.10y.vs_benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_risk.information_ratio.10y.vs_category",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_returns.trailing_return.1y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_returns.trailing_return.3y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_returns.trailing_return.5y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_returns.trailing_return.10y.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/provider_returns.ytd_return.benchmark",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/sustainability.esg_score",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/sustainability.carbon_intensity",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/holdings.coverage",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.method",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.frequency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.return_basis",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.series_id",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.currency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.risk_free_source",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.distribution_policy_resolution",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.source_currency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.fx_source",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.observations",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.first_date",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.last_date",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.ytd_return",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.name",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.instrument_id",
+        "reason": "NOT_YET_FETCHED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.currency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.variant",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.return_basis",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.benchmark.series_class",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.beta.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.beta.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.beta.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.beta.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.r2.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.r2.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.r2.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.r2.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.jensen_alpha.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.jensen_alpha.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.jensen_alpha.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.jensen_alpha.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.active_return.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.active_return.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.active_return.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.active_return.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.tracking_error.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.tracking_error.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.tracking_error.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.tracking_error.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.information_ratio.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.information_ratio.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.information_ratio.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.relative.information_ratio.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.risk_score",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.risk_score_source",
+        "reason": "NOT_PROVIDED"
+      }
+    ]
+  }
+}

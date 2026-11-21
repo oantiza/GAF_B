@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/commercial-retro-import.v2.schema.json",
+  "title": "commercial_retro_imports/{import_id} — v2",
+  "description": "El recibo de una importacion masiva de retrocesiones: lo que habia y lo que se escribio, para poder deshacerla y para que conste. Nunca se borra. Su forma es la que escribe `commercialRetroStore.ts`, y la regla impone que `previous` y `applied` no cambien una vez creados.",
+  "x-collection": "commercial_retro_imports/{import_id}",
+  "x-layer": "ledger",
+  "x-owner": "app",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["import_id", "created_at", "created_by", "status", "previous", "applied"],
+  "properties": {
+    "import_id": { "type": "string", "minLength": 1, "x-unit": "code", "x-layer": "metadata", "x-owner": "app" },
+    "created_at": {
+      "description": "Marca de tiempo de Firestore: la regla exige la hora del servidor. Por eso no declara `type`.",
+      "x-unit": "date", "x-layer": "metadata", "x-owner": "app"
+    },
+    "created_by": { "type": "string", "minLength": 1, "x-unit": "text", "x-layer": "metadata", "x-owner": "app" },
+    "as_of_date": {
+      "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "file_name": { "type": "string", "minLength": 1, "x-unit": "text", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "scale": { "type": "string", "minLength": 1, "x-unit": "code", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "replace_all": { "type": "boolean", "x-unit": "code", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "counts": {
+      "type": "object",
+      "maxProperties": 20,
+      "additionalProperties": { "type": "integer", "minimum": 0, "x-unit": "count", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "previous": {
+      "type": "object",
+      "maxProperties": 500,
+      "description": "Por ISIN, lo que habia antes de importar. El valor es la foto de la retrocesion, o null si no existia: aqui null es un hecho y no una ausencia, y por eso el valor no declara `type`.",
+      "additionalProperties": { "x-unit": "text", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app"
+    },
+    "applied": {
+      "type": "object",
+      "maxProperties": 500,
+      "description": "Por ISIN, lo que se escribio: la foto de la retrocesion, o el texto DELETE si se borro. Dos formas posibles, y por eso el valor no declara `type`.",
+      "additionalProperties": { "x-unit": "text", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app"
+    },
+    "schema_version": { "type": "integer", "minimum": 1, "x-unit": "count", "x-layer": "metadata", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "applied_isins": {
+      "type": "array", "maxItems": 500,
+      "items": { "type": "string", "x-unit": "code", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "undone_isins": {
+      "type": "array", "maxItems": 500,
+      "items": { "type": "string", "x-unit": "code", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "applied_versions": {
+      "type": "object",
+      "maxProperties": 500,
+      "description": "Por ISIN, la marca de tiempo de Firestore con la que quedo escrita, y por eso el valor no declara `type`. El deshacer la compara con la del documento para no pisar un cambio posterior.",
+      "additionalProperties": { "x-unit": "date", "x-layer": "ledger", "x-owner": "app" },
+      "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "applied_batches": { "type": "integer", "minimum": 0, "x-unit": "count", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "status": { "type": "string", "enum": ["partial", "applied", "undone"], "x-unit": "code", "x-layer": "ledger", "x-owner": "app" },
+    "error": { "type": "string", "x-unit": "text", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" },
+    "undone_at": {
+      "description": "Marca de tiempo de Firestore: la regla exige la hora del servidor. Por eso no declara `type`.",
+      "x-unit": "date", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED"
+    },
+    "undone_by": { "type": "string", "minLength": 1, "x-unit": "text", "x-layer": "ledger", "x-owner": "app", "x-absence": "NOT_PROVIDED" }
+  }
+}

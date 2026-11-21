@@ -1,0 +1,82 @@
+{
+  "decision": "D-9, DECISIONES_ADQUISICION_2026-10-30.md",
+  "fecha": "2026-11-11",
+  "descripcion": "Fondos cuya serie diaria de valor liquidativo sale de Morningstar (timeseries_price) cuando la de EODHD esta parada, cada uno con su regla. Desde D-10 (11-11-2026) un fondo parado que no este aqui tambien sigue con Morningstar, siempre por empalme y solo si cumple todas las salvaguardas de core/serie_de_respaldo.py; si no, sigue parado, con su aviso. Un fondo de esta lista usa su regla y nunca el automatico. El SecId no se escribe aqui: es el que resolvio el buscador de Morningstar en la ficha (meta.sec_id_morningstar). La divisa en que se pide es la de la clase segun EODHD.",
+  "descripcion_excluidos": "excluidos_del_automatico: fondos que no entran nunca por el automatico de D-10 aunque cuadren (por ejemplo, una clase convertida o fusionada cuya serie de Morningstar es la de otra clase). Cada uno con motivo, fecha y quien lo decidio. No afecta a los fondos de la lista: esos usan su regla. Vacia el 11-11-2026, al construir D-10: los parados que no estan en la lista ya quedan fuera por sus salvaguardas.",
+  "excluidos_del_automatico": {},
+  "reglas": {
+    "empalme": "EODHD hasta su ultimo punto y Morningstar despues, solo si las dos cuadran de nivel en el solape anterior al corte",
+    "sustitucion": "Toda la serie de Morningstar, y ningun punto de EODHD; tambien exige que cuadren de nivel en el solape, para no cambiar de divisa sin saberlo"
+  },
+  "corte_en_el_evento": "No se declara fondo a fondo ni se corta la serie publicada. Las metricas lo cortan con la regla de ruptura del metodo propio (apartado 1: un VL que se multiplica o divide por mas de 2,0 de un dia al siguiente), que en las dos Schroder ISF Emerging Europe cae el 18-07-2022, el dia que reabrieron tras la suspension por Rusia con side pockets (25,50 a 10,29 en la A1 y 24,17 a 9,7501 en la B). Para lo demas que usa la serie, la fecha desde la que vale va en usable_from de 3-BDB-ACTIVOS_app/functions_python/fund_history_policies.json. Direccion, 11-11-2026: no se borra ningun anio de price_series.",
+  "fondos": {
+    "LU0133716950": {
+      "regla": "empalme",
+      "nombre": "Schroder ISF Emerging Europe A1 Acc EUR",
+      "motivo": "EODHD parada desde el 25-02-2022, antes del evento: sus metricas solo miden la parte de Morningstar, desde el 18-07-2022"
+    },
+    "LU0592699093": {
+      "regla": "empalme",
+      "nombre": "Carmignac Portfolio Emerging Patrimoine E EUR Acc",
+      "motivo": "EODHD parada desde el 11-03-2024; 3.238 dias de solape, todos exactos"
+    },
+    "LU0106819104": {
+      "regla": "empalme",
+      "nombre": "Schroder ISF Emerging Europe B Acc EUR",
+      "motivo": "EODHD parada desde el 08-10-2024, y su serie ya llevaba el salto del 18-07-2022 como si fuera rentabilidad: sus metricas miden desde ese dia"
+    },
+    "LU0501220429": {
+      "regla": "empalme",
+      "nombre": "Global Evolution Funds Frontier Markets R EUR H",
+      "motivo": "EODHD parada desde el 21-10-2025; 3.684 dias de solape, uno con redondeo"
+    },
+    "FR0010312660": {
+      "regla": "sustitucion",
+      "nombre": "Carmignac Investissement E EUR Acc",
+      "motivo": "La serie de EODHD discrepa 21 dias de 2021 a 2025 sin desfase que lo explique, y antes de 1999 esta en francos: no se mezclan dos convenciones en una serie"
+    },
+    "IE00B52VLZ70": {
+      "regla": "empalme",
+      "nombre": "Polar Capital Global Insurance R Acc",
+      "motivo": "EODHD parada desde el 22-05-2026; 2.077 dias de solape sin discrepancias"
+    },
+    "IE00B3NLSS43": {
+      "regla": "empalme",
+      "nombre": "Polar Capital Healthcare Opportunities R Inc",
+      "motivo": "EODHD parada desde el 08-06-2026; 2.646 dias de solape, 36 con desfase de un dia"
+    },
+    "LU2050929277": {
+      "regla": "empalme",
+      "nombre": "Capital Group New Economy Fund (LUX) B",
+      "motivo": "EODHD parada desde el 09-06-2026; 1.596 dias de solape, 34 con desfase de un dia"
+    },
+    "LU1683285321": {
+      "regla": "empalme",
+      "nombre": "UBS (Lux) Digital Health Equity (EUR hedged) P acc",
+      "motivo": "EODHD parada desde el 09-06-2026; dos dias de EODHD erroneos (13-04-2026 y 09-06-2026) que se quedan, porque el tramo de EODHD no se corrige"
+    },
+    "LU0769137737": {
+      "regla": "empalme",
+      "nombre": "BlackRock GF Continental European Flexible A2 USD",
+      "motivo": "EODHD parada desde el 09-06-2026; clase en dolares, pedida en dolares"
+    },
+    "IE00BF0GL212": {
+      "regla": "empalme",
+      "nombre": "Polar Capital Artificial Intelligence R Acc",
+      "motivo": "EODHD parada desde el 18-06-2026; 1.637 dias de solape, 11 con desfase de un dia"
+    },
+    "LU0171283459": {
+      "regla": "empalme",
+      "nombre": "BlackRock GF Global Allocation A2 EUR",
+      "motivo": "EODHD con retraso (ultimo punto el 27-10-2026); Morningstar cuadra exacto en los 6.084 dias comunes, sin evento ni cambio de divisa. Añadido el 11-11-2026 por Oscar"
+    }
+  },
+  "ampliaciones": [
+    {
+      "fecha": "2026-11-11",
+      "isin": "LU0171283459",
+      "decision": "Oscar, 11-11-2026 («Si, añadelo»), sobre D-9",
+      "motivo": "Vivo, pero EODHD llega solo al 27-10-2026 y con 15 dias de retraso cae en serie_parada (MAX_DIAS_SERIE = 10); Morningstar cuadra exacto en los 6.084 dias comunes"
+    }
+  ]
+}

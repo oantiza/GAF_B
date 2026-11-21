@@ -1,0 +1,437 @@
+{
+"tables": [
+{
+"columns": [
+{
+"key": "header",
+"value": "ISIN",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_0",
+"value": "Name",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_1",
+"value": "% Weight",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_2",
+"value": "Market value",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_3",
+"value": "Country",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_4",
+"value": "Industry",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_5",
+"value": "Asset class",
+"alignment": "left",
+"isVisibleOnHeader": true
+}
+],
+"values": [
+{
+"header": {
+"value": "US5949181045",
+"type": "text"
+},
+"column_0": {
+"value": "MICROSOFT",
+"type": "text"
+},
+"column_1": {
+"value": "8.207%",
+"sortValue": 8.20729524,
+"type": "text"
+},
+"column_2": {
+"value": "95.73 M EUR",
+"sortValue": 95732563.59,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Technology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US1491231015",
+"type": "text"
+},
+"column_0": {
+"value": "CATERPILLAR INC",
+"type": "text"
+},
+"column_1": {
+"value": "6.846%",
+"sortValue": 6.84561857,
+"type": "text"
+},
+"column_2": {
+"value": "79.85 M EUR",
+"sortValue": 79849523.63,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Industrials",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "IE00BKVD2N49",
+"type": "text"
+},
+"column_0": {
+"value": "SEAGATE TECHNOLOGY HOLDINGS PLC",
+"type": "text"
+},
+"column_1": {
+"value": "6.123%",
+"sortValue": 6.12310222,
+"type": "text"
+},
+"column_2": {
+"value": "71.42 M EUR",
+"sortValue": 71421857.7,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Technology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US67066G1040",
+"type": "text"
+},
+"column_0": {
+"value": "NVIDIA",
+"type": "text"
+},
+"column_1": {
+"value": "5.908%",
+"sortValue": 5.90815785,
+"type": "text"
+},
+"column_2": {
+"value": "68.91 M EUR",
+"sortValue": 68914676.61,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Technology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US78392B1070",
+"type": "text"
+},
+"column_0": {
+"value": "SK hynix Inc.",
+"type": "text"
+},
+"column_1": {
+"value": "4.885%",
+"sortValue": 4.88463818,
+"type": "text"
+},
+"column_2": {
+"value": "56.98 M EUR",
+"sortValue": 56976010.0,
+"type": "text"
+},
+"column_3": {
+"value": "Korea, Republic of",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US6974351057",
+"type": "text"
+},
+"column_0": {
+"value": "PALO ALTO NETWORKS",
+"type": "text"
+},
+"column_1": {
+"value": "4.617%",
+"sortValue": 4.61703731,
+"type": "text"
+},
+"column_2": {
+"value": "53.85 M EUR",
+"sortValue": 53854626.24,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Technology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US5324571083",
+"type": "text"
+},
+"column_0": {
+"value": "ELI LILLY",
+"type": "text"
+},
+"column_1": {
+"value": "3.088%",
+"sortValue": 3.08794053,
+"type": "text"
+},
+"column_2": {
+"value": "36.02 M EUR",
+"sortValue": 36018743.69,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Health Care",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "IE00B4BNMY34",
+"type": "text"
+},
+"column_0": {
+"value": "ACCENTURE PLC CLASS A",
+"type": "text"
+},
+"column_1": {
+"value": "2.952%",
+"sortValue": 2.95164944,
+"type": "text"
+},
+"column_2": {
+"value": "34.43 M EUR",
+"sortValue": 34429000.04,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Industrials",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US7427181091",
+"type": "text"
+},
+"column_0": {
+"value": "PROCTER & GAMBLE",
+"type": "text"
+},
+"column_1": {
+"value": "2.935%",
+"sortValue": 2.93459978,
+"type": "text"
+},
+"column_2": {
+"value": "34.23 M EUR",
+"sortValue": 34230127.18,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Consumer Discretionary",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US00206R1023",
+"type": "text"
+},
+"column_0": {
+"value": "AT&T",
+"type": "text"
+},
+"column_1": {
+"value": "2.885%",
+"sortValue": 2.88471736,
+"type": "text"
+},
+"column_2": {
+"value": "33.65 M EUR",
+"sortValue": 33648282.5,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Telecommunications",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US0378331005",
+"type": "text"
+},
+"column_0": {
+"value": "APPLE",
+"type": "text"
+},
+"column_1": {
+"value": "2.881%",
+"sortValue": 2.8805703,
+"type": "text"
+},
+"column_2": {
+"value": "33.60 M EUR",
+"sortValue": 33599909.77,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Technology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US9311421039",
+"type": "text"
+},
+"column_0": {
+"value": "WALMART",
+"type": "text"
+},
+"column_1": {
+"value": "2.869%",
+"sortValue": 2.86908123,
+"type": "text"
+},
+"column_2": {
+"value": "33.47 M EUR",
+"sortValue": 33465897.48,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Consumer Discretionary",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+}
+]
+}
+]
+}

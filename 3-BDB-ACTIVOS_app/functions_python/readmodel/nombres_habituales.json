@@ -1,0 +1,19 @@
+{
+  "descripcion": "Decision 81 de Oscar (05-11-2026). Los nombres por los que se pide un valor y que la base no usa, por ISIN, y como se escribe una gestora. La copia del sitio esta en src/core/busquedaDeActivos.ts, y tests/busquedaDeActivos.test.ts falla si difieren.",
+  "nombres_por_isin": {
+    "ES0148396007": ["Inditex", "Zara"],
+    "ES0105027009": ["Logista"],
+    "ES01717430J3": ["Prisa"],
+    "ES0116870314": ["Gas Natural"],
+    "ES0177542018": ["Iberia"],
+    "ES0173093024": ["Red Eléctrica"],
+    "ES0169501022": ["PharmaMar"],
+    "ES0162600003": ["Duro Felguera"],
+    "ES0126962069": ["Nextil"],
+    "ES0180918015": ["Sanjose"],
+    "NL0015001OI1": ["Mediaset"]
+  },
+  "variantes_de_gestora": {
+    "schroders": "schroder"
+  }
+}

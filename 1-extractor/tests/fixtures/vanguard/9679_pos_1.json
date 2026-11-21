@@ -1,0 +1,168 @@
+{
+"data": {
+"borHoldings": [
+{
+"holdings": {
+"items": [
+{
+"issuerName": "NVIDIA Corp",
+"securityLongDescription": "NVIDIA Corp",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 5.0056,
+"sedol1": "2379504",
+"ticker": "NVDA",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Apple Inc",
+"securityLongDescription": "Apple Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 4.52315,
+"sedol1": "2046251",
+"ticker": "AAPL",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Microsoft Corp",
+"securityLongDescription": "Microsoft Corp",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 3.57994,
+"sedol1": "2588173",
+"ticker": "MSFT",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Amazon.com Inc",
+"securityLongDescription": "Amazon.com Inc",
+"gicsSectorDescription": "Consumer Discretionary",
+"marketValuePercentage": 2.2704,
+"sedol1": "2000019",
+"ticker": "AMZN",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Alphabet Inc",
+"securityLongDescription": "Alphabet Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 1.91286,
+"sedol1": "BYVY8G0",
+"ticker": "GOOGL",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Taiwan Semiconductor Manufacturing Co Ltd",
+"securityLongDescription": "Taiwan Semiconductor Manufacturing Co Ltd",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 1.78156,
+"sedol1": "6889106",
+"ticker": "2330",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "TW"
+},
+{
+"issuerName": "Broadcom Inc",
+"securityLongDescription": "Broadcom Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 1.53514,
+"sedol1": "BDZ78H9",
+"ticker": "AVGO",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Meta Platforms Inc",
+"securityLongDescription": "Meta Platforms Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 1.49765,
+"sedol1": "B7TL820",
+"ticker": "META",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Alphabet Inc",
+"securityLongDescription": "Alphabet Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 1.49229,
+"sedol1": "BYY88Y7",
+"ticker": "GOOG",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Micron Technology Inc",
+"securityLongDescription": "Micron Technology Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 1.12849,
+"sedol1": "2588184",
+"ticker": "MU",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Tesla Inc",
+"securityLongDescription": "Tesla Inc",
+"gicsSectorDescription": "Consumer Discretionary",
+"marketValuePercentage": 0.97396,
+"sedol1": "B616C79",
+"ticker": "TSLA",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Advanced Micro Devices Inc",
+"securityLongDescription": "Advanced Micro Devices Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 0.93539,
+"sedol1": "2007849",
+"ticker": "AMD",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "BANK OF AMERICA NA SWAP",
+"securityLongDescription": "TRS:GOLDMAN SACHS GROUP INC USD 2028-Aug-31",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.07146,
+"sedol1": null,
+"ticker": null,
+"securityType": "CT.PORTSWAP",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": null,
+"securityLongDescription": "USD/EUR FWD 20261216",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.04005,
+"sedol1": null,
+"ticker": "USD",
+"securityType": "CT.FOREX",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": null
+}
+],
+"totalHoldings": 4235,
+"lastItemKey": "pagina-2"
+}
+}
+]
+}
+}

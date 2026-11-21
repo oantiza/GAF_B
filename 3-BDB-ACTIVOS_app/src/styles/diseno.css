@@ -1,0 +1,221 @@
+/*
+ * Propuestas: Diseño y Guardadas (rediseño del 14-11-2026, «Informe vivo»).
+ *
+ * Corta a propósito: la banda, las pestañas, los bloques, los avisos y las tablas ya tienen su estilo en las piezas.
+ * Aquí solo va lo que no es de ninguna pieza: la banda de los datos de la propuesta, que mezcla campos y cifras (la
+ * pieza `Respuesta` es solo para cifras, y la banda reutiliza su aspecto con `.respuesta`), y la rejilla de cada paso.
+ * La cargan `PortfolioBuilder.tsx` y `CarterasGuardadasPage.tsx`.
+ */
+
+/* ---------------------------------------------------------------- la banda de los datos de la propuesta */
+
+/* Lo que se edita, a la izquierda; lo que no, a la derecha, con el filete de la banda entre los dos. Como la banda
+   abierta de la pieza (`.respuesta--abierta`), no es una caja: va sobre el lienzo, cerrada por un filete inferior. Pero
+   no la usa: los campos arrancan en el margen de la página sin el filete de un dato a su izquierda (la abierta se corre
+   ese relleno y dibuja su filete inferior desde ahí), y la banda no se pega a la cabecera. */
+.respuesta.diseno-datos {
+  align-items: flex-start;
+  column-gap: var(--s-8);
+  padding: var(--s-6) 0;
+  border: 0;
+  border-bottom: 1px solid var(--filete-fuerte);
+  border-radius: 0;
+  background: transparent;
+}
+
+.diseno-datos__campos {
+  display: grid;
+  flex: 3 1 0;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--s-5) var(--s-6);
+  min-width: 0;
+  padding: 0 var(--s-8) 0 0;
+}
+
+.diseno-datos__campos .field {
+  min-width: 0;
+}
+
+/* El euro o los años, pegados a su campo. */
+.diseno-datos__unidad {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.diseno-datos__unidad > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.diseno-datos__cifras {
+  display: flex;
+  flex: 2 1 0;
+  min-width: 0;
+}
+
+/* La suma que no cuadra: en ocre, con su palabra («Faltan 3,5 pp») y «Normalizar» al lado. */
+.diseno-datos__suma--descuadre .respuesta__cifra {
+  color: var(--aviso);
+}
+
+.diseno-datos__normalizar {
+  margin-top: var(--s-3);
+}
+
+.diseno-datos__nota {
+  margin: var(--s-4) 0 0;
+}
+
+/* El aviso de la banda llega hasta donde llega la banda: con el tope de lectura de la pieza se quedaba a media fila. */
+.diseno-datos__nota > .aviso {
+  max-width: none;
+}
+
+/* ---------------------------------------------------------------- los pasos */
+
+/* Pegado a sus pestañas: entre ellas y el primer bloque, solo el hueco de la página. */
+.diseno-paso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+/* Las herramientas de edición en la cabecera de «Posiciones»: modo y las dos acciones que abren su diálogo. */
+.diseno-herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+/* DIS-25: la tabla de posiciones pide su ancho; a 768 px, o con el menú abierto en un portátil, se desplaza dentro de
+   su envoltorio en vez de salirse de la columna. */
+.diseno-paso .portfolio-table-wrapper {
+  overflow-x: auto;
+}
+
+/* «Estado», en el lateral de Componer: una fila por cosa, con el punto de su color delante y su palabra («Concentración
+   baja»). El punto refuerza la palabra: bien, el verde del signo; atención, ocre; mal, rojo; lo informativo, gris. */
+.diseno-estado__filas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diseno-estado__fila {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--filete);
+  font-size: var(--texto-sm);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+}
+
+.diseno-estado__fila b {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.diseno-estado__punto {
+  flex: none;
+  width: var(--s-4);
+  height: var(--s-4);
+  border-radius: 50%;
+  background: var(--tinta-3);
+  transform: translateY(-1px);
+}
+
+.diseno-estado__fila--bien .diseno-estado__punto {
+  background: var(--sube);
+}
+
+.diseno-estado__fila--atencion .diseno-estado__punto {
+  background: var(--aviso);
+}
+
+.diseno-estado__fila--mal .diseno-estado__punto {
+  background: var(--baja);
+}
+
+/* Al pie del estado, el recuento con el enlace al paso Comprobar. */
+.diseno-estado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+.diseno-revisar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* El paso siguiente, al pie de cada paso. */
+.diseno-siguiente {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-4);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--filete);
+}
+
+/* ---------------------------------------------------------------- Guardadas */
+
+.guardadas-buscar {
+  max-width: calc(var(--s-12) * 6);
+}
+
+/* Las tres acciones de una fila van en una línea: apiladas, cada fila medía tres botones de alto. */
+.guardadas-acciones {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  white-space: nowrap;
+}
+
+/* Esta tabla lleva nueve columnas y tres acciones: sus tres columnas anchas (suman, fuera del catálogo, sectores) no
+   caben a 1440 px con el menú abierto, que es donde la pieza las enseña por defecto. Aquí bajan al nombre, en una
+   línea, hasta que hay sitio de verdad. */
+@media (max-width: 1799.98px) {
+  .carteras .tabla__columna--solo-ancho {
+    display: none;
+  }
+
+  .carteras .tabla__apunte--estrecho {
+    display: block;
+  }
+}
+
+/* En tableta no caben en una línea junto a las seis columnas: se reparten en las que haga falta. */
+@media (max-width: 1024.98px) {
+  .guardadas-acciones {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}
+
+/* ---------------------------------------------------------------- tableta */
+
+/* Apilados, campos y cifras arrancan y acaban en el margen de la banda, como su aviso y su filete: los campos sueltan el
+   relleno que los separaba de las cifras, y las cifras se corren lo que mide el relleno de su primer dato. */
+@media (max-width: 1024.98px) {
+  .diseno-datos__campos {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    flex-basis: 100%;
+    padding-right: 0;
+  }
+
+  .diseno-datos__cifras {
+    flex-basis: calc(100% + var(--respuesta-relleno));
+    margin-left: calc(-1 * var(--respuesta-relleno));
+  }
+}

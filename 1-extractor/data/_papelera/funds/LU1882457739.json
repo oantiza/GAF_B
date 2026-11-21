@@ -1,0 +1,4101 @@
+{
+  "identificacion": {
+    "nombre": "Amundi Funds - Emerging Markets Corporate High Yield Bond C EUR (C)",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Global Emerging Markets Corporate Bond",
+    "fecha_lanzamiento_clase": "2012-07-11",
+    "gestora": "Amundi",
+    "fecha_lanzamiento_fondo": "2012-07-11",
+    "estrategia_inversion_texto": "The fund seeks to increase the value of your investment (through income and capital growth), and outperform the benchmark, over the recommended holding period, while achieving an ESG score greater than that of the benchmark.",
+    "clase_activo": "Fixed Income",
+    "indice_benchmark_oficial": "JPM CEMBI Broad Diversified NonIG TR USD",
+    "inversion_minima_inicial": 1.0,
+    "paraguas_legal": "AMUNDI FUNDS",
+    "compartimento_legal": "EMERGING MARKETS CORPORATE HIGH YIELD BOND",
+    "clase_legal": "C EUR C",
+    "nombre_legal_registro": "AMUNDI FUNDS-EMERGING MARKETS CORPORATE HIGH YIELD BOND",
+    "divisa_compartimento": "EUR",
+    "fecha_autorizacion_cssf": "2018-08-30",
+    "productor_kid": "Amundi Luxembourg S.A.",
+    "marco_legal": "UCITS",
+    "gestora_legal": "AMUNDI LUXEMBOURG S.A.",
+    "nombre_legal_esma": "AMUNDI FUNDS-EMERGING MARKETS CORPORATE HIGH YIELD BOND",
+    "estado_registro_esma": "Active",
+    "comercializado_en_espana": true,
+    "paises_comercializacion": [
+      "AT",
+      "BE",
+      "DE",
+      "DK",
+      "ES",
+      "FI",
+      "FR",
+      "GR",
+      "IE",
+      "IT",
+      "NL",
+      "PT",
+      "SE",
+      "SK"
+    ],
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "LUX",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "costes": {
+    "ter_pct": 2.8,
+    "comision_suscripcion_max_pct": 1.0,
+    "comision_gestion_aplicada_pct": 1.45,
+    "comision_gestion_max_pct": 1.45,
+    "mifid_emt_exante": {
+      "corrientes_pct": 2.85,
+      "transaccion_pct": 0.4887,
+      "incidentales_pct": 0.0,
+      "fecha": "2025-06-30"
+    },
+    "ter_vs_categoria": {
+      "mediana_categoria_pct": 1.48,
+      "nivel": 5
+    },
+    "kid": {
+      "entrada_pct": 0.0,
+      "salida_pct": 0.0,
+      "gestion_y_otros_pct": 2.85,
+      "transaccion_pct": 0.78,
+      "rendimiento_pct": 20.0,
+      "fecha": "2025-09-05",
+      "idioma": "es"
+    }
+  },
+  "valoracion": {
+    "vl": 83.48,
+    "vl_fecha": "2025-11-28T06:00:00.000",
+    "vl_divisa": "EUR",
+    "patrimonio_fondo_meur": 77.4,
+    "patrimonio_fecha": "2025-11-28",
+    "patrimonio_divisa": "EUR"
+  },
+  "rentabilidad": {
+    "trailing_pct": {
+      "1m": {
+        "fondo": -0.54801,
+        "categoria": -0.228391
+      },
+      "3m": {
+        "fondo": 2.01638,
+        "categoria": 0.541558
+      },
+      "6m": {
+        "fondo": 2.530091,
+        "categoria": 1.646615
+      },
+      "ytd": {
+        "fondo": -5.2548,
+        "categoria": 2.713147
+      },
+      "1a": {
+        "fondo": -3.48017,
+        "categoria": 4.618393
+      },
+      "3a_anualizada": {
+        "fondo": 4.87081,
+        "categoria": 5.090768
+      },
+      "5a_anualizada": {
+        "fondo": 2.65186,
+        "categoria": 1.593845
+      },
+      "10a_anualizada": {
+        "fondo": 2.745961,
+        "categoria": 2.991142
+      },
+      "desde_lanzamiento_anualizada": {
+        "fondo": 3.902895
+      }
+    },
+    "fecha_dato": "2025-11-30",
+    "por_año_natural": {
+      "2024": {
+        "fondo": 17.65256
+      },
+      "2023": {
+        "fondo": 4.04278
+      },
+      "2022": {
+        "fondo": -5.37664
+      },
+      "2021": {
+        "fondo": 3.7224
+      },
+      "2020": {
+        "fondo": -4.04292
+      },
+      "2019": {
+        "fondo": 14.89778
+      },
+      "2018": {
+        "fondo": -0.86436
+      },
+      "2017": {
+        "fondo": -4.48399
+      },
+      "2016": {
+        "fondo": 15.71404
+      },
+      "2015": {
+        "fondo": 10.8656
+      },
+      "2014": {
+        "fondo": 11.1878
+      },
+      "2013": {
+        "fondo": -1.79461
+      }
+    }
+  },
+  "riesgo": {
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 9.6123798951,
+        "categoria": 3.822124766,
+        "indice": 4.5809759781
+      },
+      "3a": {
+        "fondo": 7.2105200761,
+        "categoria": 6.0593509835,
+        "indice": 6.2232304624
+      },
+      "5a": {
+        "fondo": 7.8415398402,
+        "categoria": 6.5938389598,
+        "indice": 6.6512030837
+      },
+      "10a": {
+        "fondo": 9.082322926,
+        "categoria": 7.6371117026,
+        "indice": 7.5213506828
+      }
+    },
+    "sharpe": {
+      "3a": {
+        "fondo": 0.8571111223,
+        "categoria": 0.7679520783,
+        "indice": 0.5502449675
+      },
+      "1a": {
+        "fondo": 0.6165017165,
+        "categoria": 0.0110125097,
+        "indice": -0.0182415652
+      },
+      "5a": {
+        "fondo": -0.1722709671,
+        "categoria": -0.358446789,
+        "indice": -0.3902318395
+      },
+      "10a": {
+        "fondo": 0.182876766,
+        "categoria": 0.0898753799,
+        "indice": 0.1294899764
+      }
+    },
+    "fecha_dato": "2025-11-30",
+    "alpha": {
+      "1a": {
+        "fondo": -0.9548625177,
+        "categoria": 0.1001858358
+      },
+      "3a": {
+        "fondo": 1.4969379637,
+        "categoria": 1.044271464
+      },
+      "5a": {
+        "fondo": 0.416408772,
+        "categoria": 0.0940997574
+      },
+      "10a": {
+        "fondo": -0.6216246259,
+        "categoria": -0.2668388181
+      }
+    },
+    "beta": {
+      "1a": {
+        "fondo": 0.7899437969,
+        "categoria": 0.9081173087
+      },
+      "3a": {
+        "fondo": 0.750088409,
+        "categoria": 0.8699532085
+      },
+      "5a": {
+        "fondo": 0.925153133,
+        "categoria": 0.9057669204
+      },
+      "10a": {
+        "fondo": 1.0830548119,
+        "categoria": 1.0030073441
+      }
+    },
+    "r2": {
+      "1a": {
+        "fondo": 70.7890265901,
+        "categoria": 93.4834546966
+      },
+      "3a": {
+        "fondo": 70.8856646024,
+        "categoria": 92.0568700173
+      },
+      "5a": {
+        "fondo": 72.3782905168,
+        "categoria": 91.4180877771
+      },
+      "10a": {
+        "fondo": 81.7412010543,
+        "categoria": 94.6519048556
+      }
+    },
+    "tracking_error_pct": {
+      "1a": {
+        "fondo": 1.64836
+      },
+      "3a": {
+        "fondo": 2.74052
+      },
+      "5a": {
+        "fondo": 3.88863
+      }
+    },
+    "information_ratio": {
+      "1a": {
+        "fondo": -1.09164
+      },
+      "3a": {
+        "fondo": 0.25207
+      },
+      "5a": {
+        "fondo": 0.12521
+      }
+    },
+    "srri_1a7": 4,
+    "historial_precios": {
+      "source_history": "eodhd",
+      "source_listing_id": "EODHD:LU1882457739.EUFUND",
+      "first_date": "2012-07-11",
+      "last_date": "2025-11-28",
+      "observations_count": 3341,
+      "aviso_vl": "serie_parada(335d)"
+    },
+    "kid_periodo_mantenimiento_anos": 4,
+    "sri_kid_1a7": 3
+  },
+  "esg": {
+    "globos_sostenibilidad": 3,
+    "fecha": "2025-10-31",
+    "sustainability_score": 27.21355,
+    "score_ambiental": 3.21,
+    "score_social": 3.84,
+    "score_gobernanza": 2.48,
+    "cobertura_cartera_pct": 74.43855,
+    "carbono": {
+      "carbon_risk_score": 18.06,
+      "clasificacion": "Medium Risk",
+      "score_exposicion": 28.25,
+      "score_gestion": 10.19,
+      "riesgo_activos_varados": 70.27
+    },
+    "sfdr_articulo": "8"
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "meta": {
+    "sec_id_morningstar": "F00000OL1U",
+    "cssf_fichero": "2026-10",
+    "esma_coincidencia": {
+      "pais": "LU",
+      "modo": "exacto",
+      "consulta": "AMUNDI FUNDS-EMERGING MARKETS CORPORATE HIGH YIELD BOND",
+      "candidatos": 1
+    },
+    "isin": "LU1882457739",
+    "actualizado": "2026-10-29T08:43:24+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "morningstar_lt",
+        "cssf",
+        "kid_gestora",
+        "esma",
+        "config_csv"
+      ],
+      "costes": [
+        "morningstar_lt",
+        "kid_gestora"
+      ],
+      "valoracion": [
+        "morningstar_lt"
+      ],
+      "rentabilidad": [
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "morningstar_lt",
+        "vl_eodhd",
+        "kid_gestora"
+      ],
+      "esg": [
+        "morningstar_lt",
+        "kid_gestora"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "meta": [
+        "morningstar_lt",
+        "cssf",
+        "esma"
+      ],
+      "cartera": [
+        "morningstar_lt"
+      ],
+      "gestion": [
+        "morningstar_lt"
+      ],
+      "documentos_oficiales": [
+        "kid_gestora"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:MFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.calidad_cartera.roa_pct": "morningstar_lt:MFsnapshot",
+      "cartera.capitalizacion_pct.gigante": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.grande": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.media_musd": "morningstar_lt:MFsnapshot",
+      "cartera.capitalizacion_pct.mediana": "morningstar_lt:MFsnapshot",
+      "cartera.capitalizacion_pct.micro": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.pequeña": "morningstar_lt:sal_marketCap",
+      "cartera.divisas_pct.CAD": "derivado:derivados",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.divisas_pct.GBP": "derivado:derivados",
+      "cartera.divisas_pct.HKD": "derivado:derivados",
+      "cartera.divisas_pct.JPY": "derivado:derivados",
+      "cartera.divisas_pct.USD": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:sal_position",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rf": "morningstar_lt:MFsnapshot",
+      "cartera.num_posiciones_rv": "morningstar_lt:MFsnapshot",
+      "cartera.paises_pct.CHN": "morningstar_lt:MFsnapshot",
+      "cartera.paises_pct.GBR": "morningstar_lt:MFsnapshot",
+      "cartera.peso_top10_pct": "morningstar_lt:sal_position",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.regiones_pct.asia_emergente": "morningstar_lt:MFsnapshot",
+      "cartera.regiones_pct.otros": "morningstar_lt:MFsnapshot",
+      "cartera.regiones_pct.reino_unido": "morningstar_lt:MFsnapshot",
+      "cartera.renta_fija.cupon_medio_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.precio_medio": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.corporativa": "morningstar_lt:MFsnapshot",
+      "cartera.renta_fija.sectores_pct.derivados": "morningstar_lt:MFsnapshot",
+      "cartera.renta_fija.sectores_pct.gobierno": "morningstar_lt:MFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:MFsnapshot",
+      "cartera.renta_fija.vencimientos_pct.10_15": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.15_20": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.1_3": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.20_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.3_5": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.5_7": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.7_10": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.mas_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.ytw_distribucion_pct.0_1": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.10_20": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.3_5": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.5_7": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.7_10": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.desconocido": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.mas_20": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.sectores_pct.energia.fondo": "morningstar_lt:MFsnapshot",
+      "cartera.sectores_pct.inmobiliario.fondo": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LB": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LG": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LV": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MB": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MG": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MV": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SB": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SG": "morningstar_lt:MFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SV": "morningstar_lt:MFsnapshot",
+      "cartera.top10_posiciones": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.crec_beneficios_pct": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.crec_cashflow_pct": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.crec_ventas_pct": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.pcf": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.pventas": "morningstar_lt:MFsnapshot",
+      "cartera.valoracion_cartera.yield_dividendo_pct": "morningstar_lt:MFsnapshot",
+      "costes.comision_gestion_aplicada_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_suscripcion_max_pct": "morningstar_lt:screener",
+      "costes.kid.entrada_pct": "kid_gestora:amundi",
+      "costes.kid.fecha": "kid_gestora:amundi",
+      "costes.kid.gestion_y_otros_pct": "kid_gestora:amundi",
+      "costes.kid.idioma": "kid_gestora:amundi",
+      "costes.kid.rendimiento_pct": "kid_gestora:amundi",
+      "costes.kid.salida_pct": "kid_gestora:amundi",
+      "costes.kid.transaccion_pct": "kid_gestora:amundi",
+      "costes.mifid_emt_exante.corrientes_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.fecha": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.incidentales_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.transaccion_pct": "morningstar_lt:Mifid",
+      "costes.ter_pct": "morningstar_lt:ETFsnapshot",
+      "costes.ter_vs_categoria.mediana_categoria_pct": "morningstar_lt:sal_feeLevel",
+      "costes.ter_vs_categoria.nivel": "morningstar_lt:sal_feeLevel",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "documentos_oficiales.kid_fecha": "kid_gestora:amundi",
+      "documentos_oficiales.kid_fuente": "kid_gestora:amundi",
+      "documentos_oficiales.kid_sha256": "kid_gestora:amundi",
+      "documentos_oficiales.kid_url": "kid_gestora:amundi",
+      "esg.carbono.carbon_risk_score": "morningstar_lt:sustainability",
+      "esg.carbono.clasificacion": "morningstar_lt:sustainability",
+      "esg.carbono.riesgo_activos_varados": "morningstar_lt:sustainability",
+      "esg.carbono.score_exposicion": "morningstar_lt:sustainability",
+      "esg.carbono.score_gestion": "morningstar_lt:sustainability",
+      "esg.cobertura_cartera_pct": "morningstar_lt:sustainability",
+      "esg.fecha": "morningstar_lt:sustainability",
+      "esg.globos_sostenibilidad": "morningstar_lt:sustainability",
+      "esg.score_ambiental": "morningstar_lt:sustainability",
+      "esg.score_gobernanza": "morningstar_lt:sustainability",
+      "esg.score_social": "morningstar_lt:sustainability",
+      "esg.sfdr_articulo": "kid_gestora:amundi",
+      "esg.sustainability_score": "morningstar_lt:sustainability",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "gestion.gestores": "morningstar_lt:ETFsnapshot",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_legal": "cssf:identificadores",
+      "identificacion.comercializado_en_espana": "esma:cbdif",
+      "identificacion.compartimento_legal": "cssf:identificadores",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.divisa_compartimento": "cssf:identificadores",
+      "identificacion.domicilio": "cssf:identificadores",
+      "identificacion.estado_registro_esma": "esma:cbdif",
+      "identificacion.estrategia_inversion_texto": "morningstar_lt:sal_investmentStrategy",
+      "identificacion.fecha_autorizacion_cssf": "cssf:identificadores",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "esma:cbdif",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.inversion_minima_inicial": "morningstar_lt:ETFsnapshot",
+      "identificacion.marco_legal": "esma:cbdif",
+      "identificacion.nombre": "morningstar_lt:ETFsnapshot",
+      "identificacion.nombre_legal_esma": "esma:cbdif",
+      "identificacion.nombre_legal_registro": "cssf:identificadores",
+      "identificacion.paises_comercializacion": "esma:cbdif",
+      "identificacion.paraguas_legal": "cssf:identificadores",
+      "identificacion.productor_kid": "kid_gestora:amundi",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "cssf:identificadores",
+      "meta.cssf_fichero": "cssf:identificadores",
+      "meta.esma_coincidencia.candidatos": "esma:cbdif",
+      "meta.esma_coincidencia.consulta": "esma:cbdif",
+      "meta.esma_coincidencia.modo": "esma:cbdif",
+      "meta.esma_coincidencia.pais": "esma:cbdif",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2013.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2014.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2015.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2016.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2017.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2018.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2019.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2020.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2021.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2022.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2023.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2024.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.10a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.10a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.5a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.5a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.6m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.desde_lanzamiento_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.alpha.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.historial_precios.aviso_vl": "vl_eodhd:eod",
+      "riesgo.historial_precios.first_date": "vl_eodhd:eod",
+      "riesgo.historial_precios.last_date": "vl_eodhd:eod",
+      "riesgo.historial_precios.observations_count": "vl_eodhd:eod",
+      "riesgo.historial_precios.source_history": "vl_eodhd:eod",
+      "riesgo.historial_precios.source_listing_id": "vl_eodhd:eod",
+      "riesgo.information_ratio.1a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.information_ratio.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.information_ratio.5a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.kid_periodo_mantenimiento_anos": "kid_gestora:amundi",
+      "riesgo.r2.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sri_kid_1a7": "kid_gestora:amundi",
+      "riesgo.srri_1a7": "morningstar_lt:Mifid",
+      "riesgo.tracking_error_pct.1a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.tracking_error_pct.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.tracking_error_pct.5a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.volatilidad_pct.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "morningstar_lt:sal_quote",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "cssf",
+        "vl_eodhd",
+        "morningstar_lt",
+        "kid_gestora",
+        "esma"
+      ],
+      "familias": [
+        "precio"
+      ],
+      "fuentes": {
+        "cssf": {
+          "hojas": 10,
+          "endpoints": {
+            "cssf:identificadores": {
+              "fichero": "2026-10"
+            }
+          },
+          "segundos": 0.0
+        },
+        "vl_eodhd": {
+          "hojas": 6,
+          "endpoints": {
+            "vl_eodhd:eod": {
+              "fetched_at": "2026-10-29T01:06:47+00:00",
+              "url": "https://eodhd.com/api/eod/LU1882457739.EUFUND"
+            }
+          },
+          "segundos": 0.02
+        },
+        "morningstar_lt": {
+          "hojas": 2103,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-10-29T01:06:47+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-09-29T06:51:24+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-09-29T06:51:25+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-09-29T06:51:26+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-09-29T06:51:28+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-09-29T06:51:28+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-09-29T06:51:30+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-09-29T06:51:32+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-09-29T06:51:33+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-09-29T06:51:35+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-09-29T06:51:36+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-09-29T06:51:38+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-09-29T06:51:52+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-09-29T06:51:41+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-09-29T06:51:42+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-09-29T06:51:44+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-09-29T06:51:45+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-09-29T06:51:39+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-09-29T06:51:46+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-09-29T06:51:49+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-09-29T06:51:51+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-09-29T06:51:48+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-09-29T06:51:53+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-09-29T06:51:55+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-09-29T06:51:57+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-09-29T06:51:58+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-09-29T06:51:59+00:00"
+            }
+          },
+          "segundos": 0.03
+        },
+        "kid_gestora": {
+          "hojas": 15,
+          "endpoints": {
+            "kid_gestora:amundi": {
+              "fetched_at": "2026-09-29T06:52:00+00:00",
+              "url": "https://www.amundi.es/retail/dl/doc/kid-priips/LU1882457739/SPA/ESP",
+              "documento": "2025-09-05"
+            }
+          },
+          "segundos": 0.09
+        },
+        "esma": {
+          "hojas": 26,
+          "endpoints": {
+            "esma:cbdif": {
+              "fetched_at": "2026-09-29T06:52:00+00:00",
+              "consulta": "AMUNDI FUNDS-EMERGING MARKETS CORPORATE HIGH YIELD BOND",
+              "modo": "exacto"
+            }
+          },
+          "segundos": 0.0
+        }
+      }
+    }
+  },
+  "cartera": {
+    "fecha": "2026-03-31",
+    "num_posiciones": 278,
+    "num_posiciones_rv": 2,
+    "num_posiciones_rf": 226,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 104.95721,
+        "largo": 108.31013,
+        "corto": 3.35292
+      },
+      "convertibles": {
+        "neto": 0.21024,
+        "largo": 0.21024,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.22376,
+        "largo": 0.22376,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": -5.48582,
+        "largo": 16.13681,
+        "corto": 21.62263
+      },
+      "otros": {
+        "neto": 0.07777,
+        "largo": 0.07911,
+        "corto": 0.00134
+      }
+    },
+    "sectores_pct": {
+      "inmobiliario": {
+        "fondo": 82.185273
+      },
+      "energia": {
+        "fondo": 17.814727
+      }
+    },
+    "regiones_pct": {
+      "reino_unido": 17.814727,
+      "asia_emergente": 82.185273,
+      "otros": 82.185273
+    },
+    "paises_pct": {
+      "CHN": 82.1853,
+      "GBR": 17.8147
+    },
+    "capitalizacion_pct": {
+      "gigante": 0.0,
+      "grande": 0.0,
+      "mediana": 0.0,
+      "pequeña": 0.0,
+      "micro": 0.01685,
+      "media_musd": 55.2798
+    },
+    "style_box_rv": {
+      "celdas_pct": {
+        "LV": 0.0,
+        "LB": 0.0,
+        "LG": 0.0,
+        "MV": 0.0,
+        "MB": 0.0,
+        "MG": 0.0,
+        "SV": 100.0,
+        "SB": 0.0,
+        "SG": 0.0
+      }
+    },
+    "renta_fija": {
+      "sectores_pct": {
+        "gobierno": 13.213641,
+        "corporativa": 92.988046,
+        "liquidez": -5.492957,
+        "derivados": -0.708731
+      },
+      "cupon_medio_pct": 7.98631,
+      "precio_medio": 87.00974,
+      "fecha": "2026-03-31T05:00:00.000",
+      "vencimientos_pct": {
+        "1_3": 15.88805,
+        "3_5": 35.75664,
+        "5_7": 16.18069,
+        "7_10": 12.28622,
+        "10_15": 3.96104,
+        "15_20": 0.70584,
+        "20_30": 0.31817,
+        "mas_30": 0.67804
+      },
+      "ytw_distribucion_pct": {
+        "3_5": 0.867,
+        "5_7": 18.98,
+        "7_10": 53.296,
+        "10_20": 15.238,
+        "desconocido": 7.809,
+        "0_1": 0.279,
+        "mas_20": 3.531
+      }
+    },
+    "valoracion_cartera": {
+      "pventas": 0.09261,
+      "pcf": 1.0268,
+      "yield_dividendo_pct": 0.0,
+      "crec_beneficios_pct": 0.0,
+      "crec_ventas_pct": -54.8019,
+      "crec_cashflow_pct": -85.32753
+    },
+    "calidad_cartera": {
+      "roa_pct": -13.27104
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "10 Year Treasury Note Future June 26",
+        "isin": null,
+        "peso_pct": 6.67491,
+        "sector": null,
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "5Y T-Note (CBT) Jun 26",
+        "isin": null,
+        "peso_pct": 6.26453,
+        "sector": null,
+        "pais": "USA",
+        "divisa": null
+      },
+      {
+        "nombre": "YPF Sociedad Anonima 8.75%",
+        "isin": "USP989MJBV29",
+        "peso_pct": 2.45322,
+        "sector": null,
+        "pais": "ARG",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Vedanta Resources Finance II PLC 10.875%",
+        "isin": "USG9T27HAG93",
+        "peso_pct": 2.16442,
+        "sector": null,
+        "pais": "IND",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Euro Bund Future June 26",
+        "isin": null,
+        "peso_pct": 2.07554,
+        "sector": null,
+        "pais": "DEU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Auna SA AND Oncosalud S. A. C 8.75%",
+        "isin": "USL04168AA59",
+        "peso_pct": 1.78325,
+        "sector": null,
+        "pais": "PER",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Azule Energy Finance PLC 8.25%",
+        "isin": "XS3271042338",
+        "peso_pct": 1.75979,
+        "sector": null,
+        "pais": "AGO",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Telecom Argentina SA 9.25%",
+        "isin": "USP9028NCA74",
+        "peso_pct": 1.60987,
+        "sector": null,
+        "pais": "ARG",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Amundi Fds Asia Bd Inc Resp Z USD (C)",
+        "isin": "LU2665730730",
+        "peso_pct": 1.57155,
+        "sector": null,
+        "pais": "LUX",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Wynn Macau Ltd. 5.625%",
+        "isin": "USG98149AH33",
+        "peso_pct": 1.35583,
+        "sector": null,
+        "pais": "MAC",
+        "divisa": "USD"
+      }
+    ],
+    "peso_top10_pct": 23.56183,
+    "posiciones": [
+      {
+        "nombre": "Kaisa Group Holdings Ltd",
+        "isin": "KYG521321003",
+        "ticker": "01638",
+        "tipo": "rv",
+        "peso_pct": 0.01384,
+        "divisa": "HKD",
+        "sector": "inmobiliario",
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Nostrum Oil & Gas PLC",
+        "isin": "GB00BQVVS097",
+        "ticker": "NOG",
+        "tipo": "rv",
+        "peso_pct": 0.003,
+        "divisa": "GBP",
+        "sector": "energia",
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Atento Luxco 1 Sa",
+        "isin": "LU3002200700",
+        "ticker": null,
+        "tipo": "rv",
+        "peso_pct": 0.0,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "10 Year Treasury Note Future June 26",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 6.67491,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "5Y T-Note (CBT) Jun 26",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 6.26453,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "YPF Sociedad Anonima 8.75%",
+        "isin": "USP989MJBV29",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.45322,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Vedanta Resources Finance II PLC 10.875%",
+        "isin": "USG9T27HAG93",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.16442,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Auna SA AND Oncosalud S. A. C 8.75%",
+        "isin": "USL04168AA59",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.78325,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "PER"
+      },
+      {
+        "nombre": "Azule Energy Finance PLC 8.25%",
+        "isin": "XS3271042338",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.75979,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "AGO"
+      },
+      {
+        "nombre": "Telecom Argentina SA 9.25%",
+        "isin": "USP9028NCA74",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.60987,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Wynn Macau Ltd. 5.625%",
+        "isin": "USG98149AH33",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.35583,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Aegea Finance S.a r.l. 9%",
+        "isin": "USL01343AB52",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.30717,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Oceanica Lux 13%",
+        "isin": "USL7151AAA45",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.22921,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Grupo Nutresa Sa 8%",
+        "isin": "USP4R21KAA49",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.19316,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "YPF Sociedad Anonima 8.5%",
+        "isin": "USP989MJBP50",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.15539,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Azule Energy Finance PLC 8.625%",
+        "isin": "XS3271041959",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.05453,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "AGO"
+      },
+      {
+        "nombre": "State Enterprise Navoiyuran 6.7%",
+        "isin": "XS3103532480",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.04844,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UZB"
+      },
+      {
+        "nombre": "Garanti Bbva 7.625%",
+        "isin": "XS3205715611",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.03682,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Banco de Credito del Peru 5.8%",
+        "isin": "US05971V2H78",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.02355,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "PER"
+      },
+      {
+        "nombre": "Turkiye Is Bankasi AS 7.575%",
+        "isin": "XS3264004329",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.00245,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "ADM Elektrik Dagitim AS 9.5%",
+        "isin": "XS3260262988",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.99815,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Melco Resorts Finance Limited 6.5%",
+        "isin": "USG5975LAL02",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.99103,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Trident Energy Finance PLC 12.5%",
+        "isin": "XS2818827169",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.90863,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Saavi Energia S.a.r.l. 8.875%",
+        "isin": "USL02668AA66",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.87294,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Transportadora de Gas del Sur S.A. 7.75%",
+        "isin": "USP9308RBB89",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.85771,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Fs Luxembourg SARL 8.625%",
+        "isin": "USL40756AG06",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.83298,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Azul Secured Finance LLP 9.875%",
+        "isin": "USU0551YAK11",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.80533,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Veon Holdings B.V. 3.375%",
+        "isin": "XS2824764521",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.79087,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Digicel International Finance Ltd/DIFL US LLC 8.625%",
+        "isin": "USG2800MAA02",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.77524,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "JAM"
+      },
+      {
+        "nombre": "Joint Stock Commercial Mortgage Bank Ipoteka Bank 6.45%",
+        "isin": "XS3200121716",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.7726,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UZB"
+      },
+      {
+        "nombre": "Piraeus Bank SA 6.125%",
+        "isin": "XS3201977595",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.77214,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GRC"
+      },
+      {
+        "nombre": "Fs Luxembourg SARL 8.125%",
+        "isin": "USL40756AH88",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.76883,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Zorlu Enerji Elektrik Ueretim AS 11%",
+        "isin": "XS2926261426",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.76574,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Telecom Argentina SA 9.5%",
+        "isin": "USP9028NBT74",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.73693,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "LD Celulose International GmbH 7.95%",
+        "isin": "USA4S42PAA32",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.71623,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "OTP Bank PLC 7.3%",
+        "isin": "XS2988670878",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.71517,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "HUN"
+      },
+      {
+        "nombre": "MSU Energy S.A. 9.75%",
+        "isin": "USP7000QAJ96",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.70507,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Garanti Bbva 8.125%",
+        "isin": "XS2913414384",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.69813,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Yapi Ve Kredi Bankasi A.S. 7.25%",
+        "isin": "XS3013242196",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.69252,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Akbank T.A.S. 7.875%",
+        "isin": "XS3013974533",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.68378,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Adecoagro SA 7.5%",
+        "isin": "USL00849AB20",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.68195,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Melco Resorts Finance Limited 5.75%",
+        "isin": "USG5975LAF34",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.68064,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Gdz Elektrik Dagitim AS 9%",
+        "isin": "XS2911134604",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.67916,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Sociedad Quimica y Minera de Chile S A 5.625%",
+        "isin": "USP8718AAR79",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.67804,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "First Quantum Minerals Ltd. 8.625%",
+        "isin": "USC3535CAP35",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.65809,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ZMB"
+      },
+      {
+        "nombre": "Ihs Holding Limited 8.25%",
+        "isin": "XS2941354727",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.65099,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "NGA"
+      },
+      {
+        "nombre": "Nova Ljubljanska Bank DD 6.5%",
+        "isin": "XS3227899989",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.65055,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SVN"
+      },
+      {
+        "nombre": "GLP Pte Ltd. 9.75%",
+        "isin": "XS3071310059",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.64768,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "SGP"
+      },
+      {
+        "nombre": "AI Candelaria Spain S.A. 5.75%",
+        "isin": "USE0R75RAB28",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.61725,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Bank Negara Indonesia (Persero) Tbk PT 4.3%",
+        "isin": "XS2385923722",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59885,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IDN"
+      },
+      {
+        "nombre": "Banco Mercantil del Norte S.A. 6.625%",
+        "isin": "USP1401KAB72",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59858,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Kosmos Energy Ltd 7.5%",
+        "isin": "USU5007TAB18",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59234,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GHA"
+      },
+      {
+        "nombre": "Aris Mining Corp. 8%",
+        "isin": "USC04492AA97",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.58684,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Studio City Finance Limited 5%",
+        "isin": "USG85381AG95",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.58668,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Golomt Bank JSC 11%",
+        "isin": "USY27906AA76",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57761,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MNG"
+      },
+      {
+        "nombre": "Empresa Distribuidora y Comercializadora Norte SA 9.75%",
+        "isin": "US29244AAM45",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57355,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Grupo Televisa S.A.B. 5%",
+        "isin": "US40049JBA43",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57334,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Kosmos Energy Ltd 8.75%",
+        "isin": "USU5007TAE56",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57167,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GHA"
+      },
+      {
+        "nombre": "Wom Mobile S.p.A. 11%",
+        "isin": "USP9883LAA72",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.5621,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "IIFL Finance Ltd. 8.75%",
+        "isin": "USY3R78RET83",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.5613,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Aragvi Finance International Designated Activity Company 11.125%",
+        "isin": "XS2932787687",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.55348,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MDA"
+      },
+      {
+        "nombre": "Trade & Development Bank JSC 8.5%",
+        "isin": "XS2958621810",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.55105,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MNG"
+      },
+      {
+        "nombre": "GeoPark Ltd. 8.75%",
+        "isin": "USG38327AD78",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.54892,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "India Green Power Holdings 4%",
+        "isin": "USV4819LAA09",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.53772,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Total Play Telecomunicaciones S.A.P.I.De.C.V. 10.5%",
+        "isin": "USP9190PAG39",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.52462,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "West China Cement Ltd. 9.9%",
+        "isin": "XS3219577148",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.51362,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Alpha Star Holding X Ltd. 6.125%",
+        "isin": "XS3289240726",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.50698,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Colombia Telecomunicaciones S.A. E.S.P. 4.95%",
+        "isin": "USP28768AC69",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.49833,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "UPL Corp Ltd. 4.625%",
+        "isin": "XS2189565992",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.49334,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Energo-Pro AS 6.45%",
+        "isin": "XS3201977918",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47614,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CZE"
+      },
+      {
+        "nombre": "Grupo Nutresa Sa 9%",
+        "isin": "USP4R21KAB22",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47253,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "NWD Finance (BVI) Limited 5.25%",
+        "isin": "XS2132986741",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.44464,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "HKG"
+      },
+      {
+        "nombre": "Transportadora de Gas del Sur S.A. 8.5%",
+        "isin": "USP9308RBA07",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.44074,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Orazul Energy Peru SA 6.25%",
+        "isin": "USP73906AA03",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.42927,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "PER"
+      },
+      {
+        "nombre": "Ivanhoe Mines Ltd. 7.875%",
+        "isin": "XS2978907512",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.42355,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null,
+        "pais_original": "Democratic Rep. of Congo"
+      },
+      {
+        "nombre": "Biocon Biologics Global PLC 6.67%",
+        "isin": "USG11185AA61",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.41963,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Sasol Financing USA LLC 6.5%",
+        "isin": "US80386WAB19",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.41662,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ZAF"
+      },
+      {
+        "nombre": "Vfu Funding PLC 9.625%",
+        "isin": "XS2114201622",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.41346,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "Vamos Europe 9.2%",
+        "isin": "USL96308AA64",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.41062,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Kondor Finance plc 7.125%",
+        "isin": "XS2027394233",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.40034,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "Sobha Sukuk Ltd. 8.75%",
+        "isin": "XS2633136234",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39763,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Natura Cosmeticos S A 4.125%",
+        "isin": "USP7088CAC03",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39644,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Alpha Star Holding IX Ltd. 7%",
+        "isin": "XS3006253044",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39593,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Fortune Star (BVI) Limited 8.5%",
+        "isin": "XS2922957746",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39593,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Stillwater Mining Co. 4.5%",
+        "isin": "USU85969AF71",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39516,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ZAF"
+      },
+      {
+        "nombre": "Rakuten Group Inc. 9.75%",
+        "isin": "USJ64264AK09",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.38137,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Adani Renewable Energy Rj Ltd/Kodangal Solar PKS Private Ltd/Wardha 2.3125%",
+        "isin": "XS2057842176",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.37477,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Seplat Energy PLC 9.125%",
+        "isin": "XS3030248325",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.36486,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "NGA"
+      },
+      {
+        "nombre": "Medco Cypress Tree Pte. Ltd. 8.625%",
+        "isin": "USY56616AA68",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.36368,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IDN"
+      },
+      {
+        "nombre": "Uzbek Industrial and Construction Bank 9.45%",
+        "isin": "XS3200158478",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.35828,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UZB"
+      },
+      {
+        "nombre": "Banco Macro S.A. 8%",
+        "isin": "USP1047VAL10",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.35654,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Kioxia Holdings Corp. 6.625%",
+        "isin": "USJ3343AAB38",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3559,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Turkiye Sinai Kalkinma Bankasi AS 7.125%",
+        "isin": "XS2919891361",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.35536,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Akbank T.A.S. 9.3686%",
+        "isin": "XS2783589844",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.35427,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "MHP Lux S.A. 10.5%",
+        "isin": "XS3267134909",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3522,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "CEMEX S.A.B. de C.V. 7.2%",
+        "isin": "USP2253TJW01",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34975,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Sonangol Finance Ltd. 10%",
+        "isin": "XS3275332743",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34752,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "AGO"
+      },
+      {
+        "nombre": "Turkiye Vakiflar Bankasi T.A.O. 7.25%",
+        "isin": "XS3108471197",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34571,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Muangthai Capital Public Co Ltd. 7.55%",
+        "isin": "XS3113144912",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34492,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "THA"
+      },
+      {
+        "nombre": "Limak Cimento Sanayi Ve Ticare AS 9.75%",
+        "isin": "XS2862382541",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34452,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Studio City Finance Limited 6.5%",
+        "isin": "USG85381AF13",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34424,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Kernel Holding SA 6.75%",
+        "isin": "XS2244927823",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34238,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "Ecuador (Republic Of) 8.75%",
+        "isin": "XS3285368620",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.34187,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ECU"
+      },
+      {
+        "nombre": "Muangthai Capital Public Co Ltd. 6.875%",
+        "isin": "XS2892939575",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33878,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "THA"
+      },
+      {
+        "nombre": "Yapi Ve Kredi Bankasi A.S. 7.55%",
+        "isin": "XS3246209749",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33855,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Burgan Bank K.P.S.C 2.75%",
+        "isin": "XS2265369491",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33651,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "KWT"
+      },
+      {
+        "nombre": "Aydem Yenilenebilir Enerji A S 9.875%",
+        "isin": "XS3065322862",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33544,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "ams OSRAM AG 10.5%",
+        "isin": "XS2724532333",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33208,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "AUT"
+      },
+      {
+        "nombre": "Zhongsheng Group Holdings Ltd. 5.98%",
+        "isin": "XS2867272630",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3309,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Yapi Ve Kredi Bankasi A.S. 9.743%",
+        "isin": "XS2796491681",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32632,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Eurobank S.A. 6.625%",
+        "isin": "XS3044351867",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32455,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GRC"
+      },
+      {
+        "nombre": "Kondor Finance plc 7.625%",
+        "isin": "XS2077601610",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32441,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "Banca Transilvania SA 7.125%",
+        "isin": "XS3239211132",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32353,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ROU"
+      },
+      {
+        "nombre": "Rakuten Group Inc. 4.25%",
+        "isin": "XS2332889778",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.31948,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "West China Cement Ltd. 10.5%",
+        "isin": "XS3277000900",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.31336,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "ACG HoldCo 1 Ltd. 14.75%",
+        "isin": "NO0013414565",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.31309,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Ittihad International Investment LLC 7.375%",
+        "isin": "XS3225872525",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.31171,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Cidron Aida Finco S.r.l. 7%",
+        "isin": "XS3046352319",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30934,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Ecobank Transnational Inc. 10.125%",
+        "isin": "XS2879056534",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30911,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TGO"
+      },
+      {
+        "nombre": "Gran Tierra Energy Inc 9.75%",
+        "isin": "USU37016AF67",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30622,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "JSC TBC Bank 10.25%",
+        "isin": "XS2808539410",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30342,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GEO"
+      },
+      {
+        "nombre": "BBVA Mexico SA 8.45%",
+        "isin": "USP1S81BAA64",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30068,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Atos SE 5.2%",
+        "isin": "XS2950595087",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30015,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Argentina (Republic Of) 4.25%",
+        "isin": "XS2177365017",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29806,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Bank of Georgia JSC 9.5%",
+        "isin": "XS2801343414",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29776,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GEO"
+      },
+      {
+        "nombre": "Sasol Financing USA LLC 8.75%",
+        "isin": "USU8035UAC63",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29628,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ZAF"
+      },
+      {
+        "nombre": "Uzbek Industrial and Construction Bank 8.95%",
+        "isin": "XS2849506402",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29544,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UZB"
+      },
+      {
+        "nombre": "Cimko Cimento Ve Beton Sanayi Ve Tas 10.75%",
+        "isin": "XS3045389700",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29508,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Altice Financing S.A. 5%",
+        "isin": "USL0178WAH53",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29221,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Telecommunications Services Trinidad & Tobago Ltd 8.875%",
+        "isin": "USP90301AA32",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29054,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null,
+        "pais_original": "Trinidad & Tobago"
+      },
+      {
+        "nombre": "Banco de Credito e Inversiones 7.5%",
+        "isin": "USP32133CH47",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2884,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "LATAM Airlines Group SA 7.875%",
+        "isin": "USP62138AB13",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28706,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "ICL Group Ltd 6.375%",
+        "isin": "IL0028103310",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28655,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ISR"
+      },
+      {
+        "nombre": "Banco Mercantil Del Norte SA Cayman Islands Branch 8.375%",
+        "isin": "USP1400MAD04",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28569,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "3R Lux S.a.r.l 9.75%",
+        "isin": "USL9R621AA97",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28555,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Africell Holding Ltd. 10.5%",
+        "isin": "XS2855412479",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2854,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Angola (Republic of) 9.244%",
+        "isin": "XS3204248440",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28308,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "AGO"
+      },
+      {
+        "nombre": "Turkcell Iletisim Hizmetleri AS 7.65%",
+        "isin": "XS2981975613",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28289,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Fortebank JSC 9.75%",
+        "isin": "XS3218687625",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28281,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "KAZ"
+      },
+      {
+        "nombre": "Turkcell Iletisim Hizmetleri AS 7.45%",
+        "isin": "XS2981975027",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2827,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "JSC UzAuto Motors 7.375%",
+        "isin": "XS3187746097",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2827,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UZB"
+      },
+      {
+        "nombre": "OTP Bank PLC 7.5%",
+        "isin": "XS2626773381",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28147,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "HUN"
+      },
+      {
+        "nombre": "Arabian Centres Sukuk IV Ltd. 8.875%",
+        "isin": "XS3240866411",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28136,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "SAU"
+      },
+      {
+        "nombre": "Wanda Properties Global Co Ltd 12.75%",
+        "isin": "XS3286199461",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.28123,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Sammaan Capital Ltd. 8.95%",
+        "isin": "XS3036089400",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2803,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Altice Financing S.A. 3%",
+        "isin": "XS2102493389",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27982,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Shui On Development (Holding) Limited 9.75%",
+        "isin": "XS3040578745",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27965,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Ronesans Holding AS 8.5%",
+        "isin": "XS2915523661",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27882,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Fortebank JSC 7.75%",
+        "isin": "XS2985300156",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27786,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "KAZ"
+      },
+      {
+        "nombre": "Metinvest B.V. 8.5%",
+        "isin": "XS1806400708",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27778,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "IRB Infrastructure Developers Ltd. 7.11%",
+        "isin": "XS2775699577",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2766,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Sammaan Capital Ltd. 7.5%",
+        "isin": "XS3205989232",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27589,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Rede D'Or Finance S.a.r.l. 6.45%",
+        "isin": "USL7915TAC64",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27588,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Dar Al-Arkan Sukuk Company Ltd. 6.875%",
+        "isin": "XS2124942595",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27568,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "SAU"
+      },
+      {
+        "nombre": "New Metro Global Limited 4.5%",
+        "isin": "XS2290806285",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27552,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Liquid Telecommunications Financing plc 5.5%",
+        "isin": "XS2278474924",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27447,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ZAF"
+      },
+      {
+        "nombre": "Natura & Co Luxembourg Holdings S.a r.l. 6%",
+        "isin": "USL6S52VAA02",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27433,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Central America Bottling Corporation / Cbc Bottling Holdco S L / Beliv Hold",
+        "isin": "USG20038AA61",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27401,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GTM"
+      },
+      {
+        "nombre": "Grupo Aeromexico S. A. B. De C. V. 8.625%",
+        "isin": "USP4955JAC29",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27384,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Empresa Generadora de Electricidad Haina SA 5.625%",
+        "isin": "USP3R12FAC46",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27345,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "DOM"
+      },
+      {
+        "nombre": "Samarco Mineracao SA 9%",
+        "isin": "USP8405QAA78",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27026,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Wynn Macau Ltd. 6.75%",
+        "isin": "USG98149AM28",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26979,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MAC"
+      },
+      {
+        "nombre": "Emirates NBD Bank PJSC 4.25%",
+        "isin": "XS2342723900",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26957,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Liberty Costa Rica Senior Secured Finance 10.875%",
+        "isin": "USG53901AA58",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26846,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CRI"
+      },
+      {
+        "nombre": "Muthoot Finance Ltd. 5.75%",
+        "isin": "US62828M2F71",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26637,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Limak Iskenderun Uluslararasi Liman Isletmeciligi A S 9.5%",
+        "isin": "XS2339789732",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26504,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "New Metro Global Limited 11.88%",
+        "isin": "XS3192214685",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26326,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "CT Trust 5.125%",
+        "isin": "USG2588BAA29",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25871,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GTM"
+      },
+      {
+        "nombre": "New World China Land Limited 4.75%",
+        "isin": "XS1549621586",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2586,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "HKG"
+      },
+      {
+        "nombre": "Avianca Midco 2 PLC 9.5%",
+        "isin": "USG2957NAE16",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25809,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Avianca Midco 2 PLC 9.5%",
+        "isin": "USG2957NAD33",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25739,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Eastern European Electric Co. BV 6.5%",
+        "isin": "XS3073101712",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25524,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Omniyat Sukuk 1 Ltd. 8.375%",
+        "isin": "XS3065329446",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25387,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Alpek SAB de CV 4.25%",
+        "isin": "USP01703AC49",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25311,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Adani Electricity Mumbai Ltd. 3.949%",
+        "isin": "XS2109438205",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25232,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IND"
+      },
+      {
+        "nombre": "Binghatti Sukuk SPC Ltd. 9.625%",
+        "isin": "XS2753304349",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25165,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARE"
+      },
+      {
+        "nombre": "Argentina (Republic Of) 4.125%",
+        "isin": "US040114HT09",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25151,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Energo-Pro AS 8%",
+        "isin": "XS3063695715",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25072,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CZE"
+      },
+      {
+        "nombre": "Total Play Telecomunicaciones S.A.P.I.De.C.V. 11.125%",
+        "isin": "USP9190PAM07",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.24895,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Longfor Group Holdings Ltd. 4.5%",
+        "isin": "XS1743535491",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.24699,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Metinvest B.V. 7.75%",
+        "isin": "XS2056723468",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.24287,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "ASK Chemicals Deutschland Holding GmbH 10%",
+        "isin": "XS2919072962",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.23393,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Peru LNG S.R.L. 5.375%",
+        "isin": "USP7721BAE13",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.22253,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "PER"
+      },
+      {
+        "nombre": "Banco GNB Sudameris S.A. 7.051%",
+        "isin": "USP1265VAD49",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.21512,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Argentina (Republic Of) 1%",
+        "isin": "US040114HX11",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.21144,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ARG"
+      },
+      {
+        "nombre": "Tupy Overseas S.A. 4.5%",
+        "isin": "USL9326VAB29",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.20347,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Braskem Netherlands Finance B V 8.5%",
+        "isin": "USN15516AH53",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.20318,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Phosagro Bond Funding Designated Activity Co. 2.6%",
+        "isin": "XS2384719402",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.19598,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "RUS"
+      },
+      {
+        "nombre": "IHS Netherlands Holdco BV 8%",
+        "isin": "XS2051106073",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.18917,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "NGA"
+      },
+      {
+        "nombre": "Consolidated Energy Finance S.A. 5%",
+        "isin": "XS2393687350",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.18471,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Star Energy Geothermal (Wayang Windu) Ltd. 6.75%",
+        "isin": "USG84393AC49",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.18072,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "IDN"
+      },
+      {
+        "nombre": "Boi Finance BV 7.5%",
+        "isin": "XS2348767083",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.16309,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NGA"
+      },
+      {
+        "nombre": "Eutelsat Communications SA 6.25%",
+        "isin": "XS3307260839",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15996,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Eutelsat Communications SA 5.75%",
+        "isin": "XS3224536121",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15939,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Summer BidCo BV 8.875%",
+        "isin": "XS3277827625",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15796,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "SES S.A. 5.5%",
+        "isin": "XS2898762864",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15675,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "SES S.A. 6%",
+        "isin": "XS2899636935",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15603,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Venezuela (Republic Of) 9%",
+        "isin": "USP17625AA59",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15339,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "VEN"
+      },
+      {
+        "nombre": "Raizen Fuels Finance SA 6.25%",
+        "isin": "USL7909CAJ64",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15286,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "CPI Property Group S.A. 4.875%",
+        "isin": "XS2231191748",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15086,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CZE"
+      },
+      {
+        "nombre": "DTEK Renewables Finance B.V. 8.5%",
+        "isin": "XS2069980246",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.15045,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "UKR"
+      },
+      {
+        "nombre": "GLP Pte Ltd. 4.5%",
+        "isin": "XS2340147813",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1431,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "SGP"
+      },
+      {
+        "nombre": "EHi Car Services Ltd. 12%",
+        "isin": "XS2782510049",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.14165,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Venezuela (Republic Of) 11.95%",
+        "isin": "USP17625AD98",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1403,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "VEN"
+      },
+      {
+        "nombre": "Avianca Midco 2 PLC 9%",
+        "isin": "USG2957NAC59",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.13766,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "COL"
+      },
+      {
+        "nombre": "Abra Global Finance 14%",
+        "isin": "USG00912AC21",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.13459,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Atento Luxco 1 S.A. 12%",
+        "isin": "XS2597953897",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.12847,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Venezuela (Republic Of) 9.375%",
+        "isin": "US922646BL74",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.12771,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "VEN"
+      },
+      {
+        "nombre": "Braskem America Finance Company 7.125%",
+        "isin": "USU1065PAA94",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.12623,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Frigorifico Concepcion SA 7.7%",
+        "isin": "USP4R54KAA49",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.11257,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "PRY"
+      },
+      {
+        "nombre": "Vanke Real Estate (Hong Kong) Co Ltd 3.975%",
+        "isin": "XS1713193586",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.10825,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Country Garden Holdings Co Ltd. 1%",
+        "isin": "XS3261061512",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.05069,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "CIFI Holdings Group Co Ltd 2.75%",
+        "isin": "XS3257174329",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.03683,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Logan Group Company Ltd 6.5%",
+        "isin": "XS2027337786",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.03681,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Powerlong Real Estate Holdings Ltd 7.125%",
+        "isin": "XS2500700716",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.03264,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "LIGHT ZCP 31-08-27",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.02234,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Shimao Group Holdings Ltd. 5%",
+        "isin": "XS3047081313",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.02044,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Powerlong Real Estate Holdings Ltd 6.95%",
+        "isin": "XS2647488878",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01638,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "HKG"
+      },
+      {
+        "nombre": "Fantasia Holdings Group Co Ltd. 12.25%",
+        "isin": "XS2030329358",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01352,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Agile Group Holdings Ltd. 6.05%",
+        "isin": "XS2243343204",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01282,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Light Servicos de Eletricidade SA 2.26%",
+        "isin": "US53222MAC64",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01218,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Foresea Holding SA 7.5%",
+        "isin": "USL26915AA33",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01025,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BRA"
+      },
+      {
+        "nombre": "Fantasia Holdings Group Co Ltd. 15%",
+        "isin": "XS1924249680",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.01022,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "China SCE Group Holdings Ltd. 7%",
+        "isin": "XS2227351900",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0089,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 6%",
+        "isin": "XS3093813940",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00866,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 6.25%",
+        "isin": "XS3093814831",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0075,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Central China Real Estate Ltd. 7.65%",
+        "isin": "XS2613403646",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0063,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 5.75%",
+        "isin": "XS3093813197",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00551,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 5.5%",
+        "isin": "XS3093812207",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00508,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Central China Real Estate Ltd. 7.25%",
+        "isin": "XS2613403562",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00501,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Fantasia Holdings Group Co Ltd. 7.95%",
+        "isin": "XS1640676885",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00477,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Fantasia Holdings Group Co Ltd. 10.875%",
+        "isin": "XS2100005771",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00369,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Shimao Group Holdings Ltd. 2%",
+        "isin": "XS3047110948",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00351,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Modern Land (China) Co Ltd. 9%",
+        "isin": "XS2500899294",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00337,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 5.25%",
+        "isin": "XS3093811498",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0032,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Swissport Investments SA 9.75%",
+        "isin": "XS1331156841",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00316,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Shimao Group Holdings Ltd. 2%",
+        "isin": "XS3047121127",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00305,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Shimao Group Holdings Ltd. 3%",
+        "isin": "XS3047086114",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00286,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 5%",
+        "isin": "XS3091370430",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00247,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 5%",
+        "isin": "XS3093815648",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00167,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Zhenro Properties Group Limited 9.15%",
+        "isin": "XS2076026983",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00157,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Sinic Holdings Group Company Limited 8.5%",
+        "isin": "XS2281324389",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.00133,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Tullow Oil PLC 10.25%",
+        "isin": "USG91237AB60",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "GHA"
+      },
+      {
+        "nombre": "Alfa Bond Issuance Plc 8.696%",
+        "isin": "XS2063279959",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "RUS"
+      },
+      {
+        "nombre": "Corporacion GEO, S.A.B. de C.V. 8%",
+        "isin": "USP3R23NAB69",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "MEX"
+      },
+      {
+        "nombre": "Turk Ekonomi Bankasi AS 9.375%",
+        "isin": "XS2744911830",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": -9e-05,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "TUR"
+      },
+      {
+        "nombre": "Ultra US Treasury Bond Future June 26",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": -0.56212,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "RPROT CDX NA HY SERIE 45 V2 12/2030",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": -0.70999,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Euro Bund Future June 26",
+        "isin": null,
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": -2.07554,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "FWD USD/EUR SBOSDEMXXXX 22/04/2026 Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 7.08988,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 2.17586,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "FWD USD/EUR UNKNOWNXXXX 22/04/2026 Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 2.05571,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Amundi Fds Asia Bd Inc Resp Z USD (C)",
+        "isin": "LU2665730730",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1.57155,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.83036,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "FWD USD/EUR 10/04/2026 Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.55523,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.43941,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.3595,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "FWD EUR/USD UNKNOWNXXXX 22/04/2026 Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.27367,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "ATENTO LUXCO 1 SA PREFERRED SHARES CL A",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.21024,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Wom Chile Holdco S.p.A. 5%",
+        "isin": "USP9883KAA99",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.20859,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "FWD EUR/USD CHASUS33XXX 22/04/2026 Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.20542,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.18161,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.17979,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Digicel Holdings (Bermuda) Limited",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.06884,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "BMU"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.06737,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.03344,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR CANADIEN",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.02489,
+        "divisa": "CAD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "YEN",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.01282,
+        "divisa": "JPY",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "WOM CHILE HOLDCO SPA",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.01027,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHL"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093864935",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00408,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "DOLLAR DE HONG-KONG",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00244,
+        "divisa": "HKD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093863960",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00237,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093861329",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00219,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Shimao Group Holdings Ltd. 0%",
+        "isin": "XS3047137040",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00162,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00139,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "LIVRE STERLING",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00134,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093862210",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00124,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Zhenro Properties Group Limited 8%",
+        "isin": "XS2449192942",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00113,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093859778",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00107,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093860511",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00085,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Kaisa Group Holdings Ltd. 0%",
+        "isin": "XS3093863291",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00062,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "CHN"
+      },
+      {
+        "nombre": "MRIYA FARMING PLC",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -5e-05,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -5e-05,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00051,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0006,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00126,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "LIVRE STERLING",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00145,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00181,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00221,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00375,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "LIVRE STERLING",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00441,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00587,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0123,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.02748,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.03344,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.04202,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.05431,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.11851,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.12073,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "EURO",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.1806,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "FWD EUR/USD CHASUS33XXX 22/04/2026 Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.20577,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "FWD EUR/USD UNKNOWNXXXX 22/04/2026 Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.27341,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "DOLLAR US",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.34136,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "FWD USD/EUR 10/04/2026 Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.54199,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "FWD USD/EUR UNKNOWNXXXX 22/04/2026 Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2.05767,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "FWD USD/EUR SBOSDEMXXXX 22/04/2026 Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -7.09663,
+        "divisa": "USD",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Cash Offset",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -9.7891,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      }
+    ],
+    "divisas_pct": {
+      "USD": 94.41,
+      "EUR": 5.54,
+      "CAD": 0.02,
+      "HKD": 0.02,
+      "JPY": 0.01,
+      "GBP": -0.0
+    }
+  },
+  "gestion": {
+    "gestores": [
+      {
+        "nombre": "Maxim Vydrine",
+        "desde": "2016-06-16"
+      },
+      {
+        "nombre": "Andriy Boychuk",
+        "desde": "2017-06-01"
+      },
+      {
+        "nombre": "Jing Nie",
+        "desde": "2023-10-31"
+      }
+    ],
+    "gestora": {
+      "nombre": "Amundi Luxembourg S.A."
+    }
+  },
+  "documentos_oficiales": {
+    "kid_url": "https://www.amundi.es/retail/dl/doc/kid-priips/LU1882457739/SPA/ESP",
+    "kid_fuente": "amundi",
+    "kid_fecha": "2025-09-05",
+    "kid_sha256": "367ff8b7fcdc609820c957c3d39d60ad9f224d4f83524e5aafcdfa36225c8796"
+  },
+  "calidad": {
+    "score": 79,
+    "bucket": "BAJO",
+    "esenciales": "10/10",
+    "flags": [
+      "rf_sin_duracion",
+      "rf_sin_yield",
+      "rf_sin_calidad_crediticia",
+      "info_pesos_negativos",
+      "vl_antiguo(335d)"
+    ]
+  }
+}

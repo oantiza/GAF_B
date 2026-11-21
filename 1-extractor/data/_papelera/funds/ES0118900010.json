@@ -1,0 +1,137 @@
+{
+  "identificacion": {
+    "nombre": "Ferrovial N.V.",
+    "tipo": "accion",
+    "isin": "ES0118900010",
+    "ticker": "0P2N",
+    "mercado": "IOB",
+    "pais": "Spain",
+    "divisa_base": "EUR",
+    "simbolo_yahoo": "0P2N.IL",
+    "sector": "Industrials",
+    "industria": "Infrastructure Operations",
+    "source_listing_id": "YAHOO:0P2N.IL",
+    "tipo_producto": "accion",
+    "clase_cubierta": false
+  },
+  "valoracion": {
+    "vl": 41.7,
+    "vl_divisa": "EUR",
+    "vl_fecha": "2026-07-17"
+  },
+  "rentabilidad": {
+    "fecha_dato": "2026-07-17",
+    "trailing_pct": {
+      "1a": {
+        "fondo": 2.7199
+      },
+      "3a_anualizada": {
+        "fondo": 15.6723
+      },
+      "5a_anualizada": {
+        "fondo": 38.9445
+      }
+    }
+  },
+  "riesgo": {
+    "fecha_dato": "2026-07-17",
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 118.0777
+      },
+      "3a": {
+        "fondo": 69.8145
+      },
+      "5a": {
+        "fondo": 98.4039
+      }
+    },
+    "rf_pct": {
+      "1a": {
+        "fondo": 1.9508
+      },
+      "3a": {
+        "fondo": 2.8776
+      },
+      "5a": {
+        "fondo": 1.9575
+      }
+    },
+    "sharpe": {
+      "1a": {
+        "fondo": 0.0065
+      },
+      "3a": {
+        "fondo": 0.1833
+      },
+      "5a": {
+        "fondo": 0.3759
+      }
+    },
+    "max_drawdown": {
+      "pct": -30.6387,
+      "periodo": "5a"
+    },
+    "historial_precios": {
+      "source_history": "yahoo",
+      "source_listing_id": "YAHOO:0P2N.IL",
+      "first_date": "2009-10-07",
+      "last_date": "2026-07-17",
+      "observations_count": 4238,
+      "fecha_inicio": "2009-10-07",
+      "fecha_fin": "2026-07-17",
+      "observaciones": 4238,
+      "history_quality_status": "COMPLETE"
+    }
+  },
+  "fundamentales": {
+    "market_cap": 31255695360.0,
+    "per": 181.30435,
+    "eps": 0.23,
+    "dividend_yield_pct": 2.38,
+    "beta": 0.915202,
+    "max_52s": 63.52,
+    "min_52s": 41.5,
+    "precio_valor_contable": 8.190926,
+    "roe_pct": 5.365,
+    "profit_margin_pct": 3.117,
+    "source": "yahoo",
+    "fuente": "yahoo",
+    "fetched_at": "2026-07-18T16:47:39+00:00",
+    "quality": {
+      "coverage_status": "PARTIAL",
+      "warnings": [
+        "fallback_source:yahoo"
+      ]
+    }
+  },
+  "meta": {
+    "isin": "ES0118900010",
+    "actualizado": "2026-07-18T16:47:39+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "eodhd"
+      ],
+      "valoracion": [
+        "eodhd"
+      ],
+      "rentabilidad": [
+        "eodhd"
+      ],
+      "riesgo": [
+        "eodhd"
+      ],
+      "fundamentales": [
+        "eodhd"
+      ]
+    },
+    "errores": []
+  },
+  "calidad": {
+    "score": 50,
+    "bucket": "MEDIO",
+    "esenciales": "5/10",
+    "flags": []
+  }
+}

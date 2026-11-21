@@ -1,0 +1,20 @@
+/* ============================================================================
+   Posiciones (rediseño, paso 4)
+
+   Solo lo que las piezas no traen ya: la cabecera es `PageHeader`, con las acciones; la banda,
+   `Respuesta`; los bloques, `Panel`; los campos, `Campo`; la tabla, `TablaDeDatos`; los avisos,
+   `Aviso`. Aquí va la fila de filtros. La trae `PositionsWorkbench`.
+   ========================================================================== */
+
+/* Los filtros en una fila, que baja de línea antes de encoger un campo por debajo de lo legible. */
+.posiciones-filtros {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4) var(--s-6);
+  flex-wrap: wrap;
+}
+
+.posiciones-filtros > .field {
+  flex: 0 1 auto;
+  min-width: 0;
+}

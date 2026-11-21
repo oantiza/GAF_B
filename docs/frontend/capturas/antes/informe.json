@@ -1,0 +1,1548 @@
+[
+  {
+    "ancho": 1920,
+    "id": "acceso",
+    "titulo": "Independent Private Bankers",
+    "h1": [
+      "Acceso de asesor"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": null
+  },
+  {
+    "ancho": 1920,
+    "id": "mercado",
+    "ruta": "/mercado",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2146,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 994,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "mercado-calendario",
+    "ruta": "/agenda",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2146,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 949,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "mercado-estrategia",
+    "ruta": "/estrategia",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1154,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1006,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "buscador",
+    "ruta": "/buscador",
+    "titulo": "Buscador · Independent Private Bankers",
+    "h1": [
+      "Buscador"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 5333,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1606,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "ficha-fondo",
+    "ruta": "/activo/LU1883318740",
+    "titulo": "Amundi Funds - Global Equity Responsible A EUR (C) · Independent Private Bankers",
+    "h1": [
+      "Amundi Funds - Global Equity Responsible A EUR (C)"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2471,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1294,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "ficha-etf",
+    "ruta": "/activo/IE00B4L5Y983",
+    "titulo": "iShares Core MSCI World UCITS ETF USD (Acc) · Independent Private Bankers",
+    "h1": [
+      "iShares Core MSCI World UCITS ETF USD (Acc)"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2853,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1266,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "ficha-accion",
+    "ruta": "/activo/US0378331005",
+    "titulo": "Apple Inc. · Independent Private Bankers",
+    "h1": [
+      "Apple Inc."
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2199,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1267,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "comparador",
+    "ruta": "/comparador",
+    "titulo": "Comparador · Independent Private Bankers",
+    "h1": [
+      "Comparador"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2422,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12072,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "diseno",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2187,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12076,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "diseno-comprobar",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1714,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12078,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "diseno-optimizar",
+    "ruta": "/cartera/optimizacion",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1595,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12080,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "diseno-simular",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2973,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12072,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "analisis",
+    "ruta": "/analisis",
+    "titulo": "Análisis · Independent Private Bankers",
+    "h1": [
+      "Análisis"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 6663,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 2653,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "informes",
+    "ruta": "/cartera/informes",
+    "titulo": "Informes · Independent Private Bankers",
+    "h1": [
+      "Informes"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1378,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "carteras-guardadas",
+    "ruta": "/carteras-guardadas",
+    "titulo": "Carteras guardadas · Independent Private Bankers",
+    "h1": [
+      "Carteras guardadas"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 898,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-entrada",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Gestor de carteras"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 912,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-resumen",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1902,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 896,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-cuentas",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1767,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 895,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-movimientos",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2014,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 904,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-analisis",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 4212,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 896,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "gestor-comparar",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 942,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "posiciones",
+    "ruta": "/posiciones",
+    "titulo": "Posiciones · Independent Private Bankers",
+    "h1": [
+      "Posiciones"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 913,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "jubilacion",
+    "ruta": "/jubilacion",
+    "titulo": "Jubilación · Independent Private Bankers",
+    "h1": [
+      "Jubilación"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2063,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 909,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "planes",
+    "ruta": "/jubilacion/planes",
+    "titulo": "Planes y EPSV · Independent Private Bankers",
+    "h1": [
+      "Planes y EPSV"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2834,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 943,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "salud-catalogo",
+    "ruta": "/salud-catalogo",
+    "titulo": "Salud del catálogo · Independent Private Bankers",
+    "h1": [
+      "Salud del catálogo"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2204,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1795,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "sistema",
+    "ruta": "/sistema",
+    "titulo": "Sistema · Independent Private Bankers",
+    "h1": [
+      "Sistema"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 2872,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 2721,
+    "fallo": null
+  },
+  {
+    "ancho": 1920,
+    "id": "direccion-desconocida",
+    "ruta": "/esta-direccion-no-existe",
+    "titulo": "Esta página no existe · Independent Private Bankers",
+    "h1": [
+      "Esta página no existe"
+    ],
+    "anchoDePagina": 1920,
+    "anchoDeVentana": 1920,
+    "altoDePagina": 1080,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 600,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "acceso",
+    "titulo": "Independent Private Bankers",
+    "h1": [
+      "Acceso de asesor"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 900,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": null
+  },
+  {
+    "ancho": 1440,
+    "id": "mercado",
+    "ruta": "/mercado",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2142,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 997,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "mercado-calendario",
+    "ruta": "/agenda",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2142,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 955,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "mercado-estrategia",
+    "ruta": "/estrategia",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1185,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [
+      {
+        "regla": "definition-list",
+        "impacto": "serious",
+        "ayuda": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+        "nodos": 1,
+        "ejemplos": [
+          "dl"
+        ]
+      }
+    ],
+    "msDeCarga": 1003,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "buscador",
+    "ruta": "/buscador",
+    "titulo": "Buscador · Independent Private Bankers",
+    "h1": [
+      "Buscador"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 6000,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [
+      {
+        "regla": "aria-valid-attr-value",
+        "impacto": "critical",
+        "ayuda": "ARIA attributes must conform to valid values",
+        "nodos": 1,
+        "ejemplos": [
+          "#buscador-tipo-tab-TODOS"
+        ]
+      }
+    ],
+    "msDeCarga": 1330,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "ficha-fondo",
+    "ruta": "/activo/LU1883318740",
+    "titulo": "Amundi Funds - Global Equity Responsible A EUR (C) · Independent Private Bankers",
+    "h1": [
+      "Amundi Funds - Global Equity Responsible A EUR (C)"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 3780,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1274,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "ficha-etf",
+    "ruta": "/activo/IE00B4L5Y983",
+    "titulo": "iShares Core MSCI World UCITS ETF USD (Acc) · Independent Private Bankers",
+    "h1": [
+      "iShares Core MSCI World UCITS ETF USD (Acc)"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 4187,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1262,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "ficha-accion",
+    "ruta": "/activo/US0378331005",
+    "titulo": "Apple Inc. · Independent Private Bankers",
+    "h1": [
+      "Apple Inc."
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2580,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1260,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "comparador",
+    "ruta": "/comparador",
+    "titulo": "Comparador · Independent Private Bankers",
+    "h1": [
+      "Comparador"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2458,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 12065,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "diseno",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2324,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 12074,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "diseno-comprobar",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1710,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 12085,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "diseno-optimizar",
+    "ruta": "/cartera/optimizacion",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1608,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 12075,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "diseno-simular",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2988,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 12074,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "analisis",
+    "ruta": "/analisis",
+    "titulo": "Análisis · Independent Private Bankers",
+    "h1": [
+      "Análisis"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 6724,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1134,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "informes",
+    "ruta": "/cartera/informes",
+    "titulo": "Informes · Independent Private Bankers",
+    "h1": [
+      "Informes"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1005,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1383,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "carteras-guardadas",
+    "ruta": "/carteras-guardadas",
+    "titulo": "Carteras guardadas · Independent Private Bankers",
+    "h1": [
+      "Carteras guardadas"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 900,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 918,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-entrada",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Gestor de carteras"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 900,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 905,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-resumen",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1898,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 909,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-cuentas",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 1795,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 901,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-movimientos",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2010,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 896,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-analisis",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 4433,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 901,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "gestor-comparar",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 964,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 915,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "posiciones",
+    "ruta": "/posiciones",
+    "titulo": "Posiciones · Independent Private Bankers",
+    "h1": [
+      "Posiciones"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 900,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [
+      {
+        "regla": "aria-valid-attr-value",
+        "impacto": "critical",
+        "ayuda": "ARIA attributes must conform to valid values",
+        "nodos": 1,
+        "ejemplos": [
+          "#posiciones-modo-tab-extracto"
+        ]
+      }
+    ],
+    "msDeCarga": 913,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "jubilacion",
+    "ruta": "/jubilacion",
+    "titulo": "Jubilación · Independent Private Bankers",
+    "h1": [
+      "Jubilación"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2059,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 915,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "planes",
+    "ruta": "/jubilacion/planes",
+    "titulo": "Planes y EPSV · Independent Private Bankers",
+    "h1": [
+      "Planes y EPSV"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 3024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [
+      {
+        "regla": "aria-valid-attr-value",
+        "impacto": "critical",
+        "ayuda": "ARIA attributes must conform to valid values",
+        "nodos": 1,
+        "ejemplos": [
+          "#planes-tipo-tab-__todos__"
+        ]
+      }
+    ],
+    "msDeCarga": 943,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "salud-catalogo",
+    "ruta": "/salud-catalogo",
+    "titulo": "Salud del catálogo · Independent Private Bankers",
+    "h1": [
+      "Salud del catálogo"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2216,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1753,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "sistema",
+    "ruta": "/sistema",
+    "titulo": "Sistema · Independent Private Bankers",
+    "h1": [
+      "Sistema"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 2942,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 1518,
+    "fallo": null
+  },
+  {
+    "ancho": 1440,
+    "id": "direccion-desconocida",
+    "ruta": "/esta-direccion-no-existe",
+    "titulo": "Esta página no existe · Independent Private Bankers",
+    "h1": [
+      "Esta página no existe"
+    ],
+    "anchoDePagina": 1440,
+    "anchoDeVentana": 1440,
+    "altoDePagina": 900,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": [],
+    "msDeCarga": 596,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "acceso",
+    "titulo": "Independent Private Bankers",
+    "h1": [
+      "Acceso de asesor"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": null
+  },
+  {
+    "ancho": 768,
+    "id": "mercado",
+    "ruta": "/mercado",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2939,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1019,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "mercado-calendario",
+    "ruta": "/agenda",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2939,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 958,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "mercado-estrategia",
+    "ruta": "/estrategia",
+    "titulo": "Mercado · Independent Private Bankers",
+    "h1": [
+      "Mercado"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1620,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1006,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "buscador",
+    "ruta": "/buscador",
+    "titulo": "Buscador · Independent Private Bankers",
+    "h1": [
+      "Buscador"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1321,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "ficha-fondo",
+    "ruta": "/activo/LU1883318740",
+    "titulo": "Amundi Funds - Global Equity Responsible A EUR (C) · Independent Private Bankers",
+    "h1": [
+      "Amundi Funds - Global Equity Responsible A EUR (C)"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 4432,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1279,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "ficha-etf",
+    "ruta": "/activo/IE00B4L5Y983",
+    "titulo": "iShares Core MSCI World UCITS ETF USD (Acc) · Independent Private Bankers",
+    "h1": [
+      "iShares Core MSCI World UCITS ETF USD (Acc)"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 5341,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1277,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "ficha-accion",
+    "ruta": "/activo/US0378331005",
+    "titulo": "Apple Inc. · Independent Private Bankers",
+    "h1": [
+      "Apple Inc."
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2977,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1238,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "comparador",
+    "ruta": "/comparador",
+    "titulo": "Comparador · Independent Private Bankers",
+    "h1": [
+      "Comparador"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2690,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12056,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "diseno",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 3997,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12067,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "diseno-comprobar",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1764,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12073,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "diseno-optimizar",
+    "ruta": "/cartera/optimizacion",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2140,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12079,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "diseno-simular",
+    "ruta": "/cartera",
+    "titulo": "Diseño de cartera · Independent Private Bankers",
+    "h1": [
+      "Diseño de cartera"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 4453,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 12073,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "analisis",
+    "ruta": "/analisis",
+    "titulo": "Análisis · Independent Private Bankers",
+    "h1": [
+      "Análisis"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 9081,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1147,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "informes",
+    "ruta": "/cartera/informes",
+    "titulo": "Informes · Independent Private Bankers",
+    "h1": [
+      "Informes"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1241,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1354,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "carteras-guardadas",
+    "ruta": "/carteras-guardadas",
+    "titulo": "Carteras guardadas · Independent Private Bankers",
+    "h1": [
+      "Carteras guardadas"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 904,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-entrada",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Gestor de carteras"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 893,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-resumen",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2487,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 899,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-cuentas",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2469,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 890,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-movimientos",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2339,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 897,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-analisis",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 5660,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 899,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "gestor-comparar",
+    "ruta": "/cartera-real?carpeta=prueba",
+    "titulo": "Gestor de carteras · Independent Private Bankers",
+    "h1": [
+      "Cartera de demostración"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1139,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 897,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "posiciones",
+    "ruta": "/posiciones",
+    "titulo": "Posiciones · Independent Private Bankers",
+    "h1": [
+      "Posiciones"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 908,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "jubilacion",
+    "ruta": "/jubilacion",
+    "titulo": "Jubilación · Independent Private Bankers",
+    "h1": [
+      "Jubilación"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2224,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 920,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "planes",
+    "ruta": "/jubilacion/planes",
+    "titulo": "Planes y EPSV · Independent Private Bankers",
+    "h1": [
+      "Planes y EPSV"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 947,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "salud-catalogo",
+    "ruta": "/salud-catalogo",
+    "titulo": "Salud del catálogo · Independent Private Bankers",
+    "h1": [
+      "Salud del catálogo"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 2363,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1697,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "sistema",
+    "ruta": "/sistema",
+    "titulo": "Sistema · Independent Private Bankers",
+    "h1": [
+      "Sistema"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 3634,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 1480,
+    "fallo": null
+  },
+  {
+    "ancho": 768,
+    "id": "direccion-desconocida",
+    "ruta": "/esta-direccion-no-existe",
+    "titulo": "Esta página no existe · Independent Private Bankers",
+    "h1": [
+      "Esta página no existe"
+    ],
+    "anchoDePagina": 768,
+    "anchoDeVentana": 768,
+    "altoDePagina": 1024,
+    "desborde": [],
+    "consola": [],
+    "peticiones": [],
+    "axe": null,
+    "msDeCarga": 592,
+    "fallo": null
+  }
+]

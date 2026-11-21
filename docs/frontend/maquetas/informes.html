@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="ancho" content="1760">
+<title>Maqueta · Las dos variantes de informe</title>
+<link rel="stylesheet" href="sistema.css">
+<style>
+  body { background: #e9e9e3; padding: 40px; }
+  .mesa { display: grid; grid-template-columns: repeat(2, 794px); gap: 56px; justify-content: center; }
+  .pie-de-foto { font: 600 var(--texto-lg) var(--fuente); margin: 0 0 var(--e-3); }
+  .pie-de-foto small { display: block; font-weight: 400; font-size: var(--texto-sm); color: var(--tinta-2); }
+
+  /* ---- La hoja: A4 vertical a 96 ppp. Las mismas piezas en los dos temas, y ningún relleno de color:
+          el color del informe va en el filete degradado de la cabecera, en los filetes y en el sello. ---- */
+  .hoja { width: 794px; height: 1123px; background: #fff; color: var(--tinta); display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.14); font-size: 12.5px; }
+  .hoja--cliente { --tema: #2a355a; --tema-claro: #9aa3c4; --tema-degradado: linear-gradient(90deg, #2a355a 0%, #9aa3c4 55%, rgba(255, 255, 255, 0) 100%); }
+  .hoja--interno { --tema: #8a5a00; --tema-claro: #d9bd7c; --tema-degradado: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #d9bd7c 45%, #8a5a00 100%); }
+
+  /* La cabecera: el membrete del asesor a la izquierda; a la derecha, qué documento es y para quién. */
+  .hoja__cabecera { margin: 0 56px; padding: 28px 0 12px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .hoja__asesor { display: flex; align-items: center; gap: 12px; line-height: 1.3; font-size: 12px; }
+  .hoja__asesor b { display: block; font-weight: 600; font-size: 14px; }
+  .hoja__logo { width: 40px; height: 40px; border: 1.5px solid var(--tinta); display: grid; place-items: center; font: 600 15px var(--fuente-titulos); flex: none; }
+  .hoja__documento { line-height: 1.35; text-align: right; color: var(--tinta-2); }
+  .hoja__documento b { display: block; font-weight: 600; font-size: 12.5px; color: var(--tinta); }
+  .hoja__documento small { font-size: 11px; }
+  .hoja__sello { display: inline-block; border: 1px solid var(--tema); color: var(--tema); font: 600 10px var(--fuente); letter-spacing: 0.08em; padding: 3px 7px; margin-left: 8px; vertical-align: 1px; }
+  /* El filete degradado: nace en el color del informe y se apaga; en el interno, al revés. */
+  .hoja__filete { margin: 0 56px; height: 4px; background: var(--tema-degradado); }
+
+  .hoja__cuerpo { flex: 1; padding: 30px 56px 0; }
+  .hoja__ceja { font-size: 11.5px; color: var(--tinta-3); }
+  .hoja__titulo { font: 400 30px/1.15 var(--fuente-titulos); letter-spacing: -0.006em; margin: 2px 0 18px; }
+
+  .hoja__cifras { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; border-top: 2px solid var(--tema); border-bottom: 1px solid var(--filete-fuerte); padding: 14px 0; }
+  .hoja__cifras > div { padding: 0 18px; border-left: 1px solid var(--filete); }
+  .hoja__cifras > div:first-child { border-left: 0; padding-left: 0; }
+  .hoja__cifras p:nth-child(1) { font-size: 11px; color: var(--tinta-2); }
+  .hoja__cifras p:nth-child(2) { font: 600 21px/1.25 var(--fuente); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; }
+  .hoja__cifras > div:first-child p:nth-child(2) { font-size: 28px; letter-spacing: -0.02em; }
+  .hoja__cifras p:nth-child(3) { font-size: 10.5px; color: var(--tinta-3); }
+
+  .hoja__seccion { display: flex; align-items: baseline; gap: 10px; font: 600 16px var(--fuente-titulos); border-bottom: 1px solid var(--tema); padding-bottom: 5px; margin: 26px 0 0; }
+  .hoja__seccion span { font: 600 11.5px var(--fuente); color: var(--tema); font-variant-numeric: tabular-nums; }
+  .hoja__procedencia { font-size: 10.5px; color: var(--tinta-3); margin-top: 4px; }
+
+  .hoja .tabla { font-size: 11.5px; margin-top: 4px; }
+  .hoja .tabla th { font-size: 10.5px; padding: 7px 10px; background: transparent; }
+  .hoja .tabla td { padding: 7px 10px; }
+  .hoja .tabla th:first-child, .hoja .tabla td:first-child { padding-left: 0; }
+  .hoja .tabla tfoot td { border-top: 1px solid var(--tema); }
+  .hoja .grafico text { font-size: 10.5px; }
+  .hoja .grafico .rotulo-de-serie { font-size: 11px; }
+
+  .hoja__nota { margin-top: 18px; border-left: 2px solid var(--tema); padding: 2px 0 2px 14px; font-size: 11.5px; line-height: 1.5; color: var(--tinta-2); }
+  .hoja__nota b { font-weight: 600; color: var(--tinta); }
+
+  .hoja__pie { margin: 0 56px; padding: 12px 0 22px; border-top: 1px solid var(--filete-fuerte); display: flex; justify-content: space-between; gap: 16px; font-size: 10.5px; color: var(--tinta-3); }
+  .hoja__pie b { color: var(--tema); font-weight: 600; letter-spacing: 0.04em; }
+
+  /* ---- Cómo salen de una impresora en blanco y negro ---- */
+  .impresos { margin-top: 48px; display: grid; grid-template-columns: repeat(2, 794px); gap: 56px; justify-content: center; }
+  .miniatura { height: 300px; overflow: hidden; }
+  .miniatura .hoja { transform: scale(0.5); transform-origin: top left; filter: grayscale(1) contrast(1.05); margin-bottom: -560px; }
+  .miniatura-par { display: grid; grid-template-columns: 397px 1fr; gap: 24px; align-items: start; }
+</style>
+</head>
+<body>
+<div class="mesa">
+  <div>
+    <p class="pie-de-foto">Informe para el cliente<small>Tema índigo. El filete nace a la izquierda y se apaga hacia la derecha. Sello «Confidencial».</small></p>
+    <article class="hoja hoja--cliente" id="hoja-cliente"></article>
+  </div>
+  <div>
+    <p class="pie-de-foto">Informe interno del asesor<small>Tema ocre. El filete va al revés, y el sello y el pie dicen «Uso interno». No se entrega.</small></p>
+    <article class="hoja hoja--interno" id="hoja-interno"></article>
+  </div>
+</div>
+
+<div class="impresos">
+  <div class="miniatura-par">
+    <div class="miniatura" id="mini-cliente"></div>
+    <p class="pie-de-foto">Impreso en blanco y negro<small>Sin color, los distingue el sello de la cabecera, el pie de cada hoja y el sentido del filete. El signo de cada cifra (+ o −) va siempre escrito: en gris, el verde y el rojo pesan lo mismo.</small></p>
+  </div>
+  <div class="miniatura-par">
+    <div class="miniatura" id="mini-interno"></div>
+    <p class="pie-de-foto">Las mismas piezas, otros dos colores<small>Membrete, filete, cifras destacadas, título de sección, tabla, gráfico, nota y pie son una sola plantilla. Ningún relleno de color: el tema cambia el color de los filetes y del sello. Los colores de las cifras y de los gráficos no cambian.</small></p>
+  </div>
+</div>
+
+<template id="plantilla">
+  <header class="hoja__cabecera">
+    <div class="hoja__asesor"><span class="hoja__logo">RA</span><span><b>Marta Ruiz Alonso</b>Asesora financiera · Ruiz &amp; Asociados</span></div>
+    <p class="hoja__documento"><b>Informe de cartera<span class="hoja__sello">%SELLO%</span></b><small>%DESTINATARIO%</small></p>
+  </header>
+  <div class="hoja__filete"></div>
+  <div class="hoja__cuerpo">
+    <p class="hoja__ceja">Familia García · del 31/12/2025 al 13/11/2026 · datos a 13/11/2026</p>
+    <h1 class="hoja__titulo">%TITULO%</h1>
+
+    <div class="hoja__cifras">
+      <div><p>Patrimonio</p><p>201.298 €</p><p>a 13/11/2026</p></div>
+      <div><p>Resultado del periodo</p><p class="sube">+18.582 €</p><p>neto de comisiones</p></div>
+      <div><p>Rentabilidad</p><p class="sube">+10,39 %</p><p>su referencia, +13,88 %</p></div>
+      <div><p>Caída máxima</p><p>−2,66 %</p><p>recuperada en octubre</p></div>
+    </div>
+
+    <h2 class="hoja__seccion"><span>01</span>Evolución del patrimonio</h2>
+    <p class="hoja__procedencia">La distancia entre las dos líneas es lo ganado o perdido</p>
+    <svg class="grafico" data-grafico role="img" aria-label="Valor de la cartera y dinero aportado"></svg>
+
+    <h2 class="hoja__seccion"><span>02</span>De dónde viene el resultado</h2>
+    <table class="tabla">
+      <thead><tr><th>Concepto</th><th>Qué es</th><th class="cifra">Importe</th><th class="cifra">Sobre el patrimonio medio</th></tr></thead>
+      <tbody>
+        <tr><td>Variación de precio</td><td>Lo que han subido o bajado los precios</td><td class="cifra sube">+17.170,13 €</td><td class="cifra sube">+9,25 %</td></tr>
+        <tr><td>Ingresos</td><td>Dividendos, cupones e intereses</td><td class="cifra sube">+614,97 €</td><td class="cifra sube">+0,33 %</td></tr>
+        <tr><td>Efecto de la divisa</td><td>Lo que ha movido el tipo de cambio</td><td class="cifra sube">+971,70 €</td><td class="cifra sube">+0,52 %</td></tr>
+        <tr><td>Comisiones y gastos</td><td>Custodia, asesoramiento e impuestos de la cuenta</td><td class="cifra baja">−175,20 €</td><td class="cifra baja">−0,09 %</td></tr>
+      </tbody>
+      <tfoot><tr><td>Resultado</td><td></td><td class="cifra sube">+18.581,60 €</td><td class="cifra sube">+10,01 %</td></tr></tfoot>
+    </table>
+
+    <p class="hoja__nota">%NOTA%</p>
+  </div>
+  <footer class="hoja__pie"><span>Ruiz &amp; Asociados · <b>%SELLO%</b></span><span>Rentabilidades pasadas no garantizan rentabilidades futuras</span><span>Página 2 de 8</span></footer>
+</template>
+
+<script src="marco.js"></script>
+<script>
+  const plantilla = document.getElementById("plantilla").innerHTML;
+  const temas = {
+    cliente: {
+      SELLO: "CONFIDENCIAL", DESTINATARIO: "Preparado para Familia García", TITULO: "Informe de su cartera",
+      NOTA: "<b>Cómo leer estas cifras.</b> La rentabilidad de la cartera no depende de cuándo aportó o retiró dinero; por eso sirve para compararla con su referencia. Lo que usted ha ganado en euros es el resultado del periodo."
+    },
+    interno: {
+      SELLO: "USO INTERNO", DESTINATARIO: "No entregar al cliente", TITULO: "Informe de la cartera",
+      NOTA: "<b>Comprobaciones.</b> El libro cuadra con el extracto del 13/11/2026 en las 7 líneas comprobadas. Una posición pesa el 47,1 % de la cartera. No falta ningún precio."
+    }
+  };
+  const valor = acabarEn(serie(3, 220, 0.0007, 0.012, 172716), 201298);
+  const aportado = Array.from({ length: 220 }, (_, i) => 172716 + Math.floor(i / 22) * 1000);
+  const euros = (cifra) => `${new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 }).format(cifra)} €`;
+  for (const [tema, textos] of Object.entries(temas)) {
+    const html = plantilla.replace(/%(\w+)%/g, (_, clave) => textos[clave]);
+    for (const destino of [document.getElementById(`hoja-${tema}`), null]) {
+      let hoja = destino;
+      if (!hoja) {
+        hoja = document.createElement("article");
+        hoja.className = `hoja hoja--${tema}`;
+        document.getElementById(`mini-${tema}`).appendChild(hoja);
+      }
+      hoja.innerHTML = html;
+      dibujarLineas(hoja.querySelector("[data-grafico]"), {
+        series: [
+          { valores: valor, color: "var(--serie-1)", rotulo: "Valor", apunte: "201.298 €" },
+          { valores: aportado, color: "var(--serie-referencia)", trazos: true, rotulo: "Aportado", apunte: "182.716 €" }
+        ],
+        ejeX: ["dic 2025", "feb 2026", "abr 2026", "jun 2026", "ago 2026", "oct 2026"],
+        formato: euros,
+        alto: 250
+      });
+    }
+  }
+</script>
+</body>
+</html>

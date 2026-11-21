@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/master/search-index.v1.schema.json",
+  "title": "Master search index (meta/search_index) - v1",
+  "description": "Indice denormalizado para busqueda textual de activos en la maestra.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "updated_at", "count", "entries"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "master.search-index.v1" },
+    "updated_at": { "type": "string" },
+    "count": { "type": "integer", "minimum": 0 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "name_folded", "type"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "name_folded": { "type": "string", "minLength": 1 },
+          "ticker": { "type": "string" },
+          "type": { "type": "string", "minLength": 1 },
+          "class": { "type": "string" },
+          "currency": { "type": "string" }
+        }
+      }
+    }
+  }
+}

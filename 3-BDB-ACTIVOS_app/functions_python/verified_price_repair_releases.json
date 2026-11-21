@@ -1,0 +1,16 @@
+{
+  "variable": "BDB_VERIFIED_PRICE_REPAIR_RELEASES",
+  "que_es": "Los ISIN de las cuarentenas de optimization/repository.py y price_history_sync.py cuya reparacion esta verificada. El entorno es lo que los libera; esto es lo que el entorno tiene que llevar. Lo comprueban scripts/desplegarFunciones.mjs, que no despliega sin ellos, y tests/test_price_repair_releases.py, que falla si esta lista y las cuarentenas dejan de ser lo mismo.",
+  "por_que": "docs/LIBERACION_NUEVE_INSTRUMENTOS_2026-11-05.md",
+  "isins": [
+    "ES0116870314",
+    "GB0005405286",
+    "IE0002PG6CA6",
+    "IE000DR59CI3",
+    "IE000M7V94E1",
+    "IE000X59ZHE2",
+    "IE00B3YCGJ38",
+    "IE00B5BMR087",
+    "US0320951017"
+  ]
+}

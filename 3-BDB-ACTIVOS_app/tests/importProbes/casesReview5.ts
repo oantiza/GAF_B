@@ -1,0 +1,217 @@
+// Copiado de scratchpad/informe1016/review5_fe/probe (casesR5.ts) para la batería de
+// aceptación de la sexta pasada (las 239 sondas con el juez estricto).
+// Revisión de la quinta pasada: extractos sintéticos NUEVOS (no están en las
+// 152). ISIN inventados o públicos; ningún dato de cliente. Cada caso lleva su
+// VERDAD: importe en EUR por identificador; `null` = posición real sin un
+// importe en EUR seguro (no debe entrar y debe avisarse por su nombre).
+import type { ProbeCase } from "./harness";
+
+const LU = "LU1234567891", IE = "IE0098765432", XS = "XS1234567891", FR = "FR0000120271", US = "US0378331005";
+const two = { [LU]: 80000, [IE]: 120000 };
+const usd = { [LU]: 80000, [IE]: 7512.09 };
+const usdNull = { [LU]: 80000, [IE]: null };
+const tbl = (rows: string[][]) => `<table>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+
+export const casesR5: ProbeCase[] = [
+  // ── A · Varias divisas, contravalor solo en algunas filas ─────────────────
+  { id: "S01", group: "A", tema: "EUR/USD/GBP; contravalor en EUR y USD, en blanco en la de GBP",
+    text: `Producto;ISIN;Divisa;Valor de mercado;Contravalor EUR\nFondo A;${LU};EUR;80.000,00;80.000,00\nETF B;${IE};USD;8.736,00;7.512,09\nBono C;${XS};GBP;10.000,00;`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [XS]: null } },
+  { id: "S02", group: "A", tema: "Contravalor solo en la fila USD; las de EUR, solo valor de mercado",
+    text: `Producto;ISIN;Divisa;Valor de mercado;Contravalor EUR\nFondo A;${LU};EUR;80.000,00;\nETF B;${IE};USD;8.736,00;7.512,09\nFondo C;${FR};EUR;15.250,50;`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [FR]: 15250.5 } },
+  { id: "S03", group: "A", tema: "Sin columna de divisa: «€» y «$» en la celda del valor; contravalor solo en la de «$»",
+    text: `Producto;ISIN;Valor de mercado;Contravalor EUR\nFondo A;${LU};80.000,00 €;\nETF B;${IE};$8,736.00;7.512,09`,
+    truth: usd },
+  { id: "S04", group: "A", tema: "«Contravalor EUR» con una celda «8.736,00 USD» (se contradice)",
+    text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80.000,00\nETF B;${IE};8.736,00 USD`,
+    truth: usdNull },
+  { id: "S05", group: "A", tema: "Divisa solo en la columna de la cuenta («Div. cuenta» EUR) y valor de mercado de un ETF en USD",
+    text: `Producto;ISIN;Div. cuenta;Valor de mercado\nFondo A;${LU};EUR;80.000,00\nETF B USD;${IE};EUR;8.736,00`,
+    truth: usdNull, nota: "la divisa de la cuenta no dice la del valor de mercado" },
+  { id: "S06", group: "A", tema: "Columna «Divisa» con códigos ISO numéricos (978 / 840)",
+    text: `Producto;ISIN;Divisa;Valor de mercado\nFondo A;${LU};978;80.000,00\nETF B;${IE};840;8.736,00`,
+    truth: usdNull },
+  // ── B · Divisa en la misma celda que el nombre ────────────────────────────
+  { id: "S07", group: "B", tema: "Sin columna de divisa; la divisa va en el nombre («ETF B (USD)») y el valor está en USD",
+    text: `Producto;ISIN;Valor de mercado\nFondo A EUR;${LU};80.000,00\nETF B (USD);${IE};8.736,00`,
+    truth: usdNull, nota: "decisión 1: sin divisa = euros" },
+  { id: "S08", group: "B", tema: "La divisa pegada al ISIN («IE0098765432 (USD)»)",
+    text: `ISIN;Nombre;Importe\n${LU};Fondo A;80.000,00\n${IE} (USD);ETF B;8.736,00`,
+    truth: usdNull },
+  { id: "S09", group: "B", tema: "Con columna de divisa y la divisa también en la celda del importe",
+    text: `Producto;ISIN;Divisa;Valor de mercado\nFondo A;${LU};EUR;80.000,00\nETF B;${IE};USD;8.736,00 USD`,
+    truth: usdNull },
+  { id: "S10", group: "B", tema: "Clase de participación en el nombre («Acc USD») y «Valor de mercado» sin divisa, en HTML",
+    text: tbl([["Producto", "ISIN", "Valor de mercado"], ["Fondo A Acc EUR", LU, "80.000,00"], ["Fondo Global A Acc USD", IE, "8.736,00"]]),
+    truth: usdNull, nota: "decisión 1" },
+  // ── C · Cabeceras abreviadas ───────────────────────────────────────────────
+  { id: "S11", group: "C", tema: "«Ctvl. EUR»", text: `Producto;ISIN;Div.;Ctvl. EUR\nFondo A;${LU};EUR;80.000,00\nETF B;${IE};USD;7.512,09`, truth: usd },
+  { id: "S12", group: "C", tema: "«Vr. mdo.» con «Divisa»", text: `ISIN;Nombre;Divisa;Vr. mdo.\n${LU};Fondo A;EUR;80.000,00\n${IE};ETF B;USD;8.736,00`, truth: usdNull },
+  { id: "S13", group: "C", tema: "«Imp. €»", text: `ISIN;Nombre;Imp. €\n${LU};Fondo A;80.000,00\n${IE};ETF B;120.000,00`, truth: two },
+  { id: "S14", group: "C", tema: "«Importe (€)» con «Código ISIN»", text: `Código ISIN;Descripción;Importe (€)\n${LU};Fondo A;80.000,00\n${IE};ETF B;120.000,00`, truth: two },
+  { id: "S15", group: "C", tema: "«Valor efectivo EUR»", text: `ISIN;Nombre;Valor efectivo EUR\n${LU};Fondo A;80.000,00\n${IE};ETF B;7.512,09`, truth: usd },
+  { id: "S16", group: "C", tema: "«Ctvl. EUR» (no reconocido) junto a «Valor de mercado» y «Divisa»",
+    text: `Producto;ISIN;Divisa;Valor de mercado;Ctvl. EUR\nFondo A;${LU};EUR;80.000,00;80.000,00\nETF B;${IE};USD;8.736,00;7.512,09`, truth: usd },
+  // ── D · Dos tablas en una hoja ─────────────────────────────────────────────
+  { id: "S17", group: "D", tema: "CSV: segunda tabla tras una fila vacía, cabecera sin ISIN ni importe reconocible y la misma anchura",
+    text: `Producto;ISIN;Divisa;Contravalor EUR\nFondo A;${LU};EUR;80.000,00\nETF B;${IE};USD;7.512,09\n\nEmisión;Código;Valor efectivo;Precio\nBono X;${XS};101.500,00;101,50`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [XS]: 101500 } },
+  { id: "S18", group: "D", tema: "CSV: segunda tabla con ISIN y una columna de importe no reconocida («Valor efectivo»)",
+    text: `Producto;ISIN;Divisa;Contravalor EUR\nFondo A;${LU};EUR;80.000,00\nETF B;${IE};USD;7.512,09\n\nEmisión;ISIN;Nominal;Precio;Valor efectivo\nBono X;${XS};100.000;101,50;101.500,00`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [XS]: 101500 } },
+  { id: "S19", group: "D", tema: "CSV: segunda tabla con ISIN y «Contravalor EUR» en otra posición",
+    text: `Producto;ISIN;Divisa;Contravalor EUR\nFondo A;${LU};EUR;80.000,00\nETF B;${IE};USD;7.512,09\n\nEmisión;ISIN;Nominal;Cupón corrido;Contravalor EUR\nBono X;${XS};100.000;1.150,00;101.500,00`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [XS]: 101500 } },
+  { id: "S20", group: "D", tema: "HTML: dos tablas; la segunda con ISIN y «Efectivo» (no reconocido)",
+    text: tbl([["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "80.000,00"]]) + tbl([["Emisión", "ISIN", "Nominal", "Efectivo"], ["Bono X", XS, "100.000", "101.500,00"]]),
+    truth: { [LU]: 80000, [XS]: 101500 } },
+  { id: "S21", group: "D", tema: "CSV: dos tablas; la segunda con dos columnas de importe que no coinciden",
+    text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80.000,00\n\nEmisión;ISIN;Importe EUR;Contravalor\nBono X;${XS};101.500,00;100.350,00`,
+    truth: { [LU]: 80000, [XS]: null } },
+  { id: "S22", group: "D", tema: "CSV: segunda tabla sin cabecera, con una columna de más",
+    text: `Producto;ISIN;Divisa;Contravalor EUR\nFondo A;${LU};EUR;80.000,00\n\nRENTA FIJA;;;\nBono X;${XS};EUR;101,50;101.500,00`,
+    truth: { [LU]: 80000, [XS]: 101500 } },
+  // ── E · Cortas o negativas ─────────────────────────────────────────────────
+  { id: "S23", group: "E", tema: "Posición corta con «-5.000,00»", text: `ISIN;Nombre;Contravalor EUR\n${LU};Fondo A;80.000,00\n${US};Apple (corto);-5.000,00`, truth: { [LU]: 80000, [US]: null } },
+  { id: "S24", group: "E", tema: "HTML con «(5.000,00)»", text: tbl([["ISIN", "Nombre", "Contravalor EUR"], [LU, "Fondo A", "80.000,00"], [US, "Apple", "(5.000,00)"]]), truth: { [LU]: 80000, [US]: null } },
+  { id: "S25", group: "E", tema: "IB en inglés: cantidad y valor negativos", text: `Symbol,ISIN,Quantity,Market Value EUR\nAAPL,${US},-100,"-17,250.00"\nFUND,${LU},500,"80,000.00"`, truth: { [LU]: 80000, [US]: null } },
+  { id: "S26", group: "E", tema: "Columna «Posición: Corta» con importe positivo", text: `ISIN;Nombre;Posición;Contravalor EUR\n${LU};Fondo A;Larga;80.000,00\n${US};Apple;Corta;17.250,00`, truth: { [LU]: 80000, [US]: null }, nota: "el signo va en otra columna" },
+  // ── F · El mismo ISIN en varias cuentas ────────────────────────────────────
+  { id: "S27", group: "F", tema: "Tres cuentas: 30.000 + 50.000 + 80.000 (la tercera es una cuenta real, no un subtotal)",
+    text: `Producto;ISIN;Cuenta;Contravalor EUR\nFondo A;${LU};C1;30.000,00\nFondo A;${LU};C2;50.000,00\nFondo A;${LU};C3;80.000,00\nETF B;${IE};C1;120.000,00`,
+    truth: { [LU]: 160000, [IE]: 120000 }, alt: [{ [LU]: 80000, [IE]: 120000 }], nota: "decisión 5" },
+  { id: "S28", group: "F", tema: "Tres cuentas en otro orden: 80.000 + 30.000 + 50.000",
+    text: `Producto;ISIN;Cuenta;Contravalor EUR\nFondo A;${LU};C3;80.000,00\nFondo A;${LU};C1;30.000,00\nFondo A;${LU};C2;50.000,00\nETF B;${IE};C1;120.000,00`,
+    truth: { [LU]: 160000, [IE]: 120000 } },
+  { id: "S29", group: "F", tema: "Total del fondo DELANTE de sus cuentas, sin rótulo (cuenta en blanco)",
+    text: `Producto;ISIN;Cuenta;Contravalor EUR\nFondo A;${LU};;80.000,00\nFondo A;${LU};Cuenta 1;30.000,00\nFondo A;${LU};Cuenta 2;50.000,00\nETF B;${IE};Cuenta 1;120.000,00`,
+    truth: two },
+  { id: "S30", group: "F", tema: "«Total Fondo A» DELANTE de sus cuentas, con el ISIN",
+    text: `Producto;ISIN;Cuenta;Contravalor EUR\nTotal Fondo A;${LU};;80.000,00\nFondo A;${LU};Cuenta 1;30.000,00\nFondo A;${LU};Cuenta 2;50.000,00\nETF B;${IE};Cuenta 1;120.000,00`,
+    truth: two },
+  { id: "S31", group: "F", tema: "HTML consolidado: una tabla por cuenta y una tabla «Resumen por producto» con los totales",
+    text: tbl([["Cuenta 1", "", ""], ["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "50.000,00"]]) +
+      tbl([["Cuenta 2", "", ""], ["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "30.000,00"], ["ETF B", IE, "120.000,00"]]) +
+      tbl([["Resumen por producto", "", ""], ["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "80.000,00"], ["ETF B", IE, "120.000,00"]]),
+    truth: two },
+  { id: "S32", group: "F", tema: ".xlsx consolidado: hojas «Cuenta 1», «Cuenta 2» y «Consolidado»",
+    sheets: [
+      { name: "Cuenta 1", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 50000]] },
+      { name: "Cuenta 2", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 30000], ["ETF B", IE, 120000]] },
+      { name: "Consolidado", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 80000], ["ETF B", IE, 120000]] }
+    ],
+    truth: two },
+  // ── G · Columna de importe en blanco salvo una celda ───────────────────────
+  { id: "S33", group: "G", tema: "Contravalor en blanco salvo en la fila EUR; dos filas USD sin contravalor",
+    text: `Producto;ISIN;Divisa;Valor de mercado;Contravalor EUR\nFondo A;${LU};EUR;80.000,00;80.000,00\nETF B;${IE};USD;8.736,00;\nETF C;${US};USD;17.250,00;`,
+    truth: { [LU]: 80000, [IE]: null, [US]: null } },
+  { id: "S34", group: "G", tema: "«Importe» en blanco salvo una fila, sin divisa", text: `ISIN;Nombre;Importe\n${LU};A;80.000,00\n${IE};B;\n${XS};C;`, truth: { [LU]: 80000, [IE]: null, [XS]: null } },
+  { id: "S35", group: "G", tema: "Única cifra de la columna: «80.000» (sin nada que decida el formato) bajo «Valor de mercado»",
+    text: `ISIN;Nombre;Divisa;Valor de mercado\n${LU};A;EUR;80.000\n${IE};B;EUR;`, truth: { [LU]: 80000, [IE]: null } },
+  // ── H · .xlsx ──────────────────────────────────────────────────────────────
+  { id: "S36", group: "H", tema: ".xlsx con fórmulas y valor calculado guardado",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Títulos", "Precio", "Contravalor EUR"], ["Fondo A", LU, 100, 800, 0], ["ETF B", IE, 50, 2400, 0]],
+      cells: { E2: { t: "n", f: "C2*D2", v: 80000 }, E3: { t: "n", f: "C3*D3", v: 120000 } } }],
+    truth: two },
+  { id: "S37", group: "H", tema: ".xlsx con fórmulas SIN valor guardado (libro generado por un programa)",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Títulos", "Precio", "Contravalor EUR"], ["Fondo A", LU, 100, 800, 0], ["ETF B", IE, 50, 2400, 0]],
+      cells: { E2: { t: "n", f: "C2*D2" }, E3: { t: "n", f: "C3*D3" } } }],
+    truth: { [LU]: null, [IE]: null } },
+  { id: "S38", group: "H", tema: ".xlsx con fechas reales y decimales",
+    sheets: [{ name: "Posiciones", rows: [["Fecha", "Producto", "ISIN", "Contravalor EUR"], [new Date(Date.UTC(2026, 9, 15)), "Fondo A", LU, 80000.5], [new Date(Date.UTC(2026, 9, 15)), "ETF B", IE, 7512.09]] }],
+    truth: { [LU]: 80000.5, [IE]: 7512.09 } },
+  { id: "S39", group: "H", tema: ".xlsx con una fecha en la celda del importe",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 80000], ["ETF B", IE, new Date(Date.UTC(2026, 0, 12))]] }],
+    truth: usdNull },
+  { id: "S40", group: "H", tema: ".xlsx con números como texto en español", sheets: [{ name: "Hoja1", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "80.000,00"], ["ETF B", IE, "7.512,09"]] }], truth: usd },
+  { id: "S41", group: "H", tema: ".xlsx: «80.000» como texto junto a una celda numérica con decimales", sheets: [{ name: "Hoja1", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, "80.000"], ["ETF B", IE, 7512.09]] }], truth: usd },
+  { id: "S42", group: "H", tema: ".xlsx numérico: 512,875 € (tres decimales) bajo «Market value EUR», el resto enteros",
+    sheets: [{ name: "Positions", rows: [["Security", "ISIN", "Market value EUR"], ["Fund A", LU, 80000], ["Cash fund B", IE, 512.875]] }],
+    truth: { [LU]: 80000, [IE]: 512.875 } },
+  { id: "S43", group: "H", tema: ".xlsx numérico: 512,875 € bajo «Contravalor EUR», el resto enteros",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 80000], ["Monetario B", IE, 512.875]] }],
+    truth: { [LU]: 80000, [IE]: 512.875 } },
+  { id: "S44", group: "H", tema: ".xlsx en inglés: importes como texto «80,000» y una cantidad numérica con decimales",
+    sheets: [{ name: "Positions", rows: [["Security", "ISIN", "Quantity", "Market value EUR"], ["Fund A", LU, 12.5, "80,000"], ["ETF B", IE, 100, "120,000"]] }],
+    truth: two },
+  { id: "S45", group: "H", tema: ".xlsx: formato de moneda USD en una celda suelta de «Contravalor EUR»",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 80000], ["ETF B", IE, 8736]], fmt: { C3: '"$"#,##0.00' } }],
+    truth: usdNull },
+  { id: "S46", group: "H", tema: ".xlsx: formato de corona sueca «[$kr-41D]» en «Valor de mercado», sin columna de divisa",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Valor de mercado"], ["Fondo A", LU, 80000], ["Fondo nórdico", IE, 95000]], fmt: { C3: '[$kr-41D] #,##0.00' } }],
+    truth: usdNull },
+  { id: "S47", group: "H", tema: ".xlsx: formato de porcentaje en la celda del importe",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Contravalor EUR"], ["Fondo A", LU, 80000], ["ETF B", IE, 0.4]], fmt: { C3: "0.00%" } }],
+    truth: usdNull },
+  { id: "S48", group: "H", tema: ".xlsx con celdas combinadas: «Contravalor» sobre «Divisa | EUR»",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Contravalor", null], [null, null, "Divisa", "EUR"], ["Fondo A", LU, 80000, 80000], ["ETF B", IE, 8736, 7512.09]], merges: ["A1:A2", "B1:B2", "C1:D1"] }],
+    truth: usd },
+  { id: "S49", group: "H", tema: ".xlsx: formato USD en una celda con «Divisa» EUR en la fila",
+    sheets: [{ name: "Posiciones", rows: [["Producto", "ISIN", "Divisa", "Valor de mercado"], ["Fondo A", LU, "EUR", 80000], ["ETF B", IE, "EUR", 8736]], fmt: { D3: '[$$-409]#,##0.00' } }],
+    truth: usdNull },
+  // ── I · HTML de Outlook o Word ─────────────────────────────────────────────
+  { id: "S50", group: "I", tema: "Word: <p class=MsoNormal>, <o:p>, &nbsp;€ y SpellE",
+    text: `<table class=MsoTableGrid border=1><tr><td><p class=MsoNormal><b>Producto<o:p></o:p></b></p></td><td><p class=MsoNormal><b>ISIN<o:p></o:p></b></p></td><td><p class=MsoNormal><b>Contravalor EUR<o:p></o:p></b></p></td></tr>` +
+      `<tr><td><p class=MsoNormal>Fondo A<o:p></o:p></p></td><td><p class=MsoNormal><span class=SpellE>${LU}</span><o:p></o:p></p></td><td><p class=MsoNormal align=right style='text-align:right'>80.000,00&nbsp;€<o:p></o:p></p></td></tr>` +
+      `<tr><td><p class=MsoNormal>ETF B<o:p></o:p></p></td><td><p class=MsoNormal><span class=SpellE>${IE}</span><o:p></o:p></p></td><td><p class=MsoNormal align=right style='text-align:right'>7.512,09&nbsp;€<o:p></o:p></p></td></tr></table>`,
+    truth: usd },
+  { id: "S51", group: "I", tema: "Outlook: el código de país del ISIN en negrita aparte («<b>LU</b>1234567891»)",
+    text: `<table><tr><td><p>Producto</p></td><td><p>ISIN</p></td><td><p>Contravalor EUR</p></td></tr><tr><td><p>Fondo A</p></td><td><p><b>LU</b>1234567891</p></td><td><p>80.000,00</p></td></tr><tr><td><p>ETF B</p></td><td><p>${IE}</p></td><td><p>120.000,00</p></td></tr></table>`,
+    truth: two },
+  { id: "S52", group: "I", tema: "HTML: nombre e ISIN en la misma celda con <br>, sin columna de ISIN",
+    text: tbl([["Producto", "Contravalor EUR"], [`Fondo A<br>${LU}`, "80.000,00"], [`ETF B<br>${IE}`, "120.000,00"]]),
+    truth: { [LU]: null, [IE]: null } },
+  { id: "S53", group: "I", tema: "HTML: dos <p> en la celda del importe («80.000,00» y «EUR»)",
+    text: tbl([["Producto", "ISIN", "Valor de mercado"], ["Fondo A", LU, "<p>80.000,00</p><p>EUR</p>"], ["ETF B", IE, "<p>8.736,00</p><p>USD</p>"]]),
+    truth: usdNull },
+  // ── J · Separador «|» ──────────────────────────────────────────────────────
+  { id: "S54", group: "J", tema: "CSV con «|» y coma decimal", text: `ISIN|Nombre|Contravalor EUR\n${LU}|Fondo A|80.000,00\n${IE}|ETF B|7.512,09`, truth: usd },
+  { id: "S55", group: "J", tema: "CSV con «|», punto decimal y cinco filas",
+    text: `ISIN|Nombre|Contravalor EUR\n${LU}|A|80000.00\n${IE}|B|7512.09\n${XS}|C|1000.00\n${FR}|D|2000.00\n${US}|E|3000.00`,
+    truth: { [LU]: 80000, [IE]: 7512.09, [XS]: 1000, [FR]: 2000, [US]: 3000 } },
+  // ── K · Más de dos decimales ───────────────────────────────────────────────
+  { id: "S56", group: "K", tema: "Español con 3 y 4 decimales", text: `ISIN;Nombre;Contravalor EUR\n${LU};A;80.000,125\n${IE};B;7.512,0912`, truth: { [LU]: 80000.125, [IE]: 7512.0912 } },
+  { id: "S57", group: "K", tema: "Inglés con 3 decimales", text: `ISIN,Name,Market value EUR\n${LU},A,"80,000.125"\n${IE},B,"7,512.091"`, truth: { [LU]: 80000.125, [IE]: 7512.091 } },
+  { id: "S58", group: "K", tema: "«512,875» junto a «1.234,5678»", text: `ISIN;Nombre;Contravalor EUR\n${LU};A;1.234,5678\n${IE};B;512,875`, truth: { [LU]: 1234.5678, [IE]: 512.875 } },
+  { id: "S59", group: "K", tema: "«512,875» junto a un entero, cabecera española", text: `ISIN;Nombre;Contravalor EUR\n${LU};A;80000\n${IE};B;512,875`, truth: { [LU]: 80000, [IE]: null } },
+  { id: "S60", group: "K", tema: "Punto decimal con cabecera española: «80000.00» y «512.875»", text: `ISIN;Nombre;Valor de mercado EUR\n${LU};A;80000.00\n${IE};B;512.875`, truth: { [LU]: 80000, [IE]: 512.875 } },
+  // ── L · Idioma de cabecera frente a formato numérico ──────────────────────
+  { id: "S61", group: "L", tema: "Cabecera inglesa y números españoles con decimales", text: `Security;ISIN;Currency;Market value EUR\nFund A;${LU};EUR;80.000,00\nETF B;${IE};USD;7.512,09`, truth: usd },
+  { id: "S62", group: "L", tema: "Cabecera inglesa y miles españoles sin decimales («80.000»)", text: `Security;ISIN;Market value EUR\nFund A;${LU};80.000\nETF B;${IE};120.000`, truth: { [LU]: null, [IE]: null } },
+  { id: "S63", group: "L", tema: "Cabecera española y números ingleses con decimales", text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80,000.00\nETF B;${IE};7,512.09`, truth: usd },
+  { id: "S64", group: "L", tema: "Cabecera española y miles ingleses sin decimales («80,000»)", text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80,000\nETF B;${IE};120,000`, truth: { [LU]: null, [IE]: null } },
+  { id: "S65", group: "L", tema: "CSV español con miles enteros «80.000» y un precio con punto decimal en otra columna",
+    text: `Producto;ISIN;Precio;Contravalor EUR\nFondo A;${LU};12.5;80.000\nETF B;${IE};24.75;120.000`, truth: two },
+  { id: "S87", group: "L", tema: "CSV español: «80.000» y «500» (entero sin separador) con un precio con punto decimal",
+    text: `Producto;ISIN;Precio;Contravalor EUR
+Fondo A;${LU};12.5;80.000
+Monetario B;${IE};1.02;500`, truth: { [LU]: 80000, [IE]: 500 } },
+  { id: "S66", group: "L", tema: "HTML español con miles enteros y «Participaciones» con punto decimal",
+    text: tbl([["Producto", "ISIN", "Participaciones", "Contravalor EUR"], ["Fondo A", LU, "2467.605", "80.000"], ["ETF B", IE, "1363.056", "120.000"]]), truth: two },
+  // ── M · «80.000» en un fichero inglés ──────────────────────────────────────
+  { id: "S67", group: "M", tema: "Fichero inglés: «80.000» junto a «7,512.09»", text: `Security,ISIN,Market value EUR\nFund A,${LU},"80.000"\nETF B,${IE},"7,512.09"`, truth: { [LU]: null, [IE]: 7512.09 }, nota: "¿80 o 80.000? no hay certeza" },
+  { id: "S68", group: "M", tema: "Fichero inglés: «80.000» y «120.000», nada más", text: `Security,ISIN,Market value EUR\nFund A,${LU},"80.000"\nETF B,${IE},"120.000"`, truth: { [LU]: null, [IE]: null } },
+  // ── N · ISIN con espacios o caracteres invisibles ─────────────────────────
+  { id: "S69", group: "N", tema: "ISIN con un espacio tras el país («LU 1234567891»)", text: `ISIN;Nombre;Contravalor EUR\nLU 1234567891;Fondo A;80.000,00\n${IE};ETF B;120.000,00`, truth: { [LU]: null, [IE]: 120000 } },
+  // Décima pasada (M2 de la revisión 9): el espacio de ancho cero no se ve y se quita antes de leer el ISIN; LU entra.
+  { id: "S70", group: "N", tema: "ISIN con un espacio de ancho cero al final (copiado de una web)", text: `ISIN;Nombre;Contravalor EUR\n${LU}\u200b;Fondo A;80.000,00\n${IE};ETF B;120.000,00`, truth: two },
+  { id: "S71", group: "N", tema: "ISIN en minúsculas", text: `ISIN;Nombre;Contravalor EUR\n${LU.toLowerCase()};Fondo A;80.000,00\n${IE};ETF B;120.000,00`, truth: two },
+  // ── O · Sin ninguna posición válida ────────────────────────────────────────
+  { id: "S72", group: "O", tema: "Todas en USD sin contravalor", text: `Producto;ISIN;Divisa;Valor de mercado;Contravalor EUR\nETF B;${IE};USD;8.736,00;\nETF C;${US};USD;17.250,00;`, truth: { [IE]: null, [US]: null } },
+  { id: "S73", group: "O", tema: "Solo la cabecera", text: "Producto;ISIN;Divisa;Contravalor EUR", truth: {} },
+  { id: "S74", group: "O", tema: "Un texto que no es un extracto", text: "Hola Óscar,\nTe paso la cartera mañana.\nUn saludo", truth: {} },
+  // ── P · Otros ataques ──────────────────────────────────────────────────────
+  { id: "S75", group: "P", tema: "Excel «sep=;» en la primera línea", text: `sep=;\nProducto;ISIN;Contravalor EUR\nFondo A;${LU};80.000,00\nETF B;${IE};7.512,09`, truth: usd },
+  { id: "S76", group: "P", tema: "Francés: «Valeur de marché EUR» y miles con espacio duro", text: `Produit;ISIN;Valeur de marché EUR\nFonds A;${LU};80\u00a0000,00\nETF B;${IE};7\u00a0512,09`, truth: usd },
+  { id: "S77", group: "P", tema: "Alemán: «Kurswert EUR»", text: `Wertpapier;ISIN;Kurswert EUR\nFonds A;${LU};80.000,00\nETF B;${IE};7.512,09`, truth: usd },
+  { id: "S78", group: "P", tema: "Liquidez con «EUR» en la columna de ISIN", text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80.000,00\nLiquidez;EUR;5.000,00`, truth: { [LU]: 80000, Liquidez: null } },
+  { id: "S79", group: "P", tema: "Dos «Contravalor EUR» de dos fechas", text: `Producto;ISIN;Contravalor EUR 30/09;Contravalor EUR 15/10\nFondo A;${LU};79.000,00;80.000,00\nETF B;${IE};7.400,00;7.512,09`, truth: usd },
+  { id: "S80", group: "P", tema: "Apóstrofo de texto de Excel («'80000»)", text: `ISIN;Nombre;Contravalor EUR\n${LU};A;'80000\n${IE};B;7.512,09`, truth: { [LU]: null, [IE]: 7512.09 } },
+  { id: "S81", group: "P", tema: "Nota al pie en el importe («80.000,00 €*»)", text: `ISIN;Nombre;Contravalor EUR\n${LU};A;80.000,00 €*\n${IE};B;7.512,09`, truth: { [LU]: null, [IE]: 7512.09 } },
+  { id: "S82", group: "P", tema: "Salto de página: «Página 2 de 2» y la cabecera repetida", text: `Producto;ISIN;Contravalor EUR\nFondo A;${LU};80.000,00\nPágina 2 de 2;;\nProducto;ISIN;Contravalor EUR\nETF B;${IE};7.512,09`, truth: usd },
+  { id: "S83", group: "P", tema: "Constructor: «ISIN;Contravalor EUR» de dos columnas con importes pequeños (60 y 45 €)", text: `ISIN;Contravalor EUR\n${LU};60,00\n${IE};45,00`, truth: { [LU]: 60, [IE]: 45 } },
+  { id: "S84", group: "P", tema: "Filas pegadas sin cabecera «ISIN;nombre;importe» con un ETF en USD", text: `${LU};Fondo A;80.000,00\n${IE};ETF B USD;8.736,00`, truth: usdNull, nota: "la lista sin cabecera es en euros por definición" },
+  { id: "S85", group: "P", tema: "Lista sin cabecera que mezcla «80.000» y «7,512.09»", text: `${LU} 80.000\n${IE} 7,512.09`, truth: { [LU]: null, [IE]: 7512.09 }, nota: "la lista decide el formato por el conjunto" },
+  { id: "S86", group: "P", tema: "TSV copiado de una web con «€» y espacio duro", text: `Producto\tISIN\tContravalor EUR\nFondo A\t${LU}\t80.000,00\u00a0€\nETF B\t${IE}\t7.512,09\u00a0€`, truth: usd }
+];

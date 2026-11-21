@@ -1,0 +1,372 @@
+/* ============================================================================
+   OAA · Sistema de diseño — BASE
+   Reset, tipografía de documento y utilidades mínimas.
+   ========================================================================== */
+
+/* La letra de pantalla, la de la aplicación de BDB (Óscar, 17-11-2026: «el mismo tipo de letra que su equivalente en
+   BDB»): IBM Plex Sans en casi todo e IBM Plex Mono para el ISIN y los códigos; desde la dirección A, Source Serif 4 en el
+   título de pantalla y la cifra de un indicador (abajo). Autoalojadas, con licencia
+   SIL OFL 1.1 (src/assets/fuentes-de-pantalla/LICENCIAS.md). Los PDF registran las suyas en src/reports/plantilla/fuentes.ts. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url("../assets/fuentes-de-pantalla/ibm-plex-sans.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fuentes-de-pantalla/ibm-plex-mono.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fuentes-de-pantalla/ibm-plex-mono-medio.woff2") format("woff2");
+}
+
+/* La serifa de la dirección A (18-11-2026): Source Serif 4, solo lo que titula o contesta una pantalla (el título, la
+   cifra de un indicador o de la respuesta, el nombre de la casa en el menú; lista completa en el apartado 14 de
+   SISTEMA_DISENO.md) (--fuente-serifa). Solo seminegrita, el 600 de verdad: con font-synthesis-weight: none el
+   navegador no la inventa. Dos subconjuntos, el latino y el latino extendido, que el navegador descarga solo si la
+   página los pide. */
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fuentes-de-pantalla/source-serif-seminegrita.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fuentes-de-pantalla/source-serif-seminegrita-extendida.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  min-width: min(100%, var(--app-min-width));
+  background: var(--lienzo);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--lienzo);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  /* cv11 y ss03 son variantes de Inter (la «l» con cola, la «a» de un piso): el IBM Plex Sans
+     autoalojado no las tiene, así que hoy no cambian nada. */
+  font-feature-settings: "cv11", "ss03";
+  font-size: var(--texto-sm);
+  line-height: var(--lh-normal);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+/* Los teléfonos conservan el ancho de tablet; no tienen una vista propia. */
+@media screen and (max-width: 767.98px) {
+  html {
+    min-width: var(--app-min-width);
+  }
+}
+
+/* --- Tipografía de documento ------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--tinta);
+}
+
+/* La voz de los títulos, la misma letra del texto con su peso. Solo hasta h4: h5 y h6 ya son rótulos. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fuente-titulos);
+  font-weight: var(--peso-titulo);
+  letter-spacing: var(--tracking-titulo);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--marca-fuerte);
+  text-decoration-color: color-mix(in srgb, var(--marca-fuerte) 35%, transparent);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+strong,
+b {
+  font-weight: 600;
+}
+
+small {
+  font-size: var(--texto-xs);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--fuente-codigo);
+  font-size: 0.95em;
+}
+
+pre {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style: none;
+}
+
+figure {
+  margin: 0;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--filete);
+  margin: var(--s-6) 0;
+}
+
+/* --- Formularios --------------------------------------------------------- */
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::placeholder {
+  color: var(--tinta-3);
+  opacity: 1;
+}
+
+/* --- Foco ---------------------------------------------------------------- */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Con contraste forzado el navegador borra las sombras, y con ellas el anillo: ahí el foco es un
+   contorno real, en el color de sistema que elige quien lee. `!important` porque las piezas que
+   ponen su propio anillo quitan el contorno con más especificidad, y aquí tiene que verse siempre. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+
+  /* MAR-11: el modo quita los fondos, y con ellos lo que marca la entrada activa del menú (su fondo y el filete latón),
+     la pestaña elegida (su filete, que es un fondo) y el punto de un distintivo. Se dibujan con bordes en
+     colores del sistema, que el modo respeta. Lo vigila tests/hojasDelMarco.test.ts. */
+  .rail-link.active {
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
+  }
+
+  .ui-tab.active {
+    border-bottom: 2px solid Highlight;
+  }
+
+  /* `:root` le da el peso para ganar a `.badge { border: 0; padding: 0 }`, que va en una hoja posterior. */
+  :root .badge {
+    border: 1px solid CanvasText;
+    padding-inline: var(--s-2);
+  }
+}
+
+/* --- Números ------------------------------------------------------------- */
+/* Regla no negociable: toda cifra alineable usa cifras tabulares. */
+
+.num,
+.tabular-nums,
+td,
+th,
+input[type="number"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* --- Selección y scrollbars --------------------------------------------- */
+
+::selection {
+  background: var(--marca-linea);
+  color: var(--tinta);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--filete-fuerte) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--filete-fuerte);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--borde-control);
+  background-clip: content-box;
+}
+
+/* --- Utilidades ---------------------------------------------------------- */
+
+.ui-visually-hidden,
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mono {
+  font-family: var(--fuente-codigo);
+  font-size: 0.9375em;
+  letter-spacing: 0.01em;
+}
+
+/* La regla de hoy (SISTEMA_DISENO.md §4, 13-11-2026): el signo de un resultado, una
+   rentabilidad, una diferencia con la referencia o una contribución lleva color, verde
+   (--sube) si gana y rojo (--baja) si pierde, siempre con su «+» o su «−» escrito. Ese
+   color lo pone la pieza `Cifra` (components.css, `.cifra--sube` y `.cifra--baja`). Un
+   peso, una volatilidad, una caída máxima, un coste o el importe de un movimiento van en
+   tinta.
+   Las clases `.pos` y `.neg` que había aquí se borraron el 14-11-2026 (MAR-06): pintaban
+   en tinta, o sea nada, y sus tres usos no eran el signo de un resultado. Quedan dos
+   utilidades de texto: el ocre de lo que pide la atención del asesor y el atenuado. */
+.warn {
+  color: var(--aviso);
+}
+.u-muted {
+  color: var(--tinta-2);
+}
+
+/* --- Animación ----------------------------------------------------------- */
+
+@keyframes oaa-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes oaa-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes oaa-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

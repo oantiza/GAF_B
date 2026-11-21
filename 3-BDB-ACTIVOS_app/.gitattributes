@@ -1,0 +1,4 @@
+# La app se versiona con LF en todas las máquinas: es lo que hacía su configuración local
+# (core.autocrlf=input) antes de la unificación de repositorios del 10-11-2026. Sin esto mandaría la
+# configuración del sistema, que escribe CRLF al sacar un fichero.
+* text=auto eol=lf

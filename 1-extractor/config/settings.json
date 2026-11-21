@@ -1,0 +1,56 @@
+{
+  "divisa": "EUR",
+  "idioma": "es",
+  "rate_limit_segundos": 1.2,
+  "jitter_segundos": 0.6,
+  "cache_dias": 7,
+  "timeout_segundos": 25,
+  "reintentos": 3,
+  "backoff_segundos": 4,
+  "prioridad_fuentes": [
+    "cnmv",
+    "morningstar_lt",
+    "justetf",
+    "ishares",
+    "amundi",
+    "xtrackers",
+    "vanguard",
+    "spdr",
+    "invesco",
+    "emt"
+  ],
+  "emt_emisores": {
+    "ishares": {
+      "url": "https://www.blackrock.com/fund-regulatory/literature/regional-regulatory-report/emt-v4-blackrock.xlsx",
+      "formato": "xlsx",
+      "marcas": ["ishares", "blackrock"]
+    },
+    "vanguard": {
+      "url": "https://fund-docs.vanguard.com/european-mifid-templatev4.2.xlsx",
+      "formato": "xlsx",
+      "marcas": ["vanguard"]
+    },
+    "invesco": {
+      "url": "https://www.invesco.com/content/dam/invesco/emea/en/product-documents/etf/umbrella/other/emt-report_en_invesco-combined.csv",
+      "formato": "csv",
+      "separador": "|",
+      "ua_herramienta": true,
+      "marcas": ["invesco", "powershares"]
+    }
+  },
+  "guardar_respuestas_crudas": true,
+  "max_posiciones_cartera": 10000,
+  "max_posiciones_cartera_emisor": 30000,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+  "sec_user_agent": "Gestor Activos Financieros oscarantiza@gmail.com",
+  "ttl_dias_por_familia": {
+    "precio": 1,
+    "rendimiento": 1,
+    "analitica": 30,
+    "cartera": 30,
+    "esg": 30,
+    "costes": 90,
+    "regulatorio": 90,
+    "identidad": 365
+  }
+}

@@ -1,0 +1,367 @@
+{
+ "version": 1,
+ "que_es": "Politica de reparto leida en el KID de la clase, una a una. Vale solo mientras kid_sha256 coincida con la huella del texto del KID en la ficha: si el documento cambia, la evidencia se apaga sola y hay que volver a leerlo.",
+ "revisado": "2026-11-05",
+ "clases": {
+  "DE0008490962": {
+   "politica": "acumulacion",
+   "kid_sha256": "a8e69e31836073de0e531dc6ee87a33ae732742ce43b13b2d82a539f1a71ac43",
+   "kid_fecha": "2026-07-13",
+   "cita": "Las acciones del fondo son de acumulación, es decir, los rendimientos y ganancias no se reparten sino que se reinvierten en el fondo."
+  },
+  "DE000A0X7541": {
+   "politica": "acumulacion",
+   "kid_sha256": "824f12370530c055e4593c1d24d574a60261e578f76314b9f802e10426091545",
+   "kid_fecha": "2026-06-15",
+   "cita": "Los beneficios se mantienen en el fondo (o cuando proceda, una determinada clase de acción) y aumentan el valor de las participaciones."
+  },
+  "DE000DWS17J0": {
+   "politica": "acumulacion",
+   "kid_sha256": "787651f543b100948a064b573561f5ee614df0a6f1835eb8be93ffccc9d942a3",
+   "kid_fecha": "2026-04-16",
+   "cita": "Las acciones del fondo son de acumulación, es decir, los rendimientos y ganancias no se reparten sino que se reinvierten en el fondo."
+  },
+  "IE0031333341": {
+   "politica": "acumulacion",
+   "kid_sha256": "d20149c764c6f2c02e0685387e92011a64a5d665bfb90e8b243b0217117ca462",
+   "kid_fecha": "2026-02-19",
+   "cita": "los ingresos de las inversiones se reinvertirán"
+  },
+  "IE00B3V93F27": {
+   "politica": "acumulacion",
+   "kid_sha256": "9dc976b1caa2fd9a8fb15642b6c01dc115b0b070102317e1d35411b8e0c5e550",
+   "kid_fecha": "2026-03-06",
+   "cita": "Política de distribución: los rendimientos netos generados serán reinvertidos en el Fondo y se reflejarán en el valor de sus acciones."
+  },
+  "IE00B3VXGD32": {
+   "politica": "distribucion",
+   "kid_sha256": "353a3392547b3d8f1f4cf69c6e2ab1c8d9b6135ab40947b0259f6e24c949911c",
+   "kid_fecha": "2026-07-07",
+   "cita": "Acciones de clase R EUR de distribución"
+  },
+  "IE00B52VLZ70": {
+   "politica": "acumulacion",
+   "kid_sha256": "ffaadbfbf42d5033ac389dfa273b77b42ffb1b09cfaad97068589f33234638e2",
+   "kid_fecha": "2026-07-07",
+   "cita": "Acciones de clase R EUR de acumulación … No está previsto distribuir dividendos con respecto a las Clases de Acciones de Acumulación."
+  },
+  "IE00B84J9L26": {
+   "politica": "acumulacion",
+   "kid_sha256": "b200fe7d50007f4bf5d33d2228099fb66bc2a5cf2b5e83bb10a86cd590fc598d",
+   "kid_fecha": "2026-04-29",
+   "cita": "Esta clase de acciones no hace distribuciones."
+  },
+  "IE00BD2ZKT29": {
+   "politica": "acumulacion",
+   "kid_sha256": "404aa3b5bec66ec99c6b8571d0c65d17f4f2bf151fbe7a36c3ed807e41ca3668",
+   "kid_fecha": "2026-07-29",
+   "cita": "Participaciones de la Clase A EUR-H Acc"
+  },
+  "IE00BD5CTX77": {
+   "politica": "acumulacion",
+   "kid_sha256": "9607f09fc35c2a9b2f10328f6551ae956ef8f2f9bc4f686a2fb5f4f80f1a2ea9",
+   "kid_fecha": "2026-02-16",
+   "cita": "Política de distribución: los rendimientos netos generados serán reinvertidos en el Fondo y se reflejarán en el valor de sus acciones."
+  },
+  "IE00BYYPF474": {
+   "politica": "acumulacion",
+   "kid_sha256": "646d97fbbdc853c83e9ddb40785175df3ca74f9ac01ea217ab7a0d6f3485312e",
+   "kid_fecha": "2026-09-23",
+   "cita": "Los ingresos que reciba el Fondo se reinvertirán"
+  },
+  "LU0011889846": {
+   "politica": "acumulacion",
+   "kid_sha256": "1ddba614ecb680fa3b88dd6dece679b69cf7f3d3bcb29ca18143cd918fad4f6d",
+   "kid_fecha": "2026-02-13",
+   "cita": "Esta clase de acciones acumula ingresos que son retenidos en el precio de la clase de acciones."
+  },
+  "LU0080237943": {
+   "politica": "acumulacion",
+   "kid_sha256": "9f91b9400d5135b45fc4d5a2d3dc52834e9375e0adeda125e6cc665aadc2e3a8",
+   "kid_fecha": "2026-02-16",
+   "cita": "Las acciones del fondo son de acumulación, es decir, los rendimientos y ganancias no se reparten sino que se reinvierten en el fondo."
+  },
+  "LU0117843721": {
+   "politica": "acumulacion",
+   "kid_sha256": "4823718e59c4b4e0f992abf4395108105f649a0dd77bec7a0548ccd4eac802f0",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117858166": {
+   "politica": "acumulacion",
+   "kid_sha256": "439fc4aedce7d4719360eac962b2ce2baa7a843ec51e2bc176a26304fefda785",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117858596": {
+   "politica": "acumulacion",
+   "kid_sha256": "3a8742356d02be6610c753f4203e137c3c80c0afdedb5df6dfec3ca0fdb82021",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117858679": {
+   "politica": "acumulacion",
+   "kid_sha256": "3d9fb96bd5cb72093a8b5552082573b9cbe1a13c994416f7f1d6f3acd570bf99",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117858752": {
+   "politica": "acumulacion",
+   "kid_sha256": "9d3f94e561a145a96ae7756fa1855704d49c2e36077ac49a986a65f39fadaf81",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117859560": {
+   "politica": "acumulacion",
+   "kid_sha256": "5b3e1b6e1b2dc148775d9745a4c5f1d4a52504da5b680c7be23151cab9ddc814",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0117898204": {
+   "politica": "acumulacion",
+   "kid_sha256": "f18f722b2acb1223e2cd0e5a28ea2e30585b931b44270e0a3fbaa303e1608098",
+   "kid_fecha": "2026-04-27",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0119063039": {
+   "politica": "acumulacion",
+   "kid_sha256": "e00ecb973d5d2f6a8832e8036033a3913ed139ad9c2fbaff6d47d39beed6de87",
+   "kid_fecha": "2026-10-07",
+   "cita": "Esta Clase de Acciones no distribuye dividendos. Los ingresos obtenidos se conservan en el Valor liquidativo."
+  },
+  "LU0127786431": {
+   "politica": "acumulacion",
+   "kid_sha256": "5680247d1ad23680a8bcb19ff30e774332344df3fd781495d55d4be373b4c8da",
+   "kid_fecha": "2026-03-03",
+   "cita": "El fondo no prevé repartir dividendos. Todas las ganancias se reinvertirán."
+  },
+  "LU0133264522": {
+   "politica": "acumulacion",
+   "kid_sha256": "1006720657898d5d4724186eb47f8f4a67bf1fdf40a08f9235b691eaae483a73",
+   "kid_fecha": "2026-06-18",
+   "cita": "Los ingresos se acumulan en el valor de su inversión."
+  },
+  "LU0133267202": {
+   "politica": "acumulacion",
+   "kid_sha256": "fb09b548549eb59705f5d9bb9892675170f5ac15b7f832b60c65ddeee2ddf381",
+   "kid_fecha": "2026-02-13",
+   "cita": "Los ingresos se acumulan en el valor de su inversión."
+  },
+  "LU0201075453": {
+   "politica": "acumulacion",
+   "kid_sha256": "f59659a89fdbf6425bd74f39d1db286c4db9bbaa4540b9a2b1d9f15755b5b15c",
+   "kid_fecha": "2026-02-13",
+   "cita": "Esta clase de acciones acumula ingresos que son retenidos en el precio de la clase de acciones."
+  },
+  "LU0231490524": {
+   "politica": "acumulacion",
+   "kid_sha256": "bc840ac70c45778f138b0100c5afd8a8113b0a50753ffeeae5222b9bd6d0c0ae",
+   "kid_fecha": "2026-03-26",
+   "cita": "A Acc USD Participaciones … Si invierte en participaciones de acumulación, los ingresos se sumarán al valor de sus participaciones."
+  },
+  "LU0243957239": {
+   "politica": "acumulacion",
+   "kid_sha256": "ad46d0b5b372686dd2f77fc3a2f92e3fd76974511aff707aae89802394d3ca39",
+   "kid_fecha": "2026-05-19",
+   "cita": "clase A de acumulación (EUR)"
+  },
+  "LU0243957742": {
+   "politica": "acumulacion",
+   "kid_sha256": "9140598888199185ab2abec05d9665b578a9febe6d013b1a62c363b9aa697c66",
+   "kid_fecha": "2026-05-19",
+   "cita": "clase E de acumulación (EUR)"
+  },
+  "LU0264738294": {
+   "politica": "acumulacion",
+   "kid_sha256": "96e81fbeca29a4f556c2ca74293ed63dae0ae1b123abdecdd81b9ad7bcc5d21f",
+   "kid_fecha": "2026-02-13",
+   "cita": "Esta clase de acciones acumula ingresos que son retenidos en el precio de la clase de acciones."
+  },
+  "LU0273690064": {
+   "politica": "acumulacion",
+   "kid_sha256": "9a9195bafd6a7feede74cfebfe59c7a68e0eb4959a5c7db614d954dba856fc2f",
+   "kid_fecha": "2026-03-03",
+   "cita": "El Fondo no prevé repartir dividendos. Todas las ganancias se reinvertirán."
+  },
+  "LU0348784041": {
+   "politica": "acumulacion",
+   "kid_sha256": "0bd1f9a14bc356d380f2666303014139f942ece388d75505fca8fa8df19e856d",
+   "kid_fecha": "2026-09-22",
+   "cita": "Reinvertimos los ingresos en esta clase de acciones."
+  },
+  "LU0438336694": {
+   "politica": "acumulacion",
+   "kid_sha256": "6f1fdf06c87fe60628839fef96a0f57ea37162eb953790c8e052c3acbf775daa",
+   "kid_fecha": "2026-04-15",
+   "cita": "Sus acciones serán no distributivas"
+  },
+  "LU0607513586": {
+   "politica": "acumulacion",
+   "kid_sha256": "998bdc6007d896b3ca0c402d81d1cd89fea53cc3571964e7482d33d794bb590a",
+   "kid_fecha": "2026-05-19",
+   "cita": "clase E de acumulación (EUR)"
+  },
+  "LU0628612748": {
+   "politica": "acumulacion",
+   "kid_sha256": "0fc644b613d8b71a3a6dee198952c730763ac07e1d52e6680cb27d3f1e605815",
+   "kid_fecha": "2026-04-22",
+   "cita": "Sus acciones serán no distributivas"
+  },
+  "LU0658026512": {
+   "politica": "acumulacion",
+   "kid_sha256": "766430513c38edaf14241b502ddef7720899c89711035c9d25942a089e6c0f6f",
+   "kid_fecha": "2026-02-19",
+   "cita": "En las clases de acciones Capitalisation (Cap), el dividendo se reinvierte."
+  },
+  "LU0712123511": {
+   "politica": "acumulacion",
+   "kid_sha256": "9a5550e3e30737bd94b59d064ff1effb074f5f34735b599de9fe718537839d5a",
+   "kid_fecha": "2026-07-21",
+   "cita": "Este producto es una clase de participaciones de acumulación"
+  },
+  "LU0942882589": {
+   "politica": "acumulacion",
+   "kid_sha256": "793466c25daa934e19bd2df560115ddd712a0cd7710ca9dd539216bee97529c4",
+   "kid_fecha": "2025-12-27",
+   "cita": "distribución: se reinvierte cualquier ingreso generado"
+  },
+  "LU1021288268": {
+   "politica": "acumulacion",
+   "kid_sha256": "7907c8abf68f5119341fac84f9229e92e3d2e3a077822364067130d70bd94a1d",
+   "kid_fecha": "2026-02-25",
+   "cita": "clase de participaciones de acumulac"
+  },
+  "LU1089088741": {
+   "politica": "acumulacion",
+   "kid_sha256": "5c86d0abc26a4a3dfecc4144e9264ae9ac68a16a55f53198bc33fad15b14d35b",
+   "kid_fecha": "2026-09-22",
+   "cita": "Reinvertimos los ingresos en esta clase de acciones."
+  },
+  "LU1276000236": {
+   "politica": "acumulacion",
+   "kid_sha256": "1a5dea9a85bd44d83d3a2277e000f9d2415564e593fbd950e83df7289f32a1fa",
+   "kid_fecha": "2026-01-01",
+   "cita": "Asignación de ingresos: Capitalización"
+  },
+  "LU1383852487": {
+   "politica": "acumulacion",
+   "kid_sha256": "95932061a90d9568db8305fef9af46578302a8be1e25cc2911c0af601f331785",
+   "kid_fecha": "2026-09-22",
+   "cita": "Reinvertimos los ingresos en esta clase de acciones."
+  },
+  "LU1481583711": {
+   "politica": "acumulacion",
+   "kid_sha256": "6e682be810fcbcf7f9247e39d8a50b13a13fcb55a339221ee0ac768d65ccab4b",
+   "kid_fecha": "2026-04-01",
+   "cita": "Esta clase de participaciones no abona los ingresos al inversor, sino que los invierte."
+  },
+  "LU1582988306": {
+   "politica": "acumulacion",
+   "kid_sha256": "1151ae65f4a196d2a8125337d4f93bebf42f75da7c44e67685e7dbd059dcb41f",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1582988306 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670631016": {
+   "politica": "acumulacion",
+   "kid_sha256": "01dff3871b3802d42af7a871a7d346f86264b9741419e40275f56184d9f42f8e",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670631016 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670631289": {
+   "politica": "acumulacion",
+   "kid_sha256": "5383bc34dfa5cd9341da6e2927c3a57c3fc28d6332cd7e12b236e268627f9427",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670631289 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670707527": {
+   "politica": "acumulacion",
+   "kid_sha256": "10063279823c3dcc72d1e4b151fcee8d3389324e8322417da2e442e5e3b24868",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670707527 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670708764": {
+   "politica": "acumulacion",
+   "kid_sha256": "a1d2545f4509439b528a697de040a05bc45df68f29216801f6436e840b1e6143",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670708764 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670710075": {
+   "politica": "acumulacion",
+   "kid_sha256": "cf1eb90e5d410a97e898161f15c41b674a2a41cdaa8bab3979ca13abce09059e",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670710075 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670720462": {
+   "politica": "acumulacion",
+   "kid_sha256": "6d8a17a680ef4e54b2a61d2c757536f8abd76d218effa8192bface9da8f0c86c",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670720462 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670722161": {
+   "politica": "acumulacion",
+   "kid_sha256": "063d026908323aa44a5a865f57db90edd2ea64120f38e60e485b1953cf627a37",
+   "kid_fecha": "2026-02-16",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670722161 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1670724373": {
+   "politica": "acumulacion",
+   "kid_sha256": "9fad492c0566537f6ac98e765eb09c3b85666c3bf494b9b42774ffba7e85c4f2",
+   "kid_fecha": "2026-04-06",
+   "cita": "Acciones de acumulación con n.º ISIN LU1670724373 … Se reinvertirán todos los ingresos del fondo en el valor de su inversión."
+  },
+  "LU1679113404": {
+   "politica": "acumulacion",
+   "kid_sha256": "6274b734e40a669e8c09d32e63900f8fb872c955ac78de59c1ee7cf13c9c3f51",
+   "kid_fecha": "2026-08-13",
+   "cita": "Los ingresos de esta clase de acciones se reinvierten (reinversión)."
+  },
+  "LU1877633989": {
+   "politica": "distribucion",
+   "kid_sha256": "e36c7a741807277f5eb8d9d1bd74a56c88843165598513e8a6c900b2590faf71",
+   "kid_fecha": "2026-09-11",
+   "cita": "Esta clase de acciones es de distribución"
+  },
+  "LU1882475392": {
+   "politica": "acumulacion",
+   "kid_sha256": "671e889d6b970c84456460798ebaf7f2437794ba9ebfb8b36c33a5653984c598",
+   "kid_fecha": "2026-08-18",
+   "cita": "se trata de una clase de acciones que no es de distribución"
+  },
+  "LU1883318740": {
+   "politica": "acumulacion",
+   "kid_sha256": "98f5b2974a4e830127b003b78cff41d4a788d397dde82d69405766e65fa106e2",
+   "kid_fecha": "2026-08-19",
+   "cita": "Debido a que se trata de una clase de acciones que no es de distribución, los ingresos de las inversiones se reinvierten."
+  },
+  "LU1883320993": {
+   "politica": "acumulacion",
+   "kid_sha256": "825b1afd7e1a042836e039cf8a760270bbd7dc45fd2ad942bc078cd547a07a56",
+   "kid_fecha": "2026-08-19",
+   "cita": "se trata de una clase de acciones que no es de distribución"
+  },
+  "LU1883330521": {
+   "politica": "acumulacion",
+   "kid_sha256": "91b157622b7f99c7e66b31f3468bc2be2c179b32e18cdb1e92e02bbb9f7c9ad0",
+   "kid_fecha": "2026-08-20",
+   "cita": "se trata de una clase de acciones que no es de distribución"
+  },
+  "LU1894680757": {
+   "politica": "acumulacion",
+   "kid_sha256": "c1f87dc8a0b2813b5049aa8fa030acfa63eff82c0aa3c7d311642abaad4ddd42",
+   "kid_fecha": "2026-05-22",
+   "cita": "se trata de una clase de acciones que no es de distribución"
+  },
+  "LU1966822956": {
+   "politica": "acumulacion",
+   "kid_sha256": "79abcd94c21a0226b9a478754049c0406e91135737ead4a52c53bab1c7ffe18a",
+   "kid_fecha": "2025-12-31",
+   "cita": "Los ingresos por dividendos de este fondo se reinvierten."
+  },
+  "LU2375689580": {
+   "politica": "acumulacion",
+   "kid_sha256": "ebb22184fd1d17e39f52786dbb70dae546a2450dd422f11a65b35bef1e6faa8c",
+   "kid_fecha": "2025-12-27",
+   "cita": "distribución: se reinvierte cualquier ingreso generado"
+  }
+ }
+}

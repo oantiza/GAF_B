@@ -1,0 +1,1077 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/master/asset.v1.3.schema.json",
+  "title": "Master asset (assets/{asset_id}) — v1.3",
+  "description": "Documento raiz de un fondo/ETF de la maestra. v1.3 es superconjunto compatible de v1.2: todo documento v1.2 valido sigue siendo valido. Anade classification.official_benchmark: el indice de referencia oficial del fondo, con el texto de la fuente, o null si la fuente no lo declara. El extractor ya lo traia en la ficha y se perdia al construir el canonico. Desde v1.2: (1) x-owner por bloque: 'plataforma' = lo reescribe el republish desde el canonico; 'app' = lo escribe 3-BDB-ACTIVOS_app y el republish lo conserva; 'legado' = sin escritor vigente, se conserva y solo cambia por migracion; 'metadatos' = sello de escritura. (2) regulatory y provenance del extractor. (3) costes con evidencia (KID y documentos). (4) risk.sri_kid_evidence tipado. (5) source_metadata.source MANUAL_DOCUMENTARY para altas documentales fuera del canonico (todo el documento es de la app hasta que el activo entre en el extractor). Los bloqueos operativos de seleccion NO viven aqui: son de la app (asset_selection_controls).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "asset_id",
+    "asset_type",
+    "identity",
+    "product",
+    "quality",
+    "source_metadata"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+      "description": "ISIN.",
+      "x-owner": "metadatos"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "FUND",
+        "ETF",
+        "STOCK",
+        "INDEX",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "x-owner": "plataforma"
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "ADITIVO. Para esta version: 'master.asset.v1.3'.",
+      "x-owner": "metadatos"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "ADITIVO. ISO timestamp de la ultima escritura.",
+      "x-owner": "metadatos"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "currency": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "isin": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ticker": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "eodhd_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "listings": {
+      "type": "array",
+      "description": "Listings embebidos resueltos. Para ETF listable sin listing resuelto se permite [].",
+      "items": {
+        "$ref": "#/$defs/listing"
+      },
+      "x-owner": "plataforma"
+    },
+    "classification": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "asset_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fondosdb_asset_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fondosdb_asset_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "asset_subtype": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "region_primary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "strategy_tags": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "morningstar_rating": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 5
+        },
+        "official_benchmark": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Indice de referencia oficial, tal como lo publica la fuente. Nunca un marcador de ausencia ('N/A', 'no disponible'): si la fuente no lo declara, va null."
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_type",
+        "has_listing"
+      ],
+      "properties": {
+        "product_type": {
+          "type": "string"
+        },
+        "commercial_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "vehicle_complexity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fund_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "has_listing": {
+          "type": "boolean"
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "costs": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "management_fee_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ter_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "mifid_ongoing_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "retrocession": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "LEGADO: la retrocesion vive en commercial_retro/{isin} (app); no se escribe aqui."
+        },
+        "entry_fee_max_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Coste de entrada maximo (KID PRIIPs, % sobre la inversion)."
+        },
+        "exit_fee_max_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Coste de salida maximo (KID PRIIPs)."
+        },
+        "transaction_costs_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Costes de operacion anuales (KID PRIIPs)."
+        },
+        "performance_fee_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Comision de rendimiento como IMPACTO anual (tabla de composicion de costes del KID). No es el tipo contractual."
+        },
+        "performance_fee_rate_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Tipo contractual de la comision de exito (p.ej. 15 % sobre el exceso frente al indice)."
+        },
+        "performance_fee_basis": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Base de calculo de la comision de exito, en texto."
+        },
+        "ongoing_costs_kid_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Gestion y otros costes administrativos o de funcionamiento (KID PRIIPs)."
+        },
+        "depositary_fee_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "service_fee_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "as_of_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kid_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/documentEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/documentEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "performance": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Passthrough del export universal; performance.valuation es de la app (price_refresh) y el republish la conserva.",
+      "x-owner-exceptions": {
+        "valuation": "app"
+      },
+      "x-owner": "plataforma"
+    },
+    "fundamentals": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "LEGADO: resumen fundamental de ETF sin escritor versionado. Se conserva; no lo produce el mapper.",
+      "x-owner": "legado"
+    },
+    "risk": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "sri_kid_evidence": {
+          "$ref": "#/$defs/sriKidEvidence",
+          "x-owner": "plataforma"
+        }
+      },
+      "description": "Passthrough del bloque riesgo del export universal + sri_kid_evidence derivada de regulatory.kid.",
+      "x-owner": "plataforma"
+    },
+    "sustainability": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "x-owner": "plataforma"
+    },
+    "portfolio_exposure": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Passthrough de portfolio_exposure_v2 (fracciones 0-1).",
+      "x-owner": "plataforma"
+    },
+    "fixed_income_profile": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "x-owner": "plataforma"
+    },
+    "holdings_summary": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "has_holdings",
+        "full_holdings_loaded"
+      ],
+      "properties": {
+        "has_holdings": {
+          "type": "boolean"
+        },
+        "positions_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "top10_weight": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "as_of_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "full_holdings_loaded": {
+          "type": "boolean"
+        }
+      },
+      "description": "Resumen de holdings en la raiz. Hoy lo escriben fund_ingest e improve_fund_data (app); el republish lo conserva. Pendiente: que lo derive holdingsRepublish.",
+      "x-owner": "app"
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "warnings",
+        "validation_errors",
+        "review_flags"
+      ],
+      "properties": {
+        "fondosdb_bucket": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fondosdb_ok": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "review_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ACCEPTED",
+            "REVIEW",
+            "REJECTED"
+          ]
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "source_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "FondosDB",
+            "MANUAL_DOCUMENTARY"
+          ]
+        },
+        "source_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "report_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "universal_export_present": {
+          "type": "boolean"
+        },
+        "firestore_preview_only": {
+          "type": "boolean"
+        },
+        "source_detail": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fuente documental concreta de un alta MANUAL_DOCUMENTARY (p.ej. 'Andbank/CNMV')."
+        },
+        "registered_by": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Proceso que hizo el alta documental (ruta del script o run_id)."
+        }
+      },
+      "x-owner": "plataforma"
+    },
+    "regulatory": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "x-owner": "plataforma",
+      "description": "NUEVO v1.2. Bloque regulatorio del extractor (canonico regulatory, core/canonico_regulatorio.py). El mapper copia solo las claves declaradas; registers, periodic_report y mifid_ex_ante_costs son passthrough.",
+      "properties": {
+        "version": {
+          "type": "integer"
+        },
+        "sri": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 7
+        },
+        "srri": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 7
+        },
+        "kid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/kidDocument"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mifid_ex_ante_costs": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "ucits": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "legal_framework": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sfdr_article": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "domicile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "management_company": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "management_company_legal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "management_company_lei": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lei": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "depositary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "launch_date_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "launch_date_fund": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isin_issue_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "registers": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "periodic_report": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        }
+      }
+    },
+    "provenance": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "x-owner": "plataforma",
+      "description": "NUEVO v1.2. Procedencia por campo del canonico (provenance.fields: ruta canonica -> 'fuente:endpoint'). Version compacta: endpoints, plan, sources y dependency se quedan en el canonico.",
+      "required": [
+        "fields"
+      ],
+      "properties": {
+        "version": {
+          "type": "integer"
+        },
+        "acquired_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "retrocession": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Heredado de la interfaz Asset base; en la practica la retrocesion vive en costs.retrocession.",
+      "x-owner": "legado"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "product": {
+            "properties": {
+              "has_listing": {
+                "const": true
+              }
+            },
+            "required": [
+              "has_listing"
+            ]
+          }
+        },
+        "required": [
+          "product"
+        ]
+      },
+      "then": {
+        "required": [
+          "listings"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "listing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "listing_id",
+        "ticker",
+        "currency"
+      ],
+      "properties": {
+        "listing_id": {
+          "type": "string"
+        },
+        "ticker": {
+          "type": "string"
+        },
+        "exchange": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "eodhd_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_listing_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "figi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "is_primary": {
+          "type": "boolean"
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "documentEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "source"
+      ],
+      "description": "Documento que respalda un dato (KID, folleto, ficha). sha256 es el del texto o del binario segun la fuente: no se exige que sea reproducible byte a byte.",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "date_precision": {
+          "type": "string",
+          "enum": [
+            "day",
+            "month"
+          ]
+        },
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "document_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verified_isin": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verified_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checked_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recommended_holding_years": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sri": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 7
+        },
+        "verification_run": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resolved_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "sriKidEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sri",
+        "date",
+        "url",
+        "sha256",
+        "document_type",
+        "verified_isin",
+        "source",
+        "verified_at"
+      ],
+      "description": "Prueba documental del SRI PRIIPs de la clase. La deriva el mapper de regulatory.kid (procedencia oficial del extractor); el read model solo etiqueta SRI_KID si sri == risk.sri_kid_1a7 y verified_isin == asset_id.",
+      "properties": {
+        "sri": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "date": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "document_type": {
+          "type": "string",
+          "const": "PRIIPS_KID"
+        },
+        "verified_isin": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "verified_at": {
+          "type": "string"
+        },
+        "verification_run": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "recommended_holding_years": {
+          "type": "number"
+        }
+      }
+    },
+    "kidDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "source"
+      ],
+      "description": "KID PRIIPs de la clase tal como lo adquiere el extractor (regulatory.kid del canonico). sri/verified_isin/document_type/checked_at son la atestacion explicita que se propone al extractor; mientras no la emita, el mapper la deduce de provenance.",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recommended_holding_years": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "manufacturer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "costs": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "entry_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "exit_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "management_and_other_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "transaction_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "performance_fee_pct": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Fila «Comisiones de rendimiento» del KID tal como la lee el parser: segun el productor es el impacto anual o el tipo contractual (76 KID del 13-10 traen 5-20 %). No se copia a costs."
+            }
+          }
+        },
+        "sri": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 7
+        },
+        "verified_isin": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "document_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checked_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "x-owner-by-source": {
+    "FondosDB": "por bloque (x-owner)",
+    "MANUAL_DOCUMENTARY": "app (documento entero)"
+  },
+  "x-obsolete-root-keys": [
+    "currency",
+    "source_mode"
+  ]
+}

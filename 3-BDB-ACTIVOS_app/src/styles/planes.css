@@ -1,0 +1,248 @@
+/* ============================================================================
+   Planes y EPSV (13-11-2026, decisión D-11; rediseño del 14-11-2026)
+
+   Solo lo que la pantalla no encuentra ya escrito. La cabecera de la pantalla la
+   monta `PageHeader`, la de cada bloque `Panel`, la banda de la ficha `Respuesta`,
+   los campos `Campo`, la tabla `TablaDeDatos`, los avisos `Aviso`, las filas
+   `.rows`, las notas `.cmp-note` y la comparación es `TablaComparativa`. Aquí va
+   la rejilla de cada vista: los filtros en una fila, la vuelta a la lista y las
+   dos columnas de la ficha.
+
+   La trae `PlanesPage`, que se carga a petición: no pesa en la entrada.
+   ========================================================================== */
+
+/* La lista, la ficha y la comparación: sus partes, una bajo otra, con el aire del sistema. */
+.planes-lista,
+.planes-ficha,
+.planes-comparador {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  min-width: 0;
+}
+
+/* «← Planes y EPSV», encima de la cabecera. */
+.planes-vuelta {
+  align-self: flex-start;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  text-decoration: none;
+}
+
+.planes-vuelta:hover {
+  color: var(--marca);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Los filtros en una fila, alineados por su base; cuando no caben, bajan. El
+   recuento, al final de la fila. En su tarjeta, como los mandos del Buscador
+   (dirección A, 18-11-2026): el marfil es el fondo y lo que se usa va en blanco. */
+.planes-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-5) var(--s-7);
+  min-width: 0;
+  padding: var(--s-6) var(--s-7);
+  background: var(--papel);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+}
+
+.planes-filtros > .field {
+  min-width: 0;
+}
+
+/* El buscar crece con lo que sobre de su fila, hasta dos desplegables, como en el Buscador. */
+.planes-filtros__buscar {
+  flex: 1 1 var(--mando-filtro);
+  max-width: calc(2 * var(--mando-filtro));
+}
+
+/* Los desplegables, del ancho de un mando de filtro: si miden su opción más larga, la fila se parte según el
+   catálogo («Gestora» sola en otra fila a 1.280). Lo que no cabe se corta dentro del desplegable cerrado. */
+.planes-filtros select {
+  width: var(--mando-filtro);
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+/* El segmentado, con su borde, a la altura de los campos de la fila, como en la cabecera de pantalla: medía 36 px
+   frente a 38 y su rótulo quedaba 2 px más bajo que los demás. */
+.planes-filtros .ui-segmented__button {
+  height: calc(var(--control-md) - 2px);
+}
+
+.planes-filtros__cuantos {
+  margin: 0 0 0 auto;
+  padding-bottom: var(--s-3);
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* La tabla de la lista. Son once columnas de cifras con títulos largos («En lo que va de año», «3 años, anualizada»).
+   Al rediseñar la pantalla, los títulos no se partían y el nombre del plan se quedaba con lo que sobraba, ochenta
+   píxeles: cada plan ocupaba de cuatro a siete líneas, y a 1.440 px cabían 25 en 3.445 px de alto donde antes cabían
+   40 en 3.024. Los títulos se parten ya en toda tabla (`.tabla th`, tabla.css). Aquí, como en el Buscador:
+   - el nombre no baja de `--columna-nombre-min`, y si la tabla no cabe desplaza dentro de su marco;
+   - las columnas «solo en ancho» (la categoría y el Sharpe) se pliegan hasta que hay sitio de verdad: la categoría
+     baja a su apunte, bajo el nombre. */
+.planes-lista .tabla th:first-child,
+.planes-lista .tabla td:first-child {
+  min-width: var(--columna-nombre-min);
+}
+
+@media (max-width: 1799.98px) {
+  .planes-lista .tabla__columna--solo-ancho {
+    display: none;
+  }
+
+  .planes-lista .tabla__apunte--estrecho {
+    display: block;
+  }
+}
+
+/* Desde 1.440 la tabla es una tarjeta, como la lámina; la general solo lo es desde 1.800. Medido el 18-11-2026: a
+   1.440 cabe con el relleno de la tarjeta sin empujar la página, y a 1.280 ya no cabe ni sin él. */
+@media (min-width: 1440px) {
+  .planes-lista .tabla__marco {
+    padding: var(--s-4) var(--s-8) var(--s-6);
+    border: 1px solid var(--filete);
+    border-radius: var(--radio-bloque);
+  }
+}
+
+/* Por debajo de 1.440 la tabla no cabe y se desplaza de lado dentro de su marco: el nombre del plan y «Comparar» se
+   quedan fijos, como en el Buscador. Sin ellos, a 768 «Comparar» quedaba fuera de la vista y, al pulsarlo, la tabla se
+   desplazaba y desaparecía de qué plan era la fila. Las celdas fijas llevan fondo propio, así que repiten el de la
+   fila bajo el ratón y el de la elegida; la fila del aviso, que ocupa todo el ancho, no se fija. */
+@media (max-width: 1439.98px) {
+  .planes-lista .tabla tr:not(.tabla__detalle) > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: var(--z-pegado);
+    background: var(--papel);
+    box-shadow: var(--shadow-columna-fija);
+  }
+
+  .planes-lista .tabla thead tr:not(.tabla__detalle) > :first-child {
+    z-index: calc(var(--z-sticky) + 1);
+    box-shadow: var(--shadow-columna-fija-cabecera);
+  }
+
+  .planes-lista .tabla .tabla__celda--acciones {
+    position: sticky;
+    right: 0;
+    z-index: var(--z-pegado);
+    padding-left: var(--s-4);
+    background: var(--papel);
+    box-shadow: var(--shadow-columna-fija-derecha);
+  }
+
+  .planes-lista .tabla thead .tabla__celda--acciones {
+    z-index: calc(var(--z-sticky) + 1);
+    box-shadow: var(--shadow-columna-fija-derecha-cabecera);
+  }
+
+  .planes-lista .tabla tbody tr:not(.tabla__detalle):hover > :first-child,
+  .planes-lista .tabla tbody tr:hover > .tabla__celda--acciones {
+    background: var(--marca-tenue);
+  }
+
+  .planes-lista .tabla tbody tr.is-selected:not(.tabla__detalle) > :first-child,
+  .planes-lista .tabla tbody tr.is-selected > .tabla__celda--acciones {
+    background: var(--banda-fuerte);
+  }
+}
+
+/* Bajo la fila de un plan con el valor parado: lo que pide la atención del asesor, en ocre. */
+.planes-lista__aviso {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--aviso);
+}
+
+/* Las notas al pie, juntas y una vez. */
+.planes-notas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+/* En la comparación, las notas van dentro de su tarjeta, bajo el gráfico o la tabla que explican: con aire, para que
+   la leyenda del gráfico y la primera nota no se lean como un solo bloque. */
+.planes-comparador .planes-notas {
+  margin-top: var(--s-5);
+}
+
+/* La ficha en dos columnas: la evolución, ancha, y el plan, estrecho, a su lado; la
+   rentabilidad y el riesgo, debajo. En tableta, una sola columna y el plan primero,
+   que es el orden en que se lee. */
+.planes-ficha__flujo {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--s-8) var(--s-9);
+  align-items: start;
+  min-width: 0;
+}
+
+/* Las dos tarjetas de la primera fila, de la misma altura: con la evolución más corta que el plan quedaba un hueco de
+   marfil bajo el gráfico y la segunda fila arrancaba descuadrada. El aire, dentro de la tarjeta. */
+.planes-ficha__principal {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.planes-ficha__lateral {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+
+/* En esta tarjeta, que es estrecha, un valor largo no parte («11,08618 € · 11/11/2026») y dejaba al rótulo sin sitio:
+   «Valor de la participación» se quedaba en «Va l…» y «Gestora» partía en «Gesto / ra» (medido el 19-11-2026, de
+   1.025 a 1.240 px; apartado 14.7 del sistema). Si el rótulo, con su palabra más larga entera, y el valor no caben en
+   una línea, el valor baja a la siguiente; si caben, la fila queda como estaba. */
+.planes-ficha__lateral .rows__item {
+  flex-wrap: wrap;
+  row-gap: var(--s-1);
+}
+
+/* El rótulo se lee entero: recortado a dos líneas, «Comisión de gestión, según el banco» perdía el final junto a un
+   valor corto, a 1.025 y 1.100 px. */
+.planes-ficha__lateral .rows__label {
+  flex: 1 1 min-content;
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+}
+
+/* Y el valor, que en las demás filas no parte, aquí sí: el nombre de una gestora o de un producto («Entidad de
+   previsión social voluntaria (EPSV)») es más ancho que la tarjeta, y ya solo en su línea se salía de ella hasta 92 px.
+   Parte por palabras y sigue a la derecha; una cifra con su fecha cabe en su línea y no cambia. Medido con las
+   gestoras y categorías más largas del catálogo, en ocho anchos. */
+.planes-ficha__lateral .rows__value {
+  white-space: normal;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1024.98px) {
+  .planes-ficha__flujo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planes-ficha__principal,
+  .planes-ficha__lateral {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

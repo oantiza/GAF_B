@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BizData xmlns="urn:iso:std:iso:20022:tech:xsd:head.003.001.01">
+  <Pyld>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:auth.017.001.02">
+      <FinInstrmRptgRefDataDltaRpt>
+        <FinInstrm>
+          <NewRcrd>
+            <FinInstrmGnlAttrbts><Id>IT0000000009</Id><FullNm>Nuova Società SpA</FullNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+            <Issr>815600PRUEBA0000IT09</Issr>
+            <TradgVnRltdAttrbts><Id>MTAA</Id><FrstTradDt>2026-11-02T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          </NewRcrd>
+        </FinInstrm>
+        <FinInstrm>
+          <ModfdRcrd>
+            <FinInstrmGnlAttrbts><Id>IE0000000003</Id><FullNm>Índice Mundial UCITS ETF USD (Acc)</FullNm><ClssfctnTp>CEOGLS</ClssfctnTp><NtnlCcy>USD</NtnlCcy></FinInstrmGnlAttrbts>
+            <Issr>549300PRUEBA0000IE03</Issr>
+            <TradgVnRltdAttrbts><Id>MTAA</Id><FrstTradDt>2026-11-03T00:00:00Z</FrstTradDt></TradgVnRltdAttrbts>
+          </ModfdRcrd>
+        </FinInstrm>
+        <FinInstrm>
+          <TermntdRcrd>
+            <FinInstrmGnlAttrbts><Id>DE0000000002</Id><FullNm>Prüfgesellschaft für Ölmühlen AG</FullNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+            <Issr>529900PRUEBA0000DE02</Issr>
+            <TradgVnRltdAttrbts><Id>TGAT</Id><FrstTradDt>2012-01-02T00:00:00Z</FrstTradDt><TermntnDt>2026-11-04T00:00:00Z</TermntnDt></TradgVnRltdAttrbts>
+          </TermntdRcrd>
+        </FinInstrm>
+        <FinInstrm>
+          <CancRcrd>
+            <FinInstrmGnlAttrbts><Id>ES0000000001</Id><FullNm>Banco de Prueba S.A.</FullNm><ClssfctnTp>ESVUFR</ClssfctnTp><NtnlCcy>EUR</NtnlCcy></FinInstrmGnlAttrbts>
+            <TradgVnRltdAttrbts><Id>XETA</Id></TradgVnRltdAttrbts>
+          </CancRcrd>
+        </FinInstrm>
+      </FinInstrmRptgRefDataDltaRpt>
+    </Document>
+  </Pyld>
+</BizData>

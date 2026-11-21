@@ -1,0 +1,513 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument.v2.schema.json",
+  "title": "instruments/{instrument_id} — raiz fina, v2",
+  "description": "Raiz de un instrumento en la base nueva. Es FINA a proposito: identidad, identificadores, clasificacion, producto y resumen de posiciones, y nada mas. Mediana de la raiz de hoy: 10.790 bytes; esta ronda 1,2 KB. No lleva punteros a los bloques: la tarjeta de lectura (instruments/{id}/read/card) los hace innecesarios, y sin punteros la raiz deja de reescribirse cada vez que cambia un bloque. Todo lo declarado por un tercero vive en declared/*, lo calculado en computed/*, y la cobertura de ESTE instrumento en quality/latest.",
+  "x-collection": "instruments/{instrument_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instrument_id",
+    "instrument_type",
+    "schema_version",
+    "updated_at",
+    "identity",
+    "classification"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": ["instrument_type"],
+        "properties": { "instrument_type": { "enum": ["FUND", "ETF"] } }
+      },
+      "then": { "properties": { "classification": { "required": ["asset_class"] } } },
+      "$comment": "La categoria del proveedor DEJO de ser obligatoria el 02-11-2026, por decision de Oscar, y esta condicion se queda por lo que aun exige: asset_class. Era obligatoria en fondos y ETF -y hasta el 01-11 en todos-, y costaba esto: LU2504555777, un fondo de recursos naturales vivo, 1.533 M€ de patrimonio, NAV 18,33 y serie propia desde julio de 2022 con Sharpe 1,67 a un ano, NO TENIA RAIZ en la base. Trece de sus documentos colgaban de un padre que no existia, invisibles hasta para la auditoria. Y no era un fallo de lectura: Morningstar no publica categoria para ese fondo, ms.category_morningstar viene a null en el canonico, asi que las dos salidas obvias eran inventarla o tirar dato bueno y con fuente. Ahora el fondo existe con la ausencia declarada NOT_PROVIDED -el mapper ya la declaraba- y la consecuencia vive donde se dice para que sirve un instrumento: la aptitud COMPARAR_CON_SU_GRUPO sale apt:false nombrando classification.category. Un bloqueo hacia desaparecer el fondo entero para proteger una comparacion."
+    },
+    {
+      "if": {
+        "required": ["instrument_type"],
+        "properties": { "instrument_type": { "const": "STOCK" } }
+      },
+      "then": { "properties": { "classification": { "required": ["asset_class"] } } },
+      "$comment": "De una accion se exige la clase de activo y nada mas de la clasificacion: es EQUITY y eso si se sabe siempre. El sector y la industria NO se exigen aqui porque no viven aqui: los declara un tercero con su fuente y su fecha, y la raiz no tiene sobre donde ponerlas, asi que estan en declared/equity. Una taxonomia de sectores es del proveedor y cambia con el; asset_class es un vocabulario cerrado nuestro."
+    }
+  ],
+  "properties": {
+    "instrument_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+      "description": "ISIN de 12 caracteres, o codigo de divisa ISO 4217 de 3. Las dos formas no se solapan y se distinguen por patron: el euro es una divisa, no un ISIN ficticio. Es la misma cadena que identifiers.isin cuando el instrumento tiene ISIN; no hay dos claves.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "instrument_type": {
+      "type": "string",
+      "enum": ["FUND", "ETF", "STOCK", "INDEX", "CURRENCY", "OTHER"],
+      "description": "Decide que bloques aplican. CURRENCY es la liquidez: una posicion en EUR dentro del libro.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "base-nueva.instrument.v2",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "ISO-8601 UTC con sufijo Z.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "metrics_absence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "code"],
+      "description": "Por que este instrumento no tiene computed/metrics. Solo existe cuando no las tiene. La ausencia de un documento no se puede contar en el propio documento, y hasta el 04-11-2026 el motivo se calculaba en el mapper y se tiraba, asi que la ficha enseñaba un hueco. Es metadata porque no es un dato del instrumento: no cuenta para la cobertura.",
+      "x-layer": "metadata",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": ["NOT_APPLICABLE", "NOT_PROVIDED", "NOT_YET_FETCHED"],
+          "x-unit": "code",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        },
+        "code": {
+          "type": "string",
+          "enum": ["DISTRIBUTES", "POLICY_UNKNOWN", "POLICY_PENDING", "NEEDS_FX", "SERIES_STOPPED", "NO_PRICES", "SHORT_HISTORY", "NO_METHOD", "UNIDENTIFIED_SERIES"],
+          "x-unit": "code",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "name_folded", "currency"],
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nombre comercial del producto, tal cual lo declara la fuente. Incluye el nombre de la entidad gestora cuando forma parte del nombre del fondo (492 de 843 activos canonicos): eso es dato de mercado, no marca nuestra, y sale siempre.",
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "name_folded": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nombre en minusculas y sin diacriticos, para la busqueda por subcadena.",
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "platform"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Divisa del instrumento. Distinta de la divisa base de la cartera, que es siempre EUR.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        }
+      }
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Los identificadores que NO son la clave. Aqui no hay un campo isin a proposito: hoy asset_id e identifiers.isin son la misma cadena en los 1.097 documentos de la maestra, y eso es justo lo que caza la quinta prueba —un dato en dos sitios—. La clave es instrument_id y no se repite.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "ticker": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "figi": {
+          "type": "string",
+          "pattern": "^BBG[A-Z0-9]{9}$",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "cfi": {
+          "type": "string",
+          "pattern": "^[A-Z]{6}$",
+          "description": "El codigo CFI (ISO 10962) que reporta a ESMA FIRDS quien admite el instrumento: seis letras, la primera la categoria (E participaciones de capital y asimilados, C vehiculos de inversion colectiva) y la segunda el grupo. Anadido el 07-11-2026 (encargo 'identidad', paso 3 de DECISIONES_DATOS_2026-11-07). Va AL LADO de instrument_type y no lo decide, por dos razones medidas: el CFI lo pone el centro que reporta y no siempre bien -muchos ETF UCITS figuran como CI, fondo estandar, y no como CE-, y que discrepe del tipo es justo el dato que interesa ver. El caso de la decision 2 de ese dia: IE00B4ND3602, iShares Physical Gold, es EYAYFT (estructurado) y se queda OTHER; la ficha lo reconoce como ETC por este campo. Solo sale de FIRDS: los 96 fondos espanoles cuyo CFI da la CNMV no lo llevan aqui todavia, porque un campo va con su fuente o no va. Ausente si FIRDS no conoce el ISIN: fondos que no cotizan, acciones de fuera de la UE que ningun centro europeo negocia.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "lei": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{18}[0-9]{2}$",
+          "description": "El LEI (ISO 17442) del EMISOR del instrumento segun ESMA FIRDS. Un instrumento no tiene LEI propio: lo tiene quien lo emite. En una accion es la empresa; en un fondo o un ETF, el fondo o el paraguas que emite la participacion -no la gestora-; en un ETC, el vehiculo emisor. Por eso no es un identificador de este documento sino un puntero a otra entidad, y es la llave para poblar el emisor de una accion (instrument-issuer, papel EQUITY_ISSUER) sin casar nombres. Anadido el 07-11-2026. Ausente si FIRDS no conoce el ISIN.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_class"],
+      "description": "Lo obligatorio de aqui depende del tipo y lo deciden los dos allOf de la raiz, que es el unico sitio desde el que se ve instrument_type: categoria y clase de activo en un fondo o un ETF, solo la clase de activo en una accion.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "La categoria del proveedor, el grupo de comparables de un fondo. Desde el 02-11-2026 NO es obligatoria: un fondo cuyo proveedor no la publica existe igual, con la ausencia declarada, y lo que pierde lo dice la aptitud COMPARAR_CON_SU_GRUPO. Hoy es 1 de 1.076 (LU2504555777). En una accion no se espera, porque no tiene categoria de proveedor -las 73 del universo la traian a null el 01-11-2026- y la aptitud mira su sector en declared/equity; de eso se encarga x-applies-when, no este campo. Por eso su ausencia es NOT_PROVIDED y no NOT_APPLICABLE: el predicado ya saca de la cuenta a las acciones, asi que el unico que llega aqui es un fondo al que nadie se la dio.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-applies-to": "instrument_type FUND, ETF",
+          "x-applies-when": "FONDO_O_ETF",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "morningstar_rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Las estrellas de Morningstar, de 1 a 5. Excepcion propietaria decidida (D3 de DECISIONES_ADQUISICION_2026-10-30.md): entran la estrella y la categoria, y nada mas de ese proveedor. Vive junto a la categoria porque la estrella se calcula dentro de ella. Si el proveedor la retira, desaparece: un rating no se retiene.",
+          "x-unit": "count",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-applies-to": "instrument_type FUND, ETF",
+          "x-applies-when": "FONDO_O_ETF",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "asset_class_resolution": {
+          "type": "string",
+          "enum": ["PROVIDER", "DERIVED_FROM_ASSET_MIX"],
+          "description": "De donde sale asset_class. PROVIDER es lo normal: lo dice classification_v2.asset_type del canonico. DERIVED_FROM_ASSET_MIX dice que el proveedor lo dejo en 'other' y la clase se leyo de su PROPIO reparto, que es otra cosa que afirma el mismo proveedor. Nace el 02-11-2026 por LU2504555777: llegaba con asset_type 'other' y con 95,6 % de renta variable reportada, era el unico OTHER de 1.077, y una radiografia de cartera lo pintaba en 'otros' siendo renta variable. Solo se deduce DESDE 'other', el cajon de sastre: una clase que el proveedor afirma no se corrige por detras con una deduccion nuestra. Los umbrales -0,80 para ser de una clase, 0,10 para que la segunda cuente en un mixto- son juicios con valor por defecto y viven con nombre en el mapper.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "asset_class": {
+          "type": "string",
+          "enum": [
+            "EQUITY",
+            "FIXED_INCOME",
+            "ALLOCATION",
+            "ALTERNATIVE",
+            "REAL_ASSETS",
+            "CAPITAL_PRESERVATION",
+            "HYBRID",
+            "OTHER"
+          ],
+          "description": "Vocabulario CERRADO. Hoy es texto libre y llega con dos ortografias a la vez para el mismo valor: identificacion.clase_activo dice 'Fixed Income' y classification_v2.asset_type dice 'fixed_income'. Medido el 01-11: con la primera, 3 de 770 fondos no la traen; la segunda las cubre, asi que el mapper usa una y cae a la otra, y la procedencia dice cual.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "official_benchmark": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name"],
+          "description": "El indice de referencia oficial. Solo el NOMBRE es obligatorio, y eso es una concesion medida al 01-11: el canonico trae el nombre (identificacion.indice_benchmark_oficial) y NO trae ni la divisa ni la variante, asi que exigirlas aqui habria dejado sin indice a los 646 activos que si lo tienen. Medido el 31-10: de los 649 benchmarks canonicos, 243 (37 %) estan cotizados en una divisa distinta a la del fondo, 97 no declaran la variante y 12 son categorias de proveedor, no indices. La consecuencia esta donde importa: computed/metrics.relative.benchmark SI exige divisa, variante y base de rentabilidad, asi que se puede GUARDAR un nombre de indice incompleto pero NO se puede calcular un alpha contra el. Un nombre sin divisa es una etiqueta; un alpha sin divisa es una cifra que mezcla el movimiento del mercado con el del tipo de cambio y nadie lo nota despues.",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-applies-to": "instrument_type FUND, ETF",
+          "x-applies-when": "FONDO_O_ETF",
+          "x-absence": "NOT_PROVIDED",
+          "x-reference": true,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "x-unit": "text",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "x-unit": "code",
+              "x-layer": "declared",
+              "x-owner": "platform",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "variant": {
+              "type": "string",
+              "enum": ["NR", "GR", "PR", "TR"],
+              "description": "Net return, gross return, price return o total return. Sin esto no se puede comparar un fondo con su indice: la diferencia entre PR y NR es el dividendo. Medido el 01-11 sobre los 651 instrumentos con nombre de indice: 528 traen divisa Y variante en el propio nombre, porque 'MSCI Europe NR EUR' ES el nombre del indice y NR y EUR son los sufijos oficiales que lo distinguen de 'MSCI Europe GR USD'. Leerlos es analizar un identificador, no adivinar: por eso esto SI se deriva del nombre y la politica de distribucion de un fondo NO. Y lo que se lee viaja con resolution para que un informe pueda decir de donde salio.",
+              "x-unit": "code",
+              "x-layer": "declared",
+              "x-owner": "platform",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "return_basis": {
+              "type": "string",
+              "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+              "description": "La base del indice, que sale de su variante y no de una suposicion: PR es solo precio, y NR, GR y TR reinvierten los dividendos. Esta aqui porque es la mitad de la comprobacion que decide si se puede mostrar un alpha: el fondo y el indice tienen que compartir base. Medido: de las variantes leidas, 4 son PR y por tanto PRICE_RETURN, y el resto TOTAL_RETURN.",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "platform",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "resolution": {
+              "type": "string",
+              "enum": ["DECLARED_BY_SOURCE", "DERIVED_FROM_NAME", "HUMAN"],
+              "description": "Como se obtuvieron la divisa y la variante. DERIVED_FROM_NAME dice que se leyeron del nombre del indice: no se da por declarado lo que se ha leido, y asi una persona puede corregirlo y un informe puede nombrar su procedencia.",
+              "x-unit": "code",
+              "x-layer": "computed",
+              "x-owner": "platform",
+              "x-absence": "NOT_APPLICABLE"
+            },
+            "instrument_id": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+              "description": "El indice como instrumento de esta base, si esta dado de alta. Es lo que permite calcular alpha aqui en vez de heredarlo del proveedor.",
+              "x-unit": "code",
+              "x-layer": "declared",
+              "x-owner": "platform",
+              "x-absence": "NOT_YET_FETCHED"
+            }
+          }
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domicile"],
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "properties": {
+        "domicile": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "legal_structure": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "replication": {
+          "type": "string",
+          "enum": ["PHYSICAL_FULL", "PHYSICAL_SAMPLING", "SYNTHETIC"],
+          "description": "Como replica su indice, segun Morningstar (identificacion.replicacion): PHYSICAL_FULL compra todos los valores del indice, PHYSICAL_SAMPLING una muestra, SYNTHETIC lo replica con una permuta (swap) y su cartera publicada es ese contrato. Anadido el 12-11-2026 por decision de Oscar: sin el, un ETF sintetico figuraba como que no publica su cartera. Dato del proveedor, no del emisor (B-53). Medido ese dia: 37 de 1.334 lo traen, 18 PHYSICAL_FULL, 12 PHYSICAL_SAMPLING y 5 SYNTHETIC; los 2 'NOT Applicable' se quedan ausentes, porque un campo presente donde no aplica es un error (C-17).",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "inception_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Fecha pura YYYY-MM-DD. El patron excluye el centinela 0000-00-00 que la maestra de hoy guarda.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "share_class": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "listings": {
+      "type": "array",
+      "maxItems": 120,
+      "description": "Los centros de negociacion de la UE y del EEE donde esta admitido, segun ESMA FIRDS, uno por MIC de segmento. Anadido el 07-11-2026 (encargo 'identidad'). Responde a una pregunta que antes no tenia respuesta en la base: donde se puede comprar esto y desde cuando. Tres limites que gobiernan como se lee. UNO: solo UE y EEE; Suiza, Reino Unido, EE. UU. y Canada no reportan a FIRDS, asi que una lista vacia o corta no dice que no cotice. DOS: una baja en un centro NO es una defuncion -una accion que deja Tradegate sigue viva en Xetra-; si el instrumento cotiza lo dice availability, que sale de quien da el precio, y esta lista es evidencia al lado. TRES: FIRDS no arrastra lo que ya dejo de negociarse, de modo que un ISIN sustituido, como el viejo de Aena, no tiene lista. Tope 120: el maximo medido el 07-11-2026 en el indice entero es 80 centros (FI0009005987). Va ordenada por MIC. La fecha a la que todo esto es verdad es listings_as_of. Ausente si FIRDS no conoce el ISIN.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mic"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "mic": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{4}$",
+            "description": "El MIC (ISO 10383) del segmento que reporta, no el del operador: Xetra reporta XETA y XETB, Borsa Italiana MTAA y ETFP. Por eso no se compara con el mercado del proveedor de la serie (declared/equity.exchange, MC o XETRA), que es otra notacion.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "admission_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "Fecha de admision a negociacion en ese centro, o de aprobacion de la admision si el emisor la pidio. Muchos sistemas multilaterales no la reportan, porque negocian sin admision formal.",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "first_trade_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "Fecha de la primera negociacion en ese centro, tal como la reporta el centro. No es la fecha de salida a bolsa del valor: un centro que empieza a negociarlo anos despues reporta su propia fecha, y se ha medido que algunos reportan la del ultimo cambio de registro (el ETC de oro sale con 2026-07-30 en Aquis, cotizando desde 2011). No se usa para medir antiguedad.",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "termination_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "Fecha de baja en ESE centro, pasada o futura. Ausente es que no hay baja reportada. Una baja aqui no da de baja el instrumento: eso es availability.",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    },
+    "listings_as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "El dia del fichero FIRDS del que salieron identifiers.cfi, identifiers.lei y listings: el completo semanal, o el ultimo delta aplicado. Sin el, una admision o una baja no dice a que fecha es verdad. Presente si y solo si lo esta alguno de los tres.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Por que este instrumento trae o no trae datos. Decision 14 de Oscar (02-11-2026): un instrumento que deja de cotizar se MARCA, no desaparece, porque si un cliente lo tuvo su historia hace falta para sus informes. Cinco estados y no un booleano: que este fuera de alcance es una decision nuestra y reversible manana, que haya dejado de cotizar no se deshace, y que no lo sepamos porque la peticion fallo no es ninguna de las dos. Va en la raiz, que es FINA a proposito, porque no es un dato mas: gobierna como hay que leer todos los demas. AUSENTE es un sexto caso y significa que no se ha medido: le pasa a los fondos, que no pasan por el buscador de simbolos del proveedor, el unico sitio donde alguien puede contestar 'no lo tengo'. Un campo que falta no afirma nada; cualquiera de los cinco si.",
+      "required": ["state", "since", "last_checked"],
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_YET_FETCHED",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["TRADING", "OUT_OF_SCOPE", "DELISTED", "NEVER_RESOLVED", "UNDETERMINED"],
+          "description": "TRADING: el proveedor lo resuelve hoy. OUT_OF_SCOPE: decidido por nosotros, no se le piden datos, y es reversible. DELISTED: dejo de cotizar, y no se deshace. Lo que lo sostiene lo dice 'basis', y son dos cosas distintas que un asesor tiene que poder separar: con SOURCE_EVIDENCE, la fuente del precio contesto y ya no resuelve un simbolo que antes si, o el ISIN fue sustituido por otro (EODHD da el listado con el ISIN nuevo y FIRDS conoce ese y no este, como el viejo de Aena); con DECISION, lo decidimos nosotros porque ninguna fuente lo prueba o porque la fuente dice otra cosa, con autor, fecha y motivo en 'decision' (la CAM, NH, Ercros), y entonces el proveedor puede no haber contestado nada. En los dos casos 'since' es el dia del hecho y no el de la observacion. NEVER_RESOLVED: contesto y nunca lo resolvio, que no es una defuncion y puede ser un ISIN que ninguna fuente cubre. UNDETERMINED: el intento fallo -red caida, proveedor con error, modo sin red- y NUNCA es una defuncion, que es el error que este campo existe para no cometer. Desde el 07-11-2026 un estado puede no venir de la fuente sino de una decision nuestra, con autor y fecha: lo dice 'basis'.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "since": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Desde cuando esta asi. No se pisa mientras el estado no cambie: de una accion que dejo de cotizar lo que interesa es el dia que dejo de resolverse, no el de la ultima pasada. En un DELISTED es el dia del hecho, segun su origen: por decision, el de la suspension, que es el primer dia sin negociacion (decision 11 de DECISIONES_DATOS_2026-11-07); por ISIN sustituido, la primera negociacion del sucesor segun FIRDS en un centro con admision solicitada por el emisor (decision 15; Aena 009, 2025-06-19); y si FIRDS no la trae, el de la observacion, y 'reason' lo dice.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "last_checked": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Cuando se comprobo por ultima vez. Junto a 'since' distingue un estado antiguo y vigente de uno recien visto.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "El motivo en texto, cuando lo hay: para OUT_OF_SCOPE, lo que el fichero de alcance dice del pais del emisor; para un DELISTED por cambio de ISIN (07-11-2026, el viejo de Aena), el ISIN que lo sustituyo y con que pruebas: EODHD da el listado con ese ISIN y FIRDS conoce ese y no este.",
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["SOURCE_EVIDENCE", "DECISION"],
+          "description": "En que se apoya el estado (07-11-2026, decision 10 de DECISIONES_DATOS_2026-11-07). SOURCE_EVIDENCE: lo dice lo que contesto la fuente del precio, que es como se mide 'state' desde la decision 14. DECISION: lo decidio una persona, con nombre, fecha y motivo en 'decision', porque ninguna fuente lo prueba o porque la fuente dice otra cosa: hoy, las bajas de config/bajas_decididas.csv del extractor (la CAM, NH, Ercros). Existe porque un asesor tiene que poder ver que 'dejo de cotizar' es una decision nuestra y no un dato del proveedor, y un 'reason' en prosa no se puede filtrar ni contar. Se llama 'basis' y no 'source' porque 'source' es en este contrato el sobre de un bloque declarado (quien lo afirma), y aqui la pregunta es otra: si hay una afirmacion de fuente o un juicio. Dos valores y no un booleano por la misma razon que 'state': un tercero (por ejemplo, una baja deducida de un hecho relevante leido por un lote) entraria sin renombrar nada. No es obligatorio solo para que los documentos escritos antes de este campo sigan validando; el mapper lo escribe siempre que escribe 'availability', y su ausencia se lee como SOURCE_EVIDENCE, que era lo unico que existia.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_YET_FETCHED"
+        },
+        "decision": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Quien decidio el estado, cuando y por que. Solo existe con basis DECISION, y con basis DECISION es obligatorio: una decision sin autor ni fecha no se distingue de un dato inventado. Los nombres son los de las demas decisiones humanas de la base nueva (instrument_aliases, custodian_dictionary): decided_by y decided_at. Capa 'declared' y dueno 'platform', y no 'human', a proposito: la decision no se toma ni se edita en la base, se toma y se versiona en el fichero del extractor, y la plataforma la copia en cada pasada. Un dueno 'human' diria que la plataforma no puede escribirla y que tiene que conservar lo que haya, y aqui es al reves: lo que haya en la base se pisa con lo que diga el fichero. La fecha del hecho no se repite aqui: es 'since'.",
+          "required": ["decided_by", "decided_at", "reason"],
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "decided_by": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Quien lo decide, en texto y tal como lo escribio: 'Oscar, decision 7 del 07-11-2026'. Lleva el numero de decision cuando lo hay, para poder ir al documento que la razona.",
+              "x-unit": "text",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "decided_at": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "Cuando se decidio. No es cuando paso: la CAM dejo de negociarse el 09-12-2011 ('since') y se decidio marcarla el 07-11-2026.",
+              "x-unit": "date",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "description": "Que paso y con que fuente se comprobo, tal como lo escribio quien decide. Es distinto de availability.reason, que es el texto para leer y anade que la baja es decidida y de quien: este es el motivo solo, sin adornos.",
+              "x-unit": "text",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "basis": { "const": "DECISION" } }, "required": ["basis"] },
+          "then": { "required": ["decision"] }
+        },
+        {
+          "if": { "required": ["decision"] },
+          "then": { "properties": { "basis": { "const": "DECISION" } }, "required": ["basis"] }
+        }
+      ]
+    }
+  }
+}

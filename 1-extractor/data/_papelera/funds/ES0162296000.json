@@ -1,0 +1,1992 @@
+{
+  "meta": {
+    "cnmv_periodo": "2026-05",
+    "cnmv_periodo_trimestral": "2025-12",
+    "sec_id_morningstar": "F00001GIGK",
+    "isin": "ES0162296000",
+    "actualizado": "2026-10-29T08:43:13+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "meta": [
+        "cnmv",
+        "morningstar_lt"
+      ],
+      "identificacion": [
+        "cnmv",
+        "morningstar_lt",
+        "cnmv_ficha",
+        "gleif",
+        "config_csv"
+      ],
+      "valoracion": [
+        "cnmv",
+        "morningstar_lt"
+      ],
+      "series": [
+        "cnmv"
+      ],
+      "gestion": [
+        "cnmv",
+        "morningstar_lt"
+      ],
+      "costes": [
+        "cnmv",
+        "morningstar_lt",
+        "cnmv_ficha"
+      ],
+      "rentabilidad": [
+        "cnmv",
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "cnmv",
+        "morningstar_lt",
+        "cnmv_ficha"
+      ],
+      "cartera": [
+        "cnmv",
+        "morningstar_lt"
+      ],
+      "esg": [
+        "morningstar_lt"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "documentos_oficiales": [
+        "cnmv_ficha"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.cnmv.cartera_exterior_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.cartera_interior_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.fecha": "cnmv:zip_trimestral",
+      "cartera.cnmv.inversiones_financieras_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.liquidez_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.num_posiciones": "cnmv:zip_trimestral",
+      "cartera.cnmv.patrimonio_total_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.peso_top10_pct": "cnmv:zip_trimestral",
+      "cartera.cnmv.posiciones": "cnmv:zip_trimestral",
+      "cartera.cnmv.rotacion_pct": "cnmv:zip_trimestral",
+      "cartera.cnmv.top10_posiciones": "cnmv:zip_trimestral",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:sal_position",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rf": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.AUT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.BEL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CHE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DEU": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DNK": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ESP": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.FRA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.GBR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.GRC": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.HUN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.IRL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ITA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.NLD": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.POL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.PRT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ROU": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.SWE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.USA": "morningstar_lt:ETFsnapshot",
+      "cartera.peso_top10_pct": "morningstar_lt:sal_position",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.renta_fija.calidad_media": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.cupon_medio_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.precio_medio": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.corporativa": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.gobierno": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.vencimientos_pct.10_15": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.15_20": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.1_3": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.20_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.3_5": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.5_7": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.7_10": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.mas_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.ytw_distribucion_pct.1_3": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.3_5": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.desconocido": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.rotacion_pct": "cnmv:zip_trimestral",
+      "cartera.top10_posiciones": "morningstar_lt:ETFsnapshot",
+      "costes.cnmv.base_comision_gestion": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_deposito_periodo_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_gestion_periodo_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_reembolso_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_suscripcion_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.descuento_favor_fondo_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.periodo": "cnmv:zip_trimestral",
+      "costes.cnmv.periodo_meses": "cnmv:zip_trimestral",
+      "costes.cnmv.ter_12m_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.ter_trimestre_pct": "cnmv:zip_trimestral",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_reembolso_max_pct": "morningstar_lt:screener",
+      "costes.comision_suscripcion_max_pct": "morningstar_lt:screener",
+      "costes.kid.entrada_pct": "cnmv_ficha:kid",
+      "costes.kid.fecha": "cnmv_ficha:kid",
+      "costes.kid.gestion_y_otros_pct": "cnmv_ficha:kid",
+      "costes.kid.idioma": "cnmv_ficha:kid",
+      "costes.kid.rendimiento_pct": "cnmv_ficha:kid",
+      "costes.kid.transaccion_pct": "cnmv_ficha:kid",
+      "costes.ter_pct": "morningstar_lt:ETFsnapshot",
+      "costes.ter_vs_categoria.mediana_categoria_pct": "morningstar_lt:sal_feeLevel",
+      "costes.ter_vs_categoria.nivel": "morningstar_lt:sal_feeLevel",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "documentos_oficiales.fecha_folleto": "cnmv_ficha:ficha",
+      "documentos_oficiales.kid_fecha": "cnmv_ficha:kid",
+      "documentos_oficiales.kid_sha256": "cnmv_ficha:kid",
+      "documentos_oficiales.kid_url": "cnmv_ficha:ficha",
+      "esg.carbono.carbon_risk_score": "morningstar_lt:sustainability",
+      "esg.carbono.clasificacion": "morningstar_lt:sustainability",
+      "esg.carbono.riesgo_activos_varados": "morningstar_lt:sustainability",
+      "esg.carbono.score_exposicion": "morningstar_lt:sustainability",
+      "esg.carbono.score_gestion": "morningstar_lt:sustainability",
+      "esg.cobertura_cartera_pct": "morningstar_lt:sustainability",
+      "esg.fecha": "morningstar_lt:sustainability",
+      "esg.globos_sostenibilidad": "morningstar_lt:sustainability",
+      "esg.score_ambiental": "morningstar_lt:sustainability",
+      "esg.score_gobernanza": "morningstar_lt:sustainability",
+      "esg.score_social": "morningstar_lt:sustainability",
+      "esg.sustainability_score": "morningstar_lt:sustainability",
+      "gestion.gestora.grupo": "cnmv:zip_mensual",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "gestion.gestores": "morningstar_lt:ETFsnapshot",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cnmv": "cnmv:zip_mensual",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_fondo_cnmv": "cnmv:zip_trimestral",
+      "identificacion.compartimento_cnmv": "cnmv:zip_mensual",
+      "identificacion.depositario": "cnmv:zip_mensual",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.domicilio": "cnmv_ficha:ficha",
+      "identificacion.es_etf_cnmv": "cnmv:zip_mensual",
+      "identificacion.estado_lei": "gleif:lei-record",
+      "identificacion.estrategia_inversion_texto": "morningstar_lt:ETFsnapshot",
+      "identificacion.fecha_constitucion": "gleif:lei-record",
+      "identificacion.fecha_emision_isin": "cnmv_ficha:ancv",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.fecha_registro_cnmv": "cnmv_ficha:ficha",
+      "identificacion.fecha_ultimo_folleto": "cnmv_ficha:ficha",
+      "identificacion.fisn": "cnmv_ficha:ancv",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "cnmv:zip_mensual",
+      "identificacion.gestora_registro_cnmv": "cnmv_ficha:ficha",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.inversion_minima_inicial": "morningstar_lt:ETFsnapshot",
+      "identificacion.lei": "gleif:lei-record",
+      "identificacion.nombre": "cnmv:zip_mensual",
+      "identificacion.nombre_legal_lei": "gleif:lei-record",
+      "identificacion.numero_compartimento_cnmv": "cnmv:zip_mensual",
+      "identificacion.productor_kid": "cnmv_ficha:kid",
+      "identificacion.registro_cnmv": "cnmv:zip_mensual",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "cnmv_ficha:ficha",
+      "identificacion.vocacion_cnmv": "cnmv:zip_trimestral",
+      "meta.cnmv_periodo": "cnmv:zip_mensual",
+      "meta.cnmv_periodo_trimestral": "cnmv:zip_trimestral",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.cnmv.periodo": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_1": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_2": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_3": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.trimestre_actual": "cnmv:zip_trimestral",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2024.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2025.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.desde_lanzamiento_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_1": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_2": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_3": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.trimestre_actual": "cnmv:zip_trimestral",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.sri_kid_1a7": "cnmv_ficha:kid",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "series.cnmv_diaria": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.divisa": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.fecha": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.participes": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.patrimonio_meur": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.vl": "cnmv:zip_mensual",
+      "valoracion.cnmv_trimestral.divisa": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.participes": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.patrimonio_clase_meur": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.periodo": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.vl": "cnmv:zip_trimestral",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "cnmv:zip_mensual",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "cnmv",
+        "cnmv_ficha",
+        "gleif",
+        "vl_eodhd",
+        "morningstar_lt",
+        "esma"
+      ],
+      "familias": [
+        "precio"
+      ],
+      "fuentes": {
+        "cnmv": {
+          "hojas": 623,
+          "endpoints": {
+            "cnmv:zip_mensual": {
+              "periodo": "2026-05"
+            },
+            "cnmv:zip_trimestral": {
+              "periodo": "2025-12"
+            }
+          },
+          "segundos": 0.0
+        },
+        "cnmv_ficha": {
+          "hojas": 22,
+          "endpoints": {
+            "cnmv_ficha:ficha": {
+              "fetched_at": "2026-09-04T21:46:56+00:00",
+              "url": "https://www.cnmv.es/portal/consultas/iic/fondo.aspx?isin=ES0162296000"
+            },
+            "cnmv_ficha:kid": {
+              "fetched_at": "2026-09-04T21:46:57+00:00",
+              "url": "https://www.cnmv.es/webservices/verdocumento/ver?e=Fjxx0Tg%2bdWYe2vQ7iajjWgMNPdJeCoASZsFtfPPQs6VPhncw1vq%2fMXcb2Ceoe0G6HHTTR6oFnRjK4uNaFVc5nQ%3d%3d",
+              "documento": "2026-01-01"
+            },
+            "cnmv_ficha:ancv": {
+              "fetched_at": "2026-09-04T21:46:59+00:00",
+              "url": "https://www.cnmv.es/portal/ancv/isin.aspx?isin=ES0162296000"
+            }
+          },
+          "segundos": 0.11
+        },
+        "gleif": {
+          "hojas": 5,
+          "endpoints": {
+            "gleif:lei-record": {
+              "fetched_at": "2026-09-04T21:46:59+00:00"
+            }
+          },
+          "segundos": 0.0
+        },
+        "morningstar_lt": {
+          "hojas": 430,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-10-29T08:43:13+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-10-14T13:07:23+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-10-14T13:07:24+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-07-10T20:30:32+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-07-10T20:30:33+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-07-10T20:30:33+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-07-10T20:30:35+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-07-10T20:30:36+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-07-10T20:30:38+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-07-10T20:30:40+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-07-10T20:30:41+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-07-10T20:30:42+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-10-14T13:07:38+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-10-14T13:07:26+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-10-14T13:07:28+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-10-14T13:07:29+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-10-14T13:07:30+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-10-14T13:07:24+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-10-14T13:07:32+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-10-14T13:07:35+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-10-14T13:07:36+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-10-14T13:07:33+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-07-10T20:30:59+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-07-10T20:31:01+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-07-10T20:31:02+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-07-10T20:31:03+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-07-10T20:31:04+00:00"
+            }
+          },
+          "segundos": 0.93
+        }
+      }
+    }
+  },
+  "identificacion": {
+    "registro_cnmv": "5785",
+    "nombre": "CARTERA RENTA FIJA HORIZONTE 2028, FI",
+    "es_etf_cnmv": false,
+    "compartimento_cnmv": "COMPARTIMENTO 0",
+    "numero_compartimento_cnmv": "0",
+    "clase_cnmv": "CLASE 0",
+    "gestora_legal": "ANDBANK WEALTH MANAGEMENT, SGIIC, S.A.",
+    "depositario": "BANCO INVERSIS, S.A.",
+    "vocacion_cnmv": "Renta Fija Euro",
+    "clase_fondo_cnmv": "Otros",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Fixed Term Bond",
+    "fecha_lanzamiento_clase": "2023-07-07",
+    "gestora": "Andbank",
+    "fecha_lanzamiento_fondo": "2023-07-07",
+    "estrategia_inversion_texto": "Invierte al menos el 50% de la exposición total en renta fija privada y el resto en renta fija pública. Los emisores/mercados serán OCDE y UE (máximo 10% de la exposición total en emisores emergentes). La TAE dependerá de cuándo se suscriba. Si el partícipe reembolsa antes del vencimiento no se beneficiará del objetivo de rentabilidad y podrá tener pérdidas significativas. LA RENTABILIDAD ESTIMADA NO ESTÁ GARANTIZADA. Las emisiones tendrán en el momento de la compra de la cartera al menos media calidad crediticia (mínimo BBB-) o la de España si fuera inferior, y hasta 25% de la exposición total en emisiones de baja calidad o sin rating. Si hay bajadas sobrevenidas los activos podrán mantenerse en cartera. La cartera se comprará al contado el 25/7/23 y se prevé mantener los activos hasta el vencimiento de la estrategia, si bien puede haber cambios por criterios de gestión.",
+    "clase_activo": "Fixed Income",
+    "indice_benchmark_oficial": "Not Benchmarked",
+    "inversion_minima_inicial": 10.0,
+    "fecha_registro_cnmv": "2023-07-07",
+    "gestora_registro_cnmv": "237",
+    "fecha_ultimo_folleto": "2026-06-08",
+    "productor_kid": "ANDBANK WEALTH MANAGEMENT, SGIIC, S. A. U.",
+    "fecha_emision_isin": "2023-07-07",
+    "fisn": "CART RF HORIZ 2028 FI/PT",
+    "lei": "959800CD3436UJF1EL17",
+    "nombre_legal_lei": "CARTERA RENTA FIJA HORIZONTE 2028, FI",
+    "fecha_constitucion": "2023-06-01",
+    "estado_lei": "ISSUED",
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "ESP",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "valoracion": {
+    "cnmv_fin_mes": {
+      "vl": 11.4057,
+      "fecha": "2026-05-31",
+      "divisa": "EUR",
+      "patrimonio_meur": 37.85,
+      "participes": 229
+    },
+    "vl": 11.42833,
+    "vl_fecha": "2026-07-09T05:00:00.000",
+    "patrimonio_fondo_meur": 37.85,
+    "cnmv_trimestral": {
+      "participes": 240,
+      "patrimonio_clase_meur": 38.584,
+      "vl": 11.4126,
+      "divisa": "EUR",
+      "periodo": "2025-12"
+    },
+    "vl_divisa": "EUR",
+    "patrimonio_fecha": "2026-10-12",
+    "patrimonio_divisa": "EUR"
+  },
+  "series": {
+    "cnmv_diaria": [
+      {
+        "fecha": "2026-05-01",
+        "vl": 11.3673,
+        "patrimonio_eur": 37736322.25,
+        "participes": 230.0
+      },
+      {
+        "fecha": "2026-05-02",
+        "vl": 11.3682,
+        "patrimonio_eur": 37739135.23,
+        "participes": 230.0
+      },
+      {
+        "fecha": "2026-05-03",
+        "vl": 11.369,
+        "patrimonio_eur": 37741948.87,
+        "participes": 230.0
+      },
+      {
+        "fecha": "2026-05-04",
+        "vl": 11.3641,
+        "patrimonio_eur": 37714202.42,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-05",
+        "vl": 11.3695,
+        "patrimonio_eur": 37732145.26,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-06",
+        "vl": 11.3797,
+        "patrimonio_eur": 37766146.51,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-07",
+        "vl": 11.379,
+        "patrimonio_eur": 37763796.81,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-08",
+        "vl": 11.3793,
+        "patrimonio_eur": 37764718.55,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-09",
+        "vl": 11.3802,
+        "patrimonio_eur": 37767530.29,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-10",
+        "vl": 11.381,
+        "patrimonio_eur": 37770341.93,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-11",
+        "vl": 11.3789,
+        "patrimonio_eur": 37763306.44,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-12",
+        "vl": 11.3758,
+        "patrimonio_eur": 37752875.6,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-13",
+        "vl": 11.3775,
+        "patrimonio_eur": 37758635.66,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-14",
+        "vl": 11.3824,
+        "patrimonio_eur": 37774916.5,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-15",
+        "vl": 11.3779,
+        "patrimonio_eur": 37760006.63,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-16",
+        "vl": 11.3787,
+        "patrimonio_eur": 37762818.5,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-17",
+        "vl": 11.3796,
+        "patrimonio_eur": 37765630.3,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-18",
+        "vl": 11.3823,
+        "patrimonio_eur": 37774455.3,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-19",
+        "vl": 11.3801,
+        "patrimonio_eur": 37767433.4,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-20",
+        "vl": 11.3882,
+        "patrimonio_eur": 37794044.14,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-21",
+        "vl": 11.3875,
+        "patrimonio_eur": 37791726.15,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-22",
+        "vl": 11.391,
+        "patrimonio_eur": 37803389.91,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-23",
+        "vl": 11.3918,
+        "patrimonio_eur": 37806199.63,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-24",
+        "vl": 11.3927,
+        "patrimonio_eur": 37809009.27,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-25",
+        "vl": 11.4017,
+        "patrimonio_eur": 37838924.15,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-26",
+        "vl": 11.3975,
+        "patrimonio_eur": 37825202.57,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-27",
+        "vl": 11.3998,
+        "patrimonio_eur": 37832739.92,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-28",
+        "vl": 11.4016,
+        "patrimonio_eur": 37838825.22,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-29",
+        "vl": 11.404,
+        "patrimonio_eur": 37846751.34,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-30",
+        "vl": 11.4049,
+        "patrimonio_eur": 37849560.71,
+        "participes": 229.0
+      },
+      {
+        "fecha": "2026-05-31",
+        "vl": 11.4057,
+        "patrimonio_eur": 37852314.33,
+        "participes": 229.0
+      }
+    ]
+  },
+  "gestion": {
+    "gestora": {
+      "grupo": "ANDBANK",
+      "nombre": "Andbank Wealth Management SGIIC"
+    },
+    "gestores": [
+      {
+        "nombre": "Francisco Platón",
+        "desde": "2023-07-07"
+      },
+      {
+        "nombre": "Borja León-Sotelo Carrera",
+        "desde": "2023-07-07"
+      }
+    ]
+  },
+  "costes": {
+    "cnmv": {
+      "periodo": "2025-12",
+      "periodo_meses": 6,
+      "comision_gestion_periodo_pct": 0.26,
+      "comision_deposito_periodo_pct": 0.04,
+      "base_comision_gestion": "Patrimonio",
+      "comision_suscripcion_max_pct": 5.0,
+      "comision_reembolso_max_pct": 5.0,
+      "descuento_favor_fondo_max_pct": 0.0,
+      "ter_trimestre_pct": 0.15,
+      "ter_12m_pct": 0.62
+    },
+    "comision_suscripcion_max_pct": 5.0,
+    "comision_reembolso_max_pct": 5.0,
+    "ter_pct": 0.32,
+    "comision_gestion_max_pct": 0.52,
+    "ter_vs_categoria": {
+      "mediana_categoria_pct": 0.89,
+      "nivel": 2
+    },
+    "kid": {
+      "entrada_pct": 5.0,
+      "gestion_y_otros_pct": 0.62,
+      "transaccion_pct": 0.0,
+      "rendimiento_pct": 0.0,
+      "fecha": "2026-01-01",
+      "idioma": "es"
+    }
+  },
+  "rentabilidad": {
+    "cnmv": {
+      "trimestral_pct": {
+        "trimestre_actual": 1.03,
+        "t_1": 0.6,
+        "t_2": 1.17,
+        "t_3": 0.82
+      },
+      "periodo": "2025-12"
+    },
+    "trailing_pct": {
+      "1m": {
+        "fondo": 0.22535
+      },
+      "3m": {
+        "fondo": 0.91955
+      },
+      "6m": {
+        "fondo": 1.067918
+      },
+      "ytd": {
+        "fondo": 0.69242
+      },
+      "1a": {
+        "fondo": 1.78915
+      },
+      "3a_anualizada": {
+        "fondo": 4.673059
+      },
+      "desde_lanzamiento_anualizada": {
+        "fondo": 4.277948
+      }
+    },
+    "fecha_dato": "2026-09-30",
+    "por_año_natural": {
+      "2025": {
+        "fondo": 3.10925
+      },
+      "2024": {
+        "fondo": 4.91355
+      }
+    }
+  },
+  "riesgo": {
+    "cnmv": {
+      "volatilidad_trimestral_pct": {
+        "trimestre_actual": 1.12,
+        "t_1": 0.45,
+        "t_2": 0.94,
+        "t_3": 1.1
+      }
+    },
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 0.958
+      },
+      "3a": {
+        "fondo": 3.48488
+      }
+    },
+    "sharpe": {
+      "3a": {
+        "fondo": -0.07343
+      },
+      "1a": {
+        "fondo": -0.121
+      }
+    },
+    "fecha_dato": "2026-09-30",
+    "sri_kid_1a7": 2
+  },
+  "cartera": {
+    "cnmv": {
+      "patrimonio_total_eur": 38584366.0,
+      "rotacion_pct": 0.02,
+      "inversiones_financieras_eur": 37852501.0,
+      "cartera_interior_eur": 2542597.0,
+      "cartera_exterior_eur": 33673569.0,
+      "liquidez_eur": 768946.0,
+      "fecha": "2025-12-31",
+      "num_posiciones": 49,
+      "top10_posiciones": [
+        {
+          "nombre": "AAREAL BANK AG",
+          "isin": "DE000A289LU4",
+          "peso_pct": 4.0887,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "UNICREDIT SPA",
+          "isin": "XS2555420103",
+          "peso_pct": 4.0807,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "BANCO BPM SPA",
+          "isin": "XS2558591967",
+          "peso_pct": 4.049,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "BANK POLSKA KASA OPI",
+          "isin": "XS2724428193",
+          "peso_pct": 4.0298,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "UNICAJA BANCO SA",
+          "isin": "ES0380907065",
+          "peso_pct": 3.8401,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "ROMANIA",
+          "isin": "XS2434895558",
+          "peso_pct": 3.8381,
+          "divisa": "EUR",
+          "tipo": "Deuda Publica Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "JYSKE BANK A/S",
+          "isin": "XS2555918270",
+          "peso_pct": 3.7683,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "INTESA SANPAOLO SPA",
+          "isin": "XS2592650373",
+          "peso_pct": 3.7465,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "DEUTSCHE LUFTHANSA A",
+          "isin": "XS2296203123",
+          "peso_pct": 3.5884,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "FORD MOTOR CREDIT CO",
+          "isin": "XS2623496085",
+          "peso_pct": 3.4352,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        }
+      ],
+      "peso_top10_pct": 38.46,
+      "posiciones": [
+        {
+          "nombre": "AAREAL BANK AG",
+          "instrumento": "BONO",
+          "isin": "DE000A289LU4",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1577587.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 4.0887
+        },
+        {
+          "nombre": "UNICREDIT SPA",
+          "instrumento": "BONO",
+          "isin": "XS2555420103",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1574523.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 4.0807
+        },
+        {
+          "nombre": "BANCO BPM SPA",
+          "instrumento": "BONO",
+          "isin": "XS2558591967",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1562280.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 4.049
+        },
+        {
+          "nombre": "BANK POLSKA KASA OPI",
+          "instrumento": "BONO",
+          "isin": "XS2724428193",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1554869.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 4.0298
+        },
+        {
+          "nombre": "UNICAJA BANCO SA",
+          "instrumento": "BONO",
+          "isin": "ES0380907065",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1481682.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 3.8401
+        },
+        {
+          "nombre": "ROMANIA",
+          "instrumento": "BONO",
+          "isin": "XS2434895558",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1480909.0,
+          "tipo_cnmv": "Deuda Publica Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.8381
+        },
+        {
+          "nombre": "JYSKE BANK A/S",
+          "instrumento": "BONO",
+          "isin": "XS2555918270",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1453963.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.7683
+        },
+        {
+          "nombre": "INTESA SANPAOLO SPA",
+          "instrumento": "BONO",
+          "isin": "XS2592650373",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1445552.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.7465
+        },
+        {
+          "nombre": "DEUTSCHE LUFTHANSA A",
+          "instrumento": "BONO",
+          "isin": "XS2296203123",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1384577.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.5884
+        },
+        {
+          "nombre": "FORD MOTOR CREDIT CO",
+          "instrumento": "BONO",
+          "isin": "XS2623496085",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1325461.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.4352
+        },
+        {
+          "nombre": "RAIFFEISEN BANK INTL",
+          "instrumento": "BONO",
+          "isin": "XS2547936984",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1187344.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.0773
+        },
+        {
+          "nombre": "Obgs.Mol Hung Oil&Ga",
+          "instrumento": "RENTA FIJA",
+          "isin": "XS2232045463",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1178307.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.0538
+        },
+        {
+          "nombre": "COMMERZBANK AG",
+          "instrumento": "BONO",
+          "isin": "DE000CZ45W57",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1161640.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.0106
+        },
+        {
+          "nombre": "BANCO COMERC PORTUGU",
+          "instrumento": "BONO",
+          "isin": "PTBCPEOM0069",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1088311.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.8206
+        },
+        {
+          "nombre": "NATWEST GROUP PLC",
+          "instrumento": "BONO",
+          "isin": "XS2596599063",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1026098.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.6594
+        },
+        {
+          "nombre": "BANCO DE CREDITO SOC",
+          "instrumento": "BONO",
+          "isin": "XS2383811424",
+          "divisa": "EUR",
+          "valor_mercado_eur": 919278.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.3825
+        },
+        {
+          "nombre": "BARCLAYS PLC",
+          "instrumento": "BONO",
+          "isin": "XS2430951660",
+          "divisa": "EUR",
+          "valor_mercado_eur": 905465.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.3467
+        },
+        {
+          "nombre": "UBS GROUP AG",
+          "instrumento": "BONO",
+          "isin": "CH0517825276",
+          "divisa": "EUR",
+          "valor_mercado_eur": 896889.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.3245
+        },
+        {
+          "nombre": "ICCREA BANCA SPA",
+          "instrumento": "BONO",
+          "isin": "XS2577533875",
+          "divisa": "EUR",
+          "valor_mercado_eur": 744732.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.9301
+        },
+        {
+          "nombre": "DE VOLKSBANK NV",
+          "instrumento": "BONO",
+          "isin": "XS2626691906",
+          "divisa": "EUR",
+          "valor_mercado_eur": 721691.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.8704
+        },
+        {
+          "nombre": "ARGENTA SPAARBANK",
+          "instrumento": "BONO",
+          "isin": "BE6339428904",
+          "divisa": "EUR",
+          "valor_mercado_eur": 720390.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.8671
+        },
+        {
+          "nombre": "CAIXABANK SA",
+          "instrumento": "BONO",
+          "isin": "XS2346253730",
+          "divisa": "EUR",
+          "valor_mercado_eur": 718988.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.8634
+        },
+        {
+          "nombre": "MVM ENERGETIKA ZRT",
+          "instrumento": "BONO",
+          "isin": "XS2407028435",
+          "divisa": "EUR",
+          "valor_mercado_eur": 713035.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.848
+        },
+        {
+          "nombre": "CEPSA",
+          "instrumento": "RENTA FIJA",
+          "isin": "XS2117485677",
+          "divisa": "EUR",
+          "valor_mercado_eur": 702137.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.8197
+        },
+        {
+          "nombre": "BANCO INVERSIS, S.A.",
+          "instrumento": "REPO",
+          "isin": "ES0L02601166",
+          "divisa": "EUR",
+          "valor_mercado_eur": 694000.0,
+          "tipo_cnmv": "Adquisicion Temporal Activos",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.7987
+        },
+        {
+          "nombre": "Volvo Car AB",
+          "instrumento": "BONO",
+          "isin": "XS2240978085",
+          "divisa": "EUR",
+          "valor_mercado_eur": 677743.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.7565
+        },
+        {
+          "nombre": "DEUTSCHE BANK AG",
+          "instrumento": "BONO",
+          "isin": "DE000DL19T26",
+          "divisa": "EUR",
+          "valor_mercado_eur": 642186.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.6644
+        },
+        {
+          "nombre": "EASYJET FINCO BV",
+          "instrumento": "BONO",
+          "isin": "XS2306601746",
+          "divisa": "EUR",
+          "valor_mercado_eur": 555317.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.4392
+        },
+        {
+          "nombre": "DUFRY ONE BV",
+          "instrumento": "BONO",
+          "isin": "XS2333564503",
+          "divisa": "EUR",
+          "valor_mercado_eur": 552033.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.4307
+        },
+        {
+          "nombre": "ING GROEP NV",
+          "instrumento": "BONO",
+          "isin": "XS2554746185",
+          "divisa": "EUR",
+          "valor_mercado_eur": 515114.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.335
+        },
+        {
+          "nombre": "AUTOSTRADE PER L´ITA",
+          "instrumento": "BONO",
+          "isin": "XS2434701616",
+          "divisa": "EUR",
+          "valor_mercado_eur": 482997.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2518
+        },
+        {
+          "nombre": "LA BANQUE POSTALE",
+          "instrumento": "BONO",
+          "isin": "FR00140087C4",
+          "divisa": "EUR",
+          "valor_mercado_eur": 454984.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1792
+        },
+        {
+          "nombre": "SPAREBANK 1 SR BANK",
+          "instrumento": "BONO",
+          "isin": "XS2363982344",
+          "divisa": "EUR",
+          "valor_mercado_eur": 449604.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1652
+        },
+        {
+          "nombre": "NATIONAL BANK GREECE",
+          "instrumento": "BONO",
+          "isin": "XS2558592932",
+          "divisa": "EUR",
+          "valor_mercado_eur": 424849.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1011
+        },
+        {
+          "nombre": "MEDIOBANCA DI CRED F",
+          "instrumento": "BONO",
+          "isin": "XS2597999452",
+          "divisa": "EUR",
+          "valor_mercado_eur": 412376.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.0688
+        },
+        {
+          "nombre": "KUTXABANK SA",
+          "instrumento": "BONO",
+          "isin": "ES0243307016",
+          "divisa": "EUR",
+          "valor_mercado_eur": 366915.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 0.9509
+        },
+        {
+          "nombre": "SOCIETE GENERALE",
+          "instrumento": "BONO",
+          "isin": "FR0014006XA3",
+          "divisa": "EUR",
+          "valor_mercado_eur": 361204.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.9361
+        },
+        {
+          "nombre": "VOLKSWAGEN BANK GMBH",
+          "instrumento": "BONO",
+          "isin": "XS2617456582",
+          "divisa": "EUR",
+          "valor_mercado_eur": 309789.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.8029
+        },
+        {
+          "nombre": "MORGAN STANLEY",
+          "instrumento": "BONO",
+          "isin": "XS2338643740",
+          "divisa": "EUR",
+          "valor_mercado_eur": 271255.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.703
+        },
+        {
+          "nombre": "TDC NET AS",
+          "instrumento": "BONO",
+          "isin": "XS2484502823",
+          "divisa": "EUR",
+          "valor_mercado_eur": 206539.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.5353
+        },
+        {
+          "nombre": "HSBC HOLDINGS PLC",
+          "instrumento": "BONO",
+          "isin": "XS2597113989",
+          "divisa": "EUR",
+          "valor_mercado_eur": 205766.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.5333
+        },
+        {
+          "nombre": "HUNGARY",
+          "instrumento": "BONO",
+          "isin": "XS1696445516",
+          "divisa": "EUR",
+          "valor_mercado_eur": 186449.0,
+          "tipo_cnmv": "Deuda Publica Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.4832
+        },
+        {
+          "nombre": "BPCE SA",
+          "instrumento": "BONO",
+          "isin": "FR0013534674",
+          "divisa": "EUR",
+          "valor_mercado_eur": 181198.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.4696
+        },
+        {
+          "nombre": "AIB GROUP PLC",
+          "instrumento": "BONO",
+          "isin": "XS2343340852",
+          "divisa": "EUR",
+          "valor_mercado_eur": 180643.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.4682
+        },
+        {
+          "nombre": "LB BADEN-WUERTTEMBER",
+          "instrumento": "BONO",
+          "isin": "DE000LB2CNE0",
+          "divisa": "EUR",
+          "valor_mercado_eur": 175517.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.4549
+        },
+        {
+          "nombre": "KBC GROUP NV",
+          "instrumento": "BONO",
+          "isin": "BE0002900810",
+          "divisa": "EUR",
+          "valor_mercado_eur": 101942.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.2642
+        },
+        {
+          "nombre": "SAPPI PAPIER HOLDNG",
+          "instrumento": "BONO",
+          "isin": "XS2310951103",
+          "divisa": "EUR",
+          "valor_mercado_eur": 99520.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.2579
+        },
+        {
+          "nombre": "ALPHA BANK SA",
+          "instrumento": "BONO",
+          "isin": "XS2388172855",
+          "divisa": "EUR",
+          "valor_mercado_eur": 91757.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.2378
+        },
+        {
+          "nombre": "STANDARD CHARTERED P",
+          "instrumento": "BONO",
+          "isin": "XS2102360315",
+          "divisa": "EUR",
+          "valor_mercado_eur": 90762.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.2352
+        }
+      ]
+    },
+    "rotacion_pct": 0.02,
+    "fecha": "2026-09-30",
+    "num_posiciones": 44,
+    "num_posiciones_rf": 43,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 96.2671,
+        "largo": 96.2671,
+        "corto": 0.0
+      },
+      "convertibles": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": 3.7329,
+        "largo": 3.7329,
+        "corto": 0.0
+      },
+      "otros": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      }
+    },
+    "paises_pct": {
+      "ITA": 17.2175,
+      "DEU": 11.2068,
+      "ESP": 10.9362,
+      "GBR": 8.0785,
+      "HUN": 7.5788,
+      "DNK": 4.6226,
+      "NLD": 4.6148,
+      "CHE": 4.4077,
+      "POL": 4.3356,
+      "ROU": 4.3336,
+      "USA": 4.311,
+      "FRA": 3.8566,
+      "BEL": 3.7393,
+      "PRT": 3.3052,
+      "AUT": 3.228,
+      "SWE": 1.9432,
+      "GRC": 1.7333,
+      "IRL": 0.5515
+    },
+    "renta_fija": {
+      "sectores_pct": {
+        "gobierno": 4.70189,
+        "corporativa": 91.565211,
+        "liquidez": 3.7329
+      },
+      "cupon_medio_pct": 3.26914,
+      "precio_medio": 99.46275,
+      "fecha": "2026-09-30T05:00:00.000",
+      "calidad_media": "BBB",
+      "vencimientos_pct": {
+        "1_3": 96.2671,
+        "3_5": 0.0,
+        "5_7": 0.0,
+        "7_10": 0.0,
+        "10_15": 0.0,
+        "15_20": 0.0,
+        "20_30": 0.0,
+        "mas_30": 0.0
+      },
+      "ytw_distribucion_pct": {
+        "3_5": 85.875,
+        "1_3": 12.408,
+        "desconocido": 1.718
+      }
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "UniCredit S.p.A. 5.85%",
+        "isin": "XS2555420103",
+        "peso_pct": 4.19547,
+        "sector": null,
+        "pais": "ITA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Bank Polska Kasa Opieki SA 5.5%",
+        "isin": "XS2724428193",
+        "peso_pct": 4.17374,
+        "sector": null,
+        "pais": "POL",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Banco BPM S.p.A.",
+        "isin": "XS2558591967",
+        "peso_pct": 4.17187,
+        "sector": null,
+        "pais": "ITA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Romania (Republic Of) 2.125%",
+        "isin": "XS2434895558",
+        "peso_pct": 4.17181,
+        "sector": null,
+        "pais": "ROU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Jyske Bank AS 5.5%",
+        "isin": "XS2555918270",
+        "peso_pct": 3.9023,
+        "sector": null,
+        "pais": "DNK",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Intesa Sanpaolo S.p.A.",
+        "isin": "XS2592650373",
+        "peso_pct": 3.84489,
+        "sector": null,
+        "pais": "ITA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Aareal Bank AG 0.25%",
+        "isin": "DE000A289LU4",
+        "peso_pct": 3.83406,
+        "sector": null,
+        "pais": "DEU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Deutsche Lufthansa AG 3.75%",
+        "isin": "XS2296203123",
+        "peso_pct": 3.79027,
+        "sector": null,
+        "pais": "DEU",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Kutxabank SA 0.5%",
+        "isin": "ES0243307016",
+        "peso_pct": 3.72697,
+        "sector": null,
+        "pais": "ESP",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "MOL Hungarian Oil & Gas PLC 1.5%",
+        "isin": "XS2232045463",
+        "peso_pct": 3.42408,
+        "sector": null,
+        "pais": "HUN",
+        "divisa": "EUR"
+      }
+    ],
+    "peso_top10_pct": 27.91848,
+    "posiciones": [
+      {
+        "nombre": "UniCredit S.p.A. 5.85%",
+        "isin": "XS2555420103",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 4.19547,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Bank Polska Kasa Opieki SA 5.5%",
+        "isin": "XS2724428193",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 4.17374,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "POL"
+      },
+      {
+        "nombre": "Banco BPM S.p.A.",
+        "isin": "XS2558591967",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 4.17187,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Romania (Republic Of) 2.125%",
+        "isin": "XS2434895558",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 4.17181,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ROU"
+      },
+      {
+        "nombre": "Jyske Bank AS 5.5%",
+        "isin": "XS2555918270",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.9023,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DNK"
+      },
+      {
+        "nombre": "Intesa Sanpaolo S.p.A.",
+        "isin": "XS2592650373",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.84489,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Aareal Bank AG 0.25%",
+        "isin": "DE000A289LU4",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.83406,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Deutsche Lufthansa AG 3.75%",
+        "isin": "XS2296203123",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.79027,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Kutxabank SA 0.5%",
+        "isin": "ES0243307016",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.72697,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "MOL Hungarian Oil & Gas PLC 1.5%",
+        "isin": "XS2232045463",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.42408,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "HUN"
+      },
+      {
+        "nombre": "Ford Motor Credit Company LLC 6.125%",
+        "isin": "XS2623496085",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.35311,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "MVM Energetika Zartkoruen Mukodo Reszvenytarsasag 0.875%",
+        "isin": "XS2407028435",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.3417,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "HUN"
+      },
+      {
+        "nombre": "Banco Comercial Portugues, S.A. 1.75%",
+        "isin": "PTBCPEOM0069",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.18179,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "PRT"
+      },
+      {
+        "nombre": "Raiffeisen Bank International AG 5.75%",
+        "isin": "XS2547936984",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.10753,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "AUT"
+      },
+      {
+        "nombre": "ASN Bank NV 4.625%",
+        "isin": "XS2626691906",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 3.05685,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "NatWest Group PLC 4.699%",
+        "isin": "XS2596599063",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.73761,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Banco de Credito Social Cooperativo S.A. 1.75%",
+        "isin": "XS2383811424",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.65743,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Barclays PLC 0.877%",
+        "isin": "XS2430951660",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.64778,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "UBS Group AG 0.65%",
+        "isin": "CH0517825276",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.64429,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Societe Generale S.A. 0.625%",
+        "isin": "FR0014006XA3",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.38904,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Caixabank S.A. 0.75%",
+        "isin": "XS2346253730",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.09223,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Compania Espanola De Petroleos Sa finance SAU 0.75%",
+        "isin": "XS2117485677",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 2.05131,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "ICCREA Banca - Istituto Centrale del Credito Cooperativo S.p.A. 6.875%",
+        "isin": "XS2577533875",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.96446,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Argenta Spaarbank NV 5.375%",
+        "isin": "BE6339428904",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.94619,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "BEL"
+      },
+      {
+        "nombre": "Volvo Car AB 2.5%",
+        "isin": "XS2240978085",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.87067,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Deutsche Bank AG 1.75%",
+        "isin": "DE000DL19T26",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.83571,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "KBC Group NV 4.375%",
+        "isin": "BE0002900810",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.65354,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "BEL"
+      },
+      {
+        "nombre": "Dufry One B.V. 3.375%",
+        "isin": "XS2333564503",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.59888,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "EasyJet FinCo B.V 1.875%",
+        "isin": "XS2306601746",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.57904,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "ING Groep N.V. 4.875%",
+        "isin": "XS2554746185",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.38569,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "La Banque Postale",
+        "isin": "FR00140087C4",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.32362,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Autostrade per l'Italia S.p.A. 1.625%",
+        "isin": "XS2434701616",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.30349,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "National Bank of Greece SA 7.25%",
+        "isin": "XS2558592932",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.13331,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GRC"
+      },
+      {
+        "nombre": "Mediobanca - Banca di Credito Finanziario SpA 4.75%",
+        "isin": "XS2597999452",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.09462,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Volkswagen Bank GmbH 4.375%",
+        "isin": "XS2617456582",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.81355,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Morgan Stanley 0.406%",
+        "isin": "XS2338643740",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.79691,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "HSBC Holdings PLC 4.752%",
+        "isin": "XS2597113989",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.54786,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "TDC Net AS 5.056%",
+        "isin": "XS2484502823",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.54772,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DNK"
+      },
+      {
+        "nombre": "Alpha Bank S.A. 2.5%",
+        "isin": "XS2388172855",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.53526,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GRC"
+      },
+      {
+        "nombre": "AIB Group PLC 0.5%",
+        "isin": "XS2343340852",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.53091,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "IRL"
+      },
+      {
+        "nombre": "Hungary (Republic Of) 1.75%",
+        "isin": "XS1696445516",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.53008,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "HUN"
+      },
+      {
+        "nombre": "Landesbank Baden-Wuerttemberg 0.375%",
+        "isin": "DE000LB2CNE0",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.51483,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Standard Chartered PLC 0.85%",
+        "isin": "XS2102360315",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26461,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Cash",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 3.7329,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      }
+    ],
+    "divisas_pct": {
+      "EUR": 100.0
+    }
+  },
+  "esg": {
+    "globos_sostenibilidad": 3,
+    "fecha": "2025-10-31",
+    "sustainability_score": 18.34888,
+    "score_ambiental": 2.88,
+    "score_social": 8.04,
+    "score_gobernanza": 5.41,
+    "cobertura_cartera_pct": 97.54128,
+    "carbono": {
+      "carbon_risk_score": 9.5,
+      "clasificacion": "Low Risk",
+      "score_exposicion": 21.87,
+      "score_gestion": 12.37,
+      "riesgo_activos_varados": 80.3
+    }
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "documentos_oficiales": {
+    "kid_url": "https://www.cnmv.es/webservices/verdocumento/ver?e=Fjxx0Tg%2bdWYe2vQ7iajjWgMNPdJeCoASZsFtfPPQs6VPhncw1vq%2fMXcb2Ceoe0G6HHTTR6oFnRjK4uNaFVc5nQ%3d%3d",
+    "fecha_folleto": "2026-06-08",
+    "kid_fecha": "2026-01-01",
+    "kid_sha256": "a623ad2ba5a69c7eb4c73bdafa71a68713cdb5f49f640583e0e4c905409343e4"
+  },
+  "calidad": {
+    "score": 80,
+    "bucket": "BAJO",
+    "esenciales": "10/10",
+    "flags": [
+      "rf_sin_duracion",
+      "rf_sin_yield",
+      "rf_sin_calidad_crediticia",
+      "vl_antiguo(112d)"
+    ]
+  }
+}

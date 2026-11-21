@@ -1,0 +1,275 @@
+ 
+ 
+Documento de Datos Fundamentales 
+ 
+ 
+ 
+Goldman Sachs Absolute Return Tracker Portfolio 
+Goldman Sachs Asset Management 
+1 
+ 
+ Finalidad 
+Este documento le proporciona información fundamental que debe conocer sobre este producto de inversión. No se trata de material comercial. Es una 
+información exigida por ley para ayudarle a comprender la naturaleza, los riesgos, los costes y los beneficios y pérdidas potenciales de este producto y 
+para ayudarle a compararlo con otros productos. 
+ 
+Producto 
+Goldman Sachs Absolute Return Tracker Portfolio (la “Cartera”), un subfondo de Goldman Sachs Funds SICAV (el “Fondo”), Other Currency Shares 
+(Acc.) (EUR-Hedged) 
+ISIN: LU1103307408 
+Goldman Sachs Asset Management B.V. es el productor del PRIIP del Fondo (el “Productor”) y forma parte del grupo de empresas Goldman Sachs. 
+Consulte: https://www.gsam.com/content/gsam/uk/en/advisers/about-gsam/contact-us.html o llame al Servicio de Accionistas Europeos de GSAM al +44 
+20 7774 6366 para obtener más información. 
+La Autoriteit Financiële Markten (AFM), el organismo regulador del mercado financiero en los Países Bajos, es responsable de la supervisión del Productor 
+en relación con este documento de datos fundamentales. 
+El Productor está autorizado en los Países Bajos y está regulado por la AFM, y se ampara en los derechos de pasaporte que le confiere la Directiva sobre 
+OICVM para gestionar el Fondo en el plano transfronterizo y comercializarlo en la Unión Europea. 
+Este Fondo está autorizado en Luxemburgo. 
+Este Documento de datos fundamentales tiene fecha de 13/02/2026. 
+¿Qué es este producto? 
+Tipo 
+Goldman Sachs Funds es un organismo de inversión colectiva constituido con arreglo a la legislación del Gran Ducado de Luxemburgo en calidad de 
+sociedad de inversión de capital variable (SICAV) y tiene la consideración de OICVM. El Fondo está registrado de conformidad con la Parte I de la Ley de 
+17 de diciembre de 2010 y se ha constituido como una “estructura paraguas” compuesta por varias carteras. Está comprando una clase de acciones de la 
+Cartera. 
+Plazo 
+La duración de la Cartera y de la clase de acciones es ilimitada y, por lo tanto, no hay fecha de vencimiento. El Productor no podrá disolver 
+unilateralmente la Cartera. Sin embargo, el consejo de administración de la Cartera o los inversores del Fondo podrán, en determinadas circunstancias 
+contempladas en el Folleto y en el documento constitutivo del Fondo, rescindir unilateralmente el Fondo, la Cartera o la clase de acciones. Las leyes y 
+reglamentos aplicables al Fondo pueden prever casos de resolución automática. 
+Objetivos 
+El objetivo de inversión de la Cartera es implementar una estrategia de negociación (la “Estrategia”) que trata de obtener un rendimiento cercano al de los 
+fondos de inversión libre en su conjunto. El rendimiento de los fondos de inversión libre puede definirse como una combinación de “beta” (o exposición 
+variable al mercado) y “alfa” (o capacidad del gestor). 
+La Cartera trata de aproximarse a este componente “beta” adquiriendo exposición a varias clases de activos a los que están expuestos los fondos de 
+inversión libre, como renta variable, renta fija, crédito y materias primas. 
+La Cartera podrá invertir directamente en los activos subyacentes que componen estas clases de activos o, indirectamente, utilizando diversas técnicas e 
+instrumentos, como instrumentos financieros derivados. La Cartera también podrá utilizar cualquier combinación de estos dos métodos de inversión. 
+Al implementar la Estrategia, el Asesor de Inversiones tiene previsto utilizar una fórmula matemática para determinar cuándo y qué parte de los activos de 
+la Cartera asignar a cada clase de activos. El Asesor de Inversiones podrá eliminar o añadir nuevas clases de activos a la Estrategia en cualquier 
+momento a su entera discreción. 
+El Asesor de Inversiones podrá desviarse de la fórmula matemática, pero prevé hacerlo únicamente en circunstancias excepcionales. El Asesor de 
+Inversiones se reserva la potestad de modificar la fórmula matemática sin notificarlo previamente a los inversores. 
+La exposición de la Estrategia a cada clase de activos cambiará periódicamente en función de los niveles objetivo de exposición que se establezcan. La 
+asignación de la Estrategia a inversiones concretas la determinará el Asesor de Inversiones. 
+La Cartera podrá recurrir a instrumentos derivados a efectos de una gestión eficiente de la cartera, para facilitar la gestión de riesgos y con fines de 
+inversión. Una parte significativa de la exposición de la Cartera puede ser resultado del uso de instrumentos derivados. Un instrumento derivado es un 
+contrato suscrito entre dos o más partes cuyo valor depende de la apreciación o la depreciación de otros activos subyacentes. 
+La Clase de acciones trata de cubrir la exposición de la Cartera a la moneda de base de la Clase de acciones. Tenga en cuenta que podrán utilizarse 
+varias técnicas para conseguir cubrir la exposición a monedas, lo que conlleva riesgos adicionales y no existe garantía o certeza de que dicha cobertura 
+resulte acertada. 
+Las acciones de la Cartera podrán reembolsarse diariamente (cada Día hábil), a petición del interesado. 
+La Cartera se gestiona de forma activa y utiliza como referencia el ICE BofA 3-Month German Treasury Bill Index (el “Índice de referencia”) a fin de 
+establecer umbrales de riesgo interno discrecional que puedan servir de referencia para comprobar desviaciones con respecto al Índice de referencia. 
+El asesor de inversiones dispondrá de plena libertad para determinar la composición de los activos de la Cartera. Por lo tanto, puede que la rentabilidad 
+difieran sustancialmente de la lograda por el índice de referencia especificado. 
+Los ingresos se acumulan en el valor de su inversión. 
+La moneda de la Cartera es USD. La moneda de la clase de acciones es EUR. 
+El rendimiento de la Cartera depende de la rentabilidad de la Cartera, que está directamente relacionada con la rentabilidad de sus inversiones. El perfil de 
+riesgo y remuneración de la Cartera descrito en este documento de datos fundamentales presupone que mantiene sus inversiones en la Cartera durante 
+al menos el período de mantenimiento recomendado, tal como se indica a continuación en el apartado “¿Cuánto tiempo debo mantener la inversión, y 
+puedo retirar dinero de manera anticipada?”. 
+Para obtener más información (incluidas restricciones o penalizaciones) sobre la posibilidad de reembolsar su inversión en el Fondo, consulte el apartado 
+“¿Cuánto tiempo debo mantener la inversión, y puedo retirar dinero de manera anticipada?”. 
+Para obtener una información exhaustiva sobre el objetivo y la política de inversión, consulte el Folleto. 
+Inversor minorista al que va dirigido 
+Las Acciones del Cartera son adecuadas para aquellos inversores (i) cuya inversión en el Cartera no constituya un programa de inversión completo; (ii) 
+que comprendan plenamente y estén dispuestos a asumir que el Cartera tiene un nivel de riesgo de 3 en una escala de 7,  que significa «un riesgo 
+medio bajo»; (iii) que no sean Personas estadounidenses ni suscriban Acciones en nombre de una o más Personas estadounidenses; (iv) que 
+comprendan que es posible que no recuperen el importe invertido; y (v) que busquen una inversión a medio plazo. El inversor podría estar utilizando una 
+plataforma exclusivamente de ejecución y actuando sin ningún tipo de asesoramiento por parte de un profesional de la inversión. 
+Depositario: State Street Bank International GmbH Luxembourg Branch 
+Información adicional: El Folleto, los informes anual y semestral y los últimos precios de las acciones pueden obtenerse, de forma gratuita, en el 
+domicilio social del Fondo, o bien solicitarse al Gestor, al administrador o a los distribuidores de la Cartera. El Folleto está disponible en inglés, francés, 
+alemán, italiano y español. El presente documento se elabora para una única Cartera del Fondo, mientras que el Folleto y los informes anual y semestral 
+se elaboran para el Fondo en su totalidad. El Fondo es una sociedad de inversión con responsabilidad segregada entre carteras de conformidad con la 
+legislación luxemburguesa. Por lo tanto, los activos de la Cartera en que ha invertido no pueden emplearse para liquidar los pasivos de otras Carteras. Sin 
+embargo, esto no ha sido verificado en otras jurisdicciones. 
+
+ 
+ 
+Goldman Sachs Absolute Return Tracker Portfolio 
+Goldman Sachs Asset Management 
+2 
+¿Qué riesgos corro y qué podría obtener a cambio? 
+Indicador de riesgo 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+ 
+Riesgo más bajo 
+Riesgo más alto 
+ 
+El indicador de riesgo presupone que usted mantendrá el producto durante el período de mantenimiento recomendado de 5 años. 
+El riesgo real puede variar considerablemente en caso de salida anticipada, por lo que es posible que recupere menos dinero. 
+El indicador resumido de riesgo es una guía del nivel de riesgo de este producto en comparación con otros productos. Muestra las probabilidades de que 
+el producto pierda dinero debido a la evolución de los mercados o porque la Cartera no pueda pagarle. 
+Hemos clasificado esta Cartera en la clase de riesgo 3 en una escala de 7, en la que 3 significa un riesgo medio a bajo. Esta evaluación califica la 
+posibilidad de sufrir pérdidas en rentabilidades futuras como media a baja y la probabilidad de que una mala coyuntura de mercado influya en la capacidad 
+de la Cartera de pagarle como improbable. 
+En el Folleto se recogen otros riesgos significativos relevantes para la Cartera que no están incluidos en el indicador resumido de riesgo. 
+Este producto no incluye protección alguna contra la evolución futura del mercado, por lo que podría perder parte o la totalidad de su inversión. 
+Si el Fondo no puede pagarle lo que se debe, podría perder la totalidad de su inversión. 
+Escenarios de rentabilidad 
+Lo que obtenga de este producto dependerá de la evolución futura del mercado, la cual es incierta y no puede predecirse con exactitud. 
+Los escenarios desfavorable, moderado y favorable que se muestran son ilustraciones basadas en la rentabilidad más baja, media y más alta del producto 
+durante los últimos 10 años. Los mercados podrían evolucionar de manera muy distinta en el futuro. 
+  
+Periodo de mantenimiento recomendado: 
+5 años 
+ 
+Ejemplo de inversión: 
+10 000 EUR 
+ 
+ 
+En caso de salida 
+después de 1 año 
+En caso de salida 
+después de 5 años 
+Escenarios 
+ 
+ 
+ 
+Mínimo 
+No hay un rendimiento mínimo garantizado en caso de salida antes de 5 años. Podría perder parte o la 
+totalidad de su inversión. 
+Tensión 
+Lo que podría recibir tras deducir los costes 
+6 910 EUR 
+6 810 EUR 
+Rendimiento medio cada año 
+-30.90% 
+-7.40% 
+Desfavorable 
+Lo que podría recibir tras deducir los costes 
+8 410 EUR 
+8 840 EUR 
+Rendimiento medio cada año 
+-15.90% 
+-2.44% 
+Moderado 
+Lo que podría recibir tras deducir los costes 
+9 730 EUR 
+10 250 EUR 
+Rendimiento medio cada año 
+-2.70% 
+0.50% 
+Favorable 
+Lo que podría recibir tras deducir los costes 
+10 870 EUR 
+11 460 EUR 
+Rendimiento medio cada año 
+8.70% 
+2.76% 
+ 
+Las cifras presentadas incluyen todos los costes del producto propiamente dicho, pero es posible que no incluyan todos los costes que usted deba pagar a 
+su asesor o distribuidor. Las cifras no tienen en cuenta su situación fiscal personal, que también puede influir en la cantidad que reciba. 
+El escenario de tensión muestra lo que usted podría recibir en circunstancias extremas de los mercados. 
+Escenario desfavorable: Este tipo de escenario se produjo para una inversión entre 2017 y 2022. 
+Escenario moderado: Este tipo de escenario se produjo para una inversión entre 2019 y 2024. 
+Escenario favorable: Este tipo de escenario se produjo para una inversión entre 2020 y 2025. 
+¿Qué pasa si Goldman Sachs Asset Management B.V. no puede pagar? 
+Usted no sufrirá ninguna pérdida financiera debido al incumplimiento del Productor. 
+La custodia de los activos de la Cartera y del Fondo corre a cargo de su Depositario. En caso de insolvencia del Productor, los activos del Fondo 
+custodiados por el Depositario no se verán afectados. No obstante, en caso de insolvencia del Depositario, o de un tercero que actúe en su nombre, el 
+Fondo podría sufrir pérdidas financieras. No obstante, este riesgo se ve mitigado en cierta medida por el hecho de que el Depositario está obligado por ley 
+y por el reglamento vigente a segregar sus propios activos de los activos del Fondo. El Depositario también será responsable ante el Fondo de cualquier 
+pérdida derivada, entre otros supuestos, de actos de negligencia, fraude o incumplimiento intencionado de sus obligaciones (con sujeción a ciertas 
+limitaciones establecidas en el contrato celebrado con el Depositario). 
+Las pérdidas no están cubiertas por ningún sistema de indemnización o garantía del inversor. 
+¿Cuáles son los costes? 
+La persona que le asesore sobre este producto o se lo venda puede cobrarle otros costes. En tal caso, esa persona le facilitará información acerca de 
+estos costes y de la incidencia que tienen en su inversión. Si la Cartera forma parte de otro producto, por ejemplo un seguro vinculado a fondos de 
+inversión, puede haber costes adicionales en relación con dicho producto. 
+Costes a lo largo del tiempo 
+Los cuadros muestran los importes que se detraen de su inversión para cubrir diferentes tipos de costes. Estos importes dependen de cuánto invierte y de 
+cuánto tiempo mantiene el producto. Los importes indicados aquí ilustran un ejemplo de inversión de una determinada cuantía durante diferentes períodos 
+de inversión posibles. 
+Hemos partido de los siguientes supuestos: 
+- El primer año recuperaría usted el importe invertido (rendimiento anual del 0 %). En relación con los demás períodos de mantenimiento, hemos supuesto 
+que el producto evoluciona tal como muestra el escenario moderado. 
+- Se invierten 10 000 EUR. 
+ 
+En caso de salida después de 1 año 
+En caso de salida después de 5 años 
+Costes totales 
+726 EUR 
+1 567 EUR 
+Incidencia anual de los costes (*) 
+7.3% 
+2.9% cada año 
+ 
+(*) Refleja la medida en que los costes reducen su rendimiento cada año a lo largo del período de mantenimiento. Por ejemplo, muestra que, en caso de 
+salida al término del período de mantenimiento recomendado, el rendimiento medio que se prevé que obtendrá cada año será del 3.4% antes de deducir 
+los costes y del 0.5% después de deducir los costes. 
+Estas cifras incluyen la comisión de distribución máxima que puede cobrar la persona que le vende el producto. Esta persona le informará de la comisión 
+de distribución real. 
+! 
+
+ 
+ 
+Goldman Sachs Absolute Return Tracker Portfolio 
+Goldman Sachs Asset Management 
+3 
+Composición de los costes 
+Costes únicos de entrada o salida 
+En caso de salida 
+después de 1 año 
+Costes de entrada 
+5.50 % del importe que pagará usted al realizar esta inversión. 
+Hasta 550 EUR 
+Costes de salida 
+No cobramos una comisión de salida por este producto, pero es posible que la persona que se 
+lo venda sí lo haga. 
+0 EUR 
+Costes corrientes detraídos cada año 
+Comisiones de gestión y 
+otros costes 
+administrativos o de 
+funcionamiento 
+1.53 % del valor de su inversión al año. Este porcentaje se basa en los costes reales del último 
+año. 
+153 EUR 
+Costes de operación 
+0.22 % del valor de su inversión al año. Se trata de una estimación de los costes en que 
+incurrimos al comprar y vender las inversiones subyacentes del producto. El importe real 
+variará en función de la cantidad que compremos y vendamos. 
+22 EUR 
+Costes accesorios detraídos en condiciones específicas 
+Comisiones de rendimiento 
+(y participaciones en 
+cuenta) 
+No se aplica ninguna comisión de rendimiento a este producto. 
+0 EUR 
+ 
+¿Cuánto tiempo debo mantener la inversión, y puedo retirar dinero de manera anticipada? 
+Período de mantenimiento recomendado: 5 años. 
+El Productor considera que se trata de un período de tiempo adecuado para que la Cartera pueda implementar su estrategia y, eventualmente, generar 
+rendimientos. No se trata de una recomendación para que reembolse su inversión una vez transcurrido dicho plazo y, aunque los períodos de 
+mantenimiento más largos permiten a la Cartera disponer de más tiempo para implementar su estrategia, el resultado de cualquier período de 
+mantenimiento con respecto Al rendimiento de la inversión no está garantizado. 
+Los inversores podrán reembolsar sus acciones en cualquier Día hábil (tal como se define en el Folleto) mediante notificación previa por escrito, de 
+acuerdo con lo indicado en el Folleto. 
+El reembolso de sus acciones de la Cartera antes de que finalice el período de mantenimiento recomendado puede ir en detrimento de su rendimiento y 
+aumentar los riesgos asociados a su inversión, lo que puede dar lugar a una pérdida. 
+¿Cómo puedo reclamar? 
+Si decide invertir en la Cartera y posteriormente tiene alguna reclamación relacionada con la misma o con la conducta del Productor o de cualquier 
+distribuidor de la Cartera, deberá ponerse en contacto en primera instancia con el Equipo de Atención al Accionista de Goldman Sachs Asset Management 
+en el teléfono +44 207 774 6366; por correo electrónico en la dirección ESS@gs.com; por carta, dirigida a Goldman Sachs Asset Management B.V., 
+Prinses Beatrixlaan 35, 2595 AK, La Haya, Países Bajos, o consultando el siguiente sitio web https://www.gsam.com/content/gsam/uk/en/advisers/about-
+gsam/contact-us.html. Si su reclamación no se resuelve satisfactoriamente, también puede presentar una queja directamente al Financial Ombudsman 
+Service (www.financial-ombudsman.org.uk). 
+Otros datos de interés 
+El presente documento puede no contener toda la información necesaria para tomar una decisión sobre la conveniencia de invertir en la Cartera. 
+Asimismo, le recomendamos que consulte el Folleto, el documento constitutivo del Fondo y el último informe anual (en caso de estar disponible). Esta 
+información le será facilitada gratuitamente por la parte que le proporcione este documento de datos fundamentales previa solicitud por escrito. 
+Para obtener más información sobre la rentabilidad histórica de los últimos 10 años y los escenarios de rentabilidad anteriores de la clase de acciones, 
+consulte: 
+https://www.gsam.com/content/gsam/global/en/kiid.html. Se incluyen cálculos de escenarios de rentabilidad que se actualizan mensualmente. 
+ 
+ 
+ 

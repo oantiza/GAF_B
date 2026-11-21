@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/quality-rollup.v2.schema.json",
+  "title": "quality_rollup/{as_of} — v2",
+  "description": "La foto agregada de la calidad de la base en una fecha: SOLO CONTADORES, ninguna lista. Es la mitad que queda de meta/fund_data_quality cuando el detalle baja a quality/latest de cada instrumento. Tiene tamano constante: no crece con el universo, y ese es todo el punto. Un documento por fecha, y la serie de documentos crece con el tiempo, que es crecimiento de coleccion y no de documento.",
+  "x-collection": "quality_rollup/{as_of}",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["as_of", "computed_at", "instruments_total", "by_status", "by_absence_reason"],
+  "properties": {
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "computed_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "instruments_total": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "by_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["COMPLETE", "PARTIAL", "MINIMAL", "EMPTY"],
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "COMPLETE": { "$ref": "#/$defs/contador" },
+        "PARTIAL": { "$ref": "#/$defs/contador" },
+        "MINIMAL": { "$ref": "#/$defs/contador" },
+        "EMPTY": { "$ref": "#/$defs/contador" }
+      }
+    },
+    "by_absence_reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["NOT_APPLICABLE", "NOT_PROVIDED", "NOT_YET_FETCHED"],
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "NOT_APPLICABLE": { "$ref": "#/$defs/contador" },
+        "NOT_PROVIDED": { "$ref": "#/$defs/contador" },
+        "NOT_YET_FETCHED": { "$ref": "#/$defs/contador" }
+      }
+    },
+    "worst_coverage_paths": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "Las rutas con peor cobertura, con tope. Es informacion de operacion, no la base: por eso 50 y no 'todas'.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "coverage", "applicable"],
+        "x-layer": "computed",
+        "x-owner": "batch",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          },
+          "coverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Sobre la poblacion a la que la ruta APLICA, no sobre el total de la base.",
+            "x-unit": "fraction",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          },
+          "applicable": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000,
+            "x-unit": "count",
+            "x-layer": "computed",
+            "x-owner": "batch"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "contador": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000,
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    }
+  }
+}

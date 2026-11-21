@@ -1,0 +1,95 @@
+{
+ "effectiveDate": "2026-11-05",
+ "numberOfHoldings": 49,
+ "holdings": [
+  {
+   "name": "PFIZER INC USD0.05",
+   "isin": "US7170811035",
+   "weight": 3.64,
+   "currency": "USD"
+  },
+  {
+   "name": "VERIZON COMMUNICATIONS INC USD0.1",
+   "isin": "US92343V1044",
+   "weight": 3.11,
+   "currency": "USD"
+  },
+  {
+   "name": "GENERAL MILLS INC USD0.1",
+   "isin": "US3703341046",
+   "weight": 2.99,
+   "currency": "USD"
+  },
+  {
+   "name": "CROWN CASTLE INC USD 0.01",
+   "isin": "US22822V1017",
+   "weight": 2.97,
+   "currency": "USD"
+  },
+  {
+   "name": "KRAFT HEINZ CO/THE USD0.01",
+   "isin": "US5007541064",
+   "weight": 2.95,
+   "currency": "USD"
+  },
+  {
+   "name": "VICI PROPERTIES INC USD0.01",
+   "isin": "US9256521090",
+   "weight": 2.87,
+   "currency": "USD"
+  },
+  {
+   "name": "ALTRIA GROUP INC USD0.333",
+   "isin": "US02209S1033",
+   "weight": 2.87,
+   "currency": "USD"
+  },
+  {
+   "name": "COMCAST CORP-CLASS A USD0.01",
+   "isin": "US20030N1019",
+   "weight": 2.57,
+   "currency": "USD"
+  },
+  {
+   "name": "CLOROX COMPANY USD1",
+   "isin": "US1890541097",
+   "weight": 2.47,
+   "currency": "USD"
+  },
+  {
+   "name": "PRUDENTIAL FINANCIAL INC USD0.01",
+   "isin": "US7443201022",
+   "weight": 2.37,
+   "currency": "USD"
+  },
+  {
+   "name": "HEALTHPEAK PROPERTIES INC USD1",
+   "isin": "US42250P1030",
+   "weight": 2.33,
+   "currency": "USD"
+  },
+  {
+   "name": "AT&amp;T INC USD1",
+   "isin": "US00206R1023",
+   "weight": 2.29,
+   "currency": "USD"
+  },
+  {
+   "name": "AMERICAN TOWER CORP USD0.01",
+   "isin": "US03027X1000",
+   "weight": 2.25,
+   "currency": "USD"
+  },
+  {
+   "name": "EXTRA SPACE STORAGE INC USD0.01",
+   "isin": "US30225T1025",
+   "weight": 2.23,
+   "currency": "USD"
+  },
+  {
+   "name": "Cash and/or Derivatives",
+   "weight": 0.24,
+   "currency": "USD"
+  }
+ ]
+}

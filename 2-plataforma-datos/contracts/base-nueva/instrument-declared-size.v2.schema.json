@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-size.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/size — v2",
+  "description": "El patrimonio del fondo. Existe como bloque propio por una razon concreta: hoy este dato vive en performance.valuation, un bloque de la app declarado como excepcion de dueno en asset.v1.3 (x-owner-exceptions), y esa excepcion existe solo porque el campo estaba en el sitio equivocado. Con el patrimonio aqui, con dueno platform, la excepcion desaparece. Una excepcion de dueno casi siempre significa que el campo esta mal colocado.",
+  "x-collection": "instruments/{instrument_id}/declared/size",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "aum", "currency"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "aum": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000000000,
+      "description": "Patrimonio en unidades de la divisa declarada, no en millones. El canonico lo trae como valoracion.patrimonio_fondo_meur, en millones y con la divisa en el nombre: aqui el importe es un importe y la divisa es un campo.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    }
+  }
+}

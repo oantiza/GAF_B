@@ -1,0 +1,139 @@
+{
+ "effectiveDate": "2026-11-06",
+ "lastModified": "2026-10-12T20:55:04Z",
+ "primaryShareClassIndicator": true,
+ "shareClassCurrency": "USD",
+ "shareClassFullName": "Invesco Global Active ESG Equity UCITS ETF Acc",
+ "shareClassStatus": "open",
+ "shareClassSuffix": "Acc",
+ "shareClassInceptionDate": "2019-07-30",
+ "hedgedIndicator": false,
+ "distributionFrequency": "Accumulating",
+ "sippEligible": "Yes",
+ "ucitsCompliant": "Yes",
+ "isaEligible": "Yes",
+ "peaEligible": "No",
+ "shareClassReportingStatusUk": "Yes",
+ "audienceType": [
+  "Individual Investor",
+  "Financial Professional",
+  "Institutional",
+  "Discretionary"
+ ],
+ "passports": [
+  "AT",
+  "BE.PP",
+  "CL (Financial Professional and Institutional)",
+  "HR",
+  "CZ",
+  "DK",
+  "FI",
+  "FR",
+  "DE",
+  "HU",
+  "IE",
+  "IL (Financial Professional and Institutional)",
+  "IT",
+  "LU",
+  "NL",
+  "NO",
+  "PL",
+  "PT",
+  "SG",
+  "SK",
+  "ES",
+  "SE",
+  "CH",
+  "GB"
+ ],
+ "account": {
+  "accountName": "Invesco Global Active ESG Equity UCITS ETF",
+  "currency": "USD",
+  "domicileCountry": "IE",
+  "financialYearEnd": "--12-31",
+  "legalEntityIdentifier": "5493003S3W62ZS1AXM25",
+  "accountStatus": "open",
+  "securityLendingParticipationFlag": true,
+  "accountShortName": "Global Active ESG Equity UCITS ETF",
+  "investmentVehicleType": "ETF",
+  "inceptionDate": "2019-07-30",
+  "fundFocus": "Large cap",
+  "region": "Global",
+  "strategy": "ESG",
+  "legalForm": "Yes",
+  "investability": [
+   "ISA",
+   "SIPP"
+  ],
+  "productType": "ETF",
+  "sfdrClassification": [
+   "article6",
+   "article8"
+  ]
+ },
+ "investmentStrategy": {
+  "assetType": "Equity",
+  "managementStyle": "ACTIVE"
+ },
+ "aliases": {
+  "isin": "IE00BJQRDN15",
+  "wkn": "A2PHJT",
+  "valor": "47526218",
+  "sedol": "BK8XFJ4",
+  "ticker": "IQSA",
+  "bloombergTicker": "IQSA LN",
+  "bloombergTickerInav": "IQSAIN"
+ },
+ "shareclassCharges": {
+  "exitCharge": "0.0002",
+  "fundManagementCharge": "0.3%",
+  "custodyCharge": "$850",
+  "createCharge": "0.0005"
+ },
+ "shareclassListings": [
+  {
+   "listingExchangeCode": "XLON",
+   "listingExchangeName": "London Stock Exchange",
+   "listingCurrency": "USD",
+   "listingRic": "IQSA.L",
+   "listingDate": "2019-08-05",
+   "listingPrimaryIndicator": true,
+   "listingSedol": "BK8XFJ4",
+   "listingBloombergTicker": "IQSA LN",
+   "listingIsin": "IE00BJQRDN15",
+   "listingValor": "47526218",
+   "listingWKN": "A2PHJT",
+   "listingTicker": "IQSA",
+   "listingBloombergTickerInav": "IQSAIN",
+   "listingReutersInav": "IQSAUSiv.P",
+   "listingMarkitTickerInav": "IQSAUSiv.P",
+   "listingMarkitTickerBidOfferPrice": "IQSA.L"
+  }
+ ],
+ "benchmarkRelationships": [
+  {
+   "benchmarkFullName": "MSCI World Total Return (Net) Index",
+   "baseCurrency": "USD",
+   "indexProvider": "",
+   "indexBloombergTicker": "NDDUWI",
+   "indexRic": ".dMIWO00000NUS"
+  }
+ ],
+ "links": {
+  "self": {
+   "href": "/*/en_GB/shareclasses/IE00BJQRDN15?idType=isin"
+  },
+  "nav": {
+   "href": "/*/en_GB/shareclasses/IE00BJQRDN15/nav?idType=isin"
+  },
+  "esg": {
+   "href": "/*/en_GB/shareclasses/IE00BJQRDN15/esg?idType=isin"
+  },
+  "distribution": {
+   "href": "/*/en_GB/shareclasses/IE00BJQRDN15/distribution?idType=isin"
+  },
+  "marketdata": {
+   "href": "/*/en_GB/shareclasses/IE00BJQRDN15/marketdata?idType=isin"
+  }
+ }
+}

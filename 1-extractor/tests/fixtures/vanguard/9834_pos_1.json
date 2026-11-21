@@ -1,0 +1,168 @@
+{
+"data": {
+"borHoldings": [
+{
+"holdings": {
+"items": [
+{
+"issuerName": "NVIDIA Corp",
+"securityLongDescription": "NVIDIA Corp",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 8.32215,
+"sedol1": "2379504",
+"ticker": "NVDA",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Apple Inc",
+"securityLongDescription": "Apple Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 7.31832,
+"sedol1": "2046251",
+"ticker": "AAPL",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Microsoft Corp",
+"securityLongDescription": "Microsoft Corp",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 5.73486,
+"sedol1": "2588173",
+"ticker": "MSFT",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Amazon.com Inc",
+"securityLongDescription": "Amazon.com Inc",
+"gicsSectorDescription": "Consumer Discretionary",
+"marketValuePercentage": 3.68251,
+"sedol1": "2000019",
+"ticker": "AMZN",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Alphabet Inc",
+"securityLongDescription": "Alphabet Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 3.03915,
+"sedol1": "BYVY8G0",
+"ticker": "GOOGL",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Broadcom Inc",
+"securityLongDescription": "Broadcom Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 2.51586,
+"sedol1": "BDZ78H9",
+"ticker": "AVGO",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Alphabet Inc",
+"securityLongDescription": "Alphabet Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 2.43987,
+"sedol1": "BYY88Y7",
+"ticker": "GOOG",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Meta Platforms Inc",
+"securityLongDescription": "Meta Platforms Inc",
+"gicsSectorDescription": "Communication Services",
+"marketValuePercentage": 2.4079,
+"sedol1": "B7TL820",
+"ticker": "META",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Micron Technology Inc",
+"securityLongDescription": "Micron Technology Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 1.81129,
+"sedol1": "2588184",
+"ticker": "MU",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Tesla Inc",
+"securityLongDescription": "Tesla Inc",
+"gicsSectorDescription": "Consumer Discretionary",
+"marketValuePercentage": 1.5057,
+"sedol1": "B616C79",
+"ticker": "TSLA",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Advanced Micro Devices Inc",
+"securityLongDescription": "Advanced Micro Devices Inc",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 1.50381,
+"sedol1": "2007849",
+"ticker": "AMD",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": "Eli Lilly & Co",
+"securityLongDescription": "Eli Lilly & Co",
+"gicsSectorDescription": "Health Care",
+"marketValuePercentage": 1.39409,
+"sedol1": "2516152",
+"ticker": "LLY",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": null,
+"securityLongDescription": "US Dollar",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.28825,
+"sedol1": null,
+"ticker": "USD",
+"securityType": "CRNY",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "US"
+},
+{
+"issuerName": null,
+"securityLongDescription": "OCK15AMI7N6EOAS4",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.28819,
+"sedol1": null,
+"ticker": null,
+"securityType": "CT.SPOT",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": null
+}
+],
+"totalHoldings": 527,
+"lastItemKey": null
+}
+}
+]
+}
+}

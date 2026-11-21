@@ -1,0 +1,24 @@
+/* ============================================================================
+   Comparador: pestañas «Propuestas» y «Patrimonial» — rediseño «Informe vivo» (14-11-2026)
+
+   Casi todo lo pintan las piezas (`Panel`, `Campo`, `Cifra`, `Respuesta`, `Aviso`, `Ausencia`) y las reglas `.pcmp-*`
+   y `.wealth-*` que ya había en `modules.css` y `components.css`. Aquí solo va lo que el rediseño añade. Solo tokens.
+
+   La cargan `PortfolioComparator.tsx` y `WealthComparator.tsx`.
+   ========================================================================== */
+
+/* Un grupo de casillas con su rótulo («Fiscalidad»): el `fieldset` sin la caja del navegador, y el rótulo con el
+   mismo hueco que el de un `Campo`. */
+.comparador-casillas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.comparador-casillas > legend {
+  padding: 0;
+}

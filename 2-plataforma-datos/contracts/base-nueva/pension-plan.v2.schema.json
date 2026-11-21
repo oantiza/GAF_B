@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/pension-plan.v2.schema.json",
+  "title": "pension_plans/{plan_id} — v2",
+  "description": "Un plan de pensiones o una EPSV del catalogo de Jubilacion (decision D-11, Oscar, 13-11-2026). Es un catalogo APARTE de `instruments`, y no por comodidad: un plan o una EPSV forman parte del patrimonio de un cliente pero no de su cartera, porque no se gestionan con ella por fiscalidad. Por eso no tienen ISIN, no entran en el buscador de activos ni en el optimizador, y ninguna cartera puede apuntar aqui. Sirve para una cosa: ver la ficha de un plan y ponerla junto a la de otro.\n\nAqui no hay ninguna cifra nuestra. Todo lo declara el proveedor (Morningstar, por el buscador de planes que el banco ensena) y se guarda como lo da, con un unico cambio: la escala. El proveedor escribe 3,03 para un 3,03 % y esta base escribe 0,0303, como en todo lo demas; dividir entre cien no es un calculo, es la unidad. No hay metodo propio, ni metricas nuestras, ni orden por atractivo.\n\nLo unico que se decide aqui es `product_type`, que es lo que Oscar pidio marcar por encima de todo, porque un plan de pensiones y una EPSV tributan distinto. Se decide con dos senales independientes que tienen que coincidir: un plan de pensiones esta registrado en la DGSFP y trae su codigo; una EPSV es de ley vasca, no lo tiene, y lleva EPSV en el nombre. Si las dos se contradicen, el producto no se escribe y el extractor lo nombra: no se adivina. El 13-11-2026 coincidian en los 220.\n\nNo lleva el percentil ni la rentabilidad frente a la categoria: la decision D3 los dejo fuera para los fondos y aqui se sigue el mismo limite.\n\nLos datos son de Morningstar y no se pueden redistribuir: uso interno, para el prototipo. La serie mensual, que es lo que pesa, va aparte en `series/monthly` para que listar los planes no la arrastre.",
+  "x-collection": "pension_plans/{plan_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plan_id", "schema_version", "updated_at", "source", "checked_at", "product_type", "identity", "return_basis"],
+  "properties": {
+    "plan_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{10}$",
+      "description": "El identificador del producto en el proveedor (su SecId). Es la clave porque es lo unico que tienen todos: una EPSV no tiene codigo de la DGSFP y ninguno tiene ISIN.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "base-nueva.pension-plan.v2",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Cuando contesto el proveedor la lista de la que sale este documento. No es la hora de la escritura: asi, volver a escribir el mismo fichero no cambia nada.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["MORNINGSTAR"],
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "El dia en que se pregunto al proveedor. La volatilidad y los ratios no traen fecha propia en su respuesta, asi que de ellos solo se puede decir esto: que son los que el proveedor daba ese dia. El valor de la participacion trae la suya en `nav.date`; las rentabilidades, en `returns_as_of`; las estrellas, en `star_rating_as_of`.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": ["PENSION_PLAN", "EPSV"],
+      "description": "Plan de pensiones o EPSV. Lo decide el extractor con dos senales que tienen que coincidir (ver la descripcion del contrato), y por eso su capa es `computed` y no `declared`: el proveedor no lo dice en un campo.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "platform"
+    },
+    "modality": {
+      "type": "string",
+      "enum": ["SIMPLIFIED_EMPLOYMENT"],
+      "description": "Solo en los planes de pensiones de empleo simplificados (PPES en el nombre): siguen siendo planes de pensiones, de otra modalidad. Si falta, no lo es.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "dgsfp_code": {
+      "type": "string",
+      "pattern": "^N[0-9]{4}$",
+      "description": "El codigo del plan en el registro de la DGSFP. Lo tienen todos los planes de pensiones y ninguna EPSV, que no se registra alli.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "legal_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "manager_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "La gestora, como la escribe el proveedor. Es texto y no un enlace a `issuers`: casar nombres de gestoras con entidades es una decision humana que aqui no hace falta.",
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "provider_category": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "La categoria en la que el proveedor clasifica el producto. Es suya, no nuestra.",
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "star_rating": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Las estrellas del proveedor, de 1 a 5. Un producto sin historia suficiente no tiene.",
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "star_rating_as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "De cuando son las estrellas. Solo va con ellas.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "inception_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "aum": {
+      "type": "number",
+      "minimum": 0,
+      "description": "El patrimonio del plan, en su divisa.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "minimum_investment": {
+      "type": "number",
+      "minimum": 0,
+      "description": "La aportacion minima, como la da el banco en su buscador.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "nav": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "date"],
+      "description": "El ultimo valor de la participacion, con su fecha. Van juntos o no van: un valor sin fecha no dice de cuando es.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "x-unit": "currency_amount",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        }
+      }
+    },
+    "return_basis": {
+      "type": "string",
+      "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+      "description": "Siempre TOTAL_RETURN, y no es una suposicion sobre el dato sino una propiedad del producto: un plan de pensiones o una EPSV no reparte nada, todo lo que gana queda en el valor de la participacion, asi que la rentabilidad sobre ese valor es la total.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "trailing_return": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Rentabilidad del proveedor por ventana. A 1 y 6 meses y a 1 ano, acumulada; a 3, 5 y 10 anos, anualizada, que es como la da.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "1m": { "$ref": "#/$defs/rentabilidad" },
+        "6m": { "$ref": "#/$defs/rentabilidad" },
+        "1y": { "$ref": "#/$defs/rentabilidad" },
+        "3y": { "$ref": "#/$defs/rentabilidad" },
+        "5y": { "$ref": "#/$defs/rentabilidad" },
+        "10y": { "$ref": "#/$defs/rentabilidad" }
+      }
+    },
+    "ytd_return": { "$ref": "#/$defs/rentabilidad" },
+    "returns_as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "La fecha de las rentabilidades, segun el proveedor. No es la del ultimo valor de la participacion y no se supone que lo sea: medido el 13-11-2026, en 4 de los 220 iba por detras, y en uno, casi tres anos. Dos rentabilidades de fechas distintas no se comparan sin decirlo. La volatilidad y los ratios no traen fecha.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "volatility": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Volatilidad anualizada del proveedor (desviacion tipica).",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "1y": { "$ref": "#/$defs/volatilidad" },
+        "3y": { "$ref": "#/$defs/volatilidad" }
+      }
+    },
+    "sharpe": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "3y": { "$ref": "#/$defs/ratio" }
+      }
+    },
+    "provider_alpha": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "El alfa a 3 anos que calcula el proveedor, frente al indice que el elige para el producto. La respuesta no dice cual es, y por eso no se guarda: dos alfas de categorias distintas no se miden contra lo mismo.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "3y": { "$ref": "#/$defs/rentabilidad" }
+      }
+    },
+    "beta": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "La beta a 3 anos del proveedor, frente al mismo indice que su alfa.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "3y": { "$ref": "#/$defs/ratio" }
+      }
+    },
+    "r2": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "El R2 a 3 anos del proveedor, frente al mismo indice que su alfa. En fraccion: 0,88 es un 88 %.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "3y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "information_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "3y": { "$ref": "#/$defs/ratio" }
+      }
+    },
+    "management_fee": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "La comision de gestion anual, en fraccion, COMO LA PUBLICA EL BANCO en su buscador de planes: es la que sale en la ficha que el banco entrega, y por eso falta en los productos de los que el banco no la ha puesto (65 de 220 el 13-11-2026). El proveedor tiene la suya para los 220, y no se guarda: medido ese dia, en 41 de los 155 en que estan las dos no coinciden, y nada aqui dice cual vale. Tampoco se guardan sus gastos corrientes: en 22 de 132 eran menores que su propia comision de gestion, que es imposible, y su fecha llega a ser de 2021. La comision vigente es la del documento de datos fundamentales del plan.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "series": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first_date", "last_date", "daily_observations", "monthly_points"],
+      "description": "Lo que hay en `series/monthly`, para saber sin leerla si el producto tiene grafico y de que fechas. Si falta, el proveedor no dio serie.",
+      "x-layer": "metadata",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "first_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        },
+        "last_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        },
+        "daily_observations": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Cuantos puntos diarios dio el proveedor. No se guardan todos: se guarda el ultimo de cada mes.",
+          "x-unit": "count",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        },
+        "monthly_points": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500,
+          "x-unit": "count",
+          "x-layer": "metadata",
+          "x-owner": "platform"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "rentabilidad": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 5,
+      "description": "En FRACCION: 0,0303 es un 3,03 %. El rango [-5, 5] es el de toda la base: fuera de ahi es casi seguro un error de escala.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "volatilidad": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "ratio": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 20,
+      "x-unit": "ratio",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

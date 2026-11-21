@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="ancho" content="900">
+<title>Maqueta · Cabeceras de informe sin color sólido</title>
+<link rel="stylesheet" href="sistema.css">
+<style>
+  body { background: #e9e9e3; padding: 36px 53px 56px; }
+  .variante { margin-bottom: 56px; }
+  .variante h2 { font: 600 24px/1.2 var(--fuente-titulos); margin-bottom: 4px; }
+  .variante > p { font-size: var(--texto-md); color: var(--tinta-2); max-width: 46em; margin-bottom: var(--e-4); }
+  .rotulo { font: 600 var(--texto-sm) var(--fuente); color: var(--tinta-2); margin: var(--e-4) 0 6px; }
+
+  /* El recorte enseña la parte de arriba de una hoja A4 (794 px de ancho a 96 ppp). */
+  .recorte { width: 794px; height: 322px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14); position: relative; }
+  .recorte::after { content: ""; position: absolute; inset: auto 0 0 0; height: 30px; background: linear-gradient(rgba(255, 255, 255, 0), #fff); }
+  .en-gris { display: grid; grid-template-columns: repeat(2, 389px); gap: 16px; }
+  .en-gris .recorte { width: 389px; height: 158px; }
+  .en-gris .hoja { transform: scale(0.49); transform-origin: top left; filter: grayscale(1) contrast(1.05); }
+
+  /* La hoja. El tema son dos colores: el del trazo y el de la tinta de color. Ningún relleno. */
+  .hoja { width: 794px; height: 1123px; background: #fff; color: var(--tinta); font-size: 12.5px; }
+  .hoja--cliente { --tema: #2a355a; --tema-claro: #9aa3c4; }
+  .hoja--interno { --tema: #8a5a00; --tema-claro: #d9bd7c; }
+
+  .asesor { display: flex; align-items: center; gap: 12px; line-height: 1.3; font-size: 12px; }
+  .asesor b { display: block; font-weight: 600; font-size: 14px; }
+  .logo { width: 40px; height: 40px; border: 1.5px solid var(--tinta); display: grid; place-items: center; font: 600 15px var(--fuente-titulos); flex: none; }
+  .documento { line-height: 1.35; text-align: right; color: var(--tinta-2); }
+  .documento b { display: block; font-weight: 600; font-size: 12.5px; color: var(--tinta); }
+  .documento small { font-size: 11px; }
+  .sello { display: inline-block; border: 1px solid var(--tema); color: var(--tema); font: 600 10px var(--fuente); letter-spacing: 0.08em; padding: 3px 7px; margin-left: 8px; vertical-align: 1px; }
+  .cab { margin: 0 56px; padding: 28px 0 14px; display: flex; justify-content: space-between; align-items: flex-end; }
+
+  /* A · Filete doble: una línea fina y otra gruesa, las dos en el color del tema */
+  .cab-a { border-bottom: 3px solid var(--tema); position: relative; }
+  .cab-a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; border-bottom: 1px solid var(--tema); }
+  .hoja--interno .cab-a { border-bottom-style: double; border-bottom-width: 5px; }
+  .hoja--interno .cab-a::after { border-bottom-style: dashed; bottom: -9px; }
+
+  /* B · Título en color: filete gris fino; el color lo llevan el título de la hoja y el sello */
+  .cab-b { border-bottom: 1px solid var(--filete-fuerte); }
+  .con-titulo-en-color .titulo { color: var(--tema); }
+
+  /* C · Rayado fino: una franja de líneas, como el papel de un título; horizontal para el cliente, en diagonal para lo interno */
+  .cab-c { border-bottom: 0; padding-bottom: 12px; }
+  .rayado { margin: 0 56px; height: 16px; background: repeating-linear-gradient(0deg, var(--tema) 0 1px, transparent 1px 4px); }
+  .hoja--interno .rayado { background: repeating-linear-gradient(135deg, var(--tema) 0 1px, transparent 1px 5px); border-top: 1px solid var(--tema); border-bottom: 1px solid var(--tema); }
+
+  /* D · Degradado: un filete que se apaga hacia la derecha */
+  .cab-d { border-bottom: 0; padding-bottom: 12px; }
+  .apagado { margin: 0 56px; height: 4px; background: linear-gradient(90deg, var(--tema) 0%, var(--tema-claro) 55%, rgba(255, 255, 255, 0) 100%); }
+  .hoja--interno .apagado { height: 4px; background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, var(--tema-claro) 45%, var(--tema) 100%); }
+
+  .cuerpo { padding: 30px 56px 0; }
+  .ceja { font-size: 11.5px; color: var(--tinta-3); }
+  .titulo { font: 400 30px/1.15 var(--fuente-titulos); letter-spacing: -0.006em; margin: 2px 0 18px; }
+  /* Las cifras destacadas, también sin relleno: un filete del color del tema arriba y uno gris abajo. */
+  .cifras { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; border-top: 2px solid var(--tema); border-bottom: 1px solid var(--filete-fuerte); padding: 14px 0; }
+  .cifras > div { padding: 0 18px; border-left: 1px solid var(--filete); }
+  .cifras > div:first-child { border-left: 0; padding-left: 0; }
+  .cifras p:nth-child(1) { font-size: 11px; color: var(--tinta-2); }
+  .cifras p:nth-child(2) { font: 600 21px/1.25 var(--fuente); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; }
+  .cifras > div:first-child p:nth-child(2) { font-size: 28px; letter-spacing: -0.02em; }
+  .cifras p:nth-child(3) { font-size: 10.5px; color: var(--tinta-3); }
+</style>
+</head>
+<body>
+<div id="variantes"></div>
+
+<script>
+  const ASESOR = '<span class="asesor"><span class="logo">RA</span><span><b>Marta Ruiz Alonso</b>Asesora financiera · Ruiz &amp; Asociados</span></span>';
+  const TEXTOS = {
+    cliente: { destinatario: "Preparado para Familia García", sello: "CONFIDENCIAL", titulo: "Informe de su cartera" },
+    interno: { destinatario: "No entregar al cliente", sello: "USO INTERNO", titulo: "Informe de la cartera" }
+  };
+  const documento = (t) => `<span class="documento"><b>Informe de cartera<span class="sello">${t.sello}</span></b><small>${t.destinatario}</small></span>`;
+  const VARIANTES = [
+    {
+      letra: "A", nombre: "Filete doble", clase: "",
+      que: "El membrete del asesor sobre blanco y, debajo, dos filetes del color del informe, uno grueso y uno fino: índigo para el cliente. En el interno son ocre y el fino va a trazos, para que se distinga también sin color.",
+      cabecera: (t) => `<header class="cab cab-a">${ASESOR}${documento(t)}</header>`
+    },
+    {
+      letra: "B", nombre: "Título en color", clase: "con-titulo-en-color",
+      que: "La cabecera más callada: un filete gris fino. El color lo llevan el título de la hoja, el sello y el filete de las cifras. Impreso en gris, los dos informes se distinguen solo por el sello.",
+      cabecera: (t) => `<header class="cab cab-b">${ASESOR}${documento(t)}</header>`
+    },
+    {
+      letra: "C", nombre: "Rayado fino", clase: "",
+      que: "En vez de un relleno, una franja de líneas finas del color del informe, como el papel de un título: horizontales para el cliente, en diagonal para lo interno. Da color sin mancha y se distingue muy bien impreso en gris.",
+      cabecera: (t) => `<header class="cab cab-c">${ASESOR}${documento(t)}</header><div class="rayado"></div>`
+    },
+    {
+      letra: "D", nombre: "Filete degradado", clase: "",
+      que: "Un solo filete que nace en el color del informe y se apaga: hacia la derecha en el de cliente, hacia la izquierda en el interno. Es el más actual y el que menos se distingue impreso en gris.",
+      cabecera: (t) => `<header class="cab cab-d">${ASESOR}${documento(t)}</header><div class="apagado"></div>`
+    }
+  ];
+  const hoja = (variante, tema) => {
+    const t = TEXTOS[tema];
+    return `<article class="hoja hoja--${tema} ${variante.clase}">${variante.cabecera(t)}
+      <div class="cuerpo">
+        <p class="ceja">Familia García · del 31/12/2025 al 13/11/2026 · datos a 13/11/2026</p>
+        <h1 class="titulo">${t.titulo}</h1>
+        <div class="cifras">
+          <div><p>Patrimonio</p><p>201.298 €</p><p>a 13/11/2026</p></div>
+          <div><p>Resultado del periodo</p><p class="sube">+18.582 €</p><p>neto de comisiones</p></div>
+          <div><p>Rentabilidad</p><p class="sube">+10,39 %</p><p>su referencia, +13,88 %</p></div>
+          <div><p>Caída máxima</p><p>−2,66 %</p><p>recuperada en octubre</p></div>
+        </div>
+      </div></article>`;
+  };
+  document.getElementById("variantes").innerHTML = VARIANTES.map((variante) => `
+    <section class="variante">
+      <h2>${variante.letra} · ${variante.nombre}</h2>
+      <p>${variante.que}</p>
+      <p class="rotulo">Para el cliente</p>
+      <div class="recorte">${hoja(variante, "cliente")}</div>
+      <p class="rotulo">Interno del asesor</p>
+      <div class="recorte">${hoja(variante, "interno")}</div>
+      <p class="rotulo">Los dos, impresos en blanco y negro</p>
+      <div class="en-gris"><div class="recorte">${hoja(variante, "cliente")}</div><div class="recorte">${hoja(variante, "interno")}</div></div>
+    </section>`).join("");
+</script>
+</body>
+</html>

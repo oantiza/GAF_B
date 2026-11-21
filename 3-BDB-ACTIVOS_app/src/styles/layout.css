@@ -1,0 +1,1055 @@
+/* ============================================================================
+   OAA · Sistema de diseño — SHELL Y PATRÓN DE PÁGINA
+   Rail de navegación · barra superior · marco de página · retícula de contenido
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Esqueleto
+   ========================================================================== */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--lienzo);
+}
+
+.app-shell[data-rail="collapsed"] {
+  --rail-w: 56px;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+/* El marco de página vive en el contenedor, no en cada módulo:
+   cualquier página montada aquí hereda medida, respiración y ritmo vertical. */
+.app-content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--page-py) var(--page-px) var(--s-12);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content > * {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  min-width: 0;
+  animation: oaa-fade-up var(--dur-slow) var(--curva);
+}
+
+/* «Saltar al contenido» deja aquí el foco. Un anillo alrededor de la página entera no dice nada. */
+.app-content:focus-visible {
+  box-shadow: none;
+}
+
+/* El título al que llega el foco al navegar: el anillo abraza el texto, no todo el ancho. */
+.app-content h1[tabindex="-1"] {
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* La primera parada del tabulador: fuera de la vista hasta que la enfocan. */
+.salto-al-contenido {
+  position: fixed;
+  top: var(--s-2);
+  left: var(--s-2);
+  z-index: var(--z-pop);
+  padding: var(--s-3) var(--s-5);
+  background: var(--papel);
+  color: var(--marca-fuerte);
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.salto-al-contenido:focus {
+  transform: none;
+}
+
+/* ==========================================================================
+   2. Rail de navegación
+   ========================================================================== */
+
+/* Dirección A: el menú es marino, de arriba abajo de la ventana, y usa las tintas de tokens.css, que son las de
+   ese fondo. La barra superior va sobre el lienzo y se da las suyas, claras (sección 3). */
+.app-rail {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-rail);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--marco);
+  color: var(--rail-ink);
+  overflow: hidden;
+}
+
+/* --- Marca --- */
+
+.rail-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  height: var(--topbar-h);
+  padding: 0 var(--s-7);
+  border-bottom: 1px solid var(--rail-line);
+  flex: 0 0 auto;
+}
+
+/* El monograma: en serifa y con borde latón, sin relleno. */
+.rail-brand__mark {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--laton);
+  border-radius: 4px;
+  font-family: var(--fuente-serifa);
+  font-feature-settings: normal;
+  font-size: var(--texto-sm);
+  line-height: 18px;
+  font-weight: 600;
+  /* El tracking añade un hueco final: se compensa con text-indent para que
+     las tres letras queden centradas y ninguna se recorte. */
+  letter-spacing: 0.06em;
+  text-indent: 0.06em;
+  color: var(--rail-ink-marca);
+}
+
+.rail-brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.rail-brand__name {
+  font-family: var(--fuente-serifa);
+  font-feature-settings: normal;
+  font-size: var(--texto-lg);
+  line-height: 20px;
+  font-weight: var(--peso-titulo);
+  letter-spacing: 0;
+  color: var(--rail-ink-marca);
+}
+
+.rail-brand__sub {
+  font-size: var(--rail-texto-rotulo);
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rail-ink-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* En el menú compacto (224 px, por debajo de 1.240) el subtítulo de la casa, a 12 px, mide 134,5 px y su sitio, 132:
+   se cortaba con puntos suspensivos («PRIVATE BANKE…»). Con algo menos de espaciado entre letras mide 129 y cabe:
+   el subtítulo no se recorta (medido el 19-11-2026 en Chromium, con la escala de pantalla emulada de 1 a 2). */
+@media (max-width: 1239.98px) {
+  .rail-brand__sub {
+    letter-spacing: 0.13em;
+  }
+}
+
+
+
+/* --- Navegación --- */
+
+/* Las entradas van a sangre, de borde a borde del menú: lo activo lo marca el filete latón, no una pastilla. */
+.rail-nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 0 var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--rail-scroll) transparent;
+}
+
+.rail-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cada grupo es una lista con su nombre (MAR-23). */
+.rail-section__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.rail-section + .rail-section {
+  margin-top: 14px;
+}
+
+.rail-section--tail {
+  margin-top: auto;
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rail-line);
+}
+
+/* El título del grupo: versalitas pequeñas y apagadas, para que mande la entrada. */
+.rail-section__label {
+  padding: var(--s-2) var(--s-7);
+  font-size: var(--rail-texto-rotulo);
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rail-ink-label);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* El grupo en el que se está lleva su rótulo en latón claro. */
+.rail-section:has(.rail-link.active) > .rail-section__label {
+  color: var(--rail-marker);
+}
+
+.rail-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  width: 100%;
+  min-height: var(--control-sm);
+  padding: 0 var(--s-7);
+  font-size: var(--texto-md);
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--rail-ink);
+  text-align: left;
+  text-decoration: none;
+  transition: background var(--dur-rapida) var(--curva), color var(--dur-rapida) var(--curva);
+}
+
+.rail-link > svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--rail-ink-label);
+  transition: color var(--dur-rapida) var(--curva);
+}
+
+.rail-link > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* El nombre bajo el icono: solo en la barra de tablet. */
+.rail-link > .rail-link__corto {
+  display: none;
+}
+
+.rail-link:hover:not([aria-disabled="true"]) {
+  background: var(--rail-hover);
+  color: var(--rail-ink-active);
+}
+
+.rail-link:hover:not([aria-disabled="true"]) > svg {
+  color: var(--rail-ink);
+}
+
+/* La entrada activa: un fondo apenas más claro que el marino, la tinta blanca y seminegra, y el filete latón a la
+   izquierda. También con el puntero encima: con el dedo, el último sitio tocado se queda «bajo el cursor», y la
+   entrada activa perdía su fondo justo al llegar a ella. */
+.rail-link.active,
+.rail-link.active:hover:not([aria-disabled="true"]) {
+  background: var(--rail-active);
+  color: var(--rail-active-ink);
+  font-weight: 600;
+}
+
+/* El filete latón es un seudoelemento y no una sombra: el anillo de foco es un box-shadow, y lo pisaría. */
+.rail-link.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--laton);
+}
+
+.rail-link.active > svg,
+.rail-link.active:hover:not([aria-disabled="true"]) > svg {
+  color: var(--rail-marker);
+}
+
+/* Una entrada que aún no lleva a ningún sitio: enlace sin dirección. */
+.rail-link[aria-disabled="true"] {
+  color: var(--rail-ink);
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* A sangre no queda sitio para el anillo de fuera, que el menú recortaría: va por dentro, en la tinta clara. */
+.rail-link:focus-visible {
+  box-shadow: var(--focus-ring-dark-inset);
+}
+
+.rail-soon {
+  margin-left: auto;
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--rail-ink-label);
+}
+
+/* --- Pie del rail --- */
+
+.rail-foot {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--rail-line);
+  padding: var(--s-5) var(--s-5) var(--s-5) var(--s-7);
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+
+.rail-avatar {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--rail-avatar-line);
+  border-radius: var(--radius-round);
+  display: grid;
+  place-items: center;
+  background: var(--rail-active);
+  color: var(--rail-ink-marca);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+}
+
+.rail-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.rail-identity__name {
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--rail-ink-marca);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rail-identity__role {
+  font-size: var(--texto-xs);
+  color: var(--rail-ink-label);
+}
+
+.rail-collapse {
+  margin-left: auto;
+  width: var(--control-xs);
+  height: var(--control-xs);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radio-control);
+  color: var(--rail-ink-label);
+  flex: 0 0 auto;
+}
+
+.rail-collapse:hover {
+  background: var(--rail-hover);
+  color: var(--rail-ink-active);
+}
+
+.rail-collapse:focus-visible {
+  box-shadow: var(--focus-ring-dark);
+}
+
+/* --- Rail plegado --- */
+
+.app-shell[data-rail="collapsed"] .rail-brand {
+  padding: 0;
+  justify-content: center;
+}
+
+.app-shell[data-rail="collapsed"] .rail-brand__text,
+.app-shell[data-rail="collapsed"] .rail-section__label,
+.app-shell[data-rail="collapsed"] .rail-link > span,
+.app-shell[data-rail="collapsed"] .rail-soon,
+.app-shell[data-rail="collapsed"] .rail-identity {
+  display: none;
+}
+
+/* Plegado, la entrada activa también va a sangre, con el filete latón en el borde del menú. */
+.app-shell[data-rail="collapsed"] .rail-nav {
+  padding-inline: 0;
+  align-items: center;
+}
+
+.app-shell[data-rail="collapsed"] .rail-section {
+  width: 100%;
+}
+
+.app-shell[data-rail="collapsed"] .rail-section + .rail-section {
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rail-line);
+}
+
+.app-shell[data-rail="collapsed"] .rail-link {
+  justify-content: center;
+  padding: 0;
+  height: var(--s-9);
+}
+
+.app-shell[data-rail="collapsed"] .rail-foot {
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-inline: 0;
+}
+
+.app-shell[data-rail="collapsed"] .rail-collapse {
+  margin: 0;
+}
+
+/* ==========================================================================
+   3. Barra superior
+   ========================================================================== */
+
+/* La barra superior va sobre el lienzo: sus tintas son las claras, sobre los mismos nombres de token que el menú.
+   El recuadro de la propuesta y el interruptor son controles, y llevan su borde (3:1). */
+.app-topbar {
+  --rail-line: var(--filete-fuerte);
+  --rail-chip-line: var(--borde-control);
+  --rail-chip-bg: var(--papel);
+  --rail-chip-line-hover: var(--tinta-2);
+  --rail-chip-bg-hover: var(--papel);
+  --rail-switch-track: var(--borde-control);
+  --rail-ink: var(--tinta-2);
+  --rail-ink-active: var(--tinta);
+  --rail-ink-label: var(--tinta-3);
+  --rail-hover: var(--banda-fuerte);
+  --rail-marker: var(--marca);
+  --focus-ring-dark: var(--focus-ring);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  height: var(--topbar-h);
+  flex: 0 0 auto;
+  padding: 0 var(--page-px);
+  /* Sobre el lienzo, con un filete debajo. Opaca a propósito: lo que pasa por debajo al bajar no se transparenta. */
+  background: var(--lienzo);
+  color: var(--rail-ink);
+  border-bottom: 1px solid var(--filete);
+}
+
+
+
+
+/* Migas: sección › página. Orienta sin duplicar el H1. La miga es lo primero que cede, a cualquier ancho: ocupa lo
+   que deja la barra (base 0, el grupo de la derecha va primero) y es un contenedor, así que sabe cuánto le queda.
+   Sin sitio para la sección y unas seis letras de la pantalla, la sección deja de verse; después el nombre de la
+   pantalla cede con elipsis, y sin sitio para unas seis letras deja de verse también. Las dos se siguen leyendo, y
+   dónde se está ya lo dicen el título y la entrada marcada del menú (18-11-2026, dirección A). Por debajo de 1.000 px
+   la sección no sale nunca, y por debajo de 900 tampoco la miga. */
+.topbar-crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  flex: 1 1 0;
+  container-type: inline-size;
+  overflow: hidden;
+  font-size: var(--texto-xs);
+  color: var(--rail-ink);
+}
+
+.topbar-crumbs__paso {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  white-space: nowrap;
+}
+
+.topbar-crumbs__sep {
+  color: var(--rail-ink-label);
+}
+
+.topbar-crumbs__current {
+  min-width: 0;
+  color: var(--rail-ink-active);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Las dos medidas, en el ancho de la cifra de la letra de la miga: la sección más larga con sus barras («Activos /
+   Buscador /», en una ficha, mide 23,7) más el mínimo de la pantalla; y ese mínimo, unas seis letras con su elipsis. */
+@container (max-width: 32ch) {
+  .topbar-crumbs__paso {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@container (max-width: 8ch) {
+  .topbar-crumbs__current {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* El sitio que sobra lo toma la miga, que empuja el grupo a la derecha: el separador no crece, o le quitaría la mitad. */
+.topbar-spacer {
+  flex: none;
+}
+
+/* El grupo de la derecha no encoge mientras quepa: cede antes la miga. Si ni sin ella cabe, encoge dentro de la barra
+   y cede lo de dentro, por orden: el correo, el nombre de la propuesta y, lo último, el recuento. */
+.topbar-cluster {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  max-width: 100%;
+  flex: none;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: var(--s-8);
+  background: var(--rail-line);
+  flex: 0 0 auto;
+}
+
+/* Junto al chip: esta pestaña tiene su propia cartera (decisión 29). Se parte en dos líneas antes que
+   empujar a los demás: a 768 no hay sitio para más. */
+.topbar-pestana {
+  flex: 0 1 auto;
+  max-width: 24ch;
+  font-size: var(--texto-xs);
+  line-height: 1.25;
+  color: var(--rail-ink);
+}
+
+.topbar-pestana--aviso {
+  font-weight: 600;
+}
+
+/* La región está siempre montada para que su aviso se anuncie (MAR-24); vacía, no ocupa ni pinta nada. */
+.topbar-pestana:empty {
+  padding: 0;
+}
+
+/* Donde no cabe con el chip, cuelga de la barra: empujarlo cortaría los demás controles. */
+@media (max-width: 1099.98px) {
+  .topbar-pestana {
+    position: absolute;
+    top: 100%;
+    right: var(--page-px);
+    max-width: none;
+    padding: var(--s-1) var(--s-4) var(--s-2);
+    border: 1px solid var(--filete);
+    border-top: 0;
+    background: var(--lienzo);
+    border-radius: 0 0 var(--radio-control) var(--radio-control);
+  }
+}
+
+/* La propuesta en curso: borde fino y sin relleno llamativo. Habla de la propuesta que se diseña, no de la
+   cartera de un cliente (DIR-04). */
+.topbar-chip {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  height: var(--control-sm);
+  max-width: var(--topbar-chip-max);
+  padding: 0 var(--s-5);
+  overflow: hidden;
+  border: 1px solid var(--rail-chip-line);
+  border-radius: var(--radio-control);
+  background: var(--rail-chip-bg);
+  font-size: var(--texto-xs);
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.topbar-chip:hover {
+  border-color: var(--rail-chip-line-hover);
+  background: var(--rail-chip-bg-hover);
+  color: var(--rail-ink-active);
+}
+
+/* «Propuesta en curso» se dice solo al lector de pantalla: el recuadro ya se reconoce por lo que lleva, y el sitio es
+   para el nombre de la propuesta. Mismas propiedades que `.sr-only`. */
+.topbar-chip__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* «Propuesta en curso · nombre · 8 posiciones · 100,0 % · sin guardar»: el punto lo pone la hoja, y el lector lee
+   el nombre accesible del botón, que es la frase entera. */
+.topbar-chip > * + *::before {
+  content: "·";
+  margin-right: var(--s-3);
+  color: var(--rail-ink-label);
+  font-weight: 400;
+}
+
+/* Sin el rótulo a la vista, el nombre es lo primero: sin punto delante. */
+.topbar-chip__value::before {
+  content: none;
+}
+
+.topbar-chip__value {
+  min-width: 6ch;
+  font-weight: 600;
+  color: var(--rail-ink-active);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* «sin nombre» no es un nombre: se dice sin el peso de uno. */
+.topbar-chip__value--vacio {
+  font-weight: 400;
+  color: var(--rail-ink);
+}
+
+.topbar-chip__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--rail-ink);
+  font-weight: 500;
+}
+
+/* Cambios sin guardar: pide la atención del asesor, así que va en ocre, y siempre con su palabra. */
+.topbar-chip__estado {
+  color: var(--aviso);
+  font-weight: 500;
+  /* Es un estado, y un estado se lee entero siempre, a cualquier ancho (18-11-2026, dirección A): no cede. A 768 se
+     quedaba en «si…», y de 900 a 1.150, con el menú desplegado, en «sin gua» o en nada. Ceden antes la miga, el
+     correo, el nombre de la propuesta y el recuento. */
+  flex: none;
+}
+
+/* Interruptor de modo cliente */
+.topbar-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-4);
+  height: var(--control-sm);
+  padding: 0 var(--s-4) 0 var(--s-5);
+  border: 1px solid transparent;
+  border-radius: var(--radio-control);
+  background: transparent;
+  font-size: var(--texto-xs);
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.topbar-switch:hover {
+  color: var(--rail-ink-active);
+}
+
+.topbar-switch__track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--rail-switch-track);
+  transition: background var(--dur) var(--curva);
+  flex: 0 0 auto;
+}
+
+.topbar-switch__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--papel);
+  transition: transform var(--dur) var(--curva);
+}
+
+.topbar-switch.is-active {
+  color: var(--rail-ink-active);
+}
+
+.topbar-switch.is-active .topbar-switch__track {
+  background: var(--rail-marker);
+}
+
+.topbar-switch.is-active .topbar-switch__track::after {
+  transform: translateX(14px);
+}
+
+/* Cuenta */
+.topbar-account {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: var(--control-sm);
+  padding: 0 var(--s-4);
+  border-radius: var(--radio-control);
+  font-size: var(--texto-xs);
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.topbar-account:hover {
+  background: var(--rail-hover);
+  color: var(--rail-ink-active);
+}
+
+/* Con el grupo de la derecha justo de sitio, el correo cede antes que el nombre de la propuesta, y como él hasta 6ch:
+   el botón encoge (su factor es mucho mayor que el del recuadro) y el correo se recorta dentro. Con el aviso de
+   seguridad no: «Revisar seguridad» no se recorta. */
+.topbar-account:not(.topbar-account--aviso) {
+  flex-shrink: 100000;
+  min-width: calc(6ch + 2 * var(--s-4));
+}
+
+.topbar-account__email {
+  max-width: 220px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* «Cuenta»: donde el correo no cabe. */
+.topbar-account__corto {
+  display: none;
+}
+
+/* «Revisar seguridad»: en ocre, y solo cuando hay algo que decir. */
+.topbar-account__aviso {
+  color: var(--aviso);
+  font-weight: 500;
+}
+
+/* Los botones pequeños de la barra («Salir»), a la letra de los demás controles de la barra. */
+.app-topbar .ui-button--sm {
+  font-size: var(--texto-xs);
+}
+
+/* «Salir»: el botón discreto, en la tinta y el hover del marco. */
+.app-topbar .ui-button--quiet {
+  color: var(--rail-ink);
+}
+
+.app-topbar .ui-button--quiet:hover:not(:disabled) {
+  background: var(--rail-hover);
+  color: var(--rail-ink-active);
+}
+
+.app-topbar .ui-button--quiet:active:not(:disabled) {
+  background: var(--rail-chip-bg-hover);
+}
+
+
+
+/* ==========================================================================
+   5. Patrón de página
+   ========================================================================== */
+
+/* --- Cabecera de página --- */
+
+/* Metadatos bajo el título: divisa · nº posiciones · fecha de datos */
+
+/* --- Nota al pie de página: fuente, metodología, sello temporal --- */
+
+.page-footnote {
+  margin-top: var(--s-2);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--filete);
+  font-size: var(--texto-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--tinta-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+}
+
+/* ==========================================================================
+   6. Retícula de contenido — 12 columnas
+   Repartos permitidos: 12 · 8+4 · 6+6 · 4+4+4
+   ========================================================================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-6);
+  align-items: start;
+  min-width: 0;
+}
+.col-4 {
+  grid-column: span 4;
+  min-width: 0;
+}
+
+.col-6 {
+  grid-column: span 6;
+  min-width: 0;
+}
+
+.col-8 {
+  grid-column: span 8;
+  min-width: 0;
+}
+
+@media (max-width: 1179.98px) {
+  .col-4,
+  .col-6,
+  .col-8 {
+    grid-column: span 12;
+  }
+}
+
+/* Pilas y filas genéricas.
+ *
+ * Medido el 03-11-2026 sobre `modules.css`: **93 bloques** son una columna con `gap` y
+ * `min-width: 0` y nada más, escrita a mano con 22 variantes de nombre. Es el patrón más
+ * repetido de la hoja, y la utilidad para evitarlo estaba aquí desde siempre. Una pantalla
+ * que se rehace usa `.stack` con su modificador de hueco y no escribe su columna.
+ *
+ * `min-width: 0` no es decorativo: sin él, un hijo con texto largo o una tabla ensancha la
+ * columna y empuja la página a lo ancho.
+ *
+ * Los modificadores se añaden **cuando se usan**, no por adelantado: el censo de CSS falla
+ * si una clase no la referencia nadie, y hace bien. */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  min-width: 0;
+}
+
+.stack--tight {
+  gap: var(--s-5);
+}
+
+.stack--2 {
+  gap: var(--s-2);
+}
+
+.stack--3 {
+  gap: var(--s-3);
+}
+
+/* El aire entre bloques de una pestaña: 24 px, el mismo que entre bloques de página. */
+.stack--bloques {
+  gap: var(--s-8);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   7. Responsive del shell
+   ========================================================================== */
+
+/* Tablet (hallazgo 3): cada entrada ocupa todo el ancho de la barra y lleva su nombre bajo el icono.
+   Antes eran iconos sin nombre, y solo respondía una franja de 16 px en el centro: la nota emergente
+   con el nombre no existe sin ratón. `[data-rail]` pesa lo que hace falta para mandar también sobre
+   el menú plegado a mano en el escritorio. */
+@media (max-width: 1024.98px) {
+  .app-shell {
+    grid-template-columns: var(--rail-w-tablet) minmax(0, 1fr);
+  }
+
+  .app-shell .rail-brand__text,
+  .app-shell .rail-section__label,
+  .app-shell[data-rail] .rail-link > span,
+  .app-shell .rail-soon,
+  .app-shell .rail-identity {
+    display: none;
+  }
+
+  .app-shell .rail-brand {
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* También en marino y a sangre: el filete latón de la activa va en el borde del menú. */
+  .app-shell[data-rail] .rail-nav {
+    padding-inline: 0;
+    align-items: stretch;
+  }
+
+  .app-shell[data-rail] .rail-section + .rail-section {
+    margin-top: var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--rail-line);
+  }
+
+  .app-shell[data-rail] .rail-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--s-2);
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: var(--s-4) var(--s-1) var(--s-3);
+    font-size: var(--rail-texto-corto);
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .app-shell[data-rail] .rail-link > .rail-link__corto {
+    display: block;
+    max-width: 100%;
+    line-height: 16px;
+  }
+
+  .app-shell .rail-foot {
+    flex-direction: column;
+    gap: var(--s-3);
+    padding-inline: 0;
+  }
+
+  .rail-collapse {
+    display: none;
+  }
+
+  /* En Modo cliente el pie se queda sin identidad, y aquí tampoco hay botón de plegar. */
+  .rail-foot:has(> .rail-collapse:only-child) {
+    display: none;
+  }
+}
+
+/* Donde no cabe todo, «Revisar seguridad» sustituye al correo: no se suma. Por debajo del portátil (1.440 px), que
+   es donde la barra ya va justa de sitio. El corte era «hasta 1.280 px inclusive»: a ese ancho, que
+   es uno de los de trabajo, sigue valiendo. */
+@media (max-width: 1439.98px) {
+  .topbar-account--aviso .topbar-account__email {
+    display: none;
+  }
+}
+
+/* Por debajo de 1.000 px la miga pierde la sección y se queda con dónde estás (hallazgo 82). Por debajo de 900 px la
+   barra se queda con lo que hace falta: el recuadro con sus cifras y «Cuenta» en vez del correo, y la miga solo para
+   el lector de pantalla (bloque de abajo). A 768 la miga se cortaba en «Merc…», «Cartera:» o «Datos /» en las once
+   pantallas. La sección se va antes que eso: medido a 900, «Carteras / Carteras guardadas» aún se cortaba (hoy
+   «Propuestas / Propuestas guardadas», más largo). */
+@media (max-width: 999.98px) {
+  .topbar-crumbs > :not(.topbar-crumbs__current) {
+    display: none;
+  }
+}
+
+@media (max-width: 899.98px) {
+  .topbar-account__email {
+    display: none;
+  }
+
+  /* El rótulo y el nombre de la propuesta dejan de verse, pero no de leerse: el nombre accesible del recuadro es su
+     contenido, y con `display: none` se quedaba en «2 posiciones» (DIS-19). Mismas propiedades que `.sr-only`.
+     La miga, igual (18-11-2026): a este ancho, con un aviso de la cuenta y cambios sin guardar, le quedaba sitio para
+     una letra («P…»), y dónde se está ya lo dicen el título de la pantalla y la entrada marcada del menú. */
+  .topbar-crumbs,
+  .topbar-chip__label,
+  .topbar-chip__value {
+    position: absolute;
+    width: 1px;
+    min-width: 0;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Sin rótulo ni nombre a la vista, el recuento es lo primero que se ve: sin punto delante. */
+  .topbar-chip__count::before {
+    content: none;
+  }
+
+  /* Y es lo único del recuadro que puede ceder, con elipsis, si ni así cabe. Más arriba no cede nunca: con el nombre a
+     la vista, lo que se recorta antes es el nombre, hasta sus 6ch. */
+  .topbar-chip__count {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-account:not(.topbar-account--aviso) .topbar-account__corto {
+    display: inline;
+  }
+}
+
+/* Con el dedo: 44 px cada entrada del menú y 46 los controles de la barra (hallazgos 3 y 81). */
+@media (pointer: coarse) {
+  .rail-link {
+    min-height: var(--control-tactil);
+  }
+
+  .topbar-chip,
+  .topbar-switch,
+  .topbar-account,
+  .app-topbar .ui-button--sm {
+    height: var(--control-lg);
+  }
+}
+
+
+/* Foco en la barra: el mismo anillo que el menú. */
+.topbar-chip:focus-visible,
+.topbar-switch:focus-visible,
+.topbar-account:focus-visible,
+.app-topbar .ui-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-dark);
+}
+
+/* Distintivos en la barra (ola 4): sin relleno. El único que vive aquí es «Datos de muestra» (aviso), en ocre. */
+.app-topbar .badge {
+  color: var(--rail-ink-active);
+}
+
+.app-topbar .badge.is-warn {
+  color: var(--aviso);
+}

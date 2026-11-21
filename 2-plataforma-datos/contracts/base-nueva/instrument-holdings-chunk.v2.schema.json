@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-holdings-chunk.v2.schema.json",
+  "title": "instruments/{instrument_id}/holdings_chunks/{chunk_id} — v2",
+  "description": "Un trozo de la cartera COMPLETA de un fondo, 500 posiciones como maximo.\n\nPor que existe, y por que no estaba. `declared/holdings` es el resumen -las 25 primeras y cuanto cubren- y su propia descripcion manda la lista entera «al analitico», un almacen que no existe. Medido el 02-11-2026, lo que costaba: la radiografia de una cartera de fondos explicaba entre el 40 % y el 94 % segun la cartera, y de 760 fondos con lista solo 50 llegaban al 90 % con las 25 guardadas. Con la lista entera llegan 554.\n\nY la lista entera YA se adquiere: 156.665 posiciones en 766 fondos, 204 de media, con ISIN, tipo, peso, divisa, sector y pais por linea. No era un problema de fuente ni de licencia; era que se quedaba en el disco del extractor.\n\nPor que troceado y no un documento por fondo: el Vanguard Global Bond Index declara 16.974 posiciones y la fuente nos da 10.000, que suman el 95,02 % de su patrimonio. A 117 bytes por linea eso son 1,1 MB, por encima del limite de 1 MiB de un documento de Firestore. 28 fondos pasan de mil posiciones. Un documento que crece con el PRODUCTO es el cuarto techo de la maestra de hoy, y este contrato existe para no repetirlo.\n\nPor que 500 y no 200: es el mismo numero que `search-shard.v2`, y por la misma razon. Con 500 el fondo mas grande son 20 lecturas y el trozo mayor 57 KB; con 200 serian 50 lecturas y 1.300 documentos en vez de 909 en todo el universo.\n\nComo se lee: LISTANDO la coleccion, no pidiendo `000`, `001`... por su nombre. El numero de trozos depende del fondo y cambia con cada pasada.",
+  "x-collection": "instruments/{instrument_id}/holdings_chunks/{chunk_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chunk_id", "source", "as_of", "positions"],
+  "properties": {
+    "chunk_id": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$",
+      "description": "El orden del trozo, con tres digitos. Las posiciones van ordenadas por peso de mayor a menor en el conjunto, asi que el trozo 000 lleva las mayores: un lector que solo quiera las diez primeras lee un documento.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "La fecha de la cartera, la misma que la del resumen en `declared/holdings`. Si los dos no coinciden, uno de los dos es de otra pasada.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "positions": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "El tope es 500, el mismo que el fragmento del indice de busqueda. No es «las que haya»: es lo que hace que ningun documento crezca con el producto.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "weight"],
+        "description": "La misma forma que una linea de `declared/holdings.top`, a proposito: quien pinta una cartera usa un solo lector para el resumen y para la lista.",
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "description": "Lo trae la mayoria de las lineas de renta fija y variable; una linea de derivado o de liquidez no tiene ISIN, y entonces no esta.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": -10,
+            "maximum": 10,
+            "description": "Peso sobre el patrimonio, en FRACCION, con el mismo rango ancho que `declared/holdings.top.weight` y por el mismo motivo: una linea puede ser corta o un derivado, y entonces sale de [0, 1] con todo derecho. Por encima del 1.000 % en valor absoluto la linea no se escribe, y alli esta por que: el unico caso medido es un forward de yenes sin convertir y su contrapartida.",
+            "x-unit": "fraction",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "holding_type_code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{1,3}$",
+            "description": "El codigo fino del proveedor, el mismo que `declared/holdings.top.holding_type_code`: alli esta de donde sale y que significa cada uno. Una linea de justETF no lo trae.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "sector": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "asset_type": {
+            "type": "string",
+            "enum": ["EQUITY", "FIXED_INCOME", "CASH", "OTHER"],
+            "description": "En que pagina de la respuesta del proveedor venia la linea: acciones, bonos u otros. Medido el 02-11-2026, de las 156.665 posiciones 62.779 son de renta fija, 41.216 de renta variable y 52.598 de la clase `otro`.\n\nNo sirve para separar una accion de un derivado, y este contrato decia que si. Medido el 05-11-2026 sobre 158.721 lineas: en EQUITY hay CFD, opciones sobre acciones y sobre divisa, warrants y bonos ligados a una accion, 2.276 lineas; en FIXED_INCOME, permutas de tipos y de credito y futuros, 4.822; y en OTHER, patas de divisa, de tipos y efectivo. Para eso esta `holding_type_code`.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+node_modules/
+dist/
+/coverage/
+artifacts/
+.env
+.env.local
+.env.*
+!.env.example
+serviceAccountKey.json
+*serviceAccount*.json
+firebase-keys/
+firebase-debug.log
+firestore-debug.log
+
+# Paquete de importacion FondosDB: no versionar (datos del proveedor, ~20 MB)
+imports/
+runs/
+intake/
+loader_lists/
+data/backups/
+# Lo re-originado de la base vieja: lleva nombres de clientes del asesor. El codigo que lo
+# produce si va al repositorio; el dato, no.
+data/reoriginacion/
+
+# build emitido por tsc (no versionar)
+*.js
+*.d.ts
+*.d.ts.map
+*.js.map
+*.tsbuildinfo
+
+# Helpers locales de inspeccion read-only (Cowork) - no versionar (contienen datos)
+dump_sample_assets.mjs
+census_firestore.mjs
+sample_firestore_dump.json
+census_firestore.json
+
+# artefactos sueltos de las corridas de backup
+/backup*.log
+/_to_delete/

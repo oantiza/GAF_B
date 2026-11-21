@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-exposure.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/exposure — v2",
+  "description": "La composicion de cartera del fondo: el reparto por clase de activo y los detalles de renta variable. Medido el 30-10 sobre la poblacion a la que cada campo aplica, esto esta entre el 96 % y el 99 %: no es el hueco del programa. Los mapas llevan maxProperties, no solo los arrays maxItems: un mapa abierto crece igual que una lista abierta y es la misma forma de techo.",
+  "x-collection": "instruments/{instrument_id}/declared/exposure",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "confidence"],
+  "dependentRequired": { "asset_mix": ["asset_mix_completion"], "asset_mix_completion": ["asset_mix"] },
+  "properties": {
+    "asset_mix_completion": {
+      "type": "string",
+      "enum": ["REPORTED", "IMPLIED_BY_SUM"],
+      "x-absence": "NOT_PROVIDED",
+      "x-absence": "NOT_PROVIDED",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "platform",
+      "description": "Como se llego al reparto, y es obligatorio porque son dos cosas distintas. REPORTED: la fuente declara las cuatro clases. IMPLIED_BY_SUM: la fuente declara menos de cuatro y las que declara SUMAN 1, asi que las que faltan son cero por aritmetica, no por suposicion. No hay un tercer caso: si lo declarado no suma 1, no hay reparto: este campo y `asset_mix` no se escriben, y el bloque solo si le queda algo de la renta variable que contar (decision 109).\n\nMedido el 01-11 sobre los 770 no-accion del canonico: 625 REPORTED, 34 IMPLIED_BY_SUM y 111 sin reparto porque lo declarado no suma 1 —y ahi hay ejemplos que suman 0,00097, 0,0 y 0,12188, que no son repartos incompletos sino repartos rotos—. Eso corrige una cifra del 30-10: el asset_mix figuraba al 99 % en la maestra, y ese 99 % incluye a los 111, porque la maestra rellena las clases que faltan con ceros y entonces un reparto que suma el 0,1 % parece completo. Una radiografia de cartera construida sobre esos 111 esta mal y hoy nada lo dice.\n\nMedido el 05-11-2026: hoy no hay ningun IMPLIED_BY_SUM. Los 52 que habia eran todos una clase negativa que se tomaba por no declarada y se escribia a cero, y con la decision A-63 son REPORTED con su cifra: los 702 repartos. El valor se queda para la fuente que de verdad declare menos de cuatro."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "asset_mix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["equity", "fixed_income", "cash", "other"],
+      "x-absence": "NOT_PROVIDED",
+      "description": "Dejo de ser obligatorio el 05-11-2026, por la decision 109 de Oscar. Sin el, el bloque se tiraba entero, y con el se iban las regiones y los sectores de 61 y 53 fondos que si los publican: JPMorgan India D o Morgan Stanley Global Brands caian enteros en 'No declarado' porque una clase del reparto se salia mas de un punto. Un documento sin este campo NO dice que el fondo no tenga nada: dice que su reparto por clases no cuadra y no se ensena, y que lo que hay de su renta variable si vale. Quien lea este bloque no puede tomar su presencia por un reparto, y por eso quien lo necesita mira este campo. Reparto en FRACCION, suma 1. Hoy asset_mix.equity es entero en 265 documentos y decimal en 584: ese es el defecto que arregla declarar un solo type y una sola unidad. Obligatorias son CUATRO, no seis, y es una correccion medida del 01-11: el canonico reparte en equity, bond, cash y other, y esas cuatro ya suman 1. alternative y real_asset son una particion mas fina que esta fuente no da, asi que se quedan ausentes con NOT_PROVIDED en vez de salir a cero. Un cero en un reparto no es una ausencia: es la afirmacion de que el fondo no tiene nada de eso. La primera version exigia las seis y dejaba sin bloque de composicion a los 769 instrumentos, que es el 99 % de cobertura convertido en 0 por una linea del contrato.\n\nUna clase puede salirse de 0-1 hasta 0,01, un punto: de -0,01 a 1,01, y solo eso (decision A-63 de Oscar, 05-11-2026). El proveedor da el reparto NETO: un fondo con un poco de cortos o de descubierto trae una clase en negativo y otra por encima de 1, y entre todas suman 1. Lazard Small Caps Euro I trae bolsa 1,000401, renta fija -0,000844, liquidez 0,000432 y otros 0,000011: suma 1 y se quedaba sin nada por 0,08 puntos. Fuera de ese punto sigue sin pasar, aunque lo demas sume 1, porque ya no es un redondeo ni un descubierto de tesoreria: hay fondos que se salen hasta 243 puntos, y un reparto asi no describe el fondo.\n\nLa cifra va tal cual: un -0,08 no se escribe como cero. Hasta esa fecha, una clase fuera de 0-1 se trataba como no declarada, y eso dejaba dos casos. Si lo demas no sumaba 1, el fondo se quedaba sin reparto. Si si lo sumaba con la tolerancia, entraba con esa clase a CERO, IMPLIED_BY_SUM, y las demas sumando de mas. Medido el 05-11-2026 sobre 799 fondos y ETF: 9 estaban en el primer caso y entran, 52 en el segundo y pasan a llevar su cifra, y 94 se salen mas de un punto y siguen sin reparto, junto a 3 que no publican nada. Quien sume o dibuje esto tiene que aceptar un negativo pequeno.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type FUND, ETF",
+      "x-applies-when": "FONDO_O_ETF",
+      "x-coverage-target": 0.99,
+      "properties": {
+        "equity": { "$ref": "#/$defs/peso_de_clase" },
+        "fixed_income": { "$ref": "#/$defs/peso_de_clase" },
+        "cash": { "$ref": "#/$defs/peso_de_clase" },
+        "alternative": {
+          "$ref": "#/$defs/peso_de_clase",
+          "description": "Particion mas fina que el canonico de hoy no da. Ausente no significa cero: significa que esta fuente no lo separa, y lo que seria alternativo cae dentro de other."
+        },
+        "real_asset": {
+          "$ref": "#/$defs/peso_de_clase",
+          "description": "Igual que alternative: ausente, no cero."
+        },
+        "other": { "$ref": "#/$defs/peso_de_clase" }
+      }
+    },
+    "sectors": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.equity > 0",
+      "x-applies-when": "CON_RENTA_VARIABLE",
+      "x-coverage-target": 0.99
+    },
+    "equity_regions": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "description": "El reparto de la renta variable por zonas, que suma 1: united_states, canada, latin_america, united_kingdom, eurozone, europe_ex_euro, europe_emerging, middle_east, africa, japan, australasia, asia_developed y asia_emerging. Son las trece del proveedor, cada una con su nombre (decision 7 de Oscar, 04-11-2026).\n\nHasta el 05-11-2026 no sumaba, y el fallo era nuestro: `asia` traia el total de Asia y `asia_emerging` iba ademas aparte; Canada y Africa iban a `other`, que sumaba tambien el total de emergentes del proveedor, que repite las zonas emergentes. Asi que un documento escrito antes de esa fecha puede traer `asia` y `other`, y no significan lo que parece: quien lea los dos tiene que saberlo.",
+      "x-applies-to": "instrumentos con asset_mix.equity > 0",
+      "x-applies-when": "CON_RENTA_VARIABLE",
+      "x-coverage-target": 0.99
+    },
+    "equity_styles": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.equity > 0",
+      "x-applies-when": "CON_RENTA_VARIABLE",
+      "x-coverage-target": 0.99
+    },
+    "market_caps": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.equity > 0",
+      "x-applies-when": "CON_RENTA_VARIABLE",
+      "x-coverage-target": 0.99
+    },
+    "equity_style_box": {
+      "type": "object",
+      "minProperties": 9,
+      "maxProperties": 9,
+      "propertyNames": {
+        "enum": ["large_value", "large_blend", "large_growth", "mid_value", "mid_blend", "mid_growth", "small_value", "small_blend", "small_growth"]
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": -25,
+        "maximum": 25,
+        "x-unit": "fraction",
+        "x-layer": "declared",
+        "x-owner": "platform"
+      },
+      "description": "Las nueve celdas de la caja de estilo y tamano de la renta variable del fondo, en fraccion, tal como las da el proveedor (StyleBoxBreakdown de Morningstar, la misma respuesta de la que salen equity_styles y market_caps, que son sus sumas por columnas y por filas). Entra el 05-11-2026 por la decision 51 de Oscar: hasta entonces la aplicacion multiplicaba los dos repartos como si estilo y tamano fueran independientes, y en un fondo no lo son.\n\nLas nueve o ninguna, y suman 1 con TOLERANCIA_DEL_REPARTO: si no, no se escribe. No es un mapa_de_pesos porque una celda puede ser negativa: es lo neto de cortos del fondo. Medido el 05-11-2026 sobre 609 fichas con celdas, las 609 suman 100 y 22 traen alguna negativa, desde -0,003 puntos hasta -926 en un fondo con un 0,35 % de renta variable neta: el proveedor reescala lo neto a 100, asi que cuanto menor es lo neto, mayor sale la celda. Por eso el rango es de -25 a 25, que no es un peso sino un tope contra lo que no tenga sentido: la mayor medida es 19,73. Una celda se lee siempre multiplicada por asset_mix.equity, y entonces da lo que el fondo tiene ahi sobre su patrimonio.\n\nFalta en los fondos cuya renta variable es residual y el proveedor no le da caja: 15 de 558, ninguno por encima del 2,8 %. Ausente en un instrumento sin renta variable, porque ahi no aplica.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "x-applies-to": "instrumentos con asset_mix.equity > 0",
+      "x-applies-when": "CON_RENTA_VARIABLE",
+      "x-coverage-target": 0.97
+    },
+    "bond_types": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.97
+    },
+    "duration_buckets": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.96
+    },
+    "credit_buckets": {
+      "$ref": "#/$defs/mapa_de_pesos",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.61
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Cuanto fiarse del reparto. No es un dato del fondo: es la marca que impide que un asset mix incompleto parezca completo. Obligatoria por eso.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "platform"
+    }
+  },
+  "$defs": {
+    "peso_de_clase": {
+      "type": "number",
+      "minimum": -0.01,
+      "maximum": 1.01,
+      "description": "El peso de una clase en el reparto, neto: de -0,01 a 1,01. Por que no es de 0 a 1, en la descripcion de asset_mix.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "mapa_de_pesos": {
+      "type": "object",
+      "maxProperties": 60,
+      "description": "Mapa clave-peso en fraccion, con tope de claves. El tope es lo que impide que este bloque sea el siguiente techo.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "x-unit": "fraction",
+        "x-layer": "declared",
+        "x-owner": "platform"
+      }
+    }
+  }
+}

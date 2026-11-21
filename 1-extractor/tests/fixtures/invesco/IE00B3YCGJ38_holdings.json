@@ -1,0 +1,96 @@
+{
+ "effectiveDate": "2026-11-04",
+ "numberOfHoldings": 503,
+ "holdings": [
+  {
+   "name": "AMAZON.COM INC",
+   "isin": "US0231351067",
+   "weight": 8.42,
+   "currency": "USD"
+  },
+  {
+   "name": "NVIDIA CORP",
+   "isin": "US67066G1040",
+   "weight": 7.9,
+   "currency": "USD"
+  },
+  {
+   "name": "MICROSOFT CORP",
+   "isin": "US5949181045",
+   "weight": 4.84,
+   "currency": "USD"
+  },
+  {
+   "name": "BERKSHIRE HATHAWAY INC-CL B",
+   "isin": "US0846707026",
+   "weight": 4.19,
+   "currency": "USD"
+  },
+  {
+   "name": "BROADCOM INC",
+   "isin": "US11135F1012",
+   "weight": 3.76,
+   "currency": "USD"
+  },
+  {
+   "name": "CISCO SYSTEMS INC",
+   "isin": "US17275R1023",
+   "weight": 2.9,
+   "currency": "USD"
+  },
+  {
+   "name": "INTEL CORP",
+   "isin": "US4581401001",
+   "weight": 2.76,
+   "currency": "USD"
+  },
+  {
+   "name": "ADVANCED MICRO DEVICES",
+   "isin": "US0079031078",
+   "weight": 2.73,
+   "currency": "USD"
+  },
+  {
+   "name": "WALMART INC",
+   "isin": "US9311421039",
+   "weight": 2.56,
+   "currency": "USD"
+  },
+  {
+   "name": "TESLA INC",
+   "isin": "US88160R1014",
+   "weight": 2.34,
+   "currency": "USD"
+  },
+  {
+   "name": "SANDISK CORP",
+   "isin": "US80004C2008",
+   "weight": 1.97,
+   "currency": "USD"
+  },
+  {
+   "name": "QUALCOMM INC",
+   "isin": "US7475251036",
+   "weight": 1.89,
+   "currency": "USD"
+  },
+  {
+   "name": "NETFLIX INC",
+   "isin": "US64110L1061",
+   "weight": 1.83,
+   "currency": "USD"
+  },
+  {
+   "name": "ALPHABET INC-CL C",
+   "isin": "US02079K1079",
+   "weight": 1.72,
+   "currency": "USD"
+  },
+  {
+   "name": "HEXAGON AB-B SHS",
+   "isin": "SE0015961909",
+   "weight": 0,
+   "currency": "SEK"
+  }
+ ]
+}

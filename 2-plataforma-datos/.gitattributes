@@ -1,0 +1,19 @@
+# Normalización de fin de línea: evita el "churn" CRLF<->LF en Windows.
+# Todos los ficheros de texto se almacenan con LF en el repositorio.
+* text=auto eol=lf
+
+# Scripts de shell siempre LF.
+*.sh text eol=lf
+
+# Tipos binarios: no tocar.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.zip  binary
+*.node binary

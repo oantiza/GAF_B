@@ -1,0 +1,136 @@
+[
+  {
+    "asset_id": "fund-ok-1",
+    "asset_type": "FUND",
+    "identity": {
+      "name": "Synthetic Global Fund"
+    },
+    "identifiers": {
+      "isin": "LU0000000001"
+    },
+    "category": "Equity Global",
+    "region": "Global",
+    "retrocession": 1.25,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "fund-rev-1",
+    "asset_type": "FUND",
+    "identity": {
+      "name": "Synthetic No Category Fund"
+    },
+    "identifiers": {
+      "isin": "LU0000000002"
+    },
+    "region": "Europe",
+    "retrocession": 1.0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "fund-ok-2",
+    "asset_type": "FUND",
+    "identity": {
+      "name": "Synthetic Zero Retro Fund"
+    },
+    "identifiers": {
+      "isin": "LU0000000003"
+    },
+    "category": "Fixed Income",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "etf-ok-1",
+    "asset_type": "ETF",
+    "identity": {
+      "name": "Synthetic S&P 500 ETF"
+    },
+    "identifiers": {
+      "isin": "IE0000000001",
+      "ticker": "SPY"
+    },
+    "exchange": "NYSE",
+    "category": "Equity US",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "etf-rev-1",
+    "asset_type": "ETF",
+    "identity": {
+      "name": "Synthetic No Price ETF"
+    },
+    "identifiers": {
+      "isin": "IE0000000002",
+      "ticker": "NOP"
+    },
+    "exchange": "NYSE",
+    "category": "Equity Global",
+    "region": "Global",
+    "retrocession": 0,
+    "has_price_history": false
+  },
+  {
+    "asset_id": "etf-blk-1",
+    "asset_type": "ETF",
+    "identity": {
+      "name": "Synthetic Ticker Only ETF"
+    },
+    "identifiers": {
+      "ticker": "BAD"
+    },
+    "exchange": "NYSE",
+    "category": "Equity",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "eq-ok-1",
+    "asset_type": "STOCK",
+    "identity": {
+      "name": "Synthetic Apple Inc"
+    },
+    "identifiers": {
+      "isin": "US0000000001",
+      "ticker": "AAPL"
+    },
+    "exchange": "NASDAQ",
+    "category": "Tech",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "eq-blk-1",
+    "asset_type": "INVALID_TYPE",
+    "identity": {
+      "name": "Synthetic Invalid Type"
+    },
+    "identifiers": {
+      "isin": "US0000000002"
+    },
+    "category": "Unknown",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  },
+  {
+    "asset_id": "eq-blk-2",
+    "asset_type": "STOCK",
+    "identity": {
+      "name": "Synthetic Bad ISIN"
+    },
+    "identifiers": {
+      "isin": "US123",
+      "ticker": "BDI"
+    },
+    "exchange": "NASDAQ",
+    "category": "Retail",
+    "region": "US",
+    "retrocession": 0,
+    "has_price_history": true
+  }
+]

@@ -1,0 +1,187 @@
+/* ============================================================================
+   Gestor de carteras: los diálogos de importar, informes y versiones (13-11-2026)
+
+   Solo lo que `gestor.css` no tiene ya. Las filas siguen siendo `.rows` con filete,
+   las tablas `.gestor-tabla` en su envoltorio, las notas `.cmp-note`, los avisos `Aviso`
+   y las etiquetas `Distintivo` con su palabra. Aquí van: los tres pasos del asistente, la
+   zona donde se sueltan los ficheros, la decisión sobre un activo, la casilla de cada
+   movimiento con sus avisos debajo, el resultado de la comprobación y la firma de los
+   informes.
+
+   La traen los propios diálogos, que se cargan con el gestor.
+   ========================================================================== */
+
+/* --- Los tres pasos del asistente ------------------------------------------------ */
+
+.gestor-etapas {
+  margin: 0;
+  padding: 0 0 var(--s-5);
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-8);
+  border-bottom: 1px solid var(--filete);
+  font-size: var(--texto-sm);
+  color: var(--tinta-3);
+}
+
+.gestor-etapas__paso {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.gestor-etapas__paso[aria-current="step"] {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.gestor-etapas__numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--filete-fuerte);
+  border-radius: var(--radius-round);
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.gestor-etapas__paso[aria-current="step"] .gestor-etapas__numero {
+  border-color: var(--marca);
+  background: var(--marca);
+  color: var(--tinta-inversa);
+}
+
+/* --- Dónde se sueltan los ficheros ------------------------------------------------- */
+
+.gestor-soltar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding: var(--s-7) var(--s-6);
+  border: 1px dashed var(--filete-fuerte);
+  border-radius: var(--radio-control);
+  min-width: 0;
+}
+
+.gestor-soltar--encima {
+  border-color: var(--marca);
+  background: var(--marca-tenue);
+}
+
+.gestor-soltar__texto {
+  margin: 0;
+  font-size: var(--texto-md);
+  color: var(--tinta);
+  max-width: 46em;
+}
+
+/* --- La revisión ------------------------------------------------------------------- */
+
+.gestor-resumen {
+  margin: 0;
+  font-size: var(--texto-lg);
+  font-weight: 600;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Un activo que pide decisión: con filete debajo, como cualquier fila. */
+.gestor-decision {
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--filete);
+  min-width: 0;
+}
+
+.gestor-decision__hecha {
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+.gestor-plegable {
+  font-size: var(--texto-sm);
+}
+
+.gestor-plegable > summary {
+  cursor: pointer;
+  color: var(--tinta-2);
+}
+
+.gestor-plegable[open] > summary {
+  margin-bottom: var(--s-4);
+}
+
+.gestor-casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  align-self: end;
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.gestor-tabla .gestor-tabla__marca {
+  width: 2rem;
+  padding-right: var(--s-3);
+}
+
+/* Una fila con avisos no lleva filete: lo lleva la de sus avisos, que va debajo. */
+.gestor-tabla .gestor-tabla__fila--con-avisos > td {
+  border-bottom: 0;
+}
+
+.gestor-tabla .gestor-tabla__avisos > td {
+  padding-top: 0;
+}
+
+/* --- La comprobación ---------------------------------------------------------------- */
+
+.gestor-comprobado {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-3) var(--s-4);
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+}
+
+/* --- Informes: la firma de los informes, con su botón «Cambiar» ---------------------- */
+
+.gestor-firma {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+  border-top: 1px solid var(--filete);
+  border-bottom: 1px solid var(--filete);
+  min-width: 0;
+}
+
+.gestor-firma__texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.gestor-firma__texto > p {
+  margin: 0;
+}
+
+.gestor-firma__linea {
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  overflow-wrap: anywhere;
+}
+
+/* --- Versiones: la copia elegida ------------------------------------------------------- */
+
+.gestor-version--elegida {
+  background: var(--marca-tenue);
+}

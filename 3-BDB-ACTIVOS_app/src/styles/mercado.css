@@ -1,0 +1,64 @@
+/* ============================================================================
+   Mercado (rediseño, paso 4)
+
+   Solo lo que las piezas no traen ya. La cabecera es `PageHeader`; las pestañas, `SegmentedTabs`
+   y `PanelDePestana`; la respuesta de los tipos, `Respuesta`; cada bloque, `Panel`; las tablas,
+   `TablaDeDatos`; los avisos, `Aviso`; los distintivos, `Distintivo`. Aquí va cómo se apilan y lo
+   poco que es de esta pantalla. La trae `MercadoPage`.
+   ========================================================================== */
+
+/* La raíz, `.mercado-page`, no lleva regla: la disposición la pone `.app-content`. El panel de la
+   pestaña no se ensancha más que su columna. */
+.mercado-panel {
+  min-width: 0;
+}
+
+/* Los recuentos del calendario, en una línea junto al filtro: lo que antes eran cuatro mini-cifras. */
+.mercado-recuento {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* La flecha de una cifra de mercado, dentro de su definición (DIR-10): dice hacia dónde se ha movido
+   y nada más, así que va en tinta 2 y sin el color de un resultado. */
+.mercado-tendencia {
+  margin-left: var(--s-3);
+  font-size: var(--texto-xs);
+  font-weight: 400;
+  color: var(--tinta-2);
+}
+
+/* Las acciones del informe de estrategia, a la derecha de su título: el tipo, publicar (interno),
+   compartir y descargar. Bajan de línea antes que encogerse. */
+.mercado-estrategia__acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+
+/* La caja de acciones de la pieza no encoge (`flex: none`), y con seis acciones el `flex-wrap` de arriba no llegaba a
+   actuar: a 768 la fila medía 977 px y «Descargar el informe» quedaba fuera. Aquí puede encoger hasta su línea. */
+.panel__actions:has(> .mercado-estrategia__acciones) {
+  flex: 0 1 auto;
+  min-width: 0;
+  /* El distintivo de estado («Informe atrasado · N días»), en la línea de la primera fila de acciones: centrado, a 768
+     quedaba a media altura entre las dos filas. */
+  align-items: baseline;
+}
+
+/* Su título lleva la procedencia («Redacción automática (IA)… Sin revisión humana»), que es lo que más importa de la
+   línea: con 16em quedaba encajonada en tres o cuatro líneas junto a las seis acciones. Con menos sitio, ellas bajan. */
+.panel-head-text:has(+ .panel__actions > .mercado-estrategia__acciones) {
+  min-width: min(100%, 24em);
+}
+
+/* «Interno» pegado a la acción que solo ve el asesor. */
+.mercado-estrategia__interno {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+}

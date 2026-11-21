@@ -1,0 +1,43 @@
+{
+  "revision": "hamco-r-nav-gaps-2022.v1",
+  "asset_id": "LU3038481936",
+  "predecessor_isin": "ES0141116030",
+  "share_class": "R",
+  "currency": "EUR",
+  "merger_effective_date": "2025-11-25",
+  "continuity_sources": [
+    "https://www.boe.es/diario_boe/txt.php?id=BOE-B-2025-35041",
+    "https://www.hamco.es/2025/11/26/hamco-fusion-global-value-fund-sicav-isin/",
+    "https://info.hamco.es/hubfs/Web%20Publica%20Hamco/Generales/Cuentas-Anuales-Hamco-SICAV.pdf"
+  ],
+  "manager_nav_url": "https://www.hamco.es/fondo-global-value-fund/",
+  "method": "Observed predecessor class R NAVs only; insert missing dates into the already spliced 2022 bucket. No interpolation, rescaling or assumed merger exchange ratio.",
+  "points": [
+    {
+      "date": "2022-04-29", "value": 178.6259, "manager_rounded_value": 178.63,
+      "source_url": "https://www.bolsasymercados.es/bme-exchange/docs/boletines/BValencia/Diario/2022/05/09/4_94_3_20220509.PDF",
+      "source_page": 12, "source_column": "Ultimo", "source_nav_date": "2022-04-29"
+    },
+    {
+      "date": "2022-09-02", "value": 188.2457, "manager_rounded_value": 188.25,
+      "source_url": "https://www.bolsasymercados.es/bme-exchange/docs/boletines/BValencia/Diario/2022/09/05/4_94_3_20220905.PDF",
+      "source_page": 12, "source_column": "Ultimo", "source_nav_date": "2022-09-02"
+    },
+    {
+      "date": "2022-09-06", "value": 188.3549, "manager_rounded_value": 188.35,
+      "source_url": "https://www.bolsasymercados.es/bme-exchange/docs/boletines/BValencia/Diario/2022/09/07/4_94_0_20220907.PDF",
+      "source_page": 12, "source_column": "Ultimo", "source_nav_date": "2022-09-06"
+    },
+    {
+      "date": "2022-09-07", "value": 188.5858, "manager_rounded_value": 188.59,
+      "source_url": "https://www.bolsasymercados.es/bme-exchange/docs/boletines/BBilbao/Diario/2022/09/09/3_115_0_20220909.PDF",
+      "source_page": 12, "source_column": "Precedente", "source_nav_date": "2022-09-08",
+      "date_evidence": "Hamco's published daily NAV array explicitly dates 188.59 to 2022-09-07. BME's next NAV (2022-09-08) supplies the preceding NAV to four decimals: 188.5858."
+    },
+    {
+      "date": "2022-09-08", "value": 188.8420, "manager_rounded_value": 188.84,
+      "source_url": "https://www.bolsasymercados.es/bme-exchange/docs/boletines/BBilbao/Diario/2022/09/09/3_115_0_20220909.PDF",
+      "source_page": 12, "source_column": "Ultimo", "source_nav_date": "2022-09-08"
+    }
+  ]
+}

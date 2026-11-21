@@ -1,0 +1,24 @@
+{
+  "displayName": "BDB Schedulers - ejecución fallida",
+  "combiner": "OR",
+  "enabled": true,
+  "conditions": [
+    {
+      "displayName": "Log de fallo en refresco o conciliación",
+      "conditionMatchedLog": {
+        "filter": "resource.type=\"cloud_run_revision\" AND textPayload=~\"ERROR scheduled_(refresh_prices|refresh_metrics|reconcile_search_index)_failed\""
+      }
+    }
+  ],
+  "notificationChannels": [
+    "projects/bbdd-activos-financieros/notificationChannels/5488170903588245411"
+  ],
+  "alertStrategy": {
+    "autoClose": "86400s",
+    "notificationRateLimit": { "period": "900s" }
+  },
+  "documentation": {
+    "mimeType": "text/markdown",
+    "content": "Ha fallado un proceso programado de precios, métricas o índice. Revisar el resultado estructurado del job, el gate de escritura, el presupuesto de lecturas y el cursor antes de forzar una nueva ejecución."
+  }
+}

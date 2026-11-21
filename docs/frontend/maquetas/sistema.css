@@ -1,0 +1,232 @@
+/* ============================================================================
+   Sistema de diseño propuesto — hoja de las maquetas (13-11-2026)
+
+   El primer bloque, `:root`, ES la propuesta de tokens: lo que pasaría a
+   `3-BDB-ACTIVOS_app/src/styles/tokens.css`. El resto son las piezas comunes
+   dibujadas con esos tokens, solo para las maquetas de esta carpeta.
+   Las fuentes se leen de las que la aplicación ya autoaloja.
+   ========================================================================== */
+
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 500; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 600; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Serif 4"; font-weight: 400; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/source-serif-4/files/source-serif-4-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Serif 4"; font-weight: 600; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/source-serif-4/files/source-serif-4-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; src: url("../../../3-BDB-ACTIVOS_app/node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+
+:root {
+  /* --- Papel y tinta: neutros cálidos, los del sistema vigente ------------ */
+  --papel: #fcfcfb;          /* el lienzo y las superficies */
+  --banda: #f6f6f1;          /* la banda de respuesta, la fila bajo el cursor */
+  --banda-fuerte: #f3f3ee;   /* la cabecera fija de una tabla, el grupo de una tabla */
+  --filete: #e4e4dd;         /* la línea entre filas */
+  --filete-fuerte: #c8c8be;  /* la línea bajo un título o una cabecera de tabla */
+  --borde-control: #8e8e85;  /* el borde de un campo o un botón: 3,2:1 sobre el papel */
+  --tinta: #1a1a18;          /* texto y cifras · 16,98:1 */
+  --tinta-2: #56564f;        /* rótulos, texto secundario · 7,20:1 */
+  --tinta-3: #6f6f68;        /* procedencia, encabezados de tabla · 4,93:1 */
+
+  /* --- Marca: índigo. Acción, selección, la serie de la cartera ----------- */
+  --marca: #33406b;          /* 9,80:1 sobre el papel */
+  --marca-fuerte: #2a355a;   /* al pasar el ratón; la banda del informe de cliente */
+  --marca-suave: #e6e8f0;    /* lo seleccionado */
+  --marca-tenue: #f2f3f7;    /* fondo de una nota informativa */
+  --marco: #222c4a;          /* el menú y la barra superior */
+
+  /* --- El signo de un resultado: verde si gana, rojo si pierde ------------ */
+  --sube: #1b6b4a;           /* 6,30:1 */
+  --sube-suave: #e4f1ea;
+  --baja: #b3261e;           /* 6,37:1 · también el error y la acción destructiva */
+  --baja-suave: #fae6e4;
+
+  /* --- Atención del asesor: ocre. Avisos, datos que faltan, uso interno --- */
+  --aviso: #8a5a00;          /* 5,77:1 */
+  --aviso-linea: #d9bd7c;
+  --aviso-suave: #fbf2dc;
+
+  /* --- Gráficos: orden fijo. 1 = la cartera; la referencia, gris y a trazos */
+  --serie-1: #4a5bac;        /* índigo · la cartera, el activo principal */
+  --serie-2: #894b21;        /* tostado */
+  --serie-3: #0a97c1;        /* cian */
+  --serie-4: #b75b97;        /* rosa */
+  --serie-5: #8b5b00;        /* ocre */
+  --serie-6: #7046b5;        /* violeta */
+  --serie-referencia: #8a8a80; /* la referencia y «Otros»: gris */
+  --grafico-rejilla: #ebebe4;
+
+  /* --- Tipografía: dos voces ---------------------------------------------- */
+  --fuente-titulos: "Source Serif 4", Georgia, serif;
+  --fuente: "IBM Plex Sans", system-ui, sans-serif;
+  --fuente-codigo: "IBM Plex Mono", ui-monospace, monospace;
+  --texto-xs: 12px;          /* procedencia, apunte, encabezado de tabla */
+  --texto-sm: 13px;          /* tabla, rótulo, botón */
+  --texto-md: 14px;          /* base */
+  --texto-lg: 16px;          /* cifra de fila, entradilla */
+  --titulo-sm: 18px;         /* título de bloque · serifa 600 */
+  --titulo-md: 22px;         /* título de diálogo o de subvista · serifa 600 */
+  --cifra-lg: 28px;          /* cifra destacada · 600, tabular */
+  --titulo-lg: 34px;         /* título de página · serifa 400 */
+  --cifra-xl: 48px;          /* la respuesta de la pantalla: una por pantalla */
+
+  /* --- Espaciado: retícula de 4 px ---------------------------------------- */
+  --e-1: 4px; --e-2: 8px; --e-3: 12px; --e-4: 16px; --e-5: 24px; --e-6: 32px; --e-7: 48px; --e-8: 64px;
+
+  /* --- Geometría ---------------------------------------------------------- */
+  --radio-control: 3px;      /* botones, campos, distintivos */
+  --radio-flotante: 6px;     /* diálogos, menús, notas emergentes */
+  --alto-control: 34px;
+  --alto-fila: 40px;
+
+  /* --- Elevación: solo lo que flota --------------------------------------- */
+  --sombra-flotante: 0 8px 24px rgba(22, 27, 33, 0.10), 0 1px 3px rgba(22, 27, 33, 0.06);
+  --sombra-dialogo: 0 24px 64px rgba(16, 22, 28, 0.24);
+
+  /* --- Movimiento --------------------------------------------------------- */
+  --dur-rapida: 120ms;
+  --dur: 180ms;
+  --curva: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* ============================ Base ========================================= */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--papel); color: var(--tinta); font: 400 var(--texto-md)/1.5 var(--fuente); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; font-family: var(--fuente-titulos); }
+p { margin: 0; }
+.cifra { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.sube { color: var(--sube); }
+.baja { color: var(--baja); }
+.fecha { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.codigo { font-family: var(--fuente-codigo); font-size: var(--texto-xs); color: var(--tinta-3); }
+.tenue { color: var(--tinta-3); }
+
+/* ============================ Marco ======================================== */
+.marco { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100vh; }
+.menu { background: var(--marco); color: #c9cfe2; padding-bottom: var(--e-5); }
+.menu__marca { height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 var(--e-4); border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #fff; font-weight: 600; font-size: var(--texto-md); }
+.menu__sello { border: 1px solid rgba(255, 255, 255, 0.3); font-size: 11px; padding: 1px 5px; letter-spacing: 0.04em; }
+.menu__marca small { display: block; font-weight: 400; font-size: 11.5px; color: #8e97b5; line-height: 1.1; }
+.menu__grupo { padding: var(--e-4) 0 0; }
+.menu__titulo { padding: 0 var(--e-4) 6px; font-size: 11.5px; color: #8e97b5; }
+.menu__enlace { display: flex; align-items: center; gap: 10px; padding: 7px var(--e-4) 7px var(--e-5); color: #c9cfe2; font-size: 13.5px; text-decoration: none; }
+.menu__enlace i { display: none; }
+.menu__enlace[aria-current="page"] { background: var(--papel); color: var(--marco); font-weight: 600; box-shadow: inset 3px 0 0 #5b72be; }
+.menu__separador { height: 1px; background: rgba(255, 255, 255, 0.1); margin: var(--e-4) var(--e-4) 0; }
+
+.barra { height: 52px; background: var(--marco); color: #fff; display: flex; align-items: center; gap: var(--e-4); padding: 0 var(--e-6); font-size: var(--texto-sm); }
+.barra__migas { color: #c9cfe2; }
+.barra__migas b { color: #fff; font-weight: 600; }
+.barra__hueco { flex: 1; }
+.barra__propuesta { border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.08); padding: 5px 12px; border-radius: var(--radio-control); color: #c9cfe2; }
+.barra__propuesta b { color: #fff; font-weight: 600; }
+.barra__interruptor { display: inline-flex; align-items: center; gap: 8px; color: #c9cfe2; }
+.barra__interruptor i { width: 28px; height: 16px; border-radius: 999px; background: rgba(255, 255, 255, 0.28); position: relative; }
+.barra__interruptor i::after { content: ""; position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+
+.pagina { padding: var(--e-5) 40px var(--e-8); max-width: 1560px; }
+
+/* ============================ Cabecera de página =========================== */
+.volver { display: inline-block; color: var(--tinta-2); font-size: var(--texto-sm); text-decoration: none; margin-bottom: var(--e-3); }
+.cabecera { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--e-5); padding-bottom: var(--e-4); }
+.cabecera__ceja { font-size: var(--texto-xs); color: var(--tinta-3); margin-bottom: 2px; }
+.cabecera h1 { font-weight: 400; font-size: var(--titulo-lg); line-height: 1.1; letter-spacing: -0.006em; }
+.cabecera__meta { color: var(--tinta-2); font-size: var(--texto-sm); margin-top: 6px; }
+.cabecera__acciones { display: flex; gap: var(--e-2); align-items: center; flex: none; }
+
+/* ============================ Botones ====================================== */
+.boton { height: var(--alto-control); padding: 0 14px; border: 1px solid var(--borde-control); border-radius: var(--radio-control); background: var(--papel); color: var(--tinta); font: 500 var(--texto-sm)/1 var(--fuente); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.boton--principal { background: var(--marca); border-color: var(--marca); color: #fff; }
+.boton--discreto { border-color: transparent; color: var(--tinta-2); }
+.boton--peligro { color: var(--baja); border-color: var(--baja); }
+.boton--sm { height: 28px; padding: 0 10px; font-size: var(--texto-xs); }
+.boton[disabled] { background: var(--banda); color: var(--tinta-3); border-color: var(--filete-fuerte); }
+
+/* ============================ La respuesta ================================= */
+.respuesta { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); background: var(--banda); border-top: 2px solid var(--tinta); border-bottom: 1px solid var(--filete); padding: var(--e-4) 0; }
+.respuesta__dato { padding: 0 var(--e-5); border-left: 1px solid var(--filete-fuerte); }
+.respuesta__dato:first-child { border-left: 0; }
+.respuesta__rotulo { font-size: var(--texto-xs); color: var(--tinta-2); min-height: 2.5em; display: flex; align-items: flex-end; line-height: 1.25; padding-bottom: 2px; }
+.respuesta__cifra { font-weight: 600; font-size: var(--cifra-lg); line-height: 1.2; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.respuesta__cifra small { font-size: var(--texto-lg); font-weight: 600; letter-spacing: 0; margin-left: 6px; }
+.respuesta__apunte { font-size: var(--texto-xs); color: var(--tinta-3); }
+.respuesta__dato--principal { flex: none; }
+.respuesta__dato--principal .respuesta__cifra { font-size: var(--cifra-xl); letter-spacing: -0.03em; line-height: 1.1; }
+.respuesta--ancha { grid-auto-columns: auto; grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr)); grid-auto-flow: row; }
+
+/* ============================ Pestañas y opciones ========================== */
+.pestanas { display: flex; gap: var(--e-5); border-bottom: 1px solid var(--filete-fuerte); margin-top: var(--e-4); }
+.pestana { padding: 12px 0 11px; font-size: var(--texto-md); color: var(--tinta-2); text-decoration: none; white-space: nowrap; }
+.pestana[aria-selected="true"] { color: var(--tinta); font-weight: 600; box-shadow: inset 0 -2px 0 var(--marca); }
+.opciones { display: inline-flex; flex: none; white-space: nowrap; border: 1px solid var(--borde-control); border-radius: var(--radio-control); overflow: hidden; }
+.opciones span { padding: 0 12px; height: 30px; display: inline-flex; align-items: center; font-size: var(--texto-sm); color: var(--tinta-2); border-left: 1px solid var(--filete-fuerte); }
+.opciones span:first-child { border-left: 0; }
+.opciones span[aria-checked="true"] { background: var(--marca); color: #fff; font-weight: 500; }
+.fila-de-mandos { display: flex; align-items: center; justify-content: space-between; gap: var(--e-4); }
+
+/* ============================ Bloques ====================================== */
+.rejilla { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--e-6) var(--e-7); margin-top: var(--e-5); }
+.col-12 { grid-column: span 12; } .col-8 { grid-column: span 8; } .col-7 { grid-column: span 7; } .col-6 { grid-column: span 6; } .col-5 { grid-column: span 5; } .col-4 { grid-column: span 4; }
+.bloque__cabecera { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--e-4); border-bottom: 1px solid var(--filete-fuerte); padding-bottom: var(--e-2); }
+.bloque__titulo { font-weight: 600; font-size: var(--titulo-sm); line-height: 1.25; }
+.bloque__procedencia { font-size: var(--texto-xs); color: var(--tinta-3); margin-top: 2px; }
+.bloque__enlace { font-size: var(--texto-sm); color: var(--marca); text-decoration: none; white-space: nowrap; }
+.bloque__nota { font-size: var(--texto-xs); color: var(--tinta-3); margin-top: var(--e-2); max-width: 46em; }
+
+/* Filas de rótulo y cifra */
+.filas { margin: 0; }
+.filas > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e-4); padding: 9px 0; border-bottom: 1px solid var(--filete); }
+.filas dt { color: var(--tinta); }
+.filas dt small { display: block; font-size: var(--texto-xs); color: var(--tinta-3); }
+.filas dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.filas .total dt, .filas .total dd { font-weight: 600; }
+.filas .total { border-bottom: 0; border-top: 1px solid var(--filete-fuerte); }
+
+/* Barras de proporción: una parte de un todo, comparada con las demás */
+.partes > div { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 4.5em; align-items: center; gap: var(--e-3); padding: 8px 0; border-bottom: 1px solid var(--filete); }
+.partes span.barra-de-parte { height: 6px; background: var(--filete); border-radius: 0 3px 3px 0; position: relative; }
+.partes span.barra-de-parte b { position: absolute; inset: 0 auto 0 0; background: var(--serie-1); border-radius: 0 3px 3px 0; }
+.partes em { font-style: normal; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ============================ Tabla ======================================== */
+.tabla { width: 100%; border-collapse: collapse; font-size: var(--texto-sm); }
+.tabla th { text-align: left; font-weight: 600; font-size: var(--texto-xs); color: var(--tinta-3); padding: 9px 12px; border-bottom: 1px solid var(--filete-fuerte); white-space: nowrap; background: var(--papel); }
+.tabla th.cifra { text-align: right; }
+.tabla th[aria-sort] { color: var(--tinta); }
+.tabla th[aria-sort]::after { content: " ↓"; }
+.tabla td { padding: 10px 12px; border-bottom: 1px solid var(--filete); vertical-align: top; }
+.tabla td:first-child, .tabla th:first-child { padding-left: 0; }
+.tabla td:last-child, .tabla th:last-child { padding-right: 0; }
+.tabla td.cifra { font-weight: 500; }
+.tabla tfoot td { border-top: 1px solid var(--filete-fuerte); border-bottom: 0; font-weight: 600; }
+.tabla a { color: var(--tinta); text-decoration: underline; text-decoration-color: var(--filete-fuerte); text-underline-offset: 3px; }
+.tabla__pie { display: flex; justify-content: space-between; align-items: center; padding-top: var(--e-3); font-size: var(--texto-xs); color: var(--tinta-3); }
+
+/* ============================ Avisos y distintivos ========================= */
+.aviso { border-left: 3px solid var(--aviso); background: var(--aviso-suave); padding: 10px 14px; font-size: var(--texto-sm); color: var(--tinta); }
+.aviso b { color: var(--aviso); font-weight: 600; }
+.aviso--nota { border-left-color: var(--marca); background: var(--marca-tenue); }
+.aviso--nota b { color: var(--marca); }
+.aviso--error { border-left-color: var(--baja); background: var(--baja-suave); }
+.aviso--error b { color: var(--baja); }
+.distintivo { display: inline-flex; align-items: center; gap: 5px; font-size: var(--texto-xs); line-height: 1; padding: 3px 7px; border: 1px solid var(--filete-fuerte); border-radius: var(--radio-control); color: var(--tinta-2); white-space: nowrap; vertical-align: middle; }
+.distintivo--si { color: var(--marca); border-color: #c3c8da; }
+.distintivo--interno { color: var(--aviso); border-color: var(--aviso-linea); background: var(--aviso-suave); }
+.falta { color: var(--aviso); font-size: var(--texto-sm); }
+.no-aplica { color: var(--tinta-3); font-style: italic; font-size: var(--texto-sm); }
+
+/* ============================ Campos ======================================= */
+.campo { display: block; }
+.campo__rotulo { display: block; font-size: var(--texto-sm); font-weight: 500; margin-bottom: 4px; }
+.campo__control { width: 100%; height: var(--alto-control); border: 1px solid var(--borde-control); border-radius: var(--radio-control); background: var(--papel); padding: 0 10px; font: 400 var(--texto-md) var(--fuente); color: var(--tinta); display: flex; align-items: center; }
+.campo__control--foco { outline: 2px solid var(--marca); outline-offset: 2px; }
+.campo__pista { display: block; font-size: var(--texto-xs); color: var(--tinta-3); margin-top: 4px; }
+.campo--error .campo__control { border-color: var(--baja); }
+.campo--error .campo__pista { color: var(--baja); }
+
+/* ============================ Gráficos ===================================== */
+.grafico { width: 100%; display: block; }
+.grafico text { font: 400 11.5px var(--fuente); fill: var(--tinta-3); font-variant-numeric: tabular-nums; }
+.grafico .rotulo-de-serie { font-weight: 600; fill: var(--tinta); font-size: 12px; }
+.leyenda { display: flex; gap: var(--e-4); font-size: var(--texto-xs); color: var(--tinta-2); margin-top: var(--e-2); }
+.leyenda span::before { content: ""; display: inline-block; width: 14px; height: 2px; background: var(--serie-1); vertical-align: middle; margin-right: 6px; }
+.leyenda span.referencia::before { background: repeating-linear-gradient(90deg, var(--serie-referencia) 0 4px, transparent 4px 7px); }

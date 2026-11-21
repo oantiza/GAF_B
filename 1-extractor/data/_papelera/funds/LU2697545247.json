@@ -1,0 +1,2106 @@
+{
+  "identificacion": {
+    "nombre": "BGF Euro Investment Grade Fixed Maturity Bond Fund 2028 A2",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Fixed Term Bond",
+    "fecha_lanzamiento_clase": "2024-10-21",
+    "gestora": "BlackRock",
+    "fecha_lanzamiento_fondo": "2024-10-21",
+    "estrategia_inversion_texto": "The Fund seeks to provide income, whilst also aiming to preserve the original amount of capital invested and investing in a manner consistent with the principles of environmental, social and governance “ESG”- focused investing.",
+    "clase_activo": "Fixed Income",
+    "indice_benchmark_oficial": "N/A",
+    "paraguas_legal": "BLACKROCK GLOBAL FUNDS",
+    "compartimento_legal": "EURO INVESTMENT GRADE FIXED MATURITY BOND FUND 2028",
+    "clase_legal": "A2 EUR",
+    "nombre_legal_registro": "BLACKROCK GLOBAL FUNDS-EURO INVESTMENT GRADE FIXED MATURITY BOND FUND 2028",
+    "divisa_compartimento": "EUR",
+    "fecha_autorizacion_cssf": "2024-01-03",
+    "marco_legal": "UCITS",
+    "gestora_legal": "BLACKROCK (LUXEMBOURG) S.A.",
+    "nombre_legal_esma": "BLACKROCK GLOBAL FUNDS-EURO INVESTMENT GRADE FIXED MATURITY BOND FUND 2028",
+    "estado_registro_esma": "Active",
+    "comercializado_en_espana": true,
+    "paises_comercializacion": [
+      "AT",
+      "BE",
+      "DE",
+      "DK",
+      "ES",
+      "FI",
+      "FR",
+      "GR",
+      "IE",
+      "IT",
+      "MT",
+      "NL",
+      "NO",
+      "SE"
+    ],
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "LUX",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "costes": {
+    "comision_gestion_aplicada_pct": 0.5,
+    "comision_gestion_max_pct": 0.5,
+    "mifid_emt_exante": {
+      "corrientes_pct": 0.66,
+      "transaccion_pct": 0.02,
+      "incidentales_pct": 0.0,
+      "fecha": "2026-03-31"
+    },
+    "ter_vs_categoria": {
+      "mediana_categoria_pct": 0.9,
+      "nivel": 2
+    }
+  },
+  "valoracion": {
+    "vl": 10.34,
+    "vl_fecha": "2026-09-28T05:00:00.000",
+    "vl_divisa": "EUR",
+    "patrimonio_fondo_meur": 323.7,
+    "patrimonio_fecha": "2026-09-28",
+    "patrimonio_divisa": "EUR"
+  },
+  "rentabilidad": {
+    "trailing_pct": {
+      "1m": {
+        "fondo": 0.09634
+      },
+      "3m": {
+        "fondo": 0.28958
+      },
+      "6m": {
+        "fondo": 0.192864
+      },
+      "ytd": {
+        "fondo": 0.77595
+      },
+      "1a": {
+        "fondo": 1.36585
+      },
+      "desde_lanzamiento_anualizada": {
+        "fondo": 2.07935
+      }
+    },
+    "fecha_dato": "2026-08-31",
+    "por_año_natural": {
+      "2025": {
+        "fondo": 3.30662
+      }
+    }
+  },
+  "riesgo": {
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 1.778
+      }
+    },
+    "fecha_dato": "2026-08-31",
+    "sharpe": {
+      "1a": {
+        "fondo": -0.321
+      }
+    },
+    "sri_kid_1a7": 2
+  },
+  "cartera": {
+    "renta_fija": {
+      "calidad_media": "A-",
+      "duracion_efectiva": 1.90031,
+      "sectores_pct": {
+        "corporativa": 98.20513,
+        "liquidez": 1.80278,
+        "derivados": -0.00791
+      },
+      "duracion_modificada": 1.88691,
+      "vencimiento_efectivo": 2.05,
+      "ytm_pct": 3.1,
+      "cupon_medio_pct": 2.62515,
+      "precio_medio": 98.3137,
+      "fecha": "2026-08-31T05:00:00.000",
+      "vencimientos_pct": {
+        "1_3": 95.70591,
+        "3_5": 0.0,
+        "5_7": 0.0,
+        "7_10": 0.0,
+        "10_15": 0.0,
+        "15_20": 0.0,
+        "20_30": 0.0,
+        "mas_30": 0.0
+      },
+      "ytw_distribucion_pct": {
+        "negativo": 0.581,
+        "1_3": 0.815,
+        "3_5": 94.103,
+        "5_7": 1.336,
+        "7_10": 1.257,
+        "10_20": 0.173,
+        "desconocido": 1.735
+      },
+      "calidad_crediticia_pct": {
+        "AAA": 0.0,
+        "AA": 8.60269,
+        "A": 46.93837,
+        "BBB": 44.45894,
+        "BB": 0.0,
+        "B": 0.0,
+        "inferior_B": 0.0,
+        "sin_rating": 0.0
+      },
+      "pct_investment_grade": 100.0,
+      "pct_high_yield": 0.0
+    },
+    "fecha": "2026-08-31",
+    "num_posiciones": 142,
+    "num_posiciones_rf": 136,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 98.20513,
+        "largo": 98.20513,
+        "corto": 0.0
+      },
+      "convertibles": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": 1.79487,
+        "largo": 2.53043,
+        "corto": 0.73556
+      },
+      "otros": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      }
+    },
+    "paises_pct": {
+      "USA": 25.8956,
+      "FRA": 18.3729,
+      "DEU": 13.3208,
+      "GBR": 12.1396,
+      "ITA": 7.3598,
+      "NLD": 4.347,
+      "ESP": 3.0011,
+      "FIN": 2.8957,
+      "JPN": 2.3922,
+      "SWE": 2.2901,
+      "CHE": 2.0453,
+      "DNK": 1.6017,
+      "IRL": 1.4372,
+      "BEL": 0.8143,
+      "ISR": 0.7078,
+      "PRT": 0.7034,
+      "AUS": 0.2729,
+      "CYP": 0.1963,
+      "LUX": 0.1898,
+      "CAN": 0.0166
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "BNP Paribas SA",
+        "isin": "XS1722801708",
+        "peso_pct": 1.47534,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Haleon UK Capital PLC",
+        "isin": "XS2902024772",
+        "peso_pct": 1.47512,
+        "sector": null,
+        "pais": "GBR",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Informa PLC",
+        "isin": "XS2068065163",
+        "peso_pct": 1.4746,
+        "sector": null,
+        "pais": "GBR",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Credit Agricole S.A.",
+        "isin": "FR0014003182",
+        "peso_pct": 1.47452,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Societe Generale S.A.",
+        "isin": "FR0013368602",
+        "peso_pct": 1.47258,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "ING Groep N.V.",
+        "isin": "XS1882544973",
+        "peso_pct": 1.47153,
+        "sector": null,
+        "pais": "NLD",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Motability Operations Group PLC",
+        "isin": "XS2287624584",
+        "peso_pct": 1.46985,
+        "sector": null,
+        "pais": "GBR",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "ABN AMRO Bank N.V.",
+        "isin": "XS2613658710",
+        "peso_pct": 1.46859,
+        "sector": null,
+        "pais": "NLD",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Co-entreprise de Transport d'Electricite S.A.",
+        "isin": "FR0013264421",
+        "peso_pct": 1.46647,
+        "sector": null,
+        "pais": "FRA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Fidelity National Information Services Inc",
+        "isin": "XS2085655590",
+        "peso_pct": 1.46527,
+        "sector": null,
+        "pais": "USA",
+        "divisa": "EUR"
+      }
+    ],
+    "posiciones": [
+      {
+        "nombre": "BNP Paribas SA",
+        "isin": "XS1722801708",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47534,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Haleon UK Capital PLC",
+        "isin": "XS2902024772",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47512,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Informa PLC",
+        "isin": "XS2068065163",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.4746,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Credit Agricole S.A.",
+        "isin": "FR0014003182",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47452,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Societe Generale S.A.",
+        "isin": "FR0013368602",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47258,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "ING Groep N.V.",
+        "isin": "XS1882544973",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.47153,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Motability Operations Group PLC",
+        "isin": "XS2287624584",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.46985,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "ABN AMRO Bank N.V.",
+        "isin": "XS2613658710",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.46859,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Co-entreprise de Transport d'Electricite S.A.",
+        "isin": "FR0013264421",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.46647,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Fidelity National Information Services Inc",
+        "isin": "XS2085655590",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.46527,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Credit Mutuel Arkea",
+        "isin": "FR0013450822",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.45902,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Citigroup Inc.",
+        "isin": "XS1457608286",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.45763,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "HSBC Holdings PLC",
+        "isin": "XS1428953407",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.45709,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Jcdecaux SE",
+        "isin": "FR0013509643",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.4449,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "ENEL Finance International N.V.",
+        "isin": "XS2751666426",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.42754,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Verizon Communications Inc.",
+        "isin": "XS1405766624",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.42304,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "BPCE SA",
+        "isin": "FR001400F075",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.42101,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "ESB Finance Designated Activity Co.",
+        "isin": "XS2697983869",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.41137,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "IRL"
+      },
+      {
+        "nombre": "Becton Dickinson Euro Finance S.A.R.L.",
+        "isin": "XS2375844144",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.2982,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "TRATON Finance Luxembourg S.A",
+        "isin": "DE000A3LHK80",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.26608,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Nissan Motor Co Ltd.",
+        "isin": "XS2228683350",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.25826,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Autostrade per l'Italia S.p.A.",
+        "isin": "XS2267889991",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.22889,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Goldman Sachs Group, Inc.",
+        "isin": "XS1861206636",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.2158,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Booking Holdings Inc",
+        "isin": "XS2621007231",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.21348,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Volkswagen Leasing GmbH",
+        "isin": "XS2745725155",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.21188,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Morgan Stanley",
+        "isin": "XS2548080832",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.20552,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Cellnex Finance Company S.A.U.",
+        "isin": "XS2348237871",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.20062,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Carlsberg Breweries A/S",
+        "isin": "XS2696046460",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.19829,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DNK"
+      },
+      {
+        "nombre": "American Tower Corporation",
+        "isin": "XS2227905903",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.19365,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Fresenius Finance Ireland PLC",
+        "isin": "XS2325565104",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.17977,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "American Honda Finance Corporation",
+        "isin": "XS2363117321",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.17663,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "BMW International Investment B.V.",
+        "isin": "XS2823825711",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.16857,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Banco Santander SA",
+        "isin": "XS1767931121",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.16591,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Fiserv Funding ULC",
+        "isin": "XS3060656884",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.14751,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "ASTM S.p.A.",
+        "isin": "XS1765875718",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.09991,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Softbank Group Corp.",
+        "isin": "XS1793255941",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.09096,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Pluxee NV",
+        "isin": "FR001400OF01",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.08515,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "ZF Finance GmbH",
+        "isin": "XS2231331260",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.05008,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "AT&T Inc",
+        "isin": "XS2180007549",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.02543,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Stellantis N.V",
+        "isin": "XS2937307929",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.02539,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Snam S.p.A.",
+        "isin": "XS2767499275",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 1.00086,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Nationwide Building Society",
+        "isin": "XS3087810548",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.99685,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "EC Finance PLC",
+        "isin": "XS2389984175",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.98,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Digital Euro Finco LLC",
+        "isin": "XS2063495811",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.9481,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "General Motors Financial Company Inc",
+        "isin": "XS2384274366",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.92074,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Bank of America Corp.",
+        "isin": "XS2345799089",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.91021,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Nordea Bank ABP",
+        "isin": "XS2618906585",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.88748,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FIN"
+      },
+      {
+        "nombre": "Banque Federative du Credit Mutuel",
+        "isin": "XS1824240136",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.88666,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "UBS Group AG",
+        "isin": "CH0595205524",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.85796,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Market Bidco Finco PLC",
+        "isin": "XS2470988523",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.82879,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Schaeffler AG",
+        "isin": "DE000A4DFLP8",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.82343,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "V.F. Corp",
+        "isin": "XS2123970167",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.82006,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "NatWest Group PLC",
+        "isin": "XS2528858033",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.8032,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Telenet Finance Luxembourg Notes S.A.R.L",
+        "isin": "BE6300371273",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.7997,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "BEL"
+      },
+      {
+        "nombre": "Citycon Treasury B.V.",
+        "isin": "XS2310411090",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.7919,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FIN"
+      },
+      {
+        "nombre": "Ashland Services BV",
+        "isin": "XS2103218538",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.76775,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Allied Universal Holdco LLC / Allied Universal Finance Corp.",
+        "isin": "XS2342057143",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.76738,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Compagnie de Saint-Gobain SA",
+        "isin": "XS1881593971",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.76383,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Engie SA",
+        "isin": "FR0013504677",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.7611,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "National Grid PLC",
+        "isin": "XS2381853279",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.75731,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Daimler Truck International Finance BV",
+        "isin": "XS2900306171",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.71831,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Hera SpA",
+        "isin": "XS0880764435",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.71629,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "SCIL IV LLC / SCIL USA Holdings LLC",
+        "isin": "XS2644942737",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.71039,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Aroundtown SA",
+        "isin": "XS1761721262",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.69839,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "EDP SA",
+        "isin": "PTEDPUOM0008",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.69077,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "PRT"
+      },
+      {
+        "nombre": "Skandinaviska Enskilda Banken AB (publ)",
+        "isin": "XS2356049069",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.64589,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Organon & Co",
+        "isin": "XS2332250708",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.63765,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Heimstaden Bostad Treasury BV",
+        "isin": "XS2397252102",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.63635,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Brenntag Finance BV",
+        "isin": "XS2802928775",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.62895,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Teva Pharmaceutical Finance Netherlands II B.V",
+        "isin": "XS2406607098",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.61472,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ISR"
+      },
+      {
+        "nombre": "Mondi Finance Europe GmbH",
+        "isin": "XS2151059206",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.61448,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Ahlstrom Oyj",
+        "isin": "XS2319950130",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59519,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FIN"
+      },
+      {
+        "nombre": "Swedbank AB (publ)",
+        "isin": "XS2572496623",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.59233,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Deutsche Bank AG",
+        "isin": "DE000DL19T26",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.58112,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Holcim Finance (Luxembourg) S.A.",
+        "isin": "XS1420338102",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57935,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Belden Inc.",
+        "isin": "XS1789515134",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57876,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Air France KLM",
+        "isin": "FR001400F2R8",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.57328,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Nordea Bank ABP",
+        "isin": "XS2403444677",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.56918,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FIN"
+      },
+      {
+        "nombre": "Prologis Euro Finance LLC",
+        "isin": "XS2112475509",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.56865,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "OI European Group B.V.",
+        "isin": "XS2624554320",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.54074,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Banca Monte dei Paschi di Siena S.p.A.",
+        "isin": "XS1752894292",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.53679,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Ineos Styrolution Group Gmbh",
+        "isin": "XS2108560306",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.52305,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Commerzbank AG",
+        "isin": "DE000CZ40MM4",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.51988,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Ford Motor Credit Company LLC",
+        "isin": "XS2822575648",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.51424,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Paprec Holding S.A",
+        "isin": "XS2349786835",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.49855,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Banque Federative du Credit Mutuel",
+        "isin": "FR0014003SA0",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.49672,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "National Grid Electricity Distribution (East Midlands) plc",
+        "isin": "XS2528341501",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47988,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Crown European Holdings S.A.",
+        "isin": "XS2623222978",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.47096,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Grunenthal GmbH",
+        "isin": "XS2337703537",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.46785,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Forvia SE",
+        "isin": "XS2081474046",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.46358,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "UBS Group AG",
+        "isin": "CH0576402181",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.45465,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Azzurra Aeroporti S.p.A.",
+        "isin": "XS2208302179",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.45174,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Bank of America Corp.",
+        "isin": "XS2634687912",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.4424,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "INEOS Finance PLC",
+        "isin": "XS2587558474",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.44169,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Nationwide Building Society",
+        "isin": "XS2385790667",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.42384,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Eni SpA",
+        "isin": "IT0005521171",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39791,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "LEG Immobilien SE",
+        "isin": "DE000A254P51",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.39267,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Avantor Funding Inc",
+        "isin": "XS2205083749",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3801,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Orsted A/S",
+        "isin": "XS2490471807",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.37463,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DNK"
+      },
+      {
+        "nombre": "Fastighets AB Balder",
+        "isin": "XS2109608724",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3744,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "SWE"
+      },
+      {
+        "nombre": "Grifols S.A.",
+        "isin": "XS2393001891",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.37324,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Silgan Holdings Inc.",
+        "isin": "XS2181577268",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.37145,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Cedacri S.p.A.",
+        "isin": "XS2345190263",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.36774,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Iqvia Inc",
+        "isin": "XS2036798150",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33972,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Iliad SA",
+        "isin": "FR0014001YB0",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.33596,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Forvia SE",
+        "isin": "XS2209344543",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3334,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "JPMorgan Chase & Co.",
+        "isin": "XS2838379712",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32556,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Valeo SE",
+        "isin": "FR0014004UE6",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.32442,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "New Immo Holding SA.",
+        "isin": "FR001400EHH1",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3201,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Medtronic Global Holdings SCA",
+        "isin": "XS2535308477",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.31516,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "ZF Europe Finance B.V.",
+        "isin": "XS2010039977",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.3115,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "New Immo Holding SA.",
+        "isin": "FR0013524865",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30832,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Eurogrid GmbH",
+        "isin": "XS1396285279",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.30204,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Vonovia SE",
+        "isin": "DE000A3MP4U9",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.29086,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Prologis International Funding II SA",
+        "isin": "XS1789176846",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.27829,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Veolia Environnement S.A.",
+        "isin": "FR0013173432",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26934,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Volkswagen International Finance N.V.",
+        "isin": "XS2234567233",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.26558,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Toyota Finance Australia Ltd",
+        "isin": "XS2430284930",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2625,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "AUS"
+      },
+      {
+        "nombre": "New Immo Holding SA.",
+        "isin": "FR001400PIA0",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2567,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "BMW Finance N.V.",
+        "isin": "XS2698773830",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.25349,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Banco Santander SA",
+        "isin": "XS2298304499",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.2075,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ESP"
+      },
+      {
+        "nombre": "Heidelberg Materials Finance Luxembourg S.A.",
+        "isin": "XS1810653540",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.20046,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Bank of Cyprus Public Co Ltd.",
+        "isin": "XS2648493570",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.19281,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CYP"
+      },
+      {
+        "nombre": "Schaeffler AG",
+        "isin": "DE000A3H2TA0",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1899,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "TRATON Finance Luxembourg S.A",
+        "isin": "DE000A3L69X8",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.18891,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "SES S.A.",
+        "isin": "XS2196317742",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.17948,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "LUX"
+      },
+      {
+        "nombre": "BCP V Modular Services Finance II PLC",
+        "isin": "XS2397447025",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.17592,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Toyota Motor Finance (Netherlands) B.V.",
+        "isin": "XS2972972017",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.17451,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Demire Deutsche Mittelstand Real Estate AG",
+        "isin": "DE000A2YPAK1",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.1706,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "TenneT Netherlands BV",
+        "isin": "XS2549543143",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.12898,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Commerzbank AG",
+        "isin": "DE000CZ45Y63",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.12502,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "UBS AG, London Branch",
+        "isin": "XS2381671671",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.11664,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Banque Federative du Credit Mutuel",
+        "isin": "FR0014001I68",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.0874,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Tk Elevator Midco GmbH",
+        "isin": "XS2199597456",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.07632,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Maya S.A.S.",
+        "isin": "XS2397781944",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.06319,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Teva Pharmaceutical Finance Netherlands II B.V",
+        "isin": "XS1439749364",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.04955,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ISR"
+      },
+      {
+        "nombre": "Teva Pharmaceutical Finance Netherlands II B.V",
+        "isin": "XS1211044075",
+        "ticker": null,
+        "tipo": "rf",
+        "peso_pct": 0.03084,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "ISR"
+      },
+      {
+        "nombre": "Blk Ics Eur As Liq EnvirtlyAwrAgcyAccTo€",
+        "isin": "IE00B9346255",
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.79323,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "IRL"
+      },
+      {
+        "nombre": "CHF/EUR Purchased",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.66001,
+        "divisa": "CHF",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "EUR CASH(Alpha Committed)",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.05009,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "GBP CASH(Alpha Committed)",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00617,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": "USA"
+      },
+      {
+        "nombre": "Cash Offset",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00395,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "CHF/EUR Sold",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.66792,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      }
+    ],
+    "divisas_pct": {
+      "EUR": 99.33,
+      "CHF": 0.66,
+      "GBP": 0.01
+    }
+  },
+  "esg": {
+    "globos_sostenibilidad": 3,
+    "fecha": "2025-10-31",
+    "sustainability_score": 18.45141,
+    "score_ambiental": 3.82,
+    "score_social": 7.38,
+    "score_gobernanza": 4.07,
+    "cobertura_cartera_pct": 88.62799,
+    "carbono": {
+      "carbon_risk_score": 7.16,
+      "clasificacion": "Low Risk",
+      "score_exposicion": 20.1,
+      "score_gestion": 12.95,
+      "riesgo_activos_varados": 79.0
+    }
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "meta": {
+    "sec_id_morningstar": "F00001NXX0",
+    "cssf_fichero": "2026-09",
+    "esma_coincidencia": {
+      "pais": "LU",
+      "modo": "exacto",
+      "consulta": "BLACKROCK GLOBAL FUNDS-EURO INVESTMENT GRADE FIXED MATURITY BOND FUND 2028",
+      "candidatos": 1
+    },
+    "isin": "LU2697545247",
+    "actualizado": "2026-09-29T06:54:03+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "morningstar_lt",
+        "cssf",
+        "esma",
+        "config_csv"
+      ],
+      "costes": [
+        "morningstar_lt"
+      ],
+      "valoracion": [
+        "morningstar_lt"
+      ],
+      "rentabilidad": [
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "morningstar_lt"
+      ],
+      "cartera": [
+        "morningstar_lt"
+      ],
+      "esg": [
+        "morningstar_lt"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "meta": [
+        "morningstar_lt",
+        "cssf",
+        "esma"
+      ],
+      "gestion": [
+        "morningstar_lt"
+      ],
+      "documentos": [
+        "morningstar_lt"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:sal_allocationMap",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:sal_allocationMap",
+      "cartera.divisas_pct.CHF": "derivado:derivados",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.divisas_pct.GBP": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:ETFsnapshot",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rf": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.AUS": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.BEL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CAN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CHE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CYP": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DEU": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DNK": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ESP": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.FIN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.FRA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.GBR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.IRL": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ISR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ITA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.JPN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.LUX": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.NLD": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.PRT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.SWE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.USA": "morningstar_lt:ETFsnapshot",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.renta_fija.calidad_crediticia_pct.A": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.AA": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.AAA": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.B": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.BB": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.BBB": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.inferior_B": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_crediticia_pct.sin_rating": "morningstar_lt:sal_creditQuality",
+      "cartera.renta_fija.calidad_media": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.cupon_medio_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.duracion_efectiva": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.duracion_modificada": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.pct_high_yield": "derivado:derivados",
+      "cartera.renta_fija.pct_investment_grade": "derivado:derivados",
+      "cartera.renta_fija.precio_medio": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.corporativa": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.derivados": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.vencimiento_efectivo": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.vencimientos_pct.10_15": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.15_20": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.1_3": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.20_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.3_5": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.5_7": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.7_10": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.vencimientos_pct.mas_30": "morningstar_lt:sal_maturitySchedule",
+      "cartera.renta_fija.ytm_pct": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.ytw_distribucion_pct.10_20": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.1_3": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.3_5": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.5_7": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.7_10": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.desconocido": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.renta_fija.ytw_distribucion_pct.negativo": "morningstar_lt:sal_multiLevelFixedIncome",
+      "cartera.top10_posiciones": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_aplicada_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.mifid_emt_exante.corrientes_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.fecha": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.incidentales_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.transaccion_pct": "morningstar_lt:Mifid",
+      "costes.ter_vs_categoria.mediana_categoria_pct": "morningstar_lt:sal_feeLevel",
+      "costes.ter_vs_categoria.nivel": "morningstar_lt:sal_feeLevel",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "documentos.n": "morningstar_lt:MFsnapshot",
+      "documentos.ultima_fecha": "morningstar_lt:MFsnapshot",
+      "esg.carbono.carbon_risk_score": "morningstar_lt:sustainability",
+      "esg.carbono.clasificacion": "morningstar_lt:sustainability",
+      "esg.carbono.riesgo_activos_varados": "morningstar_lt:sustainability",
+      "esg.carbono.score_exposicion": "morningstar_lt:sustainability",
+      "esg.carbono.score_gestion": "morningstar_lt:sustainability",
+      "esg.cobertura_cartera_pct": "morningstar_lt:sustainability",
+      "esg.fecha": "morningstar_lt:sustainability",
+      "esg.globos_sostenibilidad": "morningstar_lt:sustainability",
+      "esg.score_ambiental": "morningstar_lt:sustainability",
+      "esg.score_gobernanza": "morningstar_lt:sustainability",
+      "esg.score_social": "morningstar_lt:sustainability",
+      "esg.sustainability_score": "morningstar_lt:sustainability",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_legal": "cssf:identificadores",
+      "identificacion.comercializado_en_espana": "esma:cbdif",
+      "identificacion.compartimento_legal": "cssf:identificadores",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.divisa_compartimento": "cssf:identificadores",
+      "identificacion.domicilio": "cssf:identificadores",
+      "identificacion.estado_registro_esma": "esma:cbdif",
+      "identificacion.estrategia_inversion_texto": "morningstar_lt:sal_investmentStrategy",
+      "identificacion.fecha_autorizacion_cssf": "cssf:identificadores",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "esma:cbdif",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.marco_legal": "esma:cbdif",
+      "identificacion.nombre": "morningstar_lt:ETFsnapshot",
+      "identificacion.nombre_legal_esma": "esma:cbdif",
+      "identificacion.nombre_legal_registro": "cssf:identificadores",
+      "identificacion.paises_comercializacion": "esma:cbdif",
+      "identificacion.paraguas_legal": "cssf:identificadores",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "cssf:identificadores",
+      "meta.cssf_fichero": "cssf:identificadores",
+      "meta.esma_coincidencia.candidatos": "esma:cbdif",
+      "meta.esma_coincidencia.consulta": "esma:cbdif",
+      "meta.esma_coincidencia.modo": "esma:cbdif",
+      "meta.esma_coincidencia.pais": "esma:cbdif",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2025.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.desde_lanzamiento_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sri_kid_1a7": "morningstar_lt:Mifid",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "morningstar_lt:sal_quote",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "cssf",
+        "morningstar_lt",
+        "kid_gestora",
+        "esma"
+      ],
+      "familias": [
+        "costes",
+        "regulatorio"
+      ],
+      "fuentes": {
+        "cssf": {
+          "hojas": 10,
+          "endpoints": {
+            "cssf:identificadores": {
+              "fichero": "2026-09"
+            }
+          },
+          "segundos": 0.0
+        },
+        "morningstar_lt": {
+          "hojas": 1030,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-09-29T06:53:27+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-09-29T06:53:27+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-09-29T06:53:28+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-09-29T06:53:30+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-09-29T06:53:31+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-09-29T06:53:32+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-09-29T06:53:33+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-09-29T06:53:34+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-09-29T06:53:36+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-09-29T06:53:38+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-09-29T06:53:39+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-09-29T06:53:41+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-09-29T06:53:55+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-09-29T06:53:44+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-09-29T06:53:45+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-09-29T06:53:46+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-09-29T06:53:48+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-09-29T06:53:42+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-09-29T06:53:49+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-09-29T06:53:52+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-09-29T06:53:54+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-09-29T06:53:51+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-09-29T06:53:57+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-09-29T06:53:58+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-09-29T06:54:00+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-09-29T06:54:01+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-09-29T06:54:03+00:00"
+            }
+          },
+          "segundos": 48.36
+        },
+        "esma": {
+          "hojas": 26,
+          "endpoints": {
+            "esma:cbdif": {
+              "fetched_at": "2026-09-29T06:54:03+00:00",
+              "consulta": "BLACKROCK GLOBAL FUNDS-EURO INVESTMENT GRADE FIXED MATURITY BOND FUND 2028",
+              "modo": "exacto"
+            }
+          },
+          "segundos": 0.06
+        }
+      }
+    }
+  },
+  "gestion": {
+    "gestora": {
+      "nombre": "BlackRock (Luxembourg) SA"
+    }
+  },
+  "documentos": {
+    "n": 1,
+    "ultima_fecha": "2026-08-31"
+  },
+  "calidad": {
+    "score": 69,
+    "bucket": "MEDIO",
+    "esenciales": "7/10",
+    "flags": [
+      "info_pesos_negativos"
+    ]
+  }
+}

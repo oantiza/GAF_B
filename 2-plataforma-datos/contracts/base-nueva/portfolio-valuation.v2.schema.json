@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/portfolio-valuation.v2.schema.json",
+  "title": "portfolios/{portfolio_id}/valuations/{period_id} — v2",
+  "description": "La foto de rentabilidad de un periodo, con TODAS sus convenciones declaradas al lado. Guardar la cifra sin la convencion es lo que hace que dos informes del mismo cliente no se parezcan y nadie sepa por que. Y hay un invariante gratis que sirve de prueba: SIN FLUJOS EXTERNOS, TWR Y MWR SON IGUALES, exactamente. Si en un periodo sin flujos externos las dos difieren, el calculo esta mal, y eso se puede comprobar sin ningun dato de referencia.",
+  "x-collection": "portfolios/{portfolio_id}/valuations/{period_id}",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "period",
+    "computed_at",
+    "flow_convention",
+    "valuation_frequency",
+    "fee_basis",
+    "return_basis",
+    "external_flows_count",
+    "observations"
+  ],
+  "properties": {
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "start", "end"],
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["CALENDAR", "SINCE_INCEPTION"],
+          "description": "Las dos clases de ventana, nombradas distinto a proposito: el 'desde inicio' de un cliente es la fecha de su primer flujo, no un anio natural, y llamarlas igual es como se mezclan.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "start": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "end": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "computed_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "flow_convention": {
+      "type": "string",
+      "enum": ["END_OF_DAY", "START_OF_DAY"],
+      "description": "Si un flujo del dia 12 cuenta al principio o al final de ese dia. El diseno fija END_OF_DAY: el flujo no participa del movimiento de ese dia.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "valuation_frequency": {
+      "type": "string",
+      "enum": ["DAILY", "WEEKLY", "MONTHLY"],
+      "description": "Cada cuanto se revalora para encadenar. El diseno fija DAILY: con valoracion diaria todo flujo cae en un dia ya valorado y la TWR es exacta, no aproximada.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "fee_basis": {
+      "type": "string",
+      "enum": ["NET_OF_ALL_CHARGED", "GROSS"],
+      "description": "Neta de que. El diseno fija NET_OF_ALL_CHARGED: neta de todo lo cargado en la cuenta, es decir los gastos del fondo —que ya vienen en el valor liquidativo— mas las comisiones e impuestos del libro.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "return_basis": {
+      "type": "string",
+      "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "twr": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 100,
+      "description": "Rentabilidad ponderada por tiempo, en FRACCION. Mide al gestor: descuenta los flujos externos, que el gestor no decide.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "mwr": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 100,
+      "description": "Rentabilidad ponderada por dinero, en FRACCION. Mide al cliente: lo que de verdad le ha rentado su dinero, con sus aportaciones donde las hizo.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "mwr_annualized": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 100,
+      "description": "Solo si el periodo llega al anio. Anualizar cuatro meses es inventar.",
+      "x-unit": "fraction",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-applies-to": "periodos de 365 dias o mas",
+      "x-applies-when": "PERIODO_DE_UN_ANIO_O_MAS",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "market_value": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000000000,
+      "description": "Valor de la cartera en euros al cierre del periodo.",
+      "x-unit": "currency_amount",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "external_flows_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "Cuantos flujos externos hubo. Obligatorio porque es lo que habilita el invariante: si vale 0, twr y mwr tienen que coincidir.",
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "observations": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "Dias valorados en el periodo. Una TWR encadenada sobre 12 observaciones y otra sobre 250 no son la misma cifra.",
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "currency", "variant", "return_basis", "twr"],
+      "description": "El indice de la cartera, con su identidad completa, cuando lo hay. Para una cartera mixta el diseno propone NO componer un indice en el alfa y decirlo, antes que inventar un compuesto que nadie pueda reproducir.",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-reference": true,
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "variant": {
+          "type": "string",
+          "enum": ["NR", "GR", "PR", "TR"],
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "return_basis": {
+          "type": "string",
+          "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        },
+        "twr": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 100,
+          "x-unit": "fraction",
+          "x-layer": "computed",
+          "x-owner": "batch"
+        }
+      }
+    }
+  }
+}

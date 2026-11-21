@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  firestore-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+      - name: Auth, batch limits and transactional imports (demo project only)
+        run: npx --yes firebase-tools@15.29.0 emulators:exec --only auth,firestore --project demo-bdb-audit "node scripts/testCommercialRetroEmulators.mjs"
+
+  app-and-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            functions_python/requirements.txt
+            functions_python/constraints.txt
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Contract cache parity
+        run: npm run check:contracts
+      - name: Lint
+        run: npm run lint
+      - name: Vitest
+        run: npm test
+      - name: Production build and bundle budget
+        run: npm run build
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r functions_python/requirements.txt
+          pip install pytest
+      - name: Pytest functions
+        run: npm run test:functions
+
+  # Recorrido funcional con navegador real del flujo Construir→Informe.
+  ui-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Serve dev server on 5178
+        # El recorrido corre contra `vite dev` (fuente estática de muestra):
+        # un build de producción exige Firebase + BBDD_LIVE_API por gobernanza
+        # (runtimeConfig) y no puede servir datos de muestra.
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 5178 --strictPort &
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:5178 > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          echo "el dev server no respondió en 60 s" && exit 1
+      # Las dos pruebas de humo leen la dirección de AUDIT_BASE (scripts/entrarEnLaApp.mjs);
+      # sin ella irían al servidor de desarrollo local, que aquí no existe.
+      - name: Smoke Construir→Informe (N1, alertas, fusión Análisis)
+        env:
+          AUDIT_BASE: http://127.0.0.1:5178
+        run: npm run smoke:informe
+      # S-15 (auditoría 29-09): los dos scripts necesitan Chromium (Playwright)
+      # y el dev server en 5178, así que van en este job, no en app-and-functions.
+      - name: Smoke PDF (letras incrustadas en la comparativa y el semanal)
+        env:
+          AUDIT_BASE: http://127.0.0.1:5178
+        run: npm run smoke:pdf
+      # `npm run audit:ui` se retiró el 19-11-2026: lo que solo ella miraba pasó al recorrido
+      # (scripts/auditoriaFrontend.mjs), que entra con el usuario del emulador y no corre aquí.

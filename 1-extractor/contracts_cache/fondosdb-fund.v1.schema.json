@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/canonical/fondosdb-fund.v1.schema.json",
+  "title": "FondosDB canonical fund (export_bdb/{ISIN}.json) — v1",
+  "description": "Forma del fichero canonico que produce fondosdb (un JSON por activo en export_bdb/). Es la ENTRADA de la ingesta. Describe la estructura observada en produccion (muestra real 2026-06) y documenta los campos que la ingesta consume. additionalProperties=true en todos los niveles: fondosdb es el upstream y puede anadir campos; el contrato valida tipos de lo que consumimos, no prohibe que fondosdb crezca. Las reglas de ACEPTACION (reject/review) viven en el mapper, no aqui. Unidades: ms.* en porcentajes (0-100); portfolio_exposure_v2 en fracciones (0-1).",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "generated_at": { "type": ["string", "null"], "description": "ISO timestamp de generacion." },
+    "isin": { "type": ["string", "null"], "description": "ISIN del activo. Puede ser null en el fichero; el mapper rechaza si falta o es invalido (Luhn)." },
+    "name": { "type": ["string", "null"] },
+    "currency": { "type": ["string", "null"], "description": "Divisa base (p.ej. EUR)." },
+    "fileName": { "type": ["string", "null"] },
+    "stableBaseName": { "type": ["string", "null"] },
+    "report_date": { "type": ["string", "null"], "description": "YYYY-MM-DD." },
+    "ms": { "$ref": "#/$defs/ms" },
+    "derived": { "$ref": "#/$defs/derived" },
+    "classification_v2": { "$ref": "#/$defs/classification_v2" },
+    "portfolio_exposure_v2": { "$ref": "#/$defs/portfolio_exposure_v2" },
+    "quality": { "$ref": "#/$defs/quality" },
+    "validation": { "$ref": "#/$defs/validation" },
+    "routing": { "$ref": "#/$defs/routing" }
+  },
+  "$defs": {
+    "ms": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "Bloque Morningstar. Porcentajes 0-100.",
+      "properties": {
+        "category_morningstar": { "type": ["string", "null"] },
+        "rating_stars": { "type": ["number", "null"] },
+        "sustainability_rating": { "type": ["number", "null"] },
+        "costs": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "management_fee": { "type": ["number", "null"] },
+            "ter": { "type": ["number", "null"] },
+            "mifid_ongoing": { "type": ["number", "null"] }
+          }
+        },
+        "fixed_income": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "description": "Perfil de renta fija.",
+          "properties": {
+            "effective_duration": { "type": ["number", "null"] },
+            "effective_maturity": { "type": ["number", "null"] },
+            "avg_credit_quality": { "type": ["string", "null"] },
+            "modified_duration": { "type": ["number", "null"] },
+            "yield_to_maturity": { "type": ["number", "null"] },
+            "yield_to_worst": { "type": ["number", "null"] },
+            "investment_grade_pct": { "type": ["number", "null"] },
+            "high_yield_pct": { "type": ["number", "null"] },
+            "credit_quality": { "type": ["object", "null"], "additionalProperties": true },
+            "maturity_allocation": { "type": ["object", "null"], "additionalProperties": true },
+            "coupon_allocation": { "type": ["object", "null"], "additionalProperties": true },
+            "ytw_distribution": { "type": ["object", "null"], "additionalProperties": true },
+            "bond_sectors": { "type": ["object", "null"], "additionalProperties": true }
+          }
+        },
+        "holdings_top10": {
+          "type": ["array", "null"],
+          "items": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+    "derived": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "asset_class": { "type": ["string", "null"], "description": "RV, RF, etc." },
+        "asset_subtype": { "type": ["string", "null"] },
+        "primary_region": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"] },
+        "portfolio_exposure": { "type": ["object", "null"], "additionalProperties": true }
+      }
+    },
+    "classification_v2": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "asset_type": { "type": ["string", "null"], "description": "equity, fixed_income, money_market, other..." },
+        "asset_subtype": { "type": ["string", "null"] },
+        "commercial_type": { "type": ["string", "null"] },
+        "region_primary": { "type": ["string", "null"] },
+        "market_cap_bias": { "type": ["string", "null"] },
+        "fixed_income_type": { "type": ["string", "null"] },
+        "strategy_tags": { "type": ["array", "null"], "items": { "type": "string" } },
+        "vehicle_complexity": { "type": ["string", "null"] },
+        "classification_confidence": { "type": ["number", "null"] }
+      }
+    },
+    "portfolio_exposure_v2": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "Exposicion en FRACCIONES (0-1). OJO: unidades distintas a ms.* (porcentajes). El normalizador del cargador debe unificar.",
+      "properties": {
+        "asset_mix": { "type": ["object", "null"], "additionalProperties": true },
+        "equity_regions": { "type": ["object", "null"], "additionalProperties": true },
+        "sectors": { "type": ["object", "null"], "additionalProperties": true },
+        "equity_styles": { "type": ["object", "null"], "additionalProperties": true },
+        "market_caps": { "type": ["object", "null"], "additionalProperties": true },
+        "equity_style_box": { "type": ["object", "null"], "additionalProperties": true, "description": "Las nueve celdas de la caja de estilo y tamano, en fraccion y netas de cortos: large_value, large_blend, large_growth, mid_value, mid_blend, mid_growth, small_value, small_blend, small_growth. equity_styles y market_caps son sus sumas por columnas y por filas. Una celda puede ser negativa." },
+        "bond_types": { "type": ["object", "null"], "additionalProperties": true },
+        "credit": { "type": ["object", "null"], "additionalProperties": true },
+        "duration": { "type": ["object", "null"], "additionalProperties": true },
+        "alternatives": { "type": ["object", "null"], "additionalProperties": true },
+        "exposure_confidence": { "type": ["number", "null"] }
+      }
+    },
+    "quality": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "bucket": { "type": ["string", "null"] },
+        "warnings": { "type": ["array", "null"], "items": { "type": "string" } }
+      }
+    },
+    "validation": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "errors": { "type": ["array", "null"], "items": { "type": "string" } },
+        "warnings": { "type": ["array", "null"], "items": { "type": "string" } },
+        "diagnostics": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "calidad_fondosdb": { "type": ["string", "null"], "description": "ALTO | MEDIO | BAJO | BLOQUEADO (no restringido por enum para no rechazar variantes del upstream)." }
+          }
+        }
+      }
+    },
+    "routing": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "status": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

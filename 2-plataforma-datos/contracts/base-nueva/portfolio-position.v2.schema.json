@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/portfolio-position.v2.schema.json",
+  "title": "portfolios/{portfolio_id}/positions/{instrument_id} — v2",
+  "description": "Una posicion de una cartera real: lo que el cliente tiene de ese instrumento. Es una PROYECCION del libro, no una fuente: se deriva de las operaciones y se puede reconstruir entera. Un documento por posicion y no un array dentro de la cartera, porque un array dentro de un documento es el techo de siempre; con 200 posiciones de 150 bytes esto son 30 KB repartidos en 200 documentos, y nada crece sin limite. La LIQUIDEZ es la posicion en EUR: decidido el 31-10, la cuenta de efectivo no es un campo aparte sino positions/EUR, y el euro es una divisa, no un ISIN ficticio.",
+  "x-collection": "portfolios/{portfolio_id}/positions/{instrument_id}",
+  "x-layer": "computed",
+  "x-owner": "batch",
+  "x-applies-to": "kind REAL",
+  "x-applies-when": "CARTERA_REAL",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["instrument_id", "units", "valued_on", "computed_at"],
+  "properties": {
+    "instrument_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+      "description": "ISIN, o codigo de divisa para la liquidez.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "units": {
+      "type": "number",
+      "minimum": -1000000000,
+      "maximum": 1000000000,
+      "description": "Participaciones, o importe en la divisa cuando la posicion ES una divisa. Puede ser negativo: un descubierto en la cuenta de efectivo es real y esconderlo seria mentir.",
+      "x-unit": "count",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "avg_cost": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100000000,
+      "description": "Coste medio por participacion, en euros. Sale del libro.",
+      "x-unit": "currency_amount",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "market_value": {
+      "type": "number",
+      "minimum": -1000000000,
+      "maximum": 1000000000000,
+      "description": "Valor en EUROS a la fecha de valoracion. La conversion usa el tipo de referencia del BCE: en la VALORACION el tipo es una convencion, oficial y citable, a diferencia del de la pata de efectivo de una operacion, que es un hecho.",
+      "x-unit": "currency_amount",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_YET_FETCHED"
+    },
+    "valued_on": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "computed",
+      "x-owner": "batch"
+    },
+    "computed_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    }
+  }
+}

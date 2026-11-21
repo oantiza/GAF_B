@@ -1,0 +1,28 @@
+benchmark,variante,proxy,clase_de_serie,base,fondos,nota,equivalente_de
+MSCI Europe,NR,IE0007987708,VALOR_LIQUIDATIVO,TOTAL_RETURN,49,Vanguard European Stock Index EUR Acc; serie desde 1998,
+MSCI World,NR,IE00B03HD191,VALOR_LIQUIDATIVO,TOTAL_RETURN,38,Vanguard Global Stock Index EUR Acc; ya estaba en el universo,
+MSCI EM,NR,IE0031786696,VALOR_LIQUIDATIVO,TOTAL_RETURN,18,Vanguard Emerging Markets Stock Index EUR Acc; serie desde 2014,
+MSCI ACWI,NR,IE00B6R52259,PRECIO_DE_MERCADO,TOTAL_RETURN,69,iShares MSCI ACWI USD Acc; ETF elegido por Oscar el 01-11 al no haber fondo indice,
+Euro Short Term Rate,,ESTR_BCE,TASA,TOTAL_RETURN,10,el ESTR ya se trae del BCE; no hace falta instrumento,
+ESTR capitalise Jour,TR,ESTR_BCE,TASA,TOTAL_RETURN,9,idem,
+European Central Bank ESTR OIS,,ESTR_BCE,TASA,TOTAL_RETURN,3,idem,
+MSCI AC Asia Ex Japan,NR,LU1900068161,PRECIO_DE_MERCADO,TOTAL_RETURN,12,"Amundi MSCI AC Asia ex Japan Acc; sintetico, excepcion aprobada por Oscar el 04-11",
+MSCI Europe Small Cap,NR,IE00BKWQ0M75,PRECIO_DE_MERCADO,TOTAL_RETURN,8,"SPDR MSCI Europe Small Cap; fisico, cotiza en CHF y se convierte",
+MSCI EM Latin America 10/40,NR,IE00B27YCK28,PRECIO_DE_MERCADO,TOTAL_RETURN,6,"iShares MSCI EM Latin America Dist; reparte, cierre ajustado",
+MSCI EM Asia,NR,IE00B5L8K969,PRECIO_DE_MERCADO,TOTAL_RETURN,6,iShares MSCI EM Asia Acc; fisico,
+TOPIX,TR,LU1681037609,PRECIO_DE_MERCADO,TOTAL_RETURN,7,"Amundi Japan Topix C-EUR; sintetico, excepcion aprobada por Oscar el 04-11",
+MSCI EMU,NR,IE00B53QG562,PRECIO_DE_MERCADO,TOTAL_RETURN,7,iShares Core MSCI EMU Acc; fisico,
+MSCI AC Asia Pac Ex JPN,NR,LU1900068328,PRECIO_DE_MERCADO,TOTAL_RETURN,5,"Amundi MSCI AC Asia Pacific ex Japan Acc; sintetico, excepcion aprobada por Oscar el 04-11",
+MSCI World/Health Care,NR,IE00BM67HK77,PRECIO_DE_MERCADO,TOTAL_RETURN,4,Xtrackers MSCI World Health Care 1C; fisico,
+Bloomberg Euro Corp,TR,IE00B3T9LM79,PRECIO_DE_MERCADO,TOTAL_RETURN,4,"SPDR Bloomberg Euro Corporate; reparte, cierre ajustado; equivale al ICE BofA Euro Corporate, del que no hay serie ni instrumento en la base: mismo universo de credito en euros con grado de inversion, no el mismo indice, y la ficha lo dice; aprobado por Oscar el 08-11",ICE BofA Euro Corporate
+STOXX Europe 600,NR,LU0908500753,PRECIO_DE_MERCADO,TOTAL_RETURN,3,Amundi Core STOXX Europe 600 Acc; fisico,
+Bloomberg Euro Agg Bond,TR,LU0836513423,VALOR_LIQUIDATIVO,TOTAL_RETURN,3,iShares Euro Aggregate Bond Index Fund A2 EUR; fondo indice,
+S&P 500,NR,IE0032126645,VALOR_LIQUIDATIVO,TOTAL_RETURN,3,Vanguard U.S. 500 Stock Index EUR Acc; fondo indice,
+MSCI India,NR,IE00BZCQB185,PRECIO_DE_MERCADO,TOTAL_RETURN,4,"iShares MSCI India USD Acc; replica fisica completa, TER 0,65 % que entra en el alfa; serie QDV5.XETRA en EUR desde 2018; aprobado por Oscar el 06-11",
+EURO STOXX 50,NR,IE00B53L3W79,PRECIO_DE_MERCADO,TOTAL_RETURN,3,"iShares Core EURO STOXX 50 EUR Acc; ya estaba en el universo, TER 0,10 %; aprobado por Oscar el 06-11",
+MSCI EMU Small Cap,NR,IE00B3VWMM18,PRECIO_DE_MERCADO,TOTAL_RETURN,2,"iShares MSCI EMU Small Cap Acc; replica fisica por muestreo, TER 0,58 % que entra en el alfa; serie SXRJ.XETRA desde 2009; aprobado por Oscar el 06-11",
+BME IBEX 35,TR,IBEXTR.INDX,NIVEL_DE_INDICE,TOTAL_RETURN,0,"Serie del propio indice en EODHD (bolsa INDX), EUR, desde 10-2011; TR/PR deriva 3,7-3,9 % al anio; hoy no mide a nadie (2 retirados por KID compuesto, 1 KID sin indice, 1 compuesto); aprobado por Oscar el 07-11 (decision 28)",Ibex 35
+BME IBEX 35,PR,IBEX.INDX,NIVEL_DE_INDICE,PRICE_RETURN,0,"Serie del propio indice en EODHD, EUR, desde 09-1991; solo beta, R2 y tracking error; hoy no mide a nadie (el ETF del IBEX queda fuera, decision 26); aprobado por Oscar el 07-11 (decision 28)",Ibex 35
+EURO STOXX 50,PR,SX5E.INDX,NIVEL_DE_INDICE,PRICE_RETURN,1,"Serie del propio indice en EODHD, EUR, desde 12-1986; Intermoney declara Price: solo beta, R2 y tracking error (decision 24); aprobado por Oscar el 07-11 (decision 28)",
+S&P 500,TR,SP500TR.INDX,NIVEL_DE_INDICE,TOTAL_RETURN,2,"Serie del propio indice en EODHD, USD convertida con el BCE, desde 01-1988; TR/PR deriva 1,2-1,6 % al anio; AB Select US Equity x2 (la clase AH de Morgan Stanley es cubierta, decision 27); aprobado por Oscar el 07-11 (decision 28)",
+S&P 500 Equal Weighted,TR,SPXEWTR.INDX,NIVEL_DE_INDICE,TOTAL_RETURN,1,"Serie del propio indice en EODHD, USD convertida con el BCE, desde 12-1989; TR/PR deriva 1,7-1,9 % al anio; MyInvestor S&P500 Equiponderado; aprobado por Oscar el 07-11 (decision 28)",

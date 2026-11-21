@@ -1,0 +1,104 @@
+{
+  "dataset_id": "screener-assets.example",
+  "version": "2026-06-18",
+  "mode": "LOCAL_SAMPLE_ONLY",
+  "assets": [
+    {
+      "asset_id": "fund_example_001",
+      "display_name": "Example Global Equity Fund",
+      "asset_type": "FUND",
+      "isin": "IE0000000001",
+      "coverage_status": "COVERED",
+      "classification": {
+        "asset_class": "EQUITY",
+        "region": "Global",
+        "currency": "EUR",
+        "market": "IRL"
+      },
+      "available_sections": ["summary", "performance_preview", "risk_snapshot", "cost_snapshot"],
+      "summary": {
+        "provider": "Example AM",
+        "benchmark": "MSCI World",
+        "category": "Global Equity",
+        "ter_pct": 0.2
+      },
+      "mock_metrics": {
+        "latest_value": 100.25,
+        "ytd_return": 8.4,
+        "latest_value_date": "2026-06-18"
+      }
+    },
+    {
+      "asset_id": "etf_example_001",
+      "display_name": "Example Core Bond ETF",
+      "asset_type": "ETF",
+      "isin": "IE0000000002",
+      "ticker": "XBND",
+      "coverage_status": "COVERED",
+      "classification": {
+        "asset_class": "FIXED_INCOME",
+        "region": "Europe",
+        "currency": "EUR",
+        "market": "IRL"
+      },
+      "available_sections": ["summary", "performance_preview", "risk_snapshot", "cost_snapshot"],
+      "summary": {
+        "provider": "Example ETF",
+        "benchmark": "Euro Aggregate Bond",
+        "category": "EUR Bond",
+        "ter_pct": 0.12
+      },
+      "mock_metrics": {
+        "latest_value": 25.5,
+        "ytd_return": 1.8,
+        "latest_value_date": "2026-06-18"
+      }
+    },
+    {
+      "asset_id": "stock_example_001",
+      "display_name": "Example Software Corp.",
+      "asset_type": "STOCK",
+      "ticker": "EXSW.US",
+      "coverage_status": "COVERED",
+      "classification": {
+        "asset_class": "EQUITY",
+        "region": "US",
+        "currency": "USD",
+        "market": "NASDAQ",
+        "sector": "Technology"
+      },
+      "available_sections": ["identity", "listing", "prices", "metrics"],
+      "summary": {
+        "provider": "NASDAQ",
+        "category": "Technology"
+      },
+      "mock_metrics": {
+        "latest_value": 42.75,
+        "ytd_return": 0.0325,
+        "latest_value_date": "2026-06-18"
+      }
+    },
+    {
+      "asset_id": "index_example_001",
+      "display_name": "Example World Index",
+      "asset_type": "INDEX",
+      "ticker": "EXWORLD.INDX",
+      "coverage_status": "UNKNOWN",
+      "classification": {
+        "asset_class": "EQUITY",
+        "region": "Global",
+        "currency": "USD",
+        "market": "INDX"
+      },
+      "available_sections": ["summary", "proxy_note"],
+      "summary": {
+        "benchmark": "Example World Index"
+      },
+      "mock_metrics": {
+        "latest_value": 5000,
+        "ytd_return": 7.1,
+        "latest_value_date": "2026-06-18"
+      }
+    }
+  ]
+}

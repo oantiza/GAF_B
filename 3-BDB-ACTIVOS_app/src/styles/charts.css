@@ -1,0 +1,681 @@
+/* ============================================================================
+   OAA · Sistema de diseño — DATAVIZ
+   Marco, leyenda, tooltip, calidad del dato y superposiciones de Recharts.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Marco de gráfico
+   ========================================================================== */
+
+/* Altura explícita en línea (la fija cada punto de uso) + posición relativa:
+   ResponsiveContainer necesita un padre medido para no colapsar a 0. */
+.oaa-chart-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sello de calidad del dato — esquina superior derecha, discreto */
+.oaa-chart-quality {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: var(--z-sello);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  pointer-events: none;
+}
+
+.oaa-data-pill {
+  /* Sello de calidad del dato: mismo distintivo que .badge (texto + punto),
+     sin relleno ni borde (ola 4). */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-control);
+  background: transparent;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--tinta-2);
+  white-space: nowrap;
+}
+
+.oaa-data-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-round);
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.oaa-data-pill.real {
+  color: var(--marca);
+}
+
+.oaa-data-pill.mixed {
+  color: var(--aviso);
+}
+
+.oaa-data-pill.estimated {
+  color: var(--tinta-2);
+}
+
+.oaa-data-pill.none {
+  color: var(--tinta-3);
+}
+
+/* Estado vacío: rectángulo del alto del gráfico, causa + acción */
+.oaa-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 96px;
+  padding: var(--s-7);
+  background: var(--chart-plot-empty);
+  font-size: var(--texto-xs);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+  text-align: center;
+  margin: 0;
+}
+
+/* El marco vacío solo tiene alto mínimo, y contra él no se resuelve el `height: 100%` del vacío: quedaba una franja en
+   blanco debajo. En columna, el vacío crece hasta el alto del marco. */
+.oaa-chart-frame:has(> .oaa-chart-empty) {
+  display: flex;
+  flex-direction: column;
+}
+
+.oaa-chart-frame > .oaa-chart-empty {
+  flex: 1 1 auto;
+}
+
+/* ==========================================================================
+   2. Leyenda — fila de texto, sin caja
+   ========================================================================== */
+
+/* A 12 px con 18 de interlínea y sin margen propio: el aire lo pone el bloque que la lleva (dirección A). */
+.oaa-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) calc(var(--s-6) + var(--s-1));
+  padding: 0;
+  margin: 0;
+  font-size: var(--texto-xxs);
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.oaa-chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--tinta-2);
+  min-width: 0;
+}
+
+.oaa-chart-legend i {
+  width: 8px;
+  height: 8px;
+  border: 1px solid transparent;
+  flex: 0 0 auto;
+}
+
+/* Muestra de una serie de línea (OaaLegend `variant="line" | "dash"`): un
+   segmento con el color del trazo en línea, no un cuadrado (auditoría 16-10). */
+.oaa-chart-legend i.oaa-legend-mark--line {
+  width: 18px;
+  height: 0;
+  border: 0;
+  border-top: 2px solid;
+  border-radius: 0;
+}
+
+.oaa-chart-legend i.oaa-legend-mark--dash {
+  border-top-style: dashed;
+}
+
+.oaa-chart-legend span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oaa-chart-legend strong {
+  font-weight: 600;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   3. Tooltip
+   ========================================================================== */
+
+.oaa-chart-tooltip {
+  min-width: 168px;
+  max-width: 300px;
+  padding: var(--s-4) var(--s-5);
+  border: 1px solid var(--filete-fuerte);
+  border-radius: var(--radio-bloque);
+  background: var(--papel);
+  box-shadow: var(--sombra-flotante);
+  font-size: var(--texto-xs);
+  pointer-events: none;
+}
+
+.oaa-chart-tooltip-label {
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--tinta-3);
+  padding-bottom: var(--s-3);
+  margin-bottom: var(--s-3);
+  border-bottom: 1px solid var(--filete);
+}
+
+.oaa-chart-tooltip-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.oaa-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  color: var(--tinta-2);
+}
+
+.oaa-chart-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+}
+
+/* La marca de la referencia en la nota: un trazo discontinuo, como su línea. */
+.oaa-chart-tooltip-dot.oaa-chart-tooltip-dot--trazos {
+  width: 14px;
+  height: 0;
+  border-top: 2px dashed;
+}
+
+/* Bajo la cifra de una serie: la variación desde el inicio en base 100. */
+.oaa-chart-tooltip-detalle {
+  display: block;
+  font-weight: 400;
+  color: var(--tinta-3);
+  text-align: right;
+}
+
+.oaa-chart-tooltip-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oaa-chart-tooltip-row strong {
+  margin-left: auto;
+  color: var(--tinta);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.oaa-chart-tooltip-extra {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--filete);
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+/* Mayores posiciones comunes en el tooltip del solapamiento (auditoría 16-10:
+   antes estilos en línea a 10,2 px). Hereda de .oaa-chart-tooltip-extra los 13 px. */
+.oaa-overlap-common__title {
+  margin-bottom: var(--s-2);
+  font-weight: 500;
+}
+
+.oaa-overlap-common ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.oaa-overlap-common li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.oaa-overlap-common li span {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oaa-overlap-common li strong {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   4. Composición donut + leyenda
+   ========================================================================== */
+
+.oaa-donut-layout {
+  display: grid;
+  /* La leyenda no se estira a todo el panel: con 360 px la cifra queda al
+     alcance del rótulo en vez de en el extremo opuesto de la tarjeta. */
+  grid-template-columns: minmax(180px, 260px) minmax(0, 360px);
+  justify-content: start;
+  align-items: center;
+  gap: var(--s-7) var(--s-9);
+  min-width: 0;
+}
+
+.oaa-donut-frame {
+  min-width: 0;
+}
+
+.oaa-donut-layout .oaa-chart-legend {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-3);
+}
+
+.oaa-donut-layout .oaa-chart-legend li {
+  justify-content: flex-start;
+  gap: var(--s-4);
+}
+
+/* En la leyenda en columna cabe el nombre completo: dos líneas antes que
+   recortar («Multisec…»). */
+.oaa-donut-layout .oaa-chart-legend span {
+  white-space: normal;
+  text-overflow: clip;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: var(--lh-snug);
+}
+
+.oaa-donut-layout .oaa-chart-legend strong {
+  margin-left: auto;
+}
+
+/* Columna lateral (B″): el aro arriba, la leyenda debajo, a todo el ancho. */
+.oaa-donut-layout--stack {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  gap: var(--s-4);
+}
+
+.oaa-donut-layout--stack .oaa-chart-legend {
+  max-width: none;
+}
+
+/* Cifra en el hueco del aro: el capital en tinta, a 22 px y en seminegra, y su nota secundaria. */
+.oaa-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.oaa-donut-center strong {
+  font-size: var(--titulo-md);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Una frase en el hueco del aro, no una cifra: «Capital sin fijar». */
+.oaa-donut-center strong.is-en-palabras {
+  font-size: var(--texto-md);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.oaa-donut-center small {
+  margin-top: var(--s-2);
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+}
+
+
+/* ==========================================================================
+   5. Superposiciones de Recharts
+   ========================================================================== */
+
+/* Las marcas de un eje, a 12 px, el menor tamaño de la escala: ningún texto de un gráfico va más pequeño. */
+.recharts-cartesian-axis-tick text,
+.recharts-label {
+  font-family: var(--fuente);
+  font-size: var(--texto-xxs);
+  fill: var(--chart-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El número dentro de un punto de la matriz de riesgos: en papel, sobre el marino. Recharts escribe
+   el texto de la etiqueta en gris sea cual sea el `fill` que se le pase, y sobre el punto no se leía. */
+.recharts-text.oaa-matriz-numero {
+  fill: var(--papel);
+  font-weight: 700;
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--chart-grid);
+}
+
+.recharts-cartesian-axis-line {
+  stroke: var(--chart-axis);
+}
+
+.recharts-reference-line line {
+  stroke: var(--chart-zero);
+}
+
+.recharts-surface:focus,
+.recharts-wrapper:focus {
+  outline: none;
+}
+
+.recharts-wrapper:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.recharts-tooltip-cursor {
+  fill: var(--chart-cursor-fill);
+  stroke: var(--chart-crosshair);
+}
+
+/* Recharts escribe la familia en un atributo; una regla la gana, y así el texto de los ejes y de la leyenda sigue la
+   letra de la pantalla aunque algún gráfico la traiga escrita. */
+.recharts-text,
+.recharts-legend-item-text {
+  font-family: var(--fuente);
+}
+
+.recharts-legend-item-text {
+  font-size: var(--texto-xs);
+  fill: var(--tinta-2) !important;
+  color: var(--tinta-2) !important;
+}
+
+/* ==========================================================================
+   6. Mapas de calor (rejilla CSS, no Recharts)
+   ========================================================================== */
+
+.heatmap {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.heatmap__cell {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+
+.heatmap__cell.is-diagonal {
+  background: var(--banda);
+  color: transparent;
+}
+
+.heatmap__cell.is-dark {
+  color: var(--tinta-inversa);
+}
+
+.heatmap__axis {
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding-right: var(--s-4);
+}
+
+/* --- Matriz de correlación: rejilla CSS contigua, no Recharts --- */
+
+.corr-heatmap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-7) var(--s-9);
+  min-width: 0;
+}
+
+/* El marco de las dos matrices, correlación y solapamiento, acota lo suyo: con 15 posiciones una empujaba la página
+   11 px a 1440 y la otra 192 px a 768. Si no cabe, se desplaza este marco y nunca la página. */
+.oaa-heatmap-scroll {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* Las celdas de la correlación ceden hasta el mínimo que piden, para que se vean todas sin moverse. */
+.corr-heatmap > .oaa-heatmap-scroll {
+  flex: 0 1 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+.corr-heatmap-grid {
+  grid-template-columns: auto repeat(var(--corr-n), minmax(min-content, var(--s-10)));
+  overflow-x: visible;
+}
+
+.corr-heatmap-grid .heatmap__cell {
+  color: var(--tinta);
+  text-align: center;
+  line-height: var(--lh-snug);
+}
+
+/* En el Comparador son cinco activos como mucho: la matriz llena su media columna en vez de quedarse en un cuadradito
+   de 120 px a 2560 (18-11-2026, dirección A). La de Análisis, con quince posiciones, sigue con su mínimo. */
+.cmp-matriz .corr-heatmap-grid {
+  grid-template-columns: auto repeat(var(--corr-n), minmax(var(--s-11), var(--s-12)));
+}
+
+.cmp-matriz .corr-heatmap-grid .heatmap__cell {
+  height: var(--s-11);
+  font-size: var(--texto-sm);
+}
+
+.corr-heatmap-grid .heatmap__cell.is-dark {
+  color: var(--tinta-inversa);
+}
+
+/* La diagonal vale siempre 1,00. Iba con `is-dark`, es decir tinta blanca,
+   sobre una celda clara: ilegible. Celda neutra y tinta secundaria. */
+.corr-heatmap-grid .heatmap__cell.is-diagonal {
+  background: var(--banda);
+  color: var(--tinta-2);
+}
+
+.corr-heatmap-grid .heatmap__axis {
+  justify-content: flex-end;
+  padding-right: var(--s-3);
+}
+
+.corr-heatmap-grid .heatmap__axis--head {
+  justify-content: center;
+  padding: 0 0 var(--s-1);
+}
+
+/* --- Matriz de solapamiento: la misma rejilla, con casillas donde caben dos líneas («al menos» / «94,4 %») --- */
+
+/* El marco de la rejilla y de su nota: cede como el de la correlación, y la nota se coloca dentro de él. */
+.corr-heatmap > .overlap-heatmap-marco {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.overlap-heatmap-grid {
+  grid-template-columns: auto repeat(var(--corr-n), 58px);
+}
+
+.overlap-heatmap-grid .heatmap__cell {
+  min-width: 58px;
+  height: var(--s-10);
+  cursor: default;
+}
+
+.overlap-heatmap-grid .heatmap__cell:focus-visible {
+  outline: 2px solid var(--marca-fuerte);
+  outline-offset: -2px;
+}
+
+/* La nota de una casilla (ratón o teclado): bajo la casilla, encima de lo que haya debajo, y sin capturar el ratón. */
+.overlap-heatmap-nota {
+  position: absolute;
+  z-index: var(--z-pop);
+  pointer-events: none;
+}
+
+.corr-heatmap-side {
+  flex: 1 1 260px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-5);
+}
+
+.corr-heatmap-side .oaa-heatmap-index {
+  margin-top: 0;
+  width: 100%;
+}
+
+/* La rampa secuencial: un paso por clase. La usan las casillas de la correlación y
+   las muestras de la leyenda de las dos matrices (LeyendaDeLaRampa). */
+.oaa-rampa--0 { background: var(--rampa-0); }
+.oaa-rampa--1 { background: var(--rampa-1); }
+.oaa-rampa--2 { background: var(--rampa-2); }
+.oaa-rampa--3 { background: var(--rampa-3); }
+.oaa-rampa--4 { background: var(--rampa-4); }
+.oaa-rampa--5 { background: var(--rampa-5); }
+.oaa-rampa--6 { background: var(--rampa-6); }
+.oaa-rampa--7 { background: var(--rampa-7); }
+
+/* Leyenda por clases (ANA-24): una muestra y sus límites por fila, igual en las
+   dos matrices. */
+.oaa-rampa-leyenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.oaa-rampa-leyenda__titulo {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.oaa-rampa-leyenda ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.oaa-rampa-leyenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.oaa-rampa-leyenda i {
+  width: 14px;
+  height: 10px;
+  border: 1px solid var(--filete);
+  flex: 0 0 auto;
+}
+
+/* Las zonas del mapa geográfico son paradas de teclado (ANA-17): el foco se ve. */
+.geo-map-zona:focus {
+  outline: none;
+}
+
+.geo-map-zona:focus-visible {
+  stroke: var(--marca-fuerte);
+  stroke-width: 2;
+}
+
+/* ==========================================================================
+   7. El aro de una sola categoría y la nota al pie
+   ========================================================================== */
+
+/* Donut de una sola categoría (B2, 12-08): cifra en vez de aro. */
+.oaa-donut-layout--single {
+  display: flex;
+}
+
+.oaa-donut-frame--single {
+  display: grid;
+  place-items: center;
+}
+
+.oaa-donut-single {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.oaa-donut-single > strong {
+  /* La cifra del centro del anillo, en la letra del texto: no sigue a .ui-kpi__value, que va en la serifa. */
+  font-family: var(--fuente);
+  font-size: var(--cifra-lg);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--tinta);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.oaa-donut-single > span {
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+/* Ola D2: nota al pie de un gráfico (antes estilo en línea con 0.76rem). */
+.oaa-chart-footnote {
+  margin-top: var(--s-3);
+  font-size: var(--texto-xs);
+  line-height: 1.4;
+}

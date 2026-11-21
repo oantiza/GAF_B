@@ -1,0 +1,16 @@
+requests==2.34.2
+pandas==3.0.3
+mstarpy==10.0.0
+yfinance==1.4.1
+pycountry==26.2.16
+firebase-admin==7.4.0
+defusedxml==0.7.1
+# core/kid.py: lectura de KID en PDF (SRI, costes PRIIPs). Sin el, los fetchers
+# que leen KID siguen en silencio y sin el dato.
+PyMuPDF==1.27.2.3
+# Validacion del canonico contra el contrato de BDB (core/contratos.py).
+jsonschema==4.26.0
+# fetchers/xtrackers.py: el Excel historico de VL del emisor.
+openpyxl==3.1.5
+# Ficha completa de ETFs en justETF (opcional pero recomendada; requiere git):
+justetf-scraping @ git+https://github.com/druzsan/justetf-scraping.git@bf6717c2a7721a1678befb8feb1e331773368577

@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-price-series.v2.schema.json",
+  "title": "instruments/{instrument_id}/price_series/{year} — v2",
+  "description": "Un anio de la serie de precios con la que se calcularon las metricas del instrumento. Existe por la decision 8: nos fiamos de la serie y no de la cifra, porque la serie se puede auditar. Hasta el 03-11-2026 la base nueva solo guardaba un puntero, inputs.series_id, y sin serie no se podian reproducir sus metricas ni dar servicio al optimizador o a los graficos historicos.\n\nUn documento por anio mantiene acotado su tamano. Los precios van en la divisa de la serie, sin convertir: una conversion se calcula aparte y con su propia fuente.",
+  "x-collection": "instruments/{instrument_id}/price_series/{year}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["instrument_id", "year", "series_id", "source", "price_class", "first_date", "last_date", "observations", "points"],
+  "properties": {
+    "instrument_id": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "year": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "series_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "El mismo identificador que computed/metrics.inputs.series_id. Es lo que une la cifra con su serie. Una serie de una fuente se llama como su listado, EODHD:<simbolo>; una compuesta por la decision D-9 (EODHD parada, Morningstar despues) une los de sus tramos en orden, EODHD:<simbolo>+MORNINGSTAR:<SecId>, y es el mismo en todos sus anios aunque un anio solo tenga puntos de una de las dos.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "De que fuente son los puntos de ESTE documento: eodhd, morningstar o, en el anio en que una serie compuesta pasa de una a otra, las dos unidas por + en el orden de sus tramos, y entonces source_segments dice que fechas son de cada una. Texto libre a proposito: una fuente nueva no tiene que romper la escritura.",
+      "x-unit": "text",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "price_class": {
+      "type": "string",
+      "enum": ["NAV", "MARKET_PRICE"],
+      "description": "Valor liquidativo o precio de mercado. No son comparables sin mas: cierran a horas distintas y un ETF puede cotizar con prima o descuento.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "first_date": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "last_date": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "observations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 366,
+      "x-unit": "count",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source_segments": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "description": "Solo en el anio en que la serie cambia de fuente (decision D-9: la de EODHD se paro y sigue la de Morningstar), y por eso con dos tramos como minimo: en un anio de una sola fuente lo dice source, y este campo ahi seria un campo presente donde no aplica (decision 17). Los tramos van en orden, no se solapan y cubren todos los puntos del documento: cada punto es de la fuente del tramo en cuyas fechas cae. Sin esto, un documento de 2024 con 140 dias de EODHD y 110 de Morningstar diria eodhd+morningstar sin decir cual es cual.",
+      "x-layer": "metadata",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "series_id", "first_date", "last_date", "observations"],
+        "x-layer": "metadata",
+        "x-owner": "platform",
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "metadata",
+            "x-owner": "platform"
+          },
+          "series_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "El listado del que salen los puntos del tramo: EODHD:<simbolo> o MORNINGSTAR:<SecId>.",
+            "x-unit": "code",
+            "x-layer": "metadata",
+            "x-owner": "platform"
+          },
+          "first_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "metadata",
+            "x-owner": "platform"
+          },
+          "last_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "metadata",
+            "x-owner": "platform"
+          },
+          "observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 366,
+            "x-unit": "count",
+            "x-layer": "metadata",
+            "x-owner": "platform"
+          }
+        }
+      }
+    },
+    "points": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 366,
+      "description": "En orden ascendente y sin fechas repetidas. El valor es el cierre ajustado que da la fuente y, si falta, el cierre: lo mismo que usa el calculo.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "value"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "x-unit": "date",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "value": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          }
+        }
+      }
+    }
+  }
+}

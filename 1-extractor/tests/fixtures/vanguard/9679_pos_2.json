@@ -1,0 +1,168 @@
+{
+"data": {
+"borHoldings": [
+{
+"holdings": {
+"items": [
+{
+"issuerName": "Idemitsu Kosan Co Ltd",
+"securityLongDescription": "Idemitsu Kosan Co Ltd",
+"gicsSectorDescription": "Energy",
+"marketValuePercentage": 0.00683,
+"sedol1": "B1FF8P7",
+"ticker": "5019",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "JP"
+},
+{
+"issuerName": "Chang Hwa Commercial Bank Ltd",
+"securityLongDescription": "Chang Hwa Commercial Bank Ltd",
+"gicsSectorDescription": "Financials",
+"marketValuePercentage": 0.00683,
+"sedol1": "6187855",
+"ticker": "2801",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "TW"
+},
+{
+"issuerName": "SUMCO Corp",
+"securityLongDescription": "SUMCO Corp",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 0.00682,
+"sedol1": "B0M0C89",
+"ticker": "3436",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "JP"
+},
+{
+"issuerName": "Lottery Corp Ltd/The",
+"securityLongDescription": "Lottery Corp Ltd/The",
+"gicsSectorDescription": "Consumer Discretionary",
+"marketValuePercentage": 0.00681,
+"sedol1": "BNRQW72",
+"ticker": "TLC",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "AU"
+},
+{
+"issuerName": "Croda International PLC",
+"securityLongDescription": "Croda International PLC",
+"gicsSectorDescription": "Materials",
+"marketValuePercentage": 0.0068,
+"sedol1": "BJFFLV0",
+"ticker": "CRDA",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "GB"
+},
+{
+"issuerName": "Kesko Oyj",
+"securityLongDescription": "Kesko Oyj",
+"gicsSectorDescription": "Consumer Staples",
+"marketValuePercentage": 0.0068,
+"sedol1": "4490005",
+"ticker": "KESKOB",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "FI"
+},
+{
+"issuerName": "Ramsay Health Care Ltd",
+"securityLongDescription": "Ramsay Health Care Ltd",
+"gicsSectorDescription": "Health Care",
+"marketValuePercentage": 0.00678,
+"sedol1": "6041995",
+"ticker": "RHC",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "AU"
+},
+{
+"issuerName": "Ricoh Co Ltd",
+"securityLongDescription": "Ricoh Co Ltd",
+"gicsSectorDescription": "Information Technology",
+"marketValuePercentage": 0.00678,
+"sedol1": "6738220",
+"ticker": "7752",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "JP"
+},
+{
+"issuerName": "Lupin Ltd",
+"securityLongDescription": "Lupin Ltd",
+"gicsSectorDescription": "Health Care",
+"marketValuePercentage": 0.00677,
+"sedol1": "6143761",
+"ticker": "LPC",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "IN"
+},
+{
+"issuerName": null,
+"securityLongDescription": "Australian Dollar",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.00675,
+"sedol1": null,
+"ticker": "AUD",
+"securityType": "CRNY",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "AU"
+},
+{
+"issuerName": "Sartorius Stedim Biotech",
+"securityLongDescription": "Sartorius Stedim Biotech",
+"gicsSectorDescription": "Health Care",
+"marketValuePercentage": 0.00674,
+"sedol1": "BYZ2QP5",
+"ticker": "DIM",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "FR"
+},
+{
+"issuerName": "Melrose Industries PLC",
+"securityLongDescription": "Melrose Industries PLC",
+"gicsSectorDescription": "Industrials",
+"marketValuePercentage": 0.00674,
+"sedol1": "BNGDN82",
+"ticker": "MRO",
+"securityType": "EQ.STOCK",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": "GB"
+},
+{
+"issuerName": null,
+"securityLongDescription": "USD/JPY FWD 20261216",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.00655,
+"sedol1": null,
+"ticker": "USD",
+"securityType": "CT.FOREX",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": null
+},
+{
+"issuerName": null,
+"securityLongDescription": "LK657LR0O2SEOL1C",
+"gicsSectorDescription": null,
+"marketValuePercentage": 0.00633,
+"sedol1": null,
+"ticker": null,
+"securityType": "CT.SPOT",
+"effectiveDate": "2026-09-30",
+"bloombergIsoCountry": null
+}
+],
+"totalHoldings": 4235,
+"lastItemKey": null
+}
+}
+]
+}
+}

@@ -1,0 +1,320 @@
+{
+  "isin": "ES0125140A14",
+  "etiqueta": "accion-baja-reciente",
+  "raiz": {
+    "instrument_id": "ES0125140A14",
+    "instrument_type": "STOCK",
+    "schema_version": "base-nueva.instrument.v2",
+    "updated_at": "2026-11-02T07:43:32.087Z",
+    "identity": {
+      "name": "ERCROS",
+      "name_folded": "ercros",
+      "currency": "EUR"
+    },
+    "identifiers": {
+      "ticker": "ECR"
+    },
+    "classification": {
+      "asset_class": "EQUITY"
+    },
+    "availability": {
+      "state": "DELISTED",
+      "since": "2026-09-21",
+      "last_checked": "2026-11-02",
+      "reason": "ultima cotizacion 2026-09-21, medida en 37 documentos de serie de la copia 2026-10-31T13-35-09-399Z"
+    }
+  },
+  "tarjeta": {
+    "instrument_id": "ES0125140A14",
+    "computed_at": "2026-11-02T10:12:40.806Z",
+    "instrument_type": "STOCK",
+    "identity": {
+      "name": "ERCROS",
+      "currency": "EUR",
+      "ticker": "ECR"
+    },
+    "classification": {
+      "asset_class": "EQUITY"
+    },
+    "exposure": {
+      "asset_mix": {
+        "equity": 1,
+        "fixed_income": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "confidence": 1,
+      "derivation": "BY_INSTRUMENT_TYPE"
+    },
+    "quality": {
+      "fitness": {
+        "COMPARAR_COSTE": {
+          "apt": false,
+          "missing": [
+            "no aplica: una accion no tiene coste corriente. Lo que paga un inversor por comprarla es el corretaje de su intermediario, que es suyo y no del instrumento"
+          ]
+        },
+        "RADIOGRAFIA_DE_CARTERA": {
+          "apt": true
+        },
+        "COMPARAR_RENTABILIDAD": {
+          "apt": false,
+          "missing": [
+            "computed/metrics.annualized_return"
+          ]
+        },
+        "MOSTRAR_ALPHA": {
+          "apt": false,
+          "missing": [
+            "no aplica: una accion no declara indice de referencia en ningun folleto, asi que no hay contra que medirla sin que alguien ELIJA la referencia, y esa eleccion tendria que quedar registrada como decision"
+          ]
+        },
+        "METRICAS_PROPIAS": {
+          "apt": false,
+          "missing": [
+            "computed/metrics (sin serie de precios)"
+          ]
+        }
+      },
+      "coverage": 0.192982,
+      "warnings": [
+        {
+          "code": "SIN_INDICADOR_REGULATORIO",
+          "severity": "INFO",
+          "message": "Una accion no tiene indicador de riesgo de 1 a 7, porque no hay KID de PRIIPs detras. No es un dato que falte: el indicador no existe para este producto. Lo que si hay es nuestra volatilidad, con su metodo y su ventana al lado."
+        }
+      ]
+    },
+    "available_sections": [
+      "provenance"
+    ]
+  },
+  "calidad": {
+    "computed_at": "2026-11-02T10:12:40.806Z",
+    "fitness": {
+      "COMPARAR_COSTE": {
+        "apt": false,
+        "missing": [
+          "no aplica: una accion no tiene coste corriente. Lo que paga un inversor por comprarla es el corretaje de su intermediario, que es suyo y no del instrumento"
+        ]
+      },
+      "RADIOGRAFIA_DE_CARTERA": {
+        "apt": true
+      },
+      "COMPARAR_RENTABILIDAD": {
+        "apt": false,
+        "missing": [
+          "computed/metrics.annualized_return"
+        ]
+      },
+      "MOSTRAR_ALPHA": {
+        "apt": false,
+        "missing": [
+          "no aplica: una accion no declara indice de referencia en ningun folleto, asi que no hay contra que medirla sin que alguien ELIJA la referencia, y esa eleccion tendria que quedar registrada como decision"
+        ]
+      },
+      "METRICAS_PROPIAS": {
+        "apt": false,
+        "missing": [
+          "computed/metrics (sin serie de precios)"
+        ]
+      }
+    },
+    "coverage": 0.192982,
+    "applicable_paths": 57,
+    "present_paths": 11,
+    "absences": [
+      {
+        "path": "identifiers.figi",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/quote.price",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/quote.price_class",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/equity.listing.exchange",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/equity.listing.country",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/equity.sector",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/equity.industry",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/equity.business_description",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/dividends.currency",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "declared/dividends.yield_12m",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/dividends.trailing_amount_per_share",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/dividends.forward_amount_per_share",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "declared/dividends.ex_dividend_date",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.method",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.frequency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.return_basis",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.series_id",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.currency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.risk_free_source",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.series_adjustment",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.source_currency",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.fx_source",
+        "reason": "NOT_APPLICABLE"
+      },
+      {
+        "path": "computed/metrics.inputs.observations",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.first_date",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.inputs.last_date",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.volatility.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.annualized_return.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.max_drawdown.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sharpe.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.1y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.3y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.5y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.sortino.10y",
+        "reason": "NOT_PROVIDED"
+      },
+      {
+        "path": "computed/metrics.ytd_return",
+        "reason": "NOT_PROVIDED"
+      }
+    ],
+    "warnings": [
+      {
+        "code": "SIN_INDICADOR_REGULATORIO",
+        "severity": "INFO",
+        "message": "Una accion no tiene indicador de riesgo de 1 a 7, porque no hay KID de PRIIPs detras. No es un dato que falte: el indicador no existe para este producto. Lo que si hay es nuestra volatilidad, con su metodo y su ventana al lado."
+      }
+    ]
+  }
+}

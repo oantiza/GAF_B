@@ -1,0 +1,437 @@
+{
+"tables": [
+{
+"columns": [
+{
+"key": "header",
+"value": "ISIN",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_0",
+"value": "Name",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_1",
+"value": "% Weight",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_2",
+"value": "Market value",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_3",
+"value": "Country",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_4",
+"value": "Industry",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_5",
+"value": "Asset class",
+"alignment": "left",
+"isVisibleOnHeader": true
+}
+],
+"values": [
+{
+"header": {
+"value": "US5324571083",
+"type": "text"
+},
+"column_0": {
+"value": "ELI LILLY",
+"type": "text"
+},
+"column_1": {
+"value": "11.863%",
+"sortValue": 11.86333068,
+"type": "text"
+},
+"column_2": {
+"value": "550.49 M USD",
+"sortValue": 550488410.64,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US4781601046",
+"type": "text"
+},
+"column_0": {
+"value": "JOHNSON & JOHNSON",
+"type": "text"
+},
+"column_1": {
+"value": "7.119%",
+"sortValue": 7.11886846,
+"type": "text"
+},
+"column_2": {
+"value": "330.33 M USD",
+"sortValue": 330333418.88,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US00287Y1091",
+"type": "text"
+},
+"column_0": {
+"value": "ABBVIE",
+"type": "text"
+},
+"column_1": {
+"value": "5.534%",
+"sortValue": 5.53406924,
+"type": "text"
+},
+"column_2": {
+"value": "256.79 M USD",
+"sortValue": 256794745.44,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Biotechnology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US58933Y1055",
+"type": "text"
+},
+"column_0": {
+"value": "MERCK & CO INC",
+"type": "text"
+},
+"column_1": {
+"value": "3.941%",
+"sortValue": 3.94114131,
+"type": "text"
+},
+"column_2": {
+"value": "182.88 M USD",
+"sortValue": 182878879.08,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US91324P1021",
+"type": "text"
+},
+"column_0": {
+"value": "UNITEDHEALTH GROUP",
+"type": "text"
+},
+"column_1": {
+"value": "3.903%",
+"sortValue": 3.90270467,
+"type": "text"
+},
+"column_2": {
+"value": "181.10 M USD",
+"sortValue": 181095322.2,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Managed Health Care",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "CH1499059983",
+"type": "text"
+},
+"column_0": {
+"value": "ROCHE PS PAR AG",
+"type": "text"
+},
+"column_1": {
+"value": "3.669%",
+"sortValue": 3.66881453,
+"type": "text"
+},
+"column_2": {
+"value": "170.24 M USD",
+"sortValue": 170242230.8,
+"type": "text"
+},
+"column_3": {
+"value": "Switzerland",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "CH0012005267",
+"type": "text"
+},
+"column_0": {
+"value": "NOVARTIS AG",
+"type": "text"
+},
+"column_1": {
+"value": "3.275%",
+"sortValue": 3.27456136,
+"type": "text"
+},
+"column_2": {
+"value": "151.95 M USD",
+"sortValue": 151947891.33,
+"type": "text"
+},
+"column_3": {
+"value": "Switzerland",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "GB0009895292",
+"type": "text"
+},
+"column_0": {
+"value": "ASTRAZENECA PLC",
+"type": "text"
+},
+"column_1": {
+"value": "3.108%",
+"sortValue": 3.10792874,
+"type": "text"
+},
+"column_2": {
+"value": "144.22 M USD",
+"sortValue": 144215718.19,
+"type": "text"
+},
+"column_3": {
+"value": "United Kingdom",
+"type": "text"
+},
+"column_4": {
+"value": "Pharmaceuticals",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US8835561023",
+"type": "text"
+},
+"column_0": {
+"value": "THERMO FISHER SCIENTIFIC",
+"type": "text"
+},
+"column_1": {
+"value": "2.732%",
+"sortValue": 2.73215083,
+"type": "text"
+},
+"column_2": {
+"value": "126.78 M USD",
+"sortValue": 126778677.08,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Life Sciences Tools & Services",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US0311621009",
+"type": "text"
+},
+"column_0": {
+"value": "AMGEN INC",
+"type": "text"
+},
+"column_1": {
+"value": "2.700%",
+"sortValue": 2.69955444,
+"type": "text"
+},
+"column_2": {
+"value": "125.27 M USD",
+"sortValue": 125266122.56,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Biotechnology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US3755581036",
+"type": "text"
+},
+"column_0": {
+"value": "GILEAD SCIENCES",
+"type": "text"
+},
+"column_1": {
+"value": "2.259%",
+"sortValue": 2.25936023,
+"type": "text"
+},
+"column_2": {
+"value": "104.84 M USD",
+"sortValue": 104840002.93,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Biotechnology",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "US0028241000",
+"type": "text"
+},
+"column_0": {
+"value": "ABBOTT LABORATORIES",
+"type": "text"
+},
+"column_1": {
+"value": "2.153%",
+"sortValue": 2.15283577,
+"type": "text"
+},
+"column_2": {
+"value": "99.90 M USD",
+"sortValue": 99897000.0,
+"type": "text"
+},
+"column_3": {
+"value": "United States",
+"type": "text"
+},
+"column_4": {
+"value": "Health Care Equipment",
+"type": "text"
+},
+"column_5": {
+"value": "Equities",
+"type": "text"
+}
+}
+]
+}
+]
+}

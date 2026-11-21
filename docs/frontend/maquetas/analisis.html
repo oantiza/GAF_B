@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Maqueta · Análisis de una propuesta</title>
+<link rel="stylesheet" href="sistema.css">
+</head>
+<body>
+<main class="pagina">
+  <div class="cabecera">
+    <div>
+      <p class="cabecera__ceja">Propuesta · Familia García · 8 posiciones · 100.000 €</p>
+      <h1>Análisis</h1>
+      <p class="cabecera__meta">Cómo se habría comportado esta cartera y qué lleva dentro, con los pesos de hoy.</p>
+    </div>
+    <div class="cabecera__acciones">
+      <span class="opciones" role="radiogroup" aria-label="Periodo"><span aria-checked="true">3 años</span><span>5 años</span></span>
+      <span class="boton">Referencia: Equilibrada ▾</span>
+      <span class="boton boton--principal">Informe para el cliente</span>
+    </div>
+  </div>
+
+  <section class="respuesta" aria-label="Rentabilidad y riesgo de la cartera">
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Rentabilidad anualizada</p>
+      <p class="respuesta__cifra sube">+11,90 %</p>
+      <p class="respuesta__apunte">la referencia, +9,15 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Volatilidad</p>
+      <p class="respuesta__cifra">7,80 %</p>
+      <p class="respuesta__apunte">la referencia, 8,40 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Ratio de Sharpe</p>
+      <p class="respuesta__cifra">1,18</p>
+      <p class="respuesta__apunte">tipo sin riesgo, 2,60 %</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Caída máxima</p>
+      <p class="respuesta__cifra">−11,40 %</p>
+      <p class="respuesta__apunte">de mar a oct de 2025</p>
+    </div>
+    <div class="respuesta__dato">
+      <p class="respuesta__rotulo">Coste corriente de la cartera</p>
+      <p class="respuesta__cifra">0,92 %</p>
+      <p class="respuesta__apunte">920 € al año sobre 100.000 €</p>
+    </div>
+  </section>
+  <p class="bloque__nota">Simulación con los pesos de hoy, del 20/10/2023 al 23/10/2026, sin reequilibrar, neta de los gastos de los fondos, antes de asesoramiento e impuestos.</p>
+
+  <nav class="pestanas" aria-label="Secciones del análisis">
+    <a class="pestana" aria-selected="true" href="#">Resumen</a>
+    <a class="pestana" href="#">Exposición</a>
+    <a class="pestana" href="#">Dentro de los fondos</a>
+    <a class="pestana" href="#">Frente a la referencia</a>
+    <a class="pestana" href="#">Diversificación</a>
+    <a class="pestana" href="#">Datos <span class="distintivo distintivo--interno">Interno</span></a>
+  </nav>
+
+  <div class="rejilla">
+    <section class="col-7">
+      <div class="bloque__cabecera">
+        <div>
+          <h2 class="bloque__titulo">Evolución frente a la cartera de referencia</h2>
+          <p class="bloque__procedencia">Base 100 · precios observados · 3 años · el 88,0 % del peso medido</p>
+        </div>
+        <a class="bloque__enlace" href="#">Ver el detalle</a>
+      </div>
+      <svg class="grafico" id="evolucion" role="img" aria-label="Evolución de la cartera y de la cartera de referencia en base 100 durante tres años"></svg>
+    </section>
+
+    <section class="col-5">
+      <div class="bloque__cabecera"><div><h2 class="bloque__titulo">Qué conviene mirar</h2><p class="bloque__procedencia">Comprobaciones de la cartera, con los pesos de hoy</p></div></div>
+      <div style="display: grid; gap: var(--e-3); padding-top: var(--e-3);">
+        <p class="aviso"><b>Una posición sin medir.</b> Vanguard S&amp;P 500 UCITS ETF (12,0 %) queda fuera de la simulación por la calidad de su serie de precios. Las cifras describen el 88,0 % restante.</p>
+        <p class="aviso"><b>Riesgo concentrado.</b> iShares Core MSCI World pesa el 24,0 % y aporta el 44,5 % del riesgo de la cartera.</p>
+        <p class="aviso aviso--nota"><b>Diversificación correcta.</b> 4 clases de activo y 8 posiciones; ninguna supera el 25 %.</p>
+      </div>
+      <dl class="filas" style="margin-top: var(--e-3)">
+        <div><dt>Perfil de riesgo de la cartera</dt><dd>5 · Equilibrado</dd></div>
+        <div><dt>Renta variable</dt><dd>54,0 %</dd></div>
+      </dl>
+    </section>
+
+    <section class="col-8">
+      <div class="bloque__cabecera">
+        <div>
+          <h2 class="bloque__titulo">Posiciones</h2>
+          <p class="bloque__procedencia">Peso de hoy · rentabilidad anualizada y volatilidad a 3 años, en euros</p>
+        </div>
+        <a class="bloque__enlace" href="#">Abrir en Diseño</a>
+      </div>
+      <table class="tabla">
+        <thead>
+          <tr><th>Activo</th><th>Clase</th><th class="cifra" aria-sort="descending">Peso</th><th class="cifra">Aporta al riesgo</th><th class="cifra">Rentabilidad</th><th class="cifra">Volatilidad</th><th class="cifra">Coste corriente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="#">iShares Core MSCI World UCITS ETF USD (Acc)</a><br><span class="codigo">IE00B4L5Y983</span></td><td>Renta variable</td><td class="cifra">24,0 %</td><td class="cifra">44,5 %</td><td class="cifra sube">+15,92 %</td><td class="cifra">11,94 %</td><td class="cifra">0,20 %</td></tr>
+          <tr><td><a href="#">PIMCO GIS Global Bond Fund E Class EUR (Hedged)</a><br><span class="codigo">IE00B11XZ103</span></td><td>Renta fija</td><td class="cifra">20,0 %</td><td class="cifra">4,7 %</td><td class="cifra sube">+2,84 %</td><td class="cifra">4,21 %</td><td class="cifra">1,39 %</td></tr>
+          <tr><td><a href="#">Vanguard S&amp;P 500 UCITS ETF</a><br><span class="codigo">IE00B3XXRP09</span></td><td>Renta variable</td><td class="cifra">12,0 %</td><td class="cifra"><span class="falta">Falta el dato</span></td><td class="cifra"><span class="falta">Falta el dato</span></td><td class="cifra"><span class="falta">Falta el dato</span></td><td class="cifra">0,07 %</td></tr>
+          <tr><td><a href="#">Amundi Funds - Global Equity Responsible A EUR (C)</a><br><span class="codigo">LU1883318740</span></td><td>Renta variable</td><td class="cifra">10,0 %</td><td class="cifra">15,9 %</td><td class="cifra sube">+14,59 %</td><td class="cifra">10,45 %</td><td class="cifra">2,08 %</td></tr>
+          <tr><td><a href="#">JPMorgan Funds - Euro Aggregate Bond Fund C (acc) EUR</a><br><span class="codigo">LU0430492750</span></td><td>Renta fija</td><td class="cifra">10,0 %</td><td class="cifra">3,2 %</td><td class="cifra baja">−0,41 %</td><td class="cifra">4,18 %</td><td class="cifra">0,55 %</td></tr>
+          <tr><td><a href="#">R-co Valor Balanced C EUR</a><br><span class="codigo">FR0013367265</span></td><td>Mixto</td><td class="cifra">9,0 %</td><td class="cifra">8,0 %</td><td class="cifra sube">+8,03 %</td><td class="cifra">6,62 %</td><td class="cifra">1,41 %</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>Toda la cartera · 8 posiciones</td><td></td><td class="cifra">100,0 %</td><td class="cifra">100,0 %</td><td class="cifra sube">+11,90 %</td><td class="cifra">7,80 %</td><td class="cifra">0,92 %</td></tr>
+        </tfoot>
+      </table>
+      <div class="tabla__pie"><span>6 de 8 posiciones</span><span class="boton boton--sm">Ver las 8</span></div>
+    </section>
+
+    <section class="col-4">
+      <div class="bloque__cabecera"><div><h2 class="bloque__titulo">En qué está invertida</h2><p class="bloque__procedencia">Por clase de activo · pesos de hoy</p></div><a class="bloque__enlace" href="#">Ver la exposición</a></div>
+      <div class="partes">
+        <div><span>Renta variable</span><span class="barra-de-parte"><b style="width: 54%"></b></span><em>54,0 %</em></div>
+        <div><span>Renta fija</span><span class="barra-de-parte"><b style="width: 30%"></b></span><em>30,0 %</em></div>
+        <div><span>Mixto</span><span class="barra-de-parte"><b style="width: 9%"></b></span><em>9,0 %</em></div>
+        <div><span>Alternativo</span><span class="barra-de-parte"><b style="width: 7%"></b></span><em>7,0 %</em></div>
+      </div>
+      <p class="bloque__nota">La renta variable está sobre todo en América (65,4 %); Asia, 18,5 %, y Europa, 16,1 %.</p>
+    </section>
+  </div>
+</main>
+<script src="marco.js"></script>
+<script>
+  montarMarco({ activa: "Análisis", migas: ["Propuestas", "Análisis"] });
+  const cartera = acabarEn(serie(11, 157, 0.0024, 0.022), 140.1);
+  const referencia = acabarEn(serie(5, 157, 0.0019, 0.024), 130.0);
+  dibujarLineas(document.getElementById("evolucion"), {
+    series: [
+      { valores: cartera, color: "var(--serie-1)", rotulo: "La cartera", apunte: "140,1" },
+      { valores: referencia, color: "var(--serie-referencia)", trazos: true, rotulo: "Equilibrada", apunte: "130,0" }
+    ],
+    ejeX: ["oct 2023", "abr 2024", "oct 2024", "abr 2025", "oct 2025", "abr 2026", "oct 2026"],
+    formato: (valor) => valor.toFixed(0),
+    alto: 300
+  });
+</script>
+</body>
+</html>

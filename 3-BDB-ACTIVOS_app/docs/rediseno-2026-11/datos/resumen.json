@@ -1,0 +1,137 @@
+[
+  {
+    "isin": "LU0011889846",
+    "etiqueta": "fondo-doce-secciones",
+    "tipo": "FUND",
+    "nombre": "Janus Henderson Horizon Euroland Fund A2 EUR",
+    "secciones": 12,
+    "listaSecciones": [
+      "costs",
+      "distributions",
+      "exposure",
+      "holdings",
+      "profile",
+      "provenance",
+      "provider_returns",
+      "provider_risk",
+      "quote",
+      "regulatory",
+      "size",
+      "sustainability"
+    ],
+    "bloquesEnTarjeta": 10,
+    "listaBloques": [
+      "identity",
+      "classification",
+      "costs",
+      "quote",
+      "metrics",
+      "exposure",
+      "holdings_summary",
+      "size",
+      "sustainability",
+      "quality"
+    ],
+    "disponibilidad": "(no medida)",
+    "desde": null,
+    "motivo": null,
+    "cobertura": 0.462555,
+    "avisos": 0,
+    "ausencias": 122,
+    "porRazon": {
+      "NOT_PROVIDED": 114,
+      "NOT_YET_FETCHED": 2,
+      "NOT_APPLICABLE": 6
+    },
+    "anios": 0
+  },
+  {
+    "isin": "ES0105836003",
+    "etiqueta": "accion-tres-secciones",
+    "tipo": "STOCK",
+    "nombre": "Inmocemento, S.A.",
+    "secciones": 4,
+    "listaSecciones": [
+      "equity",
+      "metrics",
+      "provenance",
+      "quote"
+    ],
+    "bloquesEnTarjeta": 6,
+    "listaBloques": [
+      "identity",
+      "classification",
+      "quote",
+      "metrics",
+      "exposure",
+      "quality"
+    ],
+    "disponibilidad": "TRADING",
+    "desde": "2026-11-02",
+    "motivo": null,
+    "cobertura": 0.245614,
+    "avisos": 2,
+    "ausencias": 43,
+    "porRazon": {
+      "NOT_PROVIDED": 39,
+      "NOT_APPLICABLE": 4
+    },
+    "anios": 0
+  },
+  {
+    "isin": "ES0125140A14",
+    "etiqueta": "accion-baja-reciente",
+    "tipo": "STOCK",
+    "nombre": "ERCROS",
+    "secciones": 1,
+    "listaSecciones": [
+      "provenance"
+    ],
+    "bloquesEnTarjeta": 4,
+    "listaBloques": [
+      "identity",
+      "classification",
+      "exposure",
+      "quality"
+    ],
+    "disponibilidad": "DELISTED",
+    "desde": "2026-09-21",
+    "motivo": "ultima cotizacion 2026-09-21, medida en 37 documentos de serie de la copia 2026-10-31T13-35-09-399Z",
+    "cobertura": 0.192982,
+    "avisos": 1,
+    "ausencias": 46,
+    "porRazon": {
+      "NOT_PROVIDED": 42,
+      "NOT_APPLICABLE": 4
+    },
+    "anios": 0
+  },
+  {
+    "isin": "ES0158300410",
+    "etiqueta": "accion-baja-antigua",
+    "tipo": "STOCK",
+    "nombre": "LEVANTINA DE EDIFICACION,CLEOP",
+    "secciones": 1,
+    "listaSecciones": [
+      "provenance"
+    ],
+    "bloquesEnTarjeta": 4,
+    "listaBloques": [
+      "identity",
+      "classification",
+      "exposure",
+      "quality"
+    ],
+    "disponibilidad": "DELISTED",
+    "desde": "2017-05-15",
+    "motivo": "ultima cotizacion 2017-05-15, medida en 8 documentos de serie de la copia 2026-10-31T13-35-09-399Z",
+    "cobertura": 0.192982,
+    "avisos": 1,
+    "ausencias": 46,
+    "porRazon": {
+      "NOT_PROVIDED": 42,
+      "NOT_APPLICABLE": 4
+    },
+    "anios": 0
+  }
+]

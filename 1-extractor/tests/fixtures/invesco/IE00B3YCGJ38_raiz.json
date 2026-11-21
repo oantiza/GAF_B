@@ -1,0 +1,142 @@
+{
+ "effectiveDate": "2026-11-06",
+ "lastModified": "2026-09-21T17:13:03Z",
+ "primaryShareClassIndicator": true,
+ "shareClassCurrency": "USD",
+ "shareClassFullName": "Invesco S&amp;P 500 UCITS ETF Acc",
+ "shareClassStatus": "open",
+ "shareClassSuffix": "Acc",
+ "shareClassInceptionDate": "2010-05-20",
+ "replicationMethod": "Synthetic",
+ "hedgedIndicator": false,
+ "distributionFrequency": "Accumulating",
+ "sippEligible": "Yes",
+ "ucitsCompliant": "Yes",
+ "isaEligible": "Yes",
+ "peaEligible": "No",
+ "shareClassReportingStatusUk": "Yes",
+ "audienceType": [
+  "Individual Investor",
+  "Financial Professional",
+  "Institutional",
+  "Discretionary"
+ ],
+ "passports": [
+  "AT",
+  "BE.PP",
+  "CL (Financial Professional and Institutional)",
+  "HR",
+  "CZ",
+  "DK",
+  "FI",
+  "FR",
+  "DE",
+  "HU",
+  "IE",
+  "IL",
+  "IT",
+  "LI",
+  "LU",
+  "MX (Financial Professional and Institutional)",
+  "NL",
+  "NO",
+  "PL",
+  "PT",
+  "RO",
+  "SG",
+  "SK",
+  "ES",
+  "SE",
+  "CH",
+  "GB"
+ ],
+ "account": {
+  "accountName": "Invesco S&amp;P 500 UCITS ETF",
+  "currency": "USD",
+  "domicileCountry": "IE",
+  "financialYearEnd": "--11-30",
+  "legalEntityIdentifier": "635400KZRKKKNVCJXD85",
+  "accountStatus": "open",
+  "securityLendingParticipationFlag": false,
+  "accountShortName": "S&amp;P 500 UCITS ETF",
+  "investmentVehicleType": "ETF",
+  "inceptionDate": "2010-05-20",
+  "fundFocus": "Large cap",
+  "region": "US",
+  "strategy": "Core",
+  "legalForm": "Yes",
+  "investability": [
+   "ISA",
+   "SIPP"
+  ],
+  "productType": "ETF",
+  "sfdrClassification": [
+   "article6"
+  ]
+ },
+ "investmentStrategy": {
+  "assetType": "Equity",
+  "managementStyle": "PASSIVE"
+ },
+ "aliases": {
+  "isin": "IE00B3YCGJ38",
+  "wkn": "A1CYW7",
+  "valor": "11358996",
+  "sedol": "B540668",
+  "ticker": "SPXS",
+  "bloombergTicker": "SPXS LN",
+  "bloombergTickerInav": "SPXSIN"
+ },
+ "shareclassCharges": {
+  "exitCharge": "0.00015",
+  "fundManagementCharge": "0.05%",
+  "swapCharge": 0.000718,
+  "createCharge": "0.00015"
+ },
+ "shareclassListings": [
+  {
+   "listingExchangeCode": "XLON",
+   "listingExchangeName": "London Stock Exchange",
+   "listingCurrency": "USD",
+   "listingRic": "SPXS.L",
+   "listingDate": "2010-05-25",
+   "listingPrimaryIndicator": true,
+   "listingSedol": "B540668",
+   "listingBloombergTicker": "SPXS LN",
+   "listingIsin": "IE00B3YCGJ38",
+   "listingValor": "11358996",
+   "listingWKN": "A1CYW7",
+   "listingTicker": "SPXS",
+   "listingBloombergTickerInav": "SPXSIN",
+   "listingReutersInav": "SPXSUSiv.P",
+   "listingMarkitTickerInav": "SPXSUSiv.P",
+   "listingMarkitTickerBidOfferPrice": "SPXS.L"
+  }
+ ],
+ "benchmarkRelationships": [
+  {
+   "benchmarkFullName": "S&amp;P 500® Total Return (Net) Index",
+   "baseCurrency": "USD",
+   "indexProvider": "",
+   "indexBloombergTicker": "SPTR500N",
+   "indexRic": ".SPXNTR"
+  }
+ ],
+ "links": {
+  "self": {
+   "href": "/*/en_GB/shareclasses/IE00B3YCGJ38?idType=isin"
+  },
+  "nav": {
+   "href": "/*/en_GB/shareclasses/IE00B3YCGJ38/nav?idType=isin"
+  },
+  "esg": {
+   "href": "/*/en_GB/shareclasses/IE00B3YCGJ38/esg?idType=isin"
+  },
+  "distribution": {
+   "href": "/*/en_GB/shareclasses/IE00B3YCGJ38/distribution?idType=isin"
+  },
+  "marketdata": {
+   "href": "/*/en_GB/shareclasses/IE00B3YCGJ38/marketdata?idType=isin"
+  }
+ }
+}

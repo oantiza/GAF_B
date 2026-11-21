@@ -1,0 +1,419 @@
+/* ============================================================================
+   Carteras de clientes (rediseño del 14-11-2026, sobre el gestor del 13-11)
+
+   Solo lo que la pantalla no encuentra ya escrito en las piezas. La cabecera la
+   monta `PageHeader`, la respuesta `Respuesta`, cada bloque `Panel`, las tablas
+   `TablaDeDatos`, los campos `Campo`, los avisos `Aviso`, las cifras `Cifra` y las
+   partes de un todo `ListaDePartes`. Aquí va: la rejilla de dos columnas de la
+   pantalla, la fila de pestañas y periodo, las rejillas de campos y filtros, y el
+   buscador de activos.
+
+   El verde y el rojo los pone `Cifra`, solo en lo que se gana o se pierde.
+
+   La trae `GestorDeCarterasPage`, que se carga a petición: no pesa en la entrada.
+   ========================================================================== */
+
+/* La raíz de las pantallas del gestor: una columna que nunca empuja el ancho de la página. */
+.gestor {
+  min-width: 0;
+}
+
+/* El color de `claseDelSigno` (formato.ts), que las pantallas ya no usan: las cifras van con `Cifra`. */
+.gestor-sube {
+  color: var(--sube);
+}
+
+.gestor-baja {
+  color: var(--baja);
+}
+
+/* --- Bloques en columnas: dos donde caben, una si no ---------------------------- */
+
+.gestor-columnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: var(--s-8) var(--s-11);
+  align-items: start;
+  min-width: 0;
+}
+
+/* La rejilla de la pantalla, como la maqueta: la columna principal ancha y la lateral estrecha; una en tableta. Con
+   el hueco de la rejilla de Análisis (`analisis.css`), que es el de la lámina. */
+.gestor-rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: calc(var(--s-8) + var(--s-2));
+  align-items: start;
+  min-width: 0;
+}
+
+.gestor-rejilla__ancha,
+.gestor-rejilla__estrecha {
+  min-width: 0;
+}
+
+@media (max-width: 1024.98px) {
+  .gestor-rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* En la columna estrecha, el nombre de una posición manda sobre la barra: si no, «Bolsa Global Indexada, FI (demo)»
+   parte en tres líneas junto a una barra más ancha que él. */
+.gestor-rejilla__estrecha .partes__parte {
+  grid-template-columns: minmax(0, 3fr) minmax(3em, 2fr) max-content;
+}
+
+/* «Ver el análisis», «Ver las cuentas»: en la línea del título, que en la columna estrecha no tiene los 16 em de la
+   pieza. */
+.gestor-rejilla__estrecha .panel-head-text {
+  min-width: min(100%, 11em);
+}
+
+/* La banda de cuatro cifras, en la tableta de pie: dos y dos, en columnas, en vez de tres y una sola debajo. */
+@media (max-width: 899.98px) {
+  .gestor .respuesta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gestor .respuesta__dato:nth-child(odd) {
+    border-left-color: transparent;
+  }
+}
+
+/* Los avisos de la cartera, a todo el ancho, como la banda y los bloques que tienen debajo. */
+.gestor > .aviso {
+  max-width: none;
+}
+
+/* Las pestañas y, a su derecha, el periodo. */
+.gestor-mandos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-5) var(--s-8);
+  min-width: 0;
+}
+
+.gestor-mandos__pestanas {
+  flex: 1 1 auto;
+}
+
+.gestor-periodo,
+.gestor-fechas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-4) var(--s-5);
+  min-width: 0;
+}
+
+/* --- Filas y notas ---------------------------------------------------------------- */
+
+/* Una fila de dato del gestor: el rótulo puede llevar una nota debajo, así que la cifra se alinea con su primera línea. */
+.gestor-fila {
+  align-items: baseline;
+}
+
+/* El rótulo y su nota se leen enteros: la nota explica la cifra («recuperada el…») y no se recorta como un nombre
+   largo de `.rows`. Y no cede todo su ancho a un motivo largo de la cifra («Hace falta al menos un año de historia.»):
+   si no, «Ratio de Sharpe» parte en dos líneas y su «?» cae a una tercera. */
+.gestor-fila .rows__label {
+  display: block;
+  min-width: min(50%, 9rem);
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+}
+
+.gestor-fila__nota {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+/* La segunda cifra de una fila, debajo de la primera y alineada con ella: la anualizada de los últimos 3 y 5 años. */
+.gestor-fila__anual {
+  display: block;
+  text-align: right;
+  font-size: var(--texto-xs);
+  font-weight: 400;
+  color: var(--tinta-2);
+}
+
+/* El motivo de una cifra que no se da puede ser una frase larga: parte en líneas en vez de salirse de la fila. En
+   bloque y no `inline-block`: la línea base de un `inline-block` es la de su última línea, y el rótulo, alineado por la
+   base, bajaba a la segunda línea del motivo. */
+.gestor-fila .rows__value .ausencia {
+  display: block;
+  margin-left: auto;
+  max-width: 22rem;
+  white-space: normal;
+  text-align: right;
+}
+
+/* La fila que suma las de encima: en negrita y con el filete fuerte encima. */
+.gestor-fila--total {
+  border-top: 1px solid var(--filete-fuerte);
+  font-weight: 600;
+}
+
+.gestor-fecha {
+  flex: none;
+  width: 5.5rem;
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.gestor-subtitulo {
+  margin: var(--s-4) 0 0;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  color: var(--tinta-3);
+}
+
+.gestor-nota {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  max-width: 60em;
+}
+
+.gestor-estado {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+.gestor-estado--error {
+  color: var(--baja);
+}
+
+/* Movimientos y fecha de los precios, tras el estado de guardado: en el gris de la procedencia. */
+.gestor-estado__dato {
+  color: var(--tinta-3);
+}
+
+.gestor-enlace {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--marca-fuerte);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.gestor-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.gestor-pasos {
+  margin: var(--s-5) 0 0;
+  padding-left: var(--s-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  text-align: left;
+  max-width: 46em;
+}
+
+/* Son tres pasos en orden: con su número, que `base.css` quita a toda lista. */
+.gestor-pasos li {
+  list-style: decimal;
+}
+
+.gestor-pasos li::marker {
+  color: var(--tinta-3);
+  font-weight: 600;
+}
+
+/* --- Avisos ------------------------------------------------------------------------ */
+
+.gestor-avisos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* --- Formularios -------------------------------------------------------------------- */
+
+.gestor-campos,
+.gestor-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: var(--s-5) var(--s-6);
+  align-items: start;
+  min-width: 0;
+}
+
+/* El buscador de la lista de carteras: no ocupa todo el ancho del bloque. */
+.gestor-buscar {
+  max-width: 28rem;
+}
+
+.gestor-campos__ancho {
+  grid-column: span 2;
+}
+
+.gestor-campos__boton {
+  align-self: end;
+}
+
+.gestor-numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.gestor-errores {
+  margin: 0;
+  padding-left: var(--s-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  font-size: var(--texto-sm);
+  color: var(--baja);
+}
+
+.gestor-acciones {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+/* --- El buscador de activos ---------------------------------------------------------- */
+
+.gestor-resultados {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--filete);
+}
+
+.gestor-resultado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  width: 100%;
+  padding: var(--s-4) 0;
+  border: 0;
+  border-bottom: 1px solid var(--filete);
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gestor-resultado:hover,
+.gestor-resultado:focus-visible {
+  background: var(--marca-tenue);
+}
+
+.gestor-resultado__nombre,
+.gestor-elegido__nombre {
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.gestor-resultado__detalle,
+.gestor-elegido__detalle {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+.gestor-elegido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--filete);
+  min-width: 0;
+}
+
+.gestor-activo-propio {
+  padding-left: var(--s-5);
+  border-left: 2px solid var(--filete-fuerte);
+}
+
+/* --- Una tabla corta y fija (el extracto de la cuenta) --------------------------------- */
+
+.gestor-tabla-envoltorio {
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.gestor-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+}
+
+.gestor-tabla th {
+  padding: var(--s-3) var(--s-4) var(--s-3) 0;
+  border-bottom: 1px solid var(--filete-fuerte);
+  font-size: var(--texto-xxs);
+  font-weight: 600;
+  color: var(--tinta-2);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.gestor-tabla td {
+  padding: var(--s-3) var(--s-4) var(--s-3) 0;
+  border-bottom: 1px solid var(--filete);
+  vertical-align: baseline;
+}
+
+.gestor-tabla .gestor-tabla__cifra {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding-left: var(--s-4);
+  /* Una cifra alineada a la derecha seguida de una columna de texto necesita aire, o se leen como una sola. */
+  padding-right: var(--s-6);
+}
+
+.gestor-tabla .gestor-tabla__fecha {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gestor-tabla th:last-child,
+.gestor-tabla td:last-child {
+  padding-right: 0;
+}
+
+/* El rótulo de una fila (un año del mapa, una métrica de la comparada) va a la letra de sus cifras y con su filete,
+   no con el de la cabecera de columna; el de la última fila se quita como el de sus casillas. */
+.gestor-tabla tbody th {
+  font-size: inherit;
+  border-bottom-color: var(--filete);
+  vertical-align: baseline;
+}
+
+.gestor-tabla tbody tr:last-child > th {
+  border-bottom: 0;
+}
+
+/* «Comparar con» (SelectorDeReferencia): la lista no ocupa todo el ancho del bloque. */
+.gestor-referencia {
+  max-width: 38em;
+}

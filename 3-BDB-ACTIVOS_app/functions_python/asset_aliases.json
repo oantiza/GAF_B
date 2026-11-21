@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-10-01",
+  "aliases": {
+    "ES0141116030": {
+      "successor": "LU3038481936",
+      "effective": "2025-11-25",
+      "reason": "Hamco Global Value Fund, FI clase R, fusionado en Hamco SICAV - Global Value R EUR Acc (LU3038481936) el 25/11/2025 con arrastre del valor liquidativo. El historico del FI ya esta empalmado en el sucesor. Alias pedido por Oscar el 01-10-2026 para que los extractos con el ISIN antiguo se reconozcan."
+    }
+  }
+}

@@ -1,0 +1,503 @@
+/* ============================================================================
+   Jubilación (13-11-2026)
+
+   Solo lo que la pantalla no encuentra ya escrito. La cabecera de cada bloque la
+   monta `Panel`, las tablas son `TablaDeDatos`, los campos `Campo`, los avisos
+   `Aviso`, las filas `.rows` y las notas `.cmp-note`: aquí va la mesa de dos
+   columnas, la rejilla de campos, la tabla de saldos con sus casillas, la respuesta
+   con su cifra, las frases de los escenarios, el flujo en carriles del método y la
+   línea de la firma del diálogo del informe.
+
+   La trae `JubilacionPage`, que se carga a petición: no pesa en la entrada.
+   ========================================================================== */
+
+/* Dos columnas que arrancan a la misma altura —lo que se escribe y lo que sale— y
+   una sola cuando no caben. Decide el ancho del que se dispone, no el de la ventana,
+   porque el menú lateral cambia de ancho. Lo que sobra se reparte a partes iguales,
+   como la lámina de la dirección A (18-11-2026): con el formulario fijo en 380 px los
+   rótulos y los desplegables se cortaban, y a 2560 quedaba un metro por debajo del
+   resultado. */
+.jubilacion-mesa {
+  display: flex;
+  flex-wrap: wrap;
+  /* Las dos columnas miden lo mismo: así las cifras del resultado, que se quedan fijas al bajar, acompañan al
+     formulario hasta su último campo, que es donde están las hipótesis que más se prueban. */
+  align-items: stretch;
+  gap: var(--s-8) var(--s-9);
+  min-width: 0;
+}
+
+/* En su columna, los bloques van uno bajo otro; cuando hay ancho para dos —la mesa en
+   una sola columna, o un monitor ancho—, se reparten en dos para no dejar media
+   pantalla vacía a su derecha. Por debajo de 400 px por bloque, uno: la tabla de
+   saldos parte sus rótulos. En carriles, como `.jubilacion-carriles`, y no en filas:
+   con filas compartidas, «El cliente» dejaba debajo el alto que le sobraba a su
+   vecino. */
+.jubilacion-datos {
+  flex: 1 1 400px;
+  min-width: min(400px, 100%);
+  column-width: 400px;
+  column-gap: var(--s-9);
+}
+
+.jubilacion-datos > * {
+  break-inside: avoid;
+}
+
+.jubilacion-datos > * + * {
+  margin-top: var(--s-8);
+}
+
+.jubilacion-resultado {
+  /* La misma base que los datos, para que crezcan igual; el mínimo decide cuándo la mesa pasa a una columna. */
+  flex: 1 1 400px;
+  min-width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+/* Campos de dos en dos, y de uno en uno cuando no caben: nunca tres, que en «El cliente» dejaban «Sexo» solo en su
+   fila. Cada columna mide al menos la mitad. */
+.jubilacion-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(150px, (100% - var(--s-5)) / 2), 1fr));
+  gap: var(--s-5);
+  align-items: start;
+  min-width: 0;
+}
+
+/* Las hipótesis: dos campos que se leen como pareja. Comparten filas —rótulo, cifra, ayuda y error—, así que las
+   dos cifras quedan a la misma altura aunque un rótulo ocupe dos líneas, y sin hueco cuando caben en una. El rótulo
+   va pegado a su caja y se reparte en líneas equilibradas, sin dejar un «%» solo. */
+.jubilacion-campos--pareja > .field {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  align-self: stretch;
+  align-content: start;
+  /* El aire entre filas va en margen y no en `gap`: la fila del error, vacía casi siempre, no deja hueco. */
+  row-gap: 0;
+}
+
+.jubilacion-campos--pareja > .field > * + * {
+  margin-top: var(--s-3);
+}
+
+.jubilacion-campos--pareja .field__label {
+  align-self: end;
+  text-wrap: balance;
+}
+
+/* Una pareja de desplegables con valores largos («El de menor impuesto estimado»): de uno en uno antes que cortar el
+   valor. 220 px es lo que ese valor ocupa entero con su flecha. */
+.jubilacion-campos--ancha {
+  container: campos-ancha / inline-size;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+/* Apilada (por debajo de dos columnas de 220 px y su hueco), la pareja ya no comparte filas: las de la ayuda y el error,
+   vacías, dejaban entre un campo y el siguiente el doble de hueco que entre los demás. */
+@container campos-ancha (max-width: 451.98px) {
+  .jubilacion-campos--pareja > .field {
+    grid-row: auto;
+    grid-template-rows: none;
+  }
+}
+
+/* Los segmentados del formulario ocupan su línea y reparten el ancho entre sus opciones, como la lámina: estirados con
+   las opciones a la izquierda dejaban una caja vacía que parecía una opción más. */
+.jubilacion-datos .ui-segmented {
+  align-self: stretch;
+}
+
+.jubilacion-datos .ui-segmented__button {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.jubilacion-importe {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Las cifras que se escriben, a la derecha y en columna, como los importes. */
+.jubilacion-numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* «Tomar de la propuesta en curso», a la vista al empezar el bloque de ahorros, con de qué propuesta se trata. */
+.jubilacion-atajo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  min-width: 0;
+}
+
+/* Los saldos: una casilla por clase de ahorro y, donde hay plusvalía que tributar,
+   la de su coste. Las filas se separan con un filete de lado a lado, también bajo el
+   rótulo, como la lámina; y no se tiñen bajo el ratón: es una tabla para escribir. */
+.jubilacion-saldos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+}
+
+.jubilacion-saldos thead th {
+  padding: 0 0 var(--s-2) var(--s-4);
+  font-size: var(--texto-xxs);
+  font-weight: 600;
+  color: var(--tinta-2);
+  text-align: right;
+  /* Sin filete propio: el de la cabecera lo pone la regla común de `thead th` (su sombra interior), y los dos juntos
+     se leían como una raya doble. */
+}
+
+.jubilacion-saldos tbody th,
+.jubilacion-saldos tfoot th {
+  padding: var(--s-2) 0;
+  font-weight: 400;
+  text-align: left;
+  line-height: var(--lh-snug);
+}
+
+.jubilacion-saldos tbody th {
+  border-bottom: 1px solid var(--filete);
+}
+
+.jubilacion-saldos tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.jubilacion-saldos tbody tr:hover {
+  background: transparent;
+}
+
+.jubilacion-saldos td {
+  width: 31%;
+  padding: var(--s-2) 0 var(--s-2) var(--s-4);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.jubilacion-saldos tfoot :is(th, td) {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--filete);
+  font-weight: 600;
+}
+
+/* Una casilla con su título y, debajo, lo que significa marcarla. */
+.jubilacion-casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+  font-size: var(--texto-sm);
+  cursor: pointer;
+}
+
+.jubilacion-casilla > input {
+  margin-top: var(--s-1);
+}
+
+.jubilacion-casilla > span {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.jubilacion-casilla strong {
+  font-weight: 500;
+}
+
+/* La respuesta: una sola cifra —lo que le queda al cliente al mes— y, a su lado, las
+   pocas líneas que la explican. Es la única cifra de este tamaño de la pantalla (el
+   mismo `--cifra-xl` de la cifra principal de `Respuesta`, una por pantalla): el bruto
+   y el IRPF, que antes iban a su altura, son ahora dos de esas líneas. Se queda a la
+   vista al bajar donde la pantalla es alta: es lo que se mira mientras se prueba una
+   hipótesis. En una pantalla baja se comería la cuarta parte. */
+.jubilacion-respuesta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  min-width: 0;
+  padding: var(--s-7) var(--s-8) var(--s-8);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+  background: var(--papel);
+}
+
+/* Solo en escritorio (desde 1.440 px), y si la pantalla es alta: en una baja, fija, se comería la cuarta parte. */
+.jubilacion-respuesta {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: var(--z-sticky);
+}
+
+@media (max-width: 1439.98px), (max-height: 999.98px) {
+  .jubilacion-respuesta {
+    position: static;
+  }
+}
+
+.jubilacion-respuesta__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  min-width: 0;
+}
+
+/* De qué año es la cifra y en qué unidades: su procedencia, pegada a ella. */
+.jubilacion-respuesta__momento {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+}
+
+/* La cifra y sus líneas, lado a lado donde caben. No se estiran con el monitor: una
+   fila de dos palabras y un importe no se lee a un metro de distancia. */
+.jubilacion-respuesta__cuerpo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--s-7) var(--s-8);
+  align-items: start;
+  max-width: 120ch;
+  min-width: 0;
+}
+
+.jubilacion-respuesta__cifra {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.jubilacion-respuesta__rotulo {
+  font-size: var(--texto-md);
+  font-weight: 500;
+  color: var(--tinta-2);
+}
+
+/* En la serifa de la dirección A, como la cifra de Análisis (`.respuesta__cifra`), al tamaño de la que contesta. */
+.jubilacion-respuesta__valor {
+  font-family: var(--fuente-serifa);
+  font-feature-settings: normal;
+  font-size: var(--cifra-xl);
+  line-height: 0.95;
+  font-weight: var(--peso-titulo);
+  letter-spacing: -0.01em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--tinta);
+}
+
+/* «al mes»: la unidad de la cifra, a su lado y sin competir con ella. Sigue en Plex. */
+.jubilacion-respuesta__valor > span {
+  font-family: var(--fuente);
+  font-size: var(--titulo-md);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--tinta-2);
+  white-space: nowrap;
+}
+
+.jubilacion-respuesta__apunte {
+  max-width: 36ch;
+  font-size: var(--texto-sm);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+}
+
+/* Las líneas que explican la cifra: de dónde viene el dinero en gris, y en tinta la
+   suma y lo que queda. El total cierra con su filete, como en un libro de cuentas. */
+.jubilacion-libro {
+  /* Es una celda de rejilla con texto: sin esto, una línea larga ensancha la columna en vez de partirse. */
+  min-width: 0;
+}
+
+/* Cinco líneas compactas junto a la cifra, como la lámina: con la altura de fila común la tarjeta doblaba su alto. */
+.jubilacion-libro > .rows__item {
+  min-height: 0;
+  padding-block: var(--s-3);
+}
+
+.jubilacion-libro__linea .rows__label {
+  color: var(--tinta-2);
+}
+
+.jubilacion-libro__linea--suma .rows__label,
+.jubilacion-libro__linea--total .rows__label {
+  color: var(--tinta);
+}
+
+.jubilacion-libro__linea--total {
+  border-top: 1px solid var(--filete-fuerte);
+  font-weight: 600;
+}
+
+.jubilacion-libro__linea--total .rows__value {
+  font-weight: 600;
+}
+
+/* La fila anterior al total no lleva su filete: el del total ya separa. */
+.jubilacion-libro__linea--resta {
+  border-bottom: 0;
+}
+
+/* Hasta cuándo llegan los ahorros, en frases: el caso a la izquierda y lo que pasa a
+   la derecha. La frase entera se lee, no se recorta; y lo que se acaba antes de la
+   edad del plan va en el color de aviso, que es lo que hay que mirar. */
+.jubilacion-frases {
+  max-width: 96ch;
+}
+
+.jubilacion-frase .rows__label {
+  display: block;
+  color: var(--tinta-2);
+}
+
+/* Lo que pasa no se parte («Se agotan a los 89 / años» a 1.440): dobla el caso, que es el rótulo. La frase más larga
+   («Llegan a los 95 años y sobran 76.918 €») cabe en una línea en todos los anchos. */
+.jubilacion-frase .rows__value {
+  flex: none;
+  text-align: right;
+}
+
+.jubilacion-frase--agota .rows__value {
+  color: var(--aviso);
+}
+
+/* El rótulo que separa la respuesta de las cuentas: lo de abajo es lo mismo de antes,
+   para quien quiera comprobarlo. Una subvista, en `h2`, entre el título de la página
+   y los de los paneles. */
+.jubilacion-nivel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-5);
+  margin-top: var(--s-9);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--filete-fuerte);
+  min-width: 0;
+}
+
+/* Título y explicación en una línea, con el filete fuerte debajo, como la lámina. */
+.jubilacion-nivel__titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-lg);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--tinta);
+}
+
+.jubilacion-nivel__texto {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+/* «Año a año»: treinta filas que se recorren de arriba abajo, más apretadas que una tabla corriente. */
+.jubilacion-anios .tabla tbody :is(td, th[scope="row"]) {
+  height: auto;
+  padding-block: var(--s-2) var(--s-3);
+}
+
+/* Dos bloques que se leen juntos, lado a lado donde caben. Van bajo la mesa, a todo el ancho. */
+.jubilacion-pareja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: var(--s-8) var(--s-9);
+  align-items: start;
+  min-width: 0;
+}
+
+/* En la columna del resultado, lado a lado solo cuando cada bloque tiene sitio de verdad: a 2560 los dos gráficos
+   quedaban en unos 300 px de trazado, menos que apilados a 1.440. */
+.jubilacion-resultado > .jubilacion-pareja {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+}
+
+/* El vacío del resultado, en tarjeta como el formulario de al lado: suelto sobre el lienzo parecía fuera de la mesa. */
+.jubilacion-resultado > .ui-empty-state {
+  background: var(--papel);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+/* El método, sus límites, los parámetros y las fuentes fluyen en carriles, como las
+   secciones de la ficha: una lista corta junto a una larga no deja un hueco. */
+.jubilacion-carriles {
+  column-width: var(--carril-w);
+  column-gap: var(--s-9);
+  min-width: 0;
+}
+
+.jubilacion-carriles > section {
+  break-inside: avoid;
+  margin-bottom: var(--s-7);
+}
+
+.jubilacion-lista {
+  margin: 0;
+  padding-left: var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  font-size: var(--texto-xs);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+  overflow-wrap: anywhere;
+}
+
+ul.jubilacion-lista {
+  list-style: disc;
+}
+
+ol.jubilacion-lista {
+  list-style: decimal;
+}
+
+.jubilacion-lista strong {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+/* El aviso de que es una simulación, al pie de las cuentas, separado de su último bloque. */
+.jubilacion-pie {
+  margin-top: var(--s-8);
+}
+
+/* La firma de los informes en el diálogo: quién firma, en una línea, y «Cambiar» a su lado. */
+.jubilacion-firma {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+  border-top: 1px solid var(--filete);
+  border-bottom: 1px solid var(--filete);
+  min-width: 0;
+}
+
+.jubilacion-firma__texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.jubilacion-firma__texto > p {
+  margin: 0;
+}
+
+.jubilacion-firma__linea {
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  overflow-wrap: anywhere;
+}

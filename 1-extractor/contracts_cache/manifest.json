@@ -1,0 +1,9 @@
+{
+  "schema_version": "bdb-contract-cache.v1",
+  "source": "2-plataforma-datos/contracts/canonical",
+  "files": {
+    "fondosdb-fund.v1.schema.json": "bfb71fa40224f51c2249ff4f94cb09029317820d959aa7a621f52b5ea0103aa8",
+    "fondosdb-holdings.v1.schema.json": "d8e5ec18f54f1491a7976ff4b653df11aa418421f9c0f961508865938f476296",
+    "fondosdb-stock.v1.schema.json": "4e011380f585cfd1b3a2e3906583c4d359294198cecc27425b2f092914806259"
+  }
+}

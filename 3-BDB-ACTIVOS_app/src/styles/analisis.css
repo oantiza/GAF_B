@@ -1,0 +1,392 @@
+/* ============================================================================
+   Propuestas (2): Análisis e Informes — rediseño «Informe vivo» (14-11-2026)
+
+   La anatomía es la de toda pantalla —cabecera, respuesta, pestañas, bloques, notas— y casi todo lo pintan las
+   piezas (`PageHeader`, `Respuesta`, `SegmentedTabs`, `Panel`, `Aviso`, `ListaDePartes`, `TablaDeDatos`). Aquí solo
+   va lo propio de estas dos pantallas: la rejilla del Resumen, las filas de datos con su filete, el cierre del
+   gráfico de evolución, la lista de documentos y la firma de los informes. Solo tokens; cuatro puntos de corte.
+
+   Desde el 18-11-2026 Análisis lleva el aspecto de la dirección A («Banca privada, puesta al día»): la banda de cifras
+   sin caja y pegada al doble filete de la cabecera, las filas de dato con su filete claro y la letra pequeña a 12 px.
+
+   La cargan `XrayPage.tsx` y `PortfolioReportPage.tsx`, y también `CostsModal.tsx` y `DialogoDelInformeDeCliente.tsx`,
+   que se abren desde otras pantallas (Diseño) y traen su hoja.
+   ========================================================================== */
+
+/* --- la página ---------------------------------------------------------- */
+
+.analisis,
+.informes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  min-width: 0;
+}
+
+/* El selector de la cartera de referencia en la cabecera, junto al periodo: un control más, a la altura de los botones
+   y tan ancho como su texto. Solo fija el color del fondo, para no perder la flecha que lleva todo selector. */
+.analisis-referencia {
+  flex: none;
+  width: auto;
+  min-height: var(--control-md);
+  padding: 0 var(--s-9) 0 var(--s-5);
+  border: 1px solid var(--borde-control);
+  border-radius: var(--radio-control);
+  background-color: var(--papel);
+  color: var(--tinta);
+  font: inherit;
+  font-size: var(--texto-sm);
+  font-weight: 500;
+}
+
+/* --- la respuesta y su método ------------------------------------------ */
+
+.analisis-respuesta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+/* La banda es la abierta de la pieza (`<Respuesta abierta>`). Aquí va dentro de una sección con su método, así que la
+   que se pega bajo la cabecera es la sección: se come el hueco de la página y deja a la vista el doble filete. */
+.analisis > .ui-page-header + .analisis-respuesta {
+  margin-top: calc(1px - var(--s-8));
+}
+
+/* El rótulo, en tinta y a 13 px con 18 de interlínea; reserva sus dos líneas y, si dobla, las deja parejas. */
+.analisis-respuesta .respuesta__rotulo {
+  min-height: calc(2 * 1.385 * var(--texto-xs) + var(--s-4));
+  padding-bottom: var(--s-4);
+  line-height: 1.385;
+  color: var(--tinta);
+  text-wrap: balance;
+}
+
+/* En un monitor grande ningún rótulo dobla, y la línea que se le reserva sobra. */
+@media (min-width: 1800px) {
+  .analisis-respuesta .respuesta__rotulo {
+    min-height: 0;
+  }
+}
+
+/* En la tableta de pie las cinco no caben en una fila sin partir sus rótulos en tres líneas: tres y dos, en columnas. */
+@media (max-width: 899.98px) {
+  .analisis-respuesta .respuesta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Qué simulación es, entre qué fechas y qué parte del peso mide: en letra pequeña, bajo la banda. */
+.analisis-metodo,
+.analisis-nota {
+  margin: 0;
+  max-width: 80ch;
+  font-size: var(--texto-xxs);
+  line-height: 1.3333;
+  color: var(--tinta-3);
+}
+
+/* El método es una sola frase larga: a 12 px, 80 caracteres la partían en cuatro líneas. */
+.analisis-metodo {
+  max-width: 75em;
+}
+
+.analisis-pestanas {
+  margin-top: var(--s-2);
+}
+
+/* --- el Resumen: dos columnas, la principal ancha y la lateral estrecha --- */
+
+.analisis-rejilla {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: calc(var(--s-8) + var(--s-2));
+  align-items: start;
+  min-width: 0;
+}
+
+.analisis-rejilla__ancha {
+  grid-column: span 7;
+  min-width: 0;
+}
+
+.analisis-rejilla__estrecha {
+  grid-column: span 5;
+  min-width: 0;
+}
+
+.analisis-rejilla__ancha--mas {
+  grid-column: span 8;
+}
+
+.analisis-rejilla__estrecha--menos {
+  grid-column: span 4;
+}
+
+/* La tabla de posiciones y el reparto por clase van lado a lado solo donde la tabla cabe entera. Son ocho columnas
+   (nueve con el importe): en dos tercios de una pantalla de 1.440 px eran 750 px, el nombre se quedaba en 185 y cada
+   posición ocupaba cinco líneas, con la última columna fuera de la vista. Por debajo de 1.800 px la tabla ocupa todo el
+   ancho y el reparto va debajo. */
+@media (max-width: 1799.98px) {
+  .analisis-rejilla__ancha--mas,
+  .analisis-rejilla__estrecha--menos {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1024.98px) {
+  .analisis-rejilla__ancha,
+  .analisis-rejilla__estrecha {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- filas de datos: rótulo a la izquierda, cifra a la derecha, un filete entre ellas --- */
+
+.analisis-filas {
+  margin: 0;
+  min-width: 0;
+}
+
+.analisis-filas__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--filete-fila);
+}
+
+/* La última no lleva filete: lo que viene debajo es el borde de su tarjeta, o el bloque siguiente con su aire. */
+.analisis-filas__fila:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* El rótulo, en seminegra a 13 px; lo que lo explica, debajo, a 12 y en la tinta 3. */
+.analisis-filas__fila > dt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  line-height: 1.54;
+  color: var(--tinta);
+}
+
+.analisis-filas__fila small {
+  font-size: var(--texto-xxs);
+  font-weight: 400;
+  line-height: 1.3333;
+  color: var(--tinta-3);
+  text-wrap: pretty;
+}
+
+.analisis-filas__fila > dd {
+  margin: 0;
+  flex: none;
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  line-height: 1.43;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--tinta);
+}
+
+.analisis-umbral {
+  font-size: var(--texto-xxs);
+  line-height: 1.3333;
+  color: var(--tinta-3);
+}
+
+.analisis-motivo {
+  display: block;
+  margin-top: var(--s-2);
+}
+
+/* --- el pie de la tabla de posiciones: cuántas se ven y «Ver las N» --- */
+
+.analisis-tabla-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  font-size: var(--texto-xxs);
+  color: var(--tinta-3);
+}
+
+.analisis-enlace {
+  font-size: var(--texto-xs);
+  font-weight: 500;
+  color: var(--marca-fuerte);
+}
+
+/* --- la evolución frente a la referencia: el cierre y la caída --- */
+
+.analisis-cierre {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-10);
+  margin: 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--filete-fila);
+}
+
+.analisis-cierre__dato > dt {
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+}
+
+.analisis-cierre__dato > dd {
+  margin: 0;
+  font-size: var(--texto-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Un subtítulo dentro de una tarjeta: un punto por debajo del título de bloque. */
+.analisis-subtitulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  line-height: 1.43;
+  letter-spacing: 0;
+  color: var(--tinta);
+}
+
+.analisis-caida {
+  color: var(--tinta-2);
+}
+
+/* --- Informes: los datos de los documentos ----------------------------- */
+
+.informes-datos {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: var(--s-6) var(--s-8);
+  align-items: start;
+  min-width: 0;
+}
+
+/* Son cinco campos, en el orden del formulario: nombre, capital, preparado para, cartera de referencia y periodo. Desde
+   1440 van en una sola fila, con el capital y el periodo a lo que miden; por debajo, en dos filas, dos y tres, para que
+   ninguno quede solo ni deje un hueco (18-11-2026, dirección A). */
+@media (max-width: 1439.98px) {
+  .informes-datos {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .informes-datos > * {
+    grid-column: span 2;
+  }
+
+  .informes-datos > :nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+}
+
+.informes-datos__valor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0;
+  min-height: var(--control-md);
+  font-size: var(--texto-md);
+}
+
+/* La firma de los informes: una línea con lo que hay y «Cambiar». */
+.informes-firma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--filete-fila);
+}
+
+.informes-firma__linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-3) var(--s-6);
+}
+
+.informes-firma__rotulo {
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+}
+
+.informes-firma__valor {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--texto-md);
+  color: var(--tinta);
+}
+
+/* --- Informes: la lista de documentos, uno por fila --------------------- */
+
+/* Dos columnas compartidas por todas las filas (texto y botón): el botón más ancho fija la suya, y el texto de cada
+   fila mide lo mismo aunque un botón diga «Descargar» y otro «Preparar». */
+.informes-lista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--s-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.informes-lista__documento {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: start;
+  padding: var(--s-6) 0;
+  border-bottom: 1px solid var(--filete-fila);
+}
+
+/* La última fila no lleva filete: debajo ya está el borde de la tarjeta. */
+.informes-lista__documento:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* Los avisos miden todos lo mismo que la descripción (80ch, en la misma letra), no lo que su frase: así sus bordes
+   derechos forman una columna. */
+.informes-lista__texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.informes-lista__texto > .aviso {
+  max-width: 80ch;
+}
+
+.informes-lista__nombre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-lg);
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.informes-lista__contiene {
+  margin: 0;
+  max-width: 80ch;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+.informes-lista__boton {
+  justify-self: end;
+}

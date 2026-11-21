@@ -1,0 +1,3245 @@
+{
+  "identificacion": {
+    "nombre": "Amundi Funds - Global Equity Responsible C EUR (C)",
+    "divisa_base": "EUR",
+    "categoria_morningstar": "EAA Fund Sector Equity Ecology",
+    "fecha_lanzamiento_clase": "2007-07-09",
+    "gestora": "Amundi",
+    "fecha_lanzamiento_fondo": "2007-07-09",
+    "estrategia_inversion_texto": "The Sub-Fund seeks to increase the value of your investment (mainly through capital growth) over the recommended holding period, while achieving an ESG score greater than that of the benchmark. The sub-fund is actively managed. It mainly invests in equities of companies whose products or technologies support a cleaner and healthier environment and which are operating in fields such as alternative energy, energy efficiency, pollution prevention, recycling, water treatment and sustainable mobility. The sub-fund may invest anywhere in the world, including emerging markets. Specifically, the sub-fund invests in the above asset class, with at least 51% of net assets in companies in the above fields. The sub-fund may also invest up to 10% of net assets in UCITS/UCIs. The sub-fund may invest in emerging markets up to 15% of net assets. The sub-fund may or may not hedge currency risk at the portfolio level, at the discretion of the investment manager.",
+    "clase_activo": "Equity",
+    "indice_benchmark_oficial": "MSCI World NR EUR",
+    "inversion_minima_inicial": 1.0,
+    "paraguas_legal": "AMUNDI FUNDS",
+    "compartimento_legal": "GLOBAL EQUITY RESPONSIBLE",
+    "clase_legal": "C EUR C",
+    "nombre_legal_registro": "AMUNDI FUNDS-GLOBAL EQUITY RESPONSIBLE",
+    "divisa_compartimento": "EUR",
+    "fecha_autorizacion_cssf": "2018-08-30",
+    "productor_kid": "Amundi Luxembourg S.A.",
+    "marco_legal": "UCITS",
+    "gestora_legal": "AMUNDI LUXEMBOURG S.A.",
+    "nombre_legal_esma": "AMUNDI FUNDS-GLOBAL EQUITY RESPONSIBLE",
+    "estado_registro_esma": "Active",
+    "comercializado_en_espana": true,
+    "paises_comercializacion": [
+      "AT",
+      "BE",
+      "BG",
+      "CY",
+      "CZ",
+      "DE",
+      "ES",
+      "FI",
+      "FR",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LI",
+      "NL",
+      "PT",
+      "RO",
+      "SE",
+      "SK"
+    ],
+    "tipo": "fondo",
+    "ucits": true,
+    "domicilio": "LUX",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "costes": {
+    "ter_pct": 2.75,
+    "comision_suscripcion_max_pct": 1.0,
+    "comision_reembolso_max_pct": 1.0,
+    "comision_gestion_aplicada_pct": 1.5,
+    "comision_gestion_max_pct": 1.5,
+    "mifid_emt_exante": {
+      "corrientes_pct": 2.78,
+      "transaccion_pct": 0.3308,
+      "incidentales_pct": 0.0,
+      "fecha": "2025-06-30"
+    },
+    "ter_vs_categoria": {
+      "mediana_categoria_pct": 1.6,
+      "nivel": 5
+    },
+    "kid": {
+      "entrada_pct": 0.0,
+      "salida_pct": 0.0,
+      "gestion_y_otros_pct": 2.78,
+      "transaccion_pct": 0.42,
+      "rendimiento_pct": 0.0,
+      "fecha": "2025-09-04",
+      "idioma": "es"
+    }
+  },
+  "valoracion": {
+    "vl": 110.68,
+    "vl_fecha": "2025-11-28T06:00:00.000",
+    "vl_divisa": "EUR",
+    "patrimonio_fondo_meur": 2273.9,
+    "patrimonio_fecha": "2025-11-28",
+    "patrimonio_divisa": "EUR"
+  },
+  "rentabilidad": {
+    "trailing_pct": {
+      "1m": {
+        "fondo": -0.09929,
+        "categoria": 1.702272
+      },
+      "3m": {
+        "fondo": 4.12041,
+        "categoria": 2.299574
+      },
+      "6m": {
+        "fondo": 4.198833,
+        "categoria": 11.184904
+      },
+      "ytd": {
+        "fondo": 9.44329,
+        "categoria": 15.288895
+      },
+      "1a": {
+        "fondo": 6.71037,
+        "categoria": 23.021691
+      },
+      "3a_anualizada": {
+        "fondo": 9.374658,
+        "categoria": 17.572785
+      },
+      "5a_anualizada": {
+        "fondo": 8.611553,
+        "categoria": 11.200822
+      },
+      "10a_anualizada": {
+        "fondo": 6.840448,
+        "categoria": 12.055776
+      },
+      "desde_lanzamiento_anualizada": {
+        "fondo": 4.231244
+      }
+    },
+    "fecha_dato": "2025-11-30",
+    "por_año_natural": {
+      "2024": {
+        "fondo": 20.62259
+      },
+      "2023": {
+        "fondo": 5.43258
+      },
+      "2022": {
+        "fondo": -16.83749
+      },
+      "2021": {
+        "fondo": 27.42539
+      },
+      "2020": {
+        "fondo": 11.79977
+      },
+      "2019": {
+        "fondo": 23.13337
+      },
+      "2018": {
+        "fondo": -7.90674
+      },
+      "2017": {
+        "fondo": 8.32721
+      },
+      "2016": {
+        "fondo": -0.78082
+      },
+      "2015": {
+        "fondo": 12.57153
+      },
+      "2014": {
+        "fondo": 0.90758
+      },
+      "2013": {
+        "fondo": 30.14763
+      },
+      "2012": {
+        "fondo": 15.93526
+      },
+      "2011": {
+        "fondo": -13.04465
+      },
+      "2010": {
+        "fondo": 6.94647
+      },
+      "2009": {
+        "fondo": 19.96528
+      },
+      "2008": {
+        "fondo": -39.07341
+      }
+    }
+  },
+  "riesgo": {
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 11.0658176305,
+        "categoria": 14.1219918238,
+        "indice": 11.6307490739
+      },
+      "3a": {
+        "fondo": 10.0120799605,
+        "categoria": 13.2660031498,
+        "indice": 11.5026725208
+      },
+      "5a": {
+        "fondo": 11.7262359112,
+        "categoria": 15.0285185017,
+        "indice": 12.8592468768
+      },
+      "10a": {
+        "fondo": 11.8678272825,
+        "categoria": 14.5574711453,
+        "indice": 13.0127147604
+      }
+    },
+    "sharpe": {
+      "3a": {
+        "fondo": 0.7836565044,
+        "categoria": 0.470817691,
+        "indice": 1.1739495423
+      },
+      "1a": {
+        "fondo": 1.1675515086,
+        "categoria": 0.7295419341,
+        "indice": 1.1907559709
+      },
+      "5a": {
+        "fondo": 0.3599036741,
+        "categoria": -0.0122280575,
+        "indice": 0.4713469014
+      },
+      "10a": {
+        "fondo": 0.4331554483,
+        "categoria": 0.392906366,
+        "indice": 0.681241755
+      }
+    },
+    "fecha_dato": "2025-11-30",
+    "alpha": {
+      "1a": {
+        "fondo": 1.1777002167,
+        "categoria": -6.6205088345,
+        "indice": -0.2541387692
+      },
+      "3a": {
+        "fondo": -1.7889205404,
+        "categoria": -9.6253233076,
+        "indice": -0.1169115348
+      },
+      "5a": {
+        "fondo": -2.7220432652,
+        "categoria": -8.2050774269,
+        "indice": -0.0044179244
+      },
+      "10a": {
+        "fondo": -2.0414903046,
+        "categoria": -4.3999135407,
+        "indice": -0.0075270268
+      }
+    },
+    "beta": {
+      "1a": {
+        "fondo": 0.8341122809,
+        "categoria": 1.1047885577,
+        "indice": 1.0022007513
+      },
+      "3a": {
+        "fondo": 0.8042798988,
+        "categoria": 1.17304397,
+        "indice": 0.9950152098
+      },
+      "5a": {
+        "fondo": 0.8787308192,
+        "categoria": 1.1359926115,
+        "indice": 0.9935864955
+      },
+      "10a": {
+        "fondo": 0.8543120949,
+        "categoria": 1.1056281038,
+        "indice": 0.9956996696
+      }
+    },
+    "r2": {
+      "1a": {
+        "fondo": 61.2389745782,
+        "categoria": 90.5725754017,
+        "indice": 99.9933688113
+      },
+      "3a": {
+        "fondo": 76.6661657559,
+        "categoria": 86.6924828586,
+        "indice": 99.9846464382
+      },
+      "5a": {
+        "fondo": 85.0836133958,
+        "categoria": 91.005228044,
+        "indice": 99.9805025317
+      },
+      "10a": {
+        "fondo": 84.3411926647,
+        "categoria": 92.1173832648,
+        "indice": 99.9777371858
+      }
+    },
+    "tracking_error_pct": {
+      "1a": {
+        "fondo": 6.60311
+      },
+      "3a": {
+        "fondo": 5.60225
+      },
+      "5a": {
+        "fondo": 5.39692
+      }
+    },
+    "information_ratio": {
+      "1a": {
+        "fondo": -0.12462
+      },
+      "3a": {
+        "fondo": -0.81123
+      },
+      "5a": {
+        "fondo": -0.74601
+      }
+    },
+    "srri_1a7": 6,
+    "historial_precios": {
+      "source_history": "eodhd",
+      "source_listing_id": "EODHD:LU1883319474.EUFUND",
+      "first_date": "2007-07-09",
+      "last_date": "2025-11-28",
+      "observations_count": 3926,
+      "aviso_vl": "serie_parada(335d)"
+    },
+    "kid_periodo_mantenimiento_anos": 5,
+    "sri_kid_1a7": 4
+  },
+  "esg": {
+    "globos_sostenibilidad": 5,
+    "fecha": "2025-10-31",
+    "sustainability_score": 16.96487,
+    "score_ambiental": 4.25,
+    "score_social": 7.18,
+    "score_gobernanza": 4.02,
+    "cobertura_cartera_pct": 100.0,
+    "carbono": {
+      "carbon_risk_score": 5.52,
+      "clasificacion": "Low Risk",
+      "low_carbon": true,
+      "score_exposicion": 16.55,
+      "score_gestion": 11.03
+    },
+    "sfdr_articulo": "8"
+  },
+  "distribuciones": {
+    "yield_12m_pct": 0.0
+  },
+  "cartera": {
+    "sector_principal": "servicios_financieros",
+    "fecha": "2026-07-31",
+    "num_posiciones": 91,
+    "num_posiciones_rv": 49,
+    "asignacion_activos": {
+      "rv": {
+        "neto": 99.60743,
+        "largo": 99.60743,
+        "corto": 0.0
+      },
+      "rf": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "convertibles": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "preferentes": {
+        "neto": 0.0,
+        "largo": 0.0,
+        "corto": 0.0
+      },
+      "liquidez": {
+        "neto": 0.4187,
+        "largo": 11.27001,
+        "corto": 10.85131
+      },
+      "otros": {
+        "neto": -0.02613,
+        "largo": 0.0,
+        "corto": 0.02613
+      }
+    },
+    "sectores_pct": {
+      "materiales_basicos": {
+        "fondo": 3.896607
+      },
+      "consumo_ciclico": {
+        "fondo": 1.742731
+      },
+      "servicios_financieros": {
+        "fondo": 33.420348
+      },
+      "consumo_defensivo": {
+        "fondo": 2.364934
+      },
+      "salud": {
+        "fondo": 10.171048
+      },
+      "utilities": {
+        "fondo": 6.221423
+      },
+      "comunicacion": {
+        "fondo": 1.540889
+      },
+      "industria": {
+        "fondo": 26.753968
+      },
+      "tecnologia": {
+        "fondo": 13.88805
+      }
+    },
+    "regiones_pct": {
+      "estados_unidos": 50.680511,
+      "canada": 0.505374,
+      "reino_unido": 6.127093,
+      "eurozona": 26.240279,
+      "europa_ex_euro": 8.334157,
+      "japon": 6.678256,
+      "asia_emergente": 1.434331,
+      "otros": 1.434331
+    },
+    "paises_pct": {
+      "USA": 50.6805,
+      "DEU": 13.2837,
+      "CHE": 8.3342,
+      "JPN": 6.6783,
+      "GBR": 6.1271,
+      "FRA": 5.2713,
+      "ITA": 2.7999,
+      "AUT": 2.7508,
+      "NLD": 2.1345,
+      "CHN": 1.4343,
+      "CAN": 0.5054
+    },
+    "capitalizacion_pct": {
+      "gigante": 29.66932,
+      "grande": 48.18727,
+      "mediana": 19.380932,
+      "pequeña": 2.446,
+      "micro": 0.0,
+      "media_musd": 92099.42138
+    },
+    "style_box_rv": {
+      "celdas_pct": {
+        "LV": 27.62118,
+        "LB": 38.986013,
+        "LG": 11.556235,
+        "MV": 1.742731,
+        "MB": 9.905114,
+        "MG": 7.733087,
+        "SV": 0.0,
+        "SB": 0.0,
+        "SG": 2.45564
+      }
+    },
+    "renta_fija": {
+      "sectores_pct": {
+        "liquidez": 29.219011,
+        "derivados": 70.780989
+      },
+      "fecha": "2026-07-31T05:00:00.000"
+    },
+    "valoracion_cartera": {
+      "per": 17.16358,
+      "pb": 2.8065,
+      "pventas": 1.83483,
+      "pcf": 12.67197,
+      "yield_dividendo_pct": 2.21845,
+      "crec_beneficios_pct": 8.9852,
+      "crec_beneficios_5a_pct": 10.91894,
+      "crec_valor_contable_pct": 8.85556,
+      "crec_ventas_pct": 5.41108,
+      "crec_cashflow_pct": 9.26543
+    },
+    "calidad_cartera": {
+      "roa_pct": 7.85021,
+      "roe_pct": 24.37667,
+      "roic_pct": 18.1812,
+      "margen_neto_pct": 17.1255,
+      "deuda_capital_pct": 43.77699
+    },
+    "top10_posiciones": [
+      {
+        "nombre": "Sompo Holdings Inc",
+        "isin": "JP3165000005",
+        "peso_pct": 2.92082,
+        "sector": "servicios_financieros",
+        "pais": "JPN",
+        "divisa": "JPY"
+      },
+      {
+        "nombre": "JPMorgan Chase & Co",
+        "isin": "US46625H1005",
+        "peso_pct": 2.83126,
+        "sector": "servicios_financieros",
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Union Pacific Corp",
+        "isin": "US9078181081",
+        "peso_pct": 2.80797,
+        "sector": "industria",
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "UniCredit SpA",
+        "isin": "IT0005239360",
+        "peso_pct": 2.7889,
+        "sector": "servicios_financieros",
+        "pais": "ITA",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Westinghouse Air Brake Technologies Corp",
+        "isin": "US9297401088",
+        "peso_pct": 2.74593,
+        "sector": "industria",
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Erste Group Bank AG.",
+        "isin": "AT0000652011",
+        "peso_pct": 2.74005,
+        "sector": "servicios_financieros",
+        "pais": "AUT",
+        "divisa": "EUR"
+      },
+      {
+        "nombre": "Swiss Life Holding AG",
+        "isin": "CH0014852781",
+        "peso_pct": 2.7153,
+        "sector": "servicios_financieros",
+        "pais": "CHE",
+        "divisa": "CHF"
+      },
+      {
+        "nombre": "Aflac Inc",
+        "isin": "US0010551028",
+        "peso_pct": 2.70809,
+        "sector": "servicios_financieros",
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "Trane Technologies PLC Class A",
+        "isin": "IE00BK9ZQ967",
+        "peso_pct": 2.69965,
+        "sector": "industria",
+        "pais": "USA",
+        "divisa": "USD"
+      },
+      {
+        "nombre": "E.ON SE",
+        "isin": "DE000ENAG999",
+        "peso_pct": 2.69367,
+        "sector": "utilities",
+        "pais": "DEU",
+        "divisa": "EUR"
+      }
+    ],
+    "peso_top10_pct": 27.65164,
+    "posiciones": [
+      {
+        "nombre": "Sompo Holdings Inc",
+        "isin": "JP3165000005",
+        "ticker": "8630",
+        "tipo": "rv",
+        "peso_pct": 2.92082,
+        "divisa": "JPY",
+        "sector": "servicios_financieros",
+        "pais": "JPN"
+      },
+      {
+        "nombre": "JPMorgan Chase & Co",
+        "isin": "US46625H1005",
+        "ticker": "JPM",
+        "tipo": "rv",
+        "peso_pct": 2.83126,
+        "divisa": "USD",
+        "sector": "servicios_financieros",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Union Pacific Corp",
+        "isin": "US9078181081",
+        "ticker": "UNP",
+        "tipo": "rv",
+        "peso_pct": 2.80797,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "UniCredit SpA",
+        "isin": "IT0005239360",
+        "ticker": "UCG",
+        "tipo": "rv",
+        "peso_pct": 2.7889,
+        "divisa": "EUR",
+        "sector": "servicios_financieros",
+        "pais": "ITA"
+      },
+      {
+        "nombre": "Westinghouse Air Brake Technologies Corp",
+        "isin": "US9297401088",
+        "ticker": "WAB",
+        "tipo": "rv",
+        "peso_pct": 2.74593,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Erste Group Bank AG.",
+        "isin": "AT0000652011",
+        "ticker": "EBS",
+        "tipo": "rv",
+        "peso_pct": 2.74005,
+        "divisa": "EUR",
+        "sector": "servicios_financieros",
+        "pais": "AUT"
+      },
+      {
+        "nombre": "Swiss Life Holding AG",
+        "isin": "CH0014852781",
+        "ticker": "SLHN",
+        "tipo": "rv",
+        "peso_pct": 2.7153,
+        "divisa": "CHF",
+        "sector": "servicios_financieros",
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Aflac Inc",
+        "isin": "US0010551028",
+        "ticker": "AFL",
+        "tipo": "rv",
+        "peso_pct": 2.70809,
+        "divisa": "USD",
+        "sector": "servicios_financieros",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Trane Technologies PLC Class A",
+        "isin": "IE00BK9ZQ967",
+        "ticker": "TT",
+        "tipo": "rv",
+        "peso_pct": 2.69965,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "E.ON SE",
+        "isin": "DE000ENAG999",
+        "ticker": "EOAN",
+        "tipo": "rv",
+        "peso_pct": 2.69367,
+        "divisa": "EUR",
+        "sector": "utilities",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Ecolab Inc",
+        "isin": "US2788651006",
+        "ticker": "ECL",
+        "tipo": "rv",
+        "peso_pct": 2.69049,
+        "divisa": "USD",
+        "sector": "materiales_basicos",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Tokio Marine Holdings Inc",
+        "isin": "JP3910660004",
+        "ticker": "8766",
+        "tipo": "rv",
+        "peso_pct": 2.64695,
+        "divisa": "JPY",
+        "sector": "servicios_financieros",
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Munchener Ruckversicherungs-Gesellschaft AG",
+        "isin": "DE0008430026",
+        "ticker": "MUV2",
+        "tipo": "rv",
+        "peso_pct": 2.63873,
+        "divisa": "EUR",
+        "sector": "servicios_financieros",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "Barclays PLC",
+        "isin": "GB0031348658",
+        "ticker": "BARC",
+        "tipo": "rv",
+        "peso_pct": 2.59971,
+        "divisa": "GBP",
+        "sector": "servicios_financieros",
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Broadcom Inc",
+        "isin": "US11135F1012",
+        "ticker": "AVGO",
+        "tipo": "rv",
+        "peso_pct": 2.58608,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Amgen Inc",
+        "isin": "US0311621009",
+        "ticker": "AMGN",
+        "tipo": "rv",
+        "peso_pct": 2.58137,
+        "divisa": "USD",
+        "sector": "salud",
+        "pais": "USA"
+      },
+      {
+        "nombre": "W.W. Grainger Inc",
+        "isin": "US3848021040",
+        "ticker": "GWW",
+        "tipo": "rv",
+        "peso_pct": 2.48997,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "NVIDIA Corp",
+        "isin": "US67066G1040",
+        "ticker": "NVDA",
+        "tipo": "rv",
+        "peso_pct": 2.45137,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Waste Management Inc",
+        "isin": "US94106L1098",
+        "ticker": "WM",
+        "tipo": "rv",
+        "peso_pct": 2.40746,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Deere & Co",
+        "isin": "US2441991054",
+        "ticker": "DE",
+        "tipo": "rv",
+        "peso_pct": 2.39951,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Siemens Energy AG Ordinary Shares",
+        "isin": "DE000ENER6Y0",
+        "ticker": "ENR",
+        "tipo": "rv",
+        "peso_pct": 2.38171,
+        "divisa": "EUR",
+        "sector": "industria",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "American Express Co",
+        "isin": "US0258161092",
+        "ticker": "AXP",
+        "tipo": "rv",
+        "peso_pct": 2.37117,
+        "divisa": "USD",
+        "sector": "servicios_financieros",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Danone SA",
+        "isin": "FR0000120644",
+        "ticker": "BN",
+        "tipo": "rv",
+        "peso_pct": 2.35565,
+        "divisa": "EUR",
+        "sector": "consumo_defensivo",
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Swiss Re AG",
+        "isin": "CH0126881561",
+        "ticker": "SREN",
+        "tipo": "rv",
+        "peso_pct": 2.35027,
+        "divisa": "CHF",
+        "sector": "servicios_financieros",
+        "pais": "CHE"
+      },
+      {
+        "nombre": "National Grid PLC",
+        "isin": "GB00BDR05C01",
+        "ticker": "NG.",
+        "tipo": "rv",
+        "peso_pct": 2.32128,
+        "divisa": "GBP",
+        "sector": "utilities",
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Siemens AG",
+        "isin": "DE0007236101",
+        "ticker": "SIE",
+        "tipo": "rv",
+        "peso_pct": 2.13085,
+        "divisa": "EUR",
+        "sector": "industria",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "ING Groep NV",
+        "isin": "NL0011821202",
+        "ticker": "INGA",
+        "tipo": "rv",
+        "peso_pct": 2.12615,
+        "divisa": "EUR",
+        "sector": "servicios_financieros",
+        "pais": "NLD"
+      },
+      {
+        "nombre": "Novartis AG Registered Shares",
+        "isin": "CH0012005267",
+        "ticker": "NOVN",
+        "tipo": "rv",
+        "peso_pct": 2.07211,
+        "divisa": "CHF",
+        "sector": "salud",
+        "pais": "CHE"
+      },
+      {
+        "nombre": "Lam Research Corp",
+        "isin": "US5128073062",
+        "ticker": "LRCX",
+        "tipo": "rv",
+        "peso_pct": 2.02206,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "AbbVie Inc",
+        "isin": "US00287Y1091",
+        "ticker": "ABBV",
+        "tipo": "rv",
+        "peso_pct": 2.01982,
+        "divisa": "USD",
+        "sector": "salud",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Deutsche Boerse AG",
+        "isin": "DE0005810055",
+        "ticker": "DB1",
+        "tipo": "rv",
+        "peso_pct": 1.85176,
+        "divisa": "EUR",
+        "sector": "servicios_financieros",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "PulteGroup Inc",
+        "isin": "US7458671010",
+        "ticker": "PHM",
+        "tipo": "rv",
+        "peso_pct": 1.73589,
+        "divisa": "USD",
+        "sector": "consumo_ciclico",
+        "pais": "USA"
+      },
+      {
+        "nombre": "International Business Machines Corp",
+        "isin": "US4592001014",
+        "ticker": "IBM",
+        "tipo": "rv",
+        "peso_pct": 1.61619,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Schneider Electric SE",
+        "isin": "FR0000121972",
+        "ticker": "SU",
+        "tipo": "rv",
+        "peso_pct": 1.58731,
+        "divisa": "EUR",
+        "sector": "industria",
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Nextpower Inc Class A",
+        "isin": "US65290E1010",
+        "ticker": "NXT",
+        "tipo": "rv",
+        "peso_pct": 1.57478,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Deutsche Telekom AG",
+        "isin": "DE0005557508",
+        "ticker": "DTE",
+        "tipo": "rv",
+        "peso_pct": 1.53484,
+        "divisa": "EUR",
+        "sector": "comunicacion",
+        "pais": "DEU"
+      },
+      {
+        "nombre": "TE Connectivity PLC Registered Shares",
+        "isin": "IE000IVNQZ81",
+        "ticker": "TEL",
+        "tipo": "rv",
+        "peso_pct": 1.4287,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "CHN"
+      },
+      {
+        "nombre": "Compagnie de Saint-Gobain SA",
+        "isin": "FR0000125007",
+        "ticker": "SGO",
+        "tipo": "rv",
+        "peso_pct": 1.30767,
+        "divisa": "EUR",
+        "sector": "industria",
+        "pais": "FRA"
+      },
+      {
+        "nombre": "Cencora Inc",
+        "isin": "US03073E1055",
+        "ticker": "COR",
+        "tipo": "rv",
+        "peso_pct": 1.29713,
+        "divisa": "USD",
+        "sector": "salud",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Republic Services Inc",
+        "isin": "US7607591002",
+        "ticker": "RSG",
+        "tipo": "rv",
+        "peso_pct": 1.23204,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Linde PLC",
+        "isin": "IE000S9YS762",
+        "ticker": "LIN",
+        "tipo": "rv",
+        "peso_pct": 1.19082,
+        "divisa": "USD",
+        "sector": "materiales_basicos",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Severn Trent PLC",
+        "isin": "GB00B1FH8J72",
+        "ticker": "SVT",
+        "tipo": "rv",
+        "peso_pct": 1.18205,
+        "divisa": "GBP",
+        "sector": "utilities",
+        "pais": "GBR"
+      },
+      {
+        "nombre": "Lonza Group Ltd",
+        "isin": "CH0013841017",
+        "ticker": "LONN",
+        "tipo": "rv",
+        "peso_pct": 1.16376,
+        "divisa": "CHF",
+        "sector": "salud",
+        "pais": "CHE"
+      },
+      {
+        "nombre": "First Solar Inc",
+        "isin": "US3364331070",
+        "ticker": "FSLR",
+        "tipo": "rv",
+        "peso_pct": 1.14207,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Kurita Water Industries Ltd",
+        "isin": "JP3270000007",
+        "ticker": "6370",
+        "tipo": "rv",
+        "peso_pct": 1.08426,
+        "divisa": "JPY",
+        "sector": "industria",
+        "pais": "JPN"
+      },
+      {
+        "nombre": "Corning Inc",
+        "isin": "US2193501051",
+        "ticker": "GLW",
+        "tipo": "rv",
+        "peso_pct": 1.01228,
+        "divisa": "USD",
+        "sector": "tecnologia",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Centene Corp",
+        "isin": "US15135B1017",
+        "ticker": "CNC",
+        "tipo": "rv",
+        "peso_pct": 0.99693,
+        "divisa": "USD",
+        "sector": "salud",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Lennox International Inc",
+        "isin": "US5261071071",
+        "ticker": "LII",
+        "tipo": "rv",
+        "peso_pct": 0.87122,
+        "divisa": "USD",
+        "sector": "industria",
+        "pais": "USA"
+      },
+      {
+        "nombre": "Canadian Pacific Kansas City Ltd",
+        "isin": "CA13646K1084",
+        "ticker": "CP",
+        "tipo": "rv",
+        "peso_pct": 0.50339,
+        "divisa": "CAD",
+        "sector": "industria",
+        "pais": "CAN"
+      },
+      {
+        "nombre": "Oact01993648",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 10.15837,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Eur Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.79665,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Oact02021117",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.07464,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Oact02021118",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.06522,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Jpy Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.06307,
+        "divisa": "JPY",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Sous Recev Eur Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.02449,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ach Regl Diff Dev",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.01548,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.01548,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.01022,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Usd Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00924,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "American Express",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00469,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Us2441991054",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00459,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00426,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00414,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Zar Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00388,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00224,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Sous Recev Usd Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00221,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00202,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00174,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00123,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0012,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0011,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00105,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00094,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00091,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.00075,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Czk Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 7e-05,
+        "divisa": "CZK",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Cad Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 3e-05,
+        "divisa": "CAD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Chf Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 3e-05,
+        "divisa": "CHF",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Sr082chf",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 2e-05,
+        "divisa": "CHF",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Sgd Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "SGD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Nzd Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "NZD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ach Regl Diff Dev",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Sous Recev Zar Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Pln Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "PLN",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Dkk Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "DKK",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Aud Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 1e-05,
+        "divisa": "AUD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Gbp Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "GBP",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Nok Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "NOK",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Sek Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "SEK",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Huf Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "HUF",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Banque Hkd Cae",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": 0.0,
+        "divisa": "HKD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F304euri2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Vte Regl Diff Dev",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -1e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -2e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -3e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -4e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -4e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F304eurbc",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -4e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -5e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -5e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -6e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -6e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -7e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -7e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -8e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F120euri2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -8e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F304eura2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -9e-05,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0001,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0001,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00011,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00012,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00014,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00014,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00015,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00015,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00017,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00018,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00018,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0002,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00022,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00023,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00024,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0003,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0004,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F110euri2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0004,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F120eura2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00043,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00052,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00057,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00067,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00067,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00069,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00075,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00092,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ach Diff Op De Capi",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00093,
+        "divisa": "USD",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00093,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00105,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0011,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00115,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00116,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00117,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00119,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00122,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F120eure",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00143,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00146,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00152,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00177,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00202,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.0021,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00227,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prtaxeabon",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00245,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "F110eura2",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00311,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prautfdgpass",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00341,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00382,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00411,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00422,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Az",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00433,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00438,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00586,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00758,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.00935,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01034,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestadm",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01166,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prn-1autfdgpass",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01195,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomdistrib",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01521,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ct 260807 Zar/Eur Uh",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01546,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ach Diff Op De Capi",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01548,
+        "divisa": "ZAR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Vte Regl Diff Dev",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.01552,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Oact02021118",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.06599,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Oact02021117",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.07551,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Prcomgestfin",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.07605,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Ach Diff Op De Capi",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.21751,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Collat.Cash Rec.Otc",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -0.40155,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      },
+      {
+        "nombre": "Oact01993648",
+        "isin": null,
+        "ticker": null,
+        "tipo": "otro",
+        "peso_pct": -9.8602,
+        "divisa": "EUR",
+        "sector": null,
+        "pais": null
+      }
+    ],
+    "divisas_pct": {
+      "USD": 62.09,
+      "EUR": 16.15,
+      "CHF": 8.3,
+      "JPY": 6.72,
+      "GBP": 6.1,
+      "CAD": 0.5,
+      "ZAR": 0.14,
+      "CZK": 0.0,
+      "SGD": 0.0,
+      "NZD": 0.0,
+      "PLN": 0.0,
+      "DKK": 0.0,
+      "AUD": 0.0,
+      "NOK": 0.0,
+      "SEK": 0.0,
+      "HUF": 0.0,
+      "HKD": 0.0
+    }
+  },
+  "meta": {
+    "sec_id_morningstar": "F000000H0J",
+    "cssf_fichero": "2026-10",
+    "esma_coincidencia": {
+      "pais": "LU",
+      "modo": "exacto",
+      "consulta": "AMUNDI FUNDS-GLOBAL EQUITY RESPONSIBLE",
+      "candidatos": 1
+    },
+    "isin": "LU1883319474",
+    "actualizado": "2026-10-29T08:43:24+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "morningstar_lt",
+        "cssf",
+        "kid_gestora",
+        "esma",
+        "config_csv"
+      ],
+      "costes": [
+        "morningstar_lt",
+        "kid_gestora"
+      ],
+      "valoracion": [
+        "morningstar_lt"
+      ],
+      "rentabilidad": [
+        "morningstar_lt"
+      ],
+      "riesgo": [
+        "morningstar_lt",
+        "vl_eodhd",
+        "kid_gestora"
+      ],
+      "esg": [
+        "morningstar_lt",
+        "kid_gestora"
+      ],
+      "distribuciones": [
+        "morningstar_lt"
+      ],
+      "cartera": [
+        "morningstar_lt"
+      ],
+      "meta": [
+        "morningstar_lt",
+        "cssf",
+        "esma"
+      ],
+      "gestion": [
+        "morningstar_lt"
+      ],
+      "documentos": [
+        "morningstar_lt"
+      ],
+      "documentos_oficiales": [
+        "kid_gestora"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.asignacion_activos.convertibles.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.convertibles.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.liquidez.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.otros.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.preferentes.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rf.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.corto": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.largo": "morningstar_lt:ETFsnapshot",
+      "cartera.asignacion_activos.rv.neto": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.deuda_capital_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.margen_neto_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roa_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roe_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.calidad_cartera.roic_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.gigante": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.grande": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.media_musd": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.mediana": "morningstar_lt:ETFsnapshot",
+      "cartera.capitalizacion_pct.micro": "morningstar_lt:sal_marketCap",
+      "cartera.capitalizacion_pct.pequeña": "morningstar_lt:sal_marketCap",
+      "cartera.divisas_pct.AUD": "derivado:derivados",
+      "cartera.divisas_pct.CAD": "derivado:derivados",
+      "cartera.divisas_pct.CHF": "derivado:derivados",
+      "cartera.divisas_pct.CZK": "derivado:derivados",
+      "cartera.divisas_pct.DKK": "derivado:derivados",
+      "cartera.divisas_pct.EUR": "derivado:derivados",
+      "cartera.divisas_pct.GBP": "derivado:derivados",
+      "cartera.divisas_pct.HKD": "derivado:derivados",
+      "cartera.divisas_pct.HUF": "derivado:derivados",
+      "cartera.divisas_pct.JPY": "derivado:derivados",
+      "cartera.divisas_pct.NOK": "derivado:derivados",
+      "cartera.divisas_pct.NZD": "derivado:derivados",
+      "cartera.divisas_pct.PLN": "derivado:derivados",
+      "cartera.divisas_pct.SEK": "derivado:derivados",
+      "cartera.divisas_pct.SGD": "derivado:derivados",
+      "cartera.divisas_pct.USD": "derivado:derivados",
+      "cartera.divisas_pct.ZAR": "derivado:derivados",
+      "cartera.fecha": "morningstar_lt:sal_position",
+      "cartera.num_posiciones": "morningstar_lt:sal_position",
+      "cartera.num_posiciones_rv": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.AUT": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CAN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CHE": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.CHN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.DEU": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.FRA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.GBR": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.ITA": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.JPN": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.NLD": "morningstar_lt:ETFsnapshot",
+      "cartera.paises_pct.USA": "morningstar_lt:ETFsnapshot",
+      "cartera.peso_top10_pct": "morningstar_lt:sal_position",
+      "cartera.posiciones": "morningstar_lt:sal_position",
+      "cartera.regiones_pct.asia_emergente": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.canada": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.estados_unidos": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.europa_ex_euro": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.eurozona": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.japon": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.otros": "morningstar_lt:ETFsnapshot",
+      "cartera.regiones_pct.reino_unido": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.fecha": "morningstar_lt:sal_fixedIncomeStyle",
+      "cartera.renta_fija.sectores_pct.derivados": "morningstar_lt:ETFsnapshot",
+      "cartera.renta_fija.sectores_pct.liquidez": "morningstar_lt:ETFsnapshot",
+      "cartera.sector_principal": "morningstar_lt:screener",
+      "cartera.sectores_pct.comunicacion.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.consumo_ciclico.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.consumo_defensivo.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.industria.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.materiales_basicos.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.salud.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.servicios_financieros.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.tecnologia.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.sectores_pct.utilities.fondo": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.LV": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.MV": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SB": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SG": "morningstar_lt:ETFsnapshot",
+      "cartera.style_box_rv.celdas_pct.SV": "morningstar_lt:ETFsnapshot",
+      "cartera.top10_posiciones": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_beneficios_5a_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_beneficios_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_cashflow_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_valor_contable_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.crec_ventas_pct": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pb": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pcf": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.per": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.pventas": "morningstar_lt:ETFsnapshot",
+      "cartera.valoracion_cartera.yield_dividendo_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_aplicada_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_gestion_max_pct": "morningstar_lt:ETFsnapshot",
+      "costes.comision_reembolso_max_pct": "morningstar_lt:screener",
+      "costes.comision_suscripcion_max_pct": "morningstar_lt:screener",
+      "costes.kid.entrada_pct": "kid_gestora:amundi",
+      "costes.kid.fecha": "kid_gestora:amundi",
+      "costes.kid.gestion_y_otros_pct": "kid_gestora:amundi",
+      "costes.kid.idioma": "kid_gestora:amundi",
+      "costes.kid.rendimiento_pct": "kid_gestora:amundi",
+      "costes.kid.salida_pct": "kid_gestora:amundi",
+      "costes.kid.transaccion_pct": "kid_gestora:amundi",
+      "costes.mifid_emt_exante.corrientes_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.fecha": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.incidentales_pct": "morningstar_lt:Mifid",
+      "costes.mifid_emt_exante.transaccion_pct": "morningstar_lt:Mifid",
+      "costes.ter_pct": "morningstar_lt:ETFsnapshot",
+      "costes.ter_vs_categoria.mediana_categoria_pct": "morningstar_lt:sal_feeLevel",
+      "costes.ter_vs_categoria.nivel": "morningstar_lt:sal_feeLevel",
+      "distribuciones.yield_12m_pct": "morningstar_lt:ETFsnapshot",
+      "documentos.n": "morningstar_lt:MFsnapshot",
+      "documentos.ultima_fecha": "morningstar_lt:MFsnapshot",
+      "documentos_oficiales.kid_fecha": "kid_gestora:amundi",
+      "documentos_oficiales.kid_fuente": "kid_gestora:amundi",
+      "documentos_oficiales.kid_sha256": "kid_gestora:amundi",
+      "documentos_oficiales.kid_url": "kid_gestora:amundi",
+      "esg.carbono.carbon_risk_score": "morningstar_lt:sustainability",
+      "esg.carbono.clasificacion": "morningstar_lt:sustainability",
+      "esg.carbono.low_carbon": "morningstar_lt:sustainability",
+      "esg.carbono.score_exposicion": "morningstar_lt:sustainability",
+      "esg.carbono.score_gestion": "morningstar_lt:sustainability",
+      "esg.cobertura_cartera_pct": "morningstar_lt:sustainability",
+      "esg.fecha": "morningstar_lt:sustainability",
+      "esg.globos_sostenibilidad": "morningstar_lt:sustainability",
+      "esg.score_ambiental": "morningstar_lt:sustainability",
+      "esg.score_gobernanza": "morningstar_lt:sustainability",
+      "esg.score_social": "morningstar_lt:sustainability",
+      "esg.sfdr_articulo": "kid_gestora:amundi",
+      "esg.sustainability_score": "morningstar_lt:sustainability",
+      "gestion.gestora.nombre": "morningstar_lt:sal_parentSummary",
+      "gestion.gestores": "morningstar_lt:ETFsnapshot",
+      "identificacion.categoria_morningstar": "morningstar_lt:sal_quote",
+      "identificacion.clase_activo": "morningstar_lt:ETFsnapshot",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_legal": "cssf:identificadores",
+      "identificacion.comercializado_en_espana": "esma:cbdif",
+      "identificacion.compartimento_legal": "cssf:identificadores",
+      "identificacion.divisa_base": "morningstar_lt:sal_quote",
+      "identificacion.divisa_compartimento": "cssf:identificadores",
+      "identificacion.domicilio": "cssf:identificadores",
+      "identificacion.estado_registro_esma": "esma:cbdif",
+      "identificacion.estrategia_inversion_texto": "morningstar_lt:sal_investmentStrategy",
+      "identificacion.fecha_autorizacion_cssf": "cssf:identificadores",
+      "identificacion.fecha_lanzamiento_clase": "morningstar_lt:screener",
+      "identificacion.fecha_lanzamiento_fondo": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora": "morningstar_lt:ETFsnapshot",
+      "identificacion.gestora_legal": "esma:cbdif",
+      "identificacion.indice_benchmark_oficial": "morningstar_lt:ETFsnapshot",
+      "identificacion.inversion_minima_inicial": "morningstar_lt:ETFsnapshot",
+      "identificacion.marco_legal": "esma:cbdif",
+      "identificacion.nombre": "morningstar_lt:ETFsnapshot",
+      "identificacion.nombre_legal_esma": "esma:cbdif",
+      "identificacion.nombre_legal_registro": "cssf:identificadores",
+      "identificacion.paises_comercializacion": "esma:cbdif",
+      "identificacion.paraguas_legal": "cssf:identificadores",
+      "identificacion.productor_kid": "kid_gestora:amundi",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.ucits": "cssf:identificadores",
+      "meta.cssf_fichero": "cssf:identificadores",
+      "meta.esma_coincidencia.candidatos": "esma:cbdif",
+      "meta.esma_coincidencia.consulta": "esma:cbdif",
+      "meta.esma_coincidencia.modo": "esma:cbdif",
+      "meta.esma_coincidencia.pais": "esma:cbdif",
+      "meta.sec_id_morningstar": "morningstar_lt:screener",
+      "rentabilidad.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2008.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2009.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2010.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2011.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2012.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2013.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2014.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2015.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2016.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2017.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2018.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2019.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2020.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2021.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2022.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2023.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.por_año_natural.2024.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.10a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.10a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1a.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.1m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.1m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.3a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.3m.fondo": "morningstar_lt:sal_trailingReturn",
+      "rentabilidad.trailing_pct.5a_anualizada.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.5a_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.6m.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.6m.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.desde_lanzamiento_anualizada.fondo": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.categoria": "morningstar_lt:ETFsnapshot",
+      "rentabilidad.trailing_pct.ytd.fondo": "morningstar_lt:sal_trailingReturn",
+      "riesgo.alpha.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.alpha.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.beta.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.fecha_dato": "morningstar_lt:ETFsnapshot",
+      "riesgo.historial_precios.aviso_vl": "vl_eodhd:eod",
+      "riesgo.historial_precios.first_date": "vl_eodhd:eod",
+      "riesgo.historial_precios.last_date": "vl_eodhd:eod",
+      "riesgo.historial_precios.observations_count": "vl_eodhd:eod",
+      "riesgo.historial_precios.source_history": "vl_eodhd:eod",
+      "riesgo.historial_precios.source_listing_id": "vl_eodhd:eod",
+      "riesgo.information_ratio.1a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.information_ratio.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.information_ratio.5a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.kid_periodo_mantenimiento_anos": "kid_gestora:amundi",
+      "riesgo.r2.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.r2.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sharpe.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.sri_kid_1a7": "kid_gestora:amundi",
+      "riesgo.srri_1a7": "morningstar_lt:Mifid",
+      "riesgo.tracking_error_pct.1a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.tracking_error_pct.3a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.tracking_error_pct.5a.fondo": "morningstar_lt:ETFsnapshot",
+      "riesgo.volatilidad_pct.10a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.10a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.10a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.1a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.3a.indice": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.categoria": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.fondo": "morningstar_lt:sal_riskVolatility",
+      "riesgo.volatilidad_pct.5a.indice": "morningstar_lt:sal_riskVolatility",
+      "valoracion.patrimonio_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fecha": "morningstar_lt:ETFsnapshot",
+      "valoracion.patrimonio_fondo_meur": "morningstar_lt:sal_quote",
+      "valoracion.vl": "morningstar_lt:sal_quote",
+      "valoracion.vl_divisa": "morningstar_lt:ETFsnapshot",
+      "valoracion.vl_fecha": "morningstar_lt:sal_quote"
+    },
+    "adquisicion": {
+      "plan": [
+        "cssf",
+        "vl_eodhd",
+        "morningstar_lt",
+        "kid_gestora",
+        "esma"
+      ],
+      "familias": [
+        "precio"
+      ],
+      "fuentes": {
+        "cssf": {
+          "hojas": 10,
+          "endpoints": {
+            "cssf:identificadores": {
+              "fichero": "2026-10"
+            }
+          },
+          "segundos": 0.0
+        },
+        "vl_eodhd": {
+          "hojas": 6,
+          "endpoints": {
+            "vl_eodhd:eod": {
+              "fetched_at": "2026-10-29T01:22:42+00:00",
+              "url": "https://eodhd.com/api/eod/LU1883319474.EUFUND"
+            }
+          },
+          "segundos": 0.02
+        },
+        "morningstar_lt": {
+          "hojas": 1396,
+          "endpoints": {
+            "morningstar_lt:screener": {
+              "fetched_at": "2026-10-29T01:22:43+00:00"
+            },
+            "morningstar_lt:MFsnapshot": {
+              "fetched_at": "2026-09-29T06:52:02+00:00"
+            },
+            "morningstar_lt:ETFsnapshot": {
+              "fetched_at": "2026-09-29T06:52:04+00:00"
+            },
+            "morningstar_lt:Mifid": {
+              "fetched_at": "2026-09-29T06:52:05+00:00"
+            },
+            "morningstar_lt:sustainability": {
+              "fetched_at": "2026-09-29T06:52:06+00:00"
+            },
+            "morningstar_lt:sal_quote": {
+              "fetched_at": "2026-09-29T06:52:07+00:00"
+            },
+            "morningstar_lt:sal_investmentFee": {
+              "fetched_at": "2026-09-29T06:52:08+00:00"
+            },
+            "morningstar_lt:sal_feeLevel": {
+              "fetched_at": "2026-09-29T06:52:09+00:00"
+            },
+            "morningstar_lt:sal_salesFees": {
+              "fetched_at": "2026-09-29T06:52:11+00:00"
+            },
+            "morningstar_lt:sal_trailingReturn": {
+              "fetched_at": "2026-09-29T06:52:12+00:00"
+            },
+            "morningstar_lt:sal_riskVolatility": {
+              "fetched_at": "2026-09-29T06:52:13+00:00"
+            },
+            "morningstar_lt:sal_maxDrawDown": {
+              "fetched_at": "2026-09-29T06:52:15+00:00"
+            },
+            "morningstar_lt:sal_position": {
+              "fetched_at": "2026-09-29T06:52:30+00:00"
+            },
+            "morningstar_lt:sal_sector": {
+              "fetched_at": "2026-09-29T06:52:18+00:00"
+            },
+            "morningstar_lt:sal_regional": {
+              "fetched_at": "2026-09-29T06:52:20+00:00"
+            },
+            "morningstar_lt:sal_marketCap": {
+              "fetched_at": "2026-09-29T06:52:21+00:00"
+            },
+            "morningstar_lt:sal_equityStyle": {
+              "fetched_at": "2026-09-29T06:52:23+00:00"
+            },
+            "morningstar_lt:sal_allocationMap": {
+              "fetched_at": "2026-09-29T06:52:17+00:00"
+            },
+            "morningstar_lt:sal_fixedIncomeStyle": {
+              "fetched_at": "2026-09-29T06:52:24+00:00"
+            },
+            "morningstar_lt:sal_maturitySchedule": {
+              "fetched_at": "2026-09-29T06:52:27+00:00"
+            },
+            "morningstar_lt:sal_multiLevelFixedIncome": {
+              "fetched_at": "2026-09-29T06:52:29+00:00"
+            },
+            "morningstar_lt:sal_creditQuality": {
+              "fetched_at": "2026-09-29T06:52:25+00:00"
+            },
+            "morningstar_lt:sal_esgData": {
+              "fetched_at": "2026-09-29T06:52:32+00:00"
+            },
+            "morningstar_lt:sal_people": {
+              "fetched_at": "2026-09-29T06:52:33+00:00"
+            },
+            "morningstar_lt:sal_parentSummary": {
+              "fetched_at": "2026-09-29T06:52:35+00:00"
+            },
+            "morningstar_lt:sal_distribution": {
+              "fetched_at": "2026-09-29T06:52:36+00:00"
+            },
+            "morningstar_lt:sal_investmentStrategy": {
+              "fetched_at": "2026-09-29T06:52:38+00:00"
+            }
+          },
+          "segundos": 0.03
+        },
+        "kid_gestora": {
+          "hojas": 15,
+          "endpoints": {
+            "kid_gestora:amundi": {
+              "fetched_at": "2026-09-29T06:52:39+00:00",
+              "url": "https://www.amundi.es/retail/dl/doc/kid-priips/LU1883319474/SPA/ESP",
+              "documento": "2025-09-04"
+            }
+          },
+          "segundos": 0.09
+        },
+        "esma": {
+          "hojas": 31,
+          "endpoints": {
+            "esma:cbdif": {
+              "fetched_at": "2026-09-29T06:52:39+00:00",
+              "consulta": "AMUNDI FUNDS-GLOBAL EQUITY RESPONSIBLE",
+              "modo": "exacto"
+            }
+          },
+          "segundos": 0.0
+        }
+      }
+    }
+  },
+  "gestion": {
+    "gestores": [
+      {
+        "nombre": "Christian Zimmermann",
+        "desde": "2003-01-01"
+      },
+      {
+        "nombre": "Ian O'Reilly",
+        "desde": "2010-12-01"
+      }
+    ],
+    "gestora": {
+      "nombre": "Amundi Luxembourg S.A."
+    }
+  },
+  "documentos": {
+    "n": 1,
+    "ultima_fecha": "2026-06-30"
+  },
+  "documentos_oficiales": {
+    "kid_url": "https://www.amundi.es/retail/dl/doc/kid-priips/LU1883319474/SPA/ESP",
+    "kid_fuente": "amundi",
+    "kid_fecha": "2025-09-04",
+    "kid_sha256": "51c578c18546f0ccb271463851fa752f648787925fbe586d3c2538be9b455743"
+  },
+  "calidad": {
+    "score": 89,
+    "bucket": "ALTO",
+    "esenciales": "10/10",
+    "flags": [
+      "posiciones_sin_identificador_alto",
+      "info_pesos_negativos",
+      "vl_antiguo(335d)"
+    ]
+  }
+}

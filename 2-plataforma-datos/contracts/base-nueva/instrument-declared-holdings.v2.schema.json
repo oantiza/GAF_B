@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-holdings.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/holdings — v2",
+  "description": "El resumen y el top 25 de las posiciones de un fondo. NO la lista completa: esa va al analitico, una fila por posicion y fecha. Es el cuarto techo de la maestra de hoy y el mas peligroso de los cuatro, porque no depende del universo sino del producto: holdings/latest llega a 629 KB (60 % del limite de 1 MiB) con 1.818 posiciones, hay 4 documentos por encima de 500 KB y 23 por encima de 300 KB, y el troceado existe pero solo lo usan 24 activos. Un fondo de ~3.000 posiciones lo revienta, y puede entrar manana.",
+  "x-collection": "instruments/{instrument_id}/declared/holdings",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF",
+  "x-applies-when": "FONDO_O_ETF",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "positions_count", "top"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "positions_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "El numero de bonos del fondo o, si no tiene, el de acciones (`holdings_count_bond ?? holdings_count_equity` en el mapper). NO es el total de lineas de la cartera, que es lo que esta descripcion decia hasta el 08-11-2026: en un fondo mixto son solo sus bonos, y un fondo con liquidez o derivados tiene mas lineas que esto. La base hoy no guarda el total de lineas del proveedor. Para contar titulos, `securities_count`; este campo se deja como esta porque lo leen la cartera real y el informe interno, con su comprobacion (`cuentaQueCuadra`).",
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "securities_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000,
+      "description": "Cuantos titulos tiene la cartera segun el proveedor: acciones mas bonos (`cartera.num_posiciones_rv` + `cartera.num_posiciones_rf` del canonico, `holdings_count_equity` y `holdings_count_bond` en `ms.holdings_stats`). Si solo da uno de los dos, ese. NO cuenta liquidez, cuentas, divisa, derivados ni participaciones de otros fondos: es la agregacion por `HoldingsType` de Morningstar, y solo esos dos tipos entran. Medido el 08-11-2026 en iShares Core MSCI World (`IE00B4L5Y983`): 1.247 titulos, los mismos que declara el emisor, frente a 1.286 lineas en total del proveedor.\n\nEs el numero que se pone frente al recuento de titulos que declara un emisor (decision 55): dos recuentos solo se comparan si miden lo mismo, la regla de la seccion 3 del metodo aplicada a una cuenta. Frente a `positions_count`: en una cartera de solo acciones o solo bonos dan lo mismo, y en una mixta este suma las dos clases y aquel no. Ausente si la fuente no da ninguno de los dos o si la suma es cero: cero no es un recuento.",
+      "x-unit": "count",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "top10_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Peso del top 10. Vive aqui y NO en la raiz: el resumen de posiciones era parte de la raiz en la primera version del diseno, y con la tarjeta de lectura ya no hace falta, igual que pasa con los punteros. Dejarlo en los dos sitios seria el mismo dato en dos rutas.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "coverage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Que fraccion del patrimonio cubren las posiciones que la fuente da. Sin esto, una lista parcial parece completa.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "top": {
+      "type": "array",
+      "maxItems": 25,
+      "description": "Las 25 primeras posiciones por peso. El tope es 25 y no 500: este bloque no es la lista, es el resumen, y la lista entera vive en el analitico.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "weight"],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "isin": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": -10,
+            "maximum": 10,
+            "description": "Peso sobre el patrimonio, en FRACCION, y el rango es ancho a proposito: una linea de la cartera de un fondo puede ser una posicion corta o un derivado, y entonces el peso sale de [0, 1] con todo derecho. Medido el 01-11 sobre las 844 fichas canonicas: 75 lineas con peso negativo (un futuro del Buxl al -5,29 %, recompras a pagar, gastos de gestion). La primera version de este contrato las rechazaba por estar fuera de [0, 1] y tiraba 46 documentos de cartera enteros: el contrato estaba mal, no el dato.\n\nEl tope era 50 hasta el 05-11-2026, para que cupiera un forward de yenes al 3.662 % que este contrato llamaba nocional de derivado. No lo es: es un error de escala del proveedor. En CaixaBank Gestion Tendencias (`ES0161937034`, cartera a 30-09-2026), el forward JPY/EUR trae 57 millones de nominal y un valor de mercado de 10.154.405.141, que son yenes sin convertir (10.154 M / 57 M = 178 yenes por euro); dividido entre los 277,3 M de patrimonio que se deducen de las otras lineas sale el 3.662 %, y en euros seria un 20,6 %. Su contrapartida, `Cash Offset`, trae el mismo error con el signo cambiado. Por eso la plataforma no escribe una linea por encima del 1.000 % en valor absoluto: un peso asi no es una fraccion del patrimonio de nadie. El siguiente mayor del catalogo es un `Cash Offset` del -480 %, asi que el tope solo aparta esas dos lineas de las 158.721 medidas.",
+            "x-unit": "fraction",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "holding_type_code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{1,3}$",
+            "description": "El codigo fino de la linea, tal cual lo publica el proveedor, y lo unico que separa una accion de un derivado (decision 9 de Oscar, 04-11-2026). Sale del campo `holdingTypeId` de la cartera de Morningstar, `portfolio/holding/v2` (`fetchers/morningstar.py`), y de `DetailHoldingTypeId` en la de `ETFsnapshot` y `MFsnapshot` (`fetchers/morningstar_lt.py`), con el mismo vocabulario. Lo trae cada linea de esas dos fuentes; las lineas de justETF, que son las de 20 de los 26 ETF con cartera, no traen clase ninguna, y entonces no esta.\n\nPor que no basta `asset_type`: dice en que PAGINA de la respuesta venia la linea. En la de bolsa hay CFD y opciones, tambien sobre divisa; en la de bonos, swaps y futuros. Y el nombre no es un dato: clasificar por el nombre es la opcion que Oscar descarto.\n\nMorningstar no publica la tabla en ninguna respuesta que tengamos. El significado se ha deducido el 05-11-2026 de sus 158.721 lineas en 765 carteras, leyendo los campos `superSectorName`, `primarySectorName` y `secondarySectorName` y los nombres, asi que es lectura nuestra y no definicion suya. Entre parentesis, cuantas lineas.\n\nACCIONES, las unicas que cuentan como tales: E, accion ordinaria (38.767). ER, socimi o REIT cotizada (680). EU, unidades o certificados de acciones (41). EQ, otras acciones (12).\n\nDERIVADOS SOBRE BOLSA: SF, CFD (941). DH y DI, opciones y estructurados sobre acciones (995). DG, bonos ligados a una accion (121). SE, permutas de rentabilidad sobre acciones (8). EW, warrants y derechos (191). EV, derechos y residuos de operaciones (20). EL, futuros sobre indices (360). EP y EC, opciones sobre indices (349).\n\nDIVISA: CU, patas de forward (31.209). CL, futuros (174). CS, patas de permuta de divisas (118). CY y CZ, opciones (124).\n\nTIPOS Y CREDITO: SI, permutas de tipos (3.323). OS, patas de permuta de tipos (2.002). SJ, futuros de tipos a corto (35). TF, futuros de deuda publica (676). DA y BU, futuros sobre un bono (4). DB, DE, DC, DJ y FD, opciones sobre bonos o sus futuros (158). IS, permutas de inflacion (19). SR, permutas de credito (765). ST, SX, SY y SN, otras permutas y futuros (77).\n\nRENTA FIJA: B, corporativa (26.629). CT, financiera subordinada (7.095). BT y GS, deuda publica y letras (8.949). TP, ligada a la inflacion (500). BD, agencias (1.174). DS, regional (790). BZ, supranacional (826). ND, cedulas (1.234). BY, titulizacion de activos (2.785). BG, TG, NC, NR y NE, hipotecaria de agencia (3.923). GC, BH, NB y GM, hipotecaria privada y comercial (3.457). LO y DO, CLO y CDO (663). SU, notas (160). BR, prestamos (135). BC y CN, convertibles (628). P y PC, preferentes (192). 1, 12 y 14, municipal de Estados Unidos (78). IP y BQ, otra (10).\n\nLIQUIDEZ: C, efectivo (8.275). CH y CD, cuentas y depositos (4.947). QQ, cuentas en un depositario (1.094). CP, pagares (1.445). CR, repos (447). CA, colateral (169). CQ y OT, la contrapartida en efectivo de un derivado (268). FM, fondos monetarios (185).\n\nFONDOS: FO, abiertos (821). FE, ETF y ETC (467). FC, cerrados (93). EX, otras instituciones (53).\n\nSIN ACLARAR: AP (58) y DM (2). Sus lineas no dicen lo bastante para nombrarlos.",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "sector": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "country": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    }
+  }
+}

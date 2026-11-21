@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-dividends.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/dividends — v2",
+  "description": "El dividendo de una ACCION: lo repartido en los ultimos doce meses, lo anunciado para los proximos, y la fecha en que cotizo sin derecho a el.\n\nNo es declared/distributions con otro nombre, y la diferencia no es de forma sino de para que sirve cada uno. El bloque de un fondo existe para ARREGLAR la serie: la de una clase que reparte baja el dia del pago, esa caida no es mercado, y sin la fecha y el importe de cada pago la volatilidad sale inflada y la caida maxima inventada. Por eso alli los pagos son una lista con fecha, importe y valor liquidativo del dia, y por eso records_checked es obligatorio: una lista ausente tiene que poder distinguir 'no reparte' de 'nadie ha mirado'.\n\nAqui ese problema no existe, y esto es lo que lo cierra: la serie de una accion es el cierre AJUSTADO de EODHD, que reparte hacia atras los desdoblamientos y los dividendos, asi que el dividendo YA esta dentro del precio con el que se calcula. Comprobado en el codigo que la produce, no supuesto: la serie se construye sobre adjusted_close y cae a close solo si falta. La consecuencia practica es grande —de los 469 fondos con metricas propias, 449 se retiraron el 01-11-2026 por no tener evidencia de la politica de reparto; una accion no necesita esa evidencia porque su serie ya es de retorno total— y la consecuencia para este bloque es que sus cifras son INFORMATIVAS para la ficha y no entran en ningun calculo. De ahi que no lleve records_checked: su ausencia no puede contaminar una metrica, asi que no hace falta un campo que distinga los dos motivos de faltar. Lo que falta, falta, y quality/latest dice que no se sabe.\n\nY lo que NO esta aqui: payout_ratio, el dividendo sobre el beneficio. Es una razon contable de la EMPRESA —dividendo partido por beneficio, las dos cifras de su cuenta de resultados— y vive en issuers/{issuer_id}/fundamentals/latest.dividends.payout_ratio, donde ya estaba escrito desde el 01-11. El rendimiento, en cambio, es dividendo partido por PRECIO, que es del listado y por tanto de este instrumento: esa es la linea, y es la misma que separa este bloque del de fundamentales.",
+  "x-collection": "instruments/{instrument_id}/declared/dividends",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type STOCK",
+  "x-applies-when": "ACCION",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of"],
+  "allOf": [
+    {
+      "if": { "anyOf": [{ "required": ["trailing_amount_per_share"] }, { "required": ["forward_amount_per_share"] }] },
+      "then": { "required": ["currency"] },
+      "$comment": "Un importe sin su divisa no es un importe. Es la misma regla que en declared/distributions, y por la misma razon: 2 de las 73 acciones cotizan en dolares, asi que la divisa del importe no se puede dar por supuesta ni aqui."
+    }
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien lo afirma. Parte del sobre comun de todo bloque declared/*.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Divisa de los importes, que es la del listado y no necesariamente el euro. Obligatoria en cuanto hay un importe.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "yield_12m": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2,
+      "description": "Lo repartido en los ultimos doce meses, en FRACCION sobre el precio. Lleva el mismo nombre, la misma unidad y el mismo rango que en declared/distributions a proposito: es la misma magnitud, y dos nombres para una magnitud son dos valores para cualquier comparacion. El canonico lo trae en dos sitios y en dos unidades a la vez —dividends.yield_ratio en fraccion y dividend_yield_pct en por ciento, 0,0316 y 3,16 en la misma ficha—, que es el defecto de la unidad en el nombre en su forma mas pura; de aqui entra la fraccion, y la unidad la declara x-unit.\n\nNo lleva x-coverage-target, y esa es la leccion del 30-10 aplicada bien: lo traen 68 de 73, pero el denominador correcto no son las 73 acciones sino las que REPARTEN dividendo, y eso el contrato no lo puede decidir sin caer en un circulo —solo sabriamos que reparte si trae el dato—. Una cobertura del 93 % sobre el total llamaria laguna a una empresa que no paga dividendo, que es justo el error que convirtio la composicion del 20-77 % en el 96-99 %.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type STOCK",
+      "x-applies-when": "ACCION",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "trailing_amount_per_share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000,
+      "description": "Lo PAGADO por accion en los ultimos doce meses, en la divisa del bloque. Lo traen 68 de 73.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type STOCK",
+      "x-applies-when": "ACCION",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "forward_amount_per_share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000,
+      "description": "Lo ANUNCIADO por accion para los proximos doce meses, en la divisa del bloque. Es un campo distinto del pagado y no comparte sitio con el: uno es un hecho y el otro una expectativa del emisor, y en un informe de cliente no se pueden presentar como lo mismo. Lo traen 71 de 73.",
+      "x-unit": "currency_amount",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type STOCK",
+      "x-applies-when": "ACCION",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "ex_dividend_date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "El dia en que la accion cotizo ya sin derecho al proximo dividendo. Lo traen 66 de 73. El patron excluye el 0000-00-00 y el 1970-01-01, que es el centinela que sale de convertir una fecha de epoca vacia, y esta fecha llega justamente como epoca.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrument_type STOCK",
+      "x-applies-when": "ACCION",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

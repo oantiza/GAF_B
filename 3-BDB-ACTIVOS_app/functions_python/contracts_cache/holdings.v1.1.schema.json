@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/master/holdings.v1.1.schema.json",
+  "title": "Master holdings - v1.1",
+  "description": "v1 aditivo: permite SINGLE_DOCUMENT, manifest CHUNKED y documentos de chunk.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_mode", "holdings_count", "as_of_date", "holdings"],
+      "properties": {
+        "storage_mode": { "type": "string", "const": "SINGLE_DOCUMENT" },
+        "holdings_count": { "type": ["number", "null"] },
+        "top10_weight": { "type": ["number", "null"] },
+        "as_of_date": { "type": ["string", "null"] },
+        "holdings": { "type": ["array", "null"], "items": { "type": "object", "additionalProperties": true } },
+        "schema_version": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_mode", "chunk_count", "holdings_count", "top10_weight", "as_of_date"],
+      "properties": {
+        "storage_mode": { "type": "string", "const": "CHUNKED" },
+        "chunk_count": { "type": "integer", "minimum": 1 },
+        "holdings_count": { "type": ["number", "null"] },
+        "top10_weight": { "type": ["number", "null"] },
+        "as_of_date": { "type": ["string", "null"] },
+        "schema_version": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_mode", "chunk_index", "holdings_count", "holdings"],
+      "properties": {
+        "storage_mode": { "type": "string", "const": "CHUNK" },
+        "chunk_index": { "type": "integer", "minimum": 0 },
+        "holdings_count": { "type": "integer", "minimum": 0 },
+        "holdings": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+        "schema_version": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    }
+  ]
+}

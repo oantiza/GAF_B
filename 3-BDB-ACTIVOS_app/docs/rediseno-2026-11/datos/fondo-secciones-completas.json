@@ -1,0 +1,450 @@
+{
+  "isin": "LU0011889846",
+  "declared": {
+    "profile": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "distribution_policy": "DISTRIBUTING",
+      "distribution_policy_resolution": "PROVIDER_DISTRIBUTION_RECORDS",
+      "objective": "The Fund aims to provide capital growth over the long term. The Fund invests at least 75% of its net assets in equities or equity-related instruments of companies incorporated or having their principal business activities in Euroland countries (i.e. countries having adopted the Euro as their national currency in the member state of the European Monetary Union).",
+      "hedged_class": false
+    },
+    "costs": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "document_url": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0011889846&idioma=ES&codSus=KIID&codCont=NA",
+      "sha256": "1ddba614ecb680fa3b88dd6dece679b69cf7f3d3bcb29ca18143cd918fad4f6d",
+      "ongoing_charge": 0.0187,
+      "management_fee": 0.012,
+      "entry_charge": 0.05,
+      "transaction_costs": 0.0018859999999999999
+    },
+    "regulatory": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "sri": 4,
+      "srri": 5,
+      "kid_evidence": {
+        "document_url": "https://www.servicios.deutsche-bank.es/documentacionfondos/getDocumento?codDoc=LU0011889846&idioma=ES&codSus=KIID&codCont=NA",
+        "sha256": "1ddba614ecb680fa3b88dd6dece679b69cf7f3d3bcb29ca18143cd918fad4f6d",
+        "document_date": "2026-02-13",
+        "isin_evidence": "DOCUMENT_URL"
+      }
+    },
+    "exposure": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-09-30",
+      "asset_mix": {
+        "equity": 0.986727,
+        "fixed_income": 0,
+        "cash": 0.013273,
+        "other": 0
+      },
+      "asset_mix_completion": "REPORTED",
+      "sectors": {
+        "basic_materials": 0.014665,
+        "consumer_cyclical": 0.068366,
+        "financial_services": 0.229753,
+        "consumer_defensive": 0.041475,
+        "healthcare": 0.056435,
+        "utilities": 0.04309,
+        "communication_services": 0.049399,
+        "energy": 0.043724,
+        "industrials": 0.22749,
+        "technology": 0.225603
+      },
+      "equity_regions": {
+        "united_kingdom": 0.034725,
+        "eurozone": 0.965275
+      },
+      "equity_styles": {
+        "value": 0.315504,
+        "blend": 0.368929,
+        "growth": 0.315567
+      },
+      "market_caps": {
+        "small": 0.043362,
+        "mid": 0.225356,
+        "large": 0.731282
+      },
+      "bond_types": {
+        "cash": 1
+      },
+      "confidence": 0.9
+    },
+    "provider_risk": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "return_basis": "TOTAL_RETURN",
+      "volatility": {
+        "1y": {
+          "fund": 0.14842,
+          "category": 0.13851000000000002,
+          "benchmark": 0.13266
+        },
+        "3y": {
+          "fund": 0.11471999999999999,
+          "category": 0.11895,
+          "benchmark": 0.11449
+        },
+        "5y": {
+          "fund": 0.14847,
+          "category": 0.14264,
+          "benchmark": 0.14154
+        },
+        "10y": {
+          "fund": 0.16295,
+          "category": 0.162,
+          "benchmark": 0.15177
+        }
+      },
+      "sharpe": {
+        "3y": {
+          "fund": 1.42,
+          "category": 0.961,
+          "benchmark": 1.213
+        },
+        "1y": {
+          "fund": 0.928,
+          "category": 0.869,
+          "benchmark": 1.02
+        },
+        "5y": {
+          "fund": 0.565,
+          "category": 0.491,
+          "benchmark": 0.638
+        },
+        "10y": {
+          "fund": 0.545,
+          "category": 0.542,
+          "benchmark": 0.635
+        }
+      },
+      "beta": {
+        "1y": {
+          "vs_benchmark": 1.062
+        },
+        "3y": {
+          "vs_benchmark": 0.948
+        },
+        "5y": {
+          "vs_benchmark": 0.988
+        },
+        "10y": {
+          "vs_benchmark": 1.022
+        }
+      },
+      "r2": {
+        "1y": {
+          "vs_benchmark": 0.93047
+        },
+        "3y": {
+          "vs_benchmark": 0.86688
+        },
+        "5y": {
+          "vs_benchmark": 0.8837
+        },
+        "10y": {
+          "vs_benchmark": 0.90889
+        }
+      },
+      "provider_alpha": {
+        "1y": {
+          "vs_benchmark": 0.03721
+        },
+        "3y": {
+          "vs_benchmark": 0.02565
+        },
+        "5y": {
+          "vs_benchmark": 0.00632
+        },
+        "10y": {
+          "vs_benchmark": -0.006750000000000001
+        }
+      },
+      "tracking_error": {
+        "1y": {
+          "vs_benchmark": 0.0398718
+        },
+        "3y": {
+          "vs_benchmark": 0.0421193
+        },
+        "5y": {
+          "vs_benchmark": 0.0504132
+        }
+      },
+      "information_ratio": {
+        "1y": {
+          "vs_benchmark": 1.10449
+        },
+        "3y": {
+          "vs_benchmark": 0.49168
+        },
+        "5y": {
+          "vs_benchmark": 0.09177
+        }
+      }
+    },
+    "provider_returns": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "return_basis": "TOTAL_RETURN",
+      "trailing_return": {
+        "1y": {
+          "fund": 0.1583663,
+          "category": 0.11193860000000001
+        },
+        "3y": {
+          "fund": 0.19958337,
+          "category": 0.17856539999999999
+        },
+        "5y": {
+          "fund": 0.09753494,
+          "category": 0.0928966
+        },
+        "10y": {
+          "fund": 0.0864385,
+          "category": 0.0934924
+        }
+      },
+      "ytd_return": {
+        "fund": 0.1394071,
+        "category": 0.08481040000000001
+      }
+    },
+    "sustainability": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "esg_globes": 4
+    },
+    "size": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-30",
+      "aum": 1007800000,
+      "currency": "EUR"
+    },
+    "holdings": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-09-30",
+      "positions_count": 50,
+      "top10_weight": 0.4322907,
+      "top": [
+        {
+          "name": "ASML Holding NV",
+          "weight": 0.0683025,
+          "sector": "technology"
+        },
+        {
+          "name": "ASM International NV",
+          "weight": 0.058593400000000004,
+          "sector": "technology"
+        },
+        {
+          "name": "ING Groep NV",
+          "weight": 0.049463400000000005,
+          "sector": "financial_services"
+        },
+        {
+          "name": "UniCredit SpA",
+          "weight": 0.048360200000000006,
+          "sector": "financial_services"
+        },
+        {
+          "name": "Allianz SE",
+          "weight": 0.0427062,
+          "sector": "financial_services"
+        },
+        {
+          "name": "Banco Santander SA",
+          "weight": 0.0407563,
+          "sector": "financial_services"
+        },
+        {
+          "name": "Poste Italiane SpA",
+          "weight": 0.0343035,
+          "sector": "industrials"
+        },
+        {
+          "name": "RELX PLC",
+          "weight": 0.0342645,
+          "sector": "industrials"
+        },
+        {
+          "name": "Euronext NV",
+          "weight": 0.028697,
+          "sector": "financial_services"
+        },
+        {
+          "name": "Siemens AG",
+          "weight": 0.026843699999999998,
+          "sector": "industrials"
+        }
+      ]
+    },
+    "distributions": {
+      "source": "canonical:fondosdb",
+      "as_of": "2026-10-31",
+      "records_checked": true,
+      "currency": "EUR",
+      "yield_12m": 0,
+      "payments": [
+        {
+          "date": "2021-07-01",
+          "amount_per_share": 0.596642,
+          "nav_on_date": 59.88,
+          "income": 0.596642
+        }
+      ]
+    },
+    "provenance": {
+      "package_id": "2026-11-02T07:43:08+00:00",
+      "fields": {
+        "name": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "currency": {
+          "source": "morningstar_lt:sal_quote",
+          "as_of": "2026-10-31"
+        },
+        "report_date": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.category_morningstar": {
+          "source": "morningstar_lt:sal_quote",
+          "as_of": "2026-10-31"
+        },
+        "ms.rating_stars": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.medalist_rating": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.sustainability_rating": {
+          "source": "morningstar_lt:sustainability",
+          "as_of": "2026-10-31"
+        },
+        "ms.portfolio.as_of": {
+          "source": "morningstar_lt:sal_position",
+          "as_of": "2026-10-31"
+        },
+        "ms.portfolio.asset_allocation": {
+          "source": "morningstar_lt:sal_allocationMap",
+          "as_of": "2026-10-31"
+        },
+        "ms.sectors": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.regions": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.equity_style.market_cap": {
+          "source": "morningstar_lt:ETFsnapshot+morningstar_lt:sal_marketCap",
+          "as_of": "2026-10-31"
+        },
+        "ms.equity_style.style": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.fixed_income": {
+          "source": "morningstar_lt:ETFsnapshot+morningstar_lt:sal_fixedIncomeStyle",
+          "as_of": "2026-10-31"
+        },
+        "ms.holdings_top10": {
+          "source": "morningstar_lt:sal_position",
+          "as_of": "2026-10-31"
+        },
+        "ms.holdings_stats.holdings_count_equity": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.holdings_stats.top10_weight": {
+          "source": "morningstar_lt:sal_position",
+          "as_of": "2026-10-31"
+        },
+        "ms.costs.management_fee": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.costs.ter": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "ms.costs.mifid_ongoing": {
+          "source": "morningstar_lt:Mifid",
+          "as_of": "2026-10-31"
+        },
+        "ms.objective": {
+          "source": "morningstar_lt:sal_investmentStrategy",
+          "as_of": "2026-10-31"
+        },
+        "derived.asset_class": {
+          "source": "morningstar_lt:ETFsnapshot+morningstar_lt:sal_quote",
+          "as_of": "2026-10-31"
+        },
+        "classification_v2.commercial_type": {
+          "source": "morningstar_lt:sal_quote",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.sri": {
+          "source": "kid_gestora:deutsche_bank_es",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.srri": {
+          "source": "morningstar_lt:Mifid",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.kid": {
+          "source": "kid_gestora:deutsche_bank_es",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.mifid_ex_ante_costs": {
+          "source": "morningstar_lt:Mifid",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.ucits": {
+          "source": "cssf:identificadores",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.legal_framework": {
+          "source": "esma:cbdif",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.domicile": {
+          "source": "cssf:identificadores",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.management_company": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.management_company_legal": {
+          "source": "esma:cbdif",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.launch_date_class": {
+          "source": "morningstar_lt:screener",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.launch_date_fund": {
+          "source": "morningstar_lt:ETFsnapshot",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.registers.cssf": {
+          "source": "cssf:identificadores",
+          "as_of": "2026-10-31"
+        },
+        "regulatory.registers.esma": {
+          "source": "esma:cbdif",
+          "as_of": "2026-10-31"
+        }
+      }
+    }
+  },
+  "computed": {}
+}

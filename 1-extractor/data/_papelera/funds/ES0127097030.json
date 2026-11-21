@@ -1,0 +1,1075 @@
+{
+  "meta": {
+    "cnmv_periodo": "2026-05",
+    "cnmv_periodo_trimestral": "2025-12",
+    "isin": "ES0127097030",
+    "actualizado": "2026-09-04T22:01:22+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "meta": [
+        "cnmv"
+      ],
+      "identificacion": [
+        "cnmv",
+        "config_csv"
+      ],
+      "valoracion": [
+        "cnmv"
+      ],
+      "series": [
+        "cnmv"
+      ],
+      "gestion": [
+        "cnmv"
+      ],
+      "costes": [
+        "cnmv"
+      ],
+      "rentabilidad": [
+        "cnmv"
+      ],
+      "riesgo": [
+        "cnmv"
+      ],
+      "cartera": [
+        "cnmv"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "cartera.cnmv.cartera_exterior_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.cartera_interior_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.fecha": "cnmv:zip_trimestral",
+      "cartera.cnmv.inversiones_financieras_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.liquidez_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.num_posiciones": "cnmv:zip_trimestral",
+      "cartera.cnmv.patrimonio_total_eur": "cnmv:zip_trimestral",
+      "cartera.cnmv.peso_top10_pct": "cnmv:zip_trimestral",
+      "cartera.cnmv.posiciones": "cnmv:zip_trimestral",
+      "cartera.cnmv.rotacion_pct": "cnmv:zip_trimestral",
+      "cartera.cnmv.top10_posiciones": "cnmv:zip_trimestral",
+      "cartera.rotacion_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.base_comision_gestion": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_deposito_periodo_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_gestion_periodo_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_reembolso_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.comision_suscripcion_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.descuento_favor_fondo_max_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.periodo": "cnmv:zip_trimestral",
+      "costes.cnmv.periodo_meses": "cnmv:zip_trimestral",
+      "costes.cnmv.ter_12m_pct": "cnmv:zip_trimestral",
+      "costes.cnmv.ter_trimestre_pct": "cnmv:zip_trimestral",
+      "gestion.gestora.grupo": "cnmv:zip_mensual",
+      "identificacion.clase_cnmv": "cnmv:zip_mensual",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.clase_fondo_cnmv": "cnmv:zip_trimestral",
+      "identificacion.compartimento_cnmv": "cnmv:zip_mensual",
+      "identificacion.depositario": "cnmv:zip_mensual",
+      "identificacion.es_etf_cnmv": "cnmv:zip_mensual",
+      "identificacion.gestora_legal": "cnmv:zip_mensual",
+      "identificacion.nombre": "cnmv:zip_mensual",
+      "identificacion.numero_compartimento_cnmv": "cnmv:zip_mensual",
+      "identificacion.registro_cnmv": "cnmv:zip_mensual",
+      "identificacion.tipo": "config_csv",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "identificacion.vocacion_cnmv": "cnmv:zip_trimestral",
+      "meta.cnmv_periodo": "cnmv:zip_mensual",
+      "meta.cnmv_periodo_trimestral": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.periodo": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_1": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_2": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.t_3": "cnmv:zip_trimestral",
+      "rentabilidad.cnmv.trimestral_pct.trimestre_actual": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_1": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_2": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.t_3": "cnmv:zip_trimestral",
+      "riesgo.cnmv.volatilidad_trimestral_pct.trimestre_actual": "cnmv:zip_trimestral",
+      "series.cnmv_diaria": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.fecha": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.participes": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.patrimonio_meur": "cnmv:zip_mensual",
+      "valoracion.cnmv_fin_mes.vl": "cnmv:zip_mensual",
+      "valoracion.cnmv_trimestral.participes": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.patrimonio_clase_meur": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.periodo": "cnmv:zip_trimestral",
+      "valoracion.cnmv_trimestral.vl": "cnmv:zip_trimestral",
+      "valoracion.patrimonio_fondo_meur": "cnmv:zip_mensual",
+      "valoracion.vl": "cnmv:zip_mensual",
+      "valoracion.vl_fecha": "cnmv:zip_mensual"
+    },
+    "adquisicion": {
+      "plan": [
+        "cnmv",
+        "cnmv_ficha",
+        "gleif",
+        "morningstar_lt",
+        "esma"
+      ],
+      "familias": "todas",
+      "fuentes": {
+        "cnmv": {
+          "hojas": 700,
+          "endpoints": {
+            "cnmv:zip_mensual": {
+              "periodo": "2026-05"
+            },
+            "cnmv:zip_trimestral": {
+              "periodo": "2025-12"
+            }
+          },
+          "segundos": 0.01
+        }
+      }
+    }
+  },
+  "identificacion": {
+    "registro_cnmv": "3191",
+    "nombre": "DUX RENTINVER RENTA FIJA, FI",
+    "es_etf_cnmv": false,
+    "compartimento_cnmv": "COMPARTIMENTO 0",
+    "numero_compartimento_cnmv": "0",
+    "clase_cnmv": "CLASE 0",
+    "gestora_legal": "ABANTE ASESORES GESTION, SGIIC, S.A.",
+    "depositario": "BANKINTER, S.A.",
+    "vocacion_cnmv": "Renta Fija Euro",
+    "clase_fondo_cnmv": "Otros",
+    "tipo": "fondo",
+    "tipo_producto": "fondo",
+    "clase_cubierta": false
+  },
+  "valoracion": {
+    "cnmv_fin_mes": {
+      "vl": 14.2086,
+      "fecha": "2026-05-31",
+      "patrimonio_meur": 16.4,
+      "participes": 157
+    },
+    "vl": 14.2086,
+    "vl_fecha": "2026-05-31",
+    "patrimonio_fondo_meur": 16.4,
+    "cnmv_trimestral": {
+      "participes": 182,
+      "patrimonio_clase_meur": 16.801,
+      "vl": 14.08,
+      "periodo": "2025-12"
+    }
+  },
+  "series": {
+    "cnmv_diaria": [
+      {
+        "fecha": "2026-05-01",
+        "vl": 14.1043,
+        "patrimonio_eur": 16478657.67,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-02",
+        "vl": 14.1055,
+        "patrimonio_eur": 16480014.5,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-03",
+        "vl": 14.1067,
+        "patrimonio_eur": 16481370.97,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-04",
+        "vl": 14.0823,
+        "patrimonio_eur": 16433745.45,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-05",
+        "vl": 14.1027,
+        "patrimonio_eur": 16457559.1,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-06",
+        "vl": 14.1394,
+        "patrimonio_eur": 16500349.8,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-07",
+        "vl": 14.1378,
+        "patrimonio_eur": 16498485.35,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-08",
+        "vl": 14.1354,
+        "patrimonio_eur": 16495620.08,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-09",
+        "vl": 14.1365,
+        "patrimonio_eur": 16496959.68,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-10",
+        "vl": 14.1377,
+        "patrimonio_eur": 16498299.32,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-11",
+        "vl": 14.1251,
+        "patrimonio_eur": 16483672.04,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-12",
+        "vl": 14.1052,
+        "patrimonio_eur": 16460473.94,
+        "participes": 165.0
+      },
+      {
+        "fecha": "2026-05-13",
+        "vl": 14.1063,
+        "patrimonio_eur": 16531592.09,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-14",
+        "vl": 14.1292,
+        "patrimonio_eur": 16558454.25,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-15",
+        "vl": 14.0968,
+        "patrimonio_eur": 16520469.9,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-16",
+        "vl": 14.0979,
+        "patrimonio_eur": 16521825.86,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-17",
+        "vl": 14.0991,
+        "patrimonio_eur": 16523158.39,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-18",
+        "vl": 14.1065,
+        "patrimonio_eur": 16531855.93,
+        "participes": 164.0
+      },
+      {
+        "fecha": "2026-05-19",
+        "vl": 14.0903,
+        "patrimonio_eur": 16493274.96,
+        "participes": 163.0
+      },
+      {
+        "fecha": "2026-05-20",
+        "vl": 14.1294,
+        "patrimonio_eur": 16410077.52,
+        "participes": 160.0
+      },
+      {
+        "fecha": "2026-05-21",
+        "vl": 14.129,
+        "patrimonio_eur": 16340511.94,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-22",
+        "vl": 14.1479,
+        "patrimonio_eur": 16333831.58,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-23",
+        "vl": 14.1491,
+        "patrimonio_eur": 16335188.01,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-24",
+        "vl": 14.1503,
+        "patrimonio_eur": 16336608.83,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-25",
+        "vl": 14.1817,
+        "patrimonio_eur": 16372821.06,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-26",
+        "vl": 14.1785,
+        "patrimonio_eur": 16369157.22,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-27",
+        "vl": 14.1798,
+        "patrimonio_eur": 16370694.95,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-28",
+        "vl": 14.1906,
+        "patrimonio_eur": 16383187.41,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-29",
+        "vl": 14.2063,
+        "patrimonio_eur": 16401281.95,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-30",
+        "vl": 14.2074,
+        "patrimonio_eur": 16402583.44,
+        "participes": 157.0
+      },
+      {
+        "fecha": "2026-05-31",
+        "vl": 14.2086,
+        "patrimonio_eur": 16403955.48,
+        "participes": 157.0
+      }
+    ]
+  },
+  "gestion": {
+    "gestora": {
+      "grupo": "ABANTE ASESORES"
+    }
+  },
+  "costes": {
+    "cnmv": {
+      "periodo": "2025-12",
+      "periodo_meses": 6,
+      "comision_gestion_periodo_pct": 0.25,
+      "comision_deposito_periodo_pct": 0.04,
+      "base_comision_gestion": "Patrimonio",
+      "comision_suscripcion_max_pct": 0.0,
+      "comision_reembolso_max_pct": 0.0,
+      "descuento_favor_fondo_max_pct": 0.0,
+      "ter_trimestre_pct": 0.15,
+      "ter_12m_pct": 0.62
+    }
+  },
+  "rentabilidad": {
+    "cnmv": {
+      "trimestral_pct": {
+        "trimestre_actual": 0.39,
+        "t_1": 0.79,
+        "t_2": 1.16,
+        "t_3": 0.19
+      },
+      "periodo": "2025-12"
+    }
+  },
+  "riesgo": {
+    "cnmv": {
+      "volatilidad_trimestral_pct": {
+        "trimestre_actual": 0.53,
+        "t_1": 0.67,
+        "t_2": 0.89,
+        "t_3": 0.89
+      }
+    }
+  },
+  "cartera": {
+    "cnmv": {
+      "patrimonio_total_eur": 16800891.0,
+      "rotacion_pct": 0.81,
+      "inversiones_financieras_eur": 16640595.0,
+      "cartera_interior_eur": 6269528.0,
+      "cartera_exterior_eur": 10171509.0,
+      "liquidez_eur": 213597.0,
+      "fecha": "2025-12-31",
+      "num_posiciones": 59,
+      "top10_posiciones": [
+        {
+          "nombre": "Letras ESTADO ESPAÑOL 0,00 2026-01-16",
+          "isin": "ES0L02601166",
+          "peso_pct": 8.8818,
+          "divisa": "EUR",
+          "tipo": "Deuda Publica Cotizada Memos 1 Anio"
+        },
+        {
+          "nombre": "Bonos ESTADO ESPAÑOL 1,89 2026-01-02",
+          "isin": "ES0000012N43",
+          "peso_pct": 5.9456,
+          "divisa": "EUR",
+          "tipo": "Adquisicion Temporal Activos"
+        },
+        {
+          "nombre": "Bonos ESTADO ALEMAN 2,00 2027-12-16",
+          "isin": "DE000BU22114",
+          "peso_pct": 5.9377,
+          "divisa": "EUR",
+          "tipo": "Deuda Publica Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos FCC Servicios Medioambiental 3,71 2031-07-08",
+          "isin": "XS2905583014",
+          "peso_pct": 3.5601,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos Morgan Stanley VAR 2028-10-25",
+          "isin": "XS2548080832",
+          "peso_pct": 3.1177,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos SACYR VALLEHERMOSO, S.A. 4,75 2030-02-28",
+          "isin": "XS3071337847",
+          "peso_pct": 3.0747,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos BANCA MARCH SA 3,37 2028-11-28",
+          "isin": "ES0313040083",
+          "peso_pct": 2.9564,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos ING GROEP NV VAR 2030-09-03",
+          "isin": "XS2891742731",
+          "peso_pct": 2.4525,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos UNICREDIT SPA VAR 2027-06-11",
+          "isin": "IT0005598971",
+          "peso_pct": 2.4378,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        },
+        {
+          "nombre": "Bonos SOCIETE GENERALE, SUCURSAL E 0,50 2029-06-12",
+          "isin": "FR0014001GA9",
+          "peso_pct": 2.2215,
+          "divisa": "EUR",
+          "tipo": "Renta Fija Cotizada Mas 1 Anio"
+        }
+      ],
+      "peso_top10_pct": 40.59,
+      "posiciones": [
+        {
+          "nombre": "Letras ESTADO ESPAÑOL 0,00 2026-01-16",
+          "instrumento": "Letras ESTADO ESPAÑOL 0,00 2026-01-16",
+          "isin": "ES0L02601166",
+          "divisa": "EUR",
+          "valor_mercado_eur": 1492215.0,
+          "tipo_cnmv": "Deuda Publica Cotizada Memos 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 8.8818
+        },
+        {
+          "nombre": "Bonos ESTADO ESPAÑOL 1,89 2026-01-02",
+          "instrumento": "Bonos ESTADO ESPAÑOL 1,89 2026-01-02",
+          "isin": "ES0000012N43",
+          "divisa": "EUR",
+          "valor_mercado_eur": 998921.0,
+          "tipo_cnmv": "Adquisicion Temporal Activos",
+          "ambito": "INTERIOR",
+          "peso_pct": 5.9456
+        },
+        {
+          "nombre": "Bonos ESTADO ALEMAN 2,00 2027-12-16",
+          "instrumento": "Bonos ESTADO ALEMAN 2,00 2027-12-16",
+          "isin": "DE000BU22114",
+          "divisa": "EUR",
+          "valor_mercado_eur": 997584.0,
+          "tipo_cnmv": "Deuda Publica Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 5.9377
+        },
+        {
+          "nombre": "Bonos FCC Servicios Medioambiental 3,71 2031-07-08",
+          "instrumento": "Bonos FCC Servicios Medioambiental 3,71 2031-07-08",
+          "isin": "XS2905583014",
+          "divisa": "EUR",
+          "valor_mercado_eur": 598130.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 3.5601
+        },
+        {
+          "nombre": "Bonos Morgan Stanley VAR 2028-10-25",
+          "instrumento": "Bonos Morgan Stanley VAR 2028-10-25",
+          "isin": "XS2548080832",
+          "divisa": "EUR",
+          "valor_mercado_eur": 523803.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 3.1177
+        },
+        {
+          "nombre": "Bonos SACYR VALLEHERMOSO, S.A. 4,75 2030-02-28",
+          "instrumento": "Bonos SACYR VALLEHERMOSO, S.A. 4,75 2030-02-28",
+          "isin": "XS3071337847",
+          "divisa": "EUR",
+          "valor_mercado_eur": 516583.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 3.0747
+        },
+        {
+          "nombre": "Bonos BANCA MARCH SA 3,37 2028-11-28",
+          "instrumento": "Bonos BANCA MARCH SA 3,37 2028-11-28",
+          "isin": "ES0313040083",
+          "divisa": "EUR",
+          "valor_mercado_eur": 496700.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 2.9564
+        },
+        {
+          "nombre": "Bonos ING GROEP NV VAR 2030-09-03",
+          "instrumento": "Bonos ING GROEP NV VAR 2030-09-03",
+          "isin": "XS2891742731",
+          "divisa": "EUR",
+          "valor_mercado_eur": 412045.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.4525
+        },
+        {
+          "nombre": "Bonos UNICREDIT SPA VAR 2027-06-11",
+          "instrumento": "Bonos UNICREDIT SPA VAR 2027-06-11",
+          "isin": "IT0005598971",
+          "divisa": "EUR",
+          "valor_mercado_eur": 409578.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.4378
+        },
+        {
+          "nombre": "Bonos SOCIETE GENERALE, SUCURSAL E 0,50 2029-06-12",
+          "instrumento": "Bonos SOCIETE GENERALE, SUCURSAL E 0,50 2029-06-12",
+          "isin": "FR0014001GA9",
+          "divisa": "EUR",
+          "valor_mercado_eur": 373237.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 2.2215
+        },
+        {
+          "nombre": "Bonos BP PLC VAR 2099-06-17",
+          "instrumento": "Bonos BP PLC VAR 2099-06-17",
+          "isin": "XS2193661324",
+          "divisa": "EUR",
+          "valor_mercado_eur": 303303.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.8053
+        },
+        {
+          "nombre": "Bonos HSBC Holdings PLC ADR VAR 2030-05-13",
+          "instrumento": "Bonos HSBC Holdings PLC ADR VAR 2030-05-13",
+          "isin": "XS3069291196",
+          "divisa": "EUR",
+          "valor_mercado_eur": 302141.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.7984
+        },
+        {
+          "nombre": "Bonos British American Tobacco PLC 3,13 2028-12-06",
+          "instrumento": "Bonos British American Tobacco PLC 3,13 2028-12-06",
+          "isin": "XS1043097630",
+          "divisa": "EUR",
+          "valor_mercado_eur": 301561.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.7949
+        },
+        {
+          "nombre": "Bonos Deutsche Lufthansa AG 2,88 2027-05-16",
+          "instrumento": "Bonos Deutsche Lufthansa AG 2,88 2027-05-16",
+          "isin": "XS2408458730",
+          "divisa": "EUR",
+          "valor_mercado_eur": 300232.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.787
+        },
+        {
+          "nombre": "Bonos BARCLAYS BANK S.A. VAR 2029-08-09",
+          "instrumento": "Bonos BARCLAYS BANK S.A. VAR 2029-08-09",
+          "isin": "XS2373642102",
+          "divisa": "EUR",
+          "valor_mercado_eur": 281389.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.6748
+        },
+        {
+          "nombre": "Bonos ABANCA CORPORACION BANCARIA S VAR 2028-07-14",
+          "instrumento": "Bonos ABANCA CORPORACION BANCARIA S VAR 2028-07-14",
+          "isin": "ES0865936027",
+          "divisa": "EUR",
+          "valor_mercado_eur": 231162.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.3759
+        },
+        {
+          "nombre": "Bonos UBS ESPAÑA S.A. VAR 2029-03-01",
+          "instrumento": "Bonos UBS ESPAÑA S.A. VAR 2029-03-01",
+          "isin": "CH1214797172",
+          "divisa": "EUR",
+          "valor_mercado_eur": 221864.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.3205
+        },
+        {
+          "nombre": "Bonos Ibercaja Alpha - A VAR 2028-01-25",
+          "instrumento": "Bonos Ibercaja Alpha - A VAR 2028-01-25",
+          "isin": "ES0844251019",
+          "divisa": "EUR",
+          "valor_mercado_eur": 220529.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.3126
+        },
+        {
+          "nombre": "Bonos Bawag Group AG VAR 2034-02-24",
+          "instrumento": "Bonos Bawag Group AG VAR 2034-02-24",
+          "isin": "XS2707629056",
+          "divisa": "EUR",
+          "valor_mercado_eur": 217185.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2927
+        },
+        {
+          "nombre": "Bonos La Banque Postale VAR 2034-03-05",
+          "instrumento": "Bonos La Banque Postale VAR 2034-03-05",
+          "isin": "FR001400DLD4",
+          "divisa": "EUR",
+          "valor_mercado_eur": 211613.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2595
+        },
+        {
+          "nombre": "Bonos Bank of Ireland Group VAR 2027-07-16",
+          "instrumento": "Bonos Bank of Ireland Group VAR 2027-07-16",
+          "isin": "XS2576362839",
+          "divisa": "EUR",
+          "valor_mercado_eur": 209231.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2454
+        },
+        {
+          "nombre": "Bonos Neinor Homes, S.L.U. 5,88 2026-11-15",
+          "instrumento": "Bonos Neinor Homes, S.L.U. 5,88 2026-11-15",
+          "isin": "XS2933536034",
+          "divisa": "EUR",
+          "valor_mercado_eur": 208699.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.2422
+        },
+        {
+          "nombre": "Bonos INTESA SANPAOLO VAR 2090-01-04",
+          "instrumento": "Bonos INTESA SANPAOLO VAR 2090-01-04",
+          "isin": "XS1548475968",
+          "divisa": "EUR",
+          "valor_mercado_eur": 208269.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2396
+        },
+        {
+          "nombre": "Bonos Fiserv INC 4,50 2031-05-24",
+          "instrumento": "Bonos Fiserv INC 4,50 2031-05-24",
+          "isin": "XS2626288257",
+          "divisa": "EUR",
+          "valor_mercado_eur": 207285.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2338
+        },
+        {
+          "nombre": "Bonos British American Tobacco PLC 4,13 2032-01-12",
+          "instrumento": "Bonos British American Tobacco PLC 4,13 2032-01-12",
+          "isin": "XS2801975991",
+          "divisa": "EUR",
+          "valor_mercado_eur": 205919.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2256
+        },
+        {
+          "nombre": "Bonos Lloyds Banking Group PLC 4,38 2034-04-05",
+          "instrumento": "Bonos Lloyds Banking Group PLC 4,38 2034-04-05",
+          "isin": "XS2743047156",
+          "divisa": "EUR",
+          "valor_mercado_eur": 205816.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.225
+        },
+        {
+          "nombre": "Bonos CRITERIA CAIXACORP SA 3,50 2029-07-02",
+          "instrumento": "Bonos CRITERIA CAIXACORP SA 3,50 2029-07-02",
+          "isin": "XS2909825379",
+          "divisa": "EUR",
+          "valor_mercado_eur": 203943.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.2139
+        },
+        {
+          "nombre": "Bonos BBVA S.A. VAR 2026-01-15",
+          "instrumento": "Bonos BBVA S.A. VAR 2026-01-15",
+          "isin": "ES0813211028",
+          "divisa": "EUR",
+          "valor_mercado_eur": 202969.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.2081
+        },
+        {
+          "nombre": "Bonos CITIGROUP INC VAR 2028-04-29",
+          "instrumento": "Bonos CITIGROUP INC VAR 2028-04-29",
+          "isin": "XS3058827802",
+          "divisa": "EUR",
+          "valor_mercado_eur": 202405.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2047
+        },
+        {
+          "nombre": "Bonos VOLKSWAGEN AG 3,88 2026-03-29",
+          "instrumento": "Bonos VOLKSWAGEN AG 3,88 2026-03-29",
+          "isin": "XS2604697891",
+          "divisa": "EUR",
+          "valor_mercado_eur": 202347.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.2044
+        },
+        {
+          "nombre": "Bonos MCDONALDS 3,50 2032-05-21",
+          "instrumento": "Bonos MCDONALDS 3,50 2032-05-21",
+          "isin": "XS3072348405",
+          "divisa": "EUR",
+          "valor_mercado_eur": 201407.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1988
+        },
+        {
+          "nombre": "Bonos BARCLAYS BANK S.A. VAR 2027-05-08",
+          "instrumento": "Bonos BARCLAYS BANK S.A. VAR 2027-05-08",
+          "isin": "XS2815894071",
+          "divisa": "EUR",
+          "valor_mercado_eur": 200976.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1962
+        },
+        {
+          "nombre": "Bonos Toronto Dominion Bank VAR 2028-07-28",
+          "instrumento": "Bonos Toronto Dominion Bank VAR 2028-07-28",
+          "isin": "XS3135097023",
+          "divisa": "EUR",
+          "valor_mercado_eur": 200851.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1955
+        },
+        {
+          "nombre": "Bonos Nationwide Building VAR 2028-01-27",
+          "instrumento": "Bonos Nationwide Building VAR 2028-01-27",
+          "isin": "XS2986730708",
+          "divisa": "EUR",
+          "valor_mercado_eur": 200841.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1954
+        },
+        {
+          "nombre": "Bonos Royal Bank of Canada VAR 2029-06-13",
+          "instrumento": "Bonos Royal Bank of Canada VAR 2029-06-13",
+          "isin": "XS3094269241",
+          "divisa": "EUR",
+          "valor_mercado_eur": 200728.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1947
+        },
+        {
+          "nombre": "Bonos Kering 3,13 2029-11-27",
+          "instrumento": "Bonos Kering 3,13 2029-11-27",
+          "isin": "FR001400ZZC9",
+          "divisa": "EUR",
+          "valor_mercado_eur": 200627.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1941
+        },
+        {
+          "nombre": "Bonos BANKINTER S.A. VAR 2099-12-31",
+          "instrumento": "Bonos BANKINTER S.A. VAR 2099-12-31",
+          "isin": "XS2199369070",
+          "divisa": "EUR",
+          "valor_mercado_eur": 199970.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.1902
+        },
+        {
+          "nombre": "Bonos La Banque Postale VAR 2099-12-31",
+          "instrumento": "Bonos La Banque Postale VAR 2099-12-31",
+          "isin": "FR0013461795",
+          "divisa": "EUR",
+          "valor_mercado_eur": 199527.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1876
+        },
+        {
+          "nombre": "Bonos Cellnex 2,25 2026-04-12",
+          "instrumento": "Bonos Cellnex 2,25 2026-04-12",
+          "isin": "XS2465792294",
+          "divisa": "EUR",
+          "valor_mercado_eur": 198924.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.184
+        },
+        {
+          "nombre": "Pagarés Euskatel SA 0,00 2026-03-25",
+          "instrumento": "Pagarés Euskatel SA 0,00 2026-03-25",
+          "isin": "ES0505075590",
+          "divisa": "EUR",
+          "valor_mercado_eur": 198512.0,
+          "tipo_cnmv": "Renta Fija No Cotizada",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.1816
+        },
+        {
+          "nombre": "Bonos PHILIP MORRIS INTERNATIONAL 3,25 2032-03-06",
+          "instrumento": "Bonos PHILIP MORRIS INTERNATIONAL 3,25 2032-03-06",
+          "isin": "XS3087812833",
+          "divisa": "EUR",
+          "valor_mercado_eur": 197652.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1764
+        },
+        {
+          "nombre": "Bonos Electricite de France SA VAR 2099-12-31",
+          "instrumento": "Bonos Electricite de France SA VAR 2099-12-31",
+          "isin": "FR0013464922",
+          "divisa": "EUR",
+          "valor_mercado_eur": 196726.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1709
+        },
+        {
+          "nombre": "Bonos NGG Finance PLC VAR 2082-09-05",
+          "instrumento": "Bonos NGG Finance PLC VAR 2082-09-05",
+          "isin": "XS2010045511",
+          "divisa": "EUR",
+          "valor_mercado_eur": 196593.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1701
+        },
+        {
+          "nombre": "Bonos Naspers Ltd 1,21 2026-01-19",
+          "instrumento": "Bonos Naspers Ltd 1,21 2026-01-19",
+          "isin": "XS2430287529",
+          "divisa": "EUR",
+          "valor_mercado_eur": 196474.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1694
+        },
+        {
+          "nombre": "Bonos Philip Morris 0,13 2026-08-03",
+          "instrumento": "Bonos Philip Morris 0,13 2026-08-03",
+          "isin": "XS2035473748",
+          "divisa": "EUR",
+          "valor_mercado_eur": 196230.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.168
+        },
+        {
+          "nombre": "Pagarés MASMOVIL IBERCOM 3,57 2026-01-15",
+          "instrumento": "Pagarés MASMOVIL IBERCOM 3,57 2026-01-15",
+          "isin": "ES05846960X5",
+          "divisa": "EUR",
+          "valor_mercado_eur": 194731.0,
+          "tipo_cnmv": "Renta Fija No Cotizada",
+          "ambito": "INTERIOR",
+          "peso_pct": 1.1591
+        },
+        {
+          "nombre": "Bonos Altria Group Inc 2,20 2027-04-15",
+          "instrumento": "Bonos Altria Group Inc 2,20 2027-04-15",
+          "isin": "XS1843443190",
+          "divisa": "EUR",
+          "valor_mercado_eur": 192372.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.145
+        },
+        {
+          "nombre": "Bonos Haleon NL Capital BV 1,25 2026-03-29",
+          "instrumento": "Bonos Haleon NL Capital BV 1,25 2026-03-29",
+          "isin": "XS2462324745",
+          "divisa": "EUR",
+          "valor_mercado_eur": 192208.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.144
+        },
+        {
+          "nombre": "Bonos Zegona Finance PLC 6,75 2026-07-15",
+          "instrumento": "Bonos Zegona Finance PLC 6,75 2026-07-15",
+          "isin": "XS2859406139",
+          "divisa": "EUR",
+          "valor_mercado_eur": 191330.0,
+          "tipo_cnmv": "Renta Fija Cotizada Menos 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1388
+        },
+        {
+          "nombre": "Bonos UBS AG VAR 2027-11-05",
+          "instrumento": "Bonos UBS AG VAR 2027-11-05",
+          "isin": "CH0576402181",
+          "divisa": "EUR",
+          "valor_mercado_eur": 187356.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1152
+        },
+        {
+          "nombre": "Bonos Prosus NV 1,29 2029-07-13",
+          "instrumento": "Bonos Prosus NV 1,29 2029-07-13",
+          "isin": "XS2360853332",
+          "divisa": "EUR",
+          "valor_mercado_eur": 185030.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 1.1013
+        },
+        {
+          "nombre": "Bonos Porsche Automobil Holding SE 3,75 2029-08-27",
+          "instrumento": "Bonos Porsche Automobil Holding SE 3,75 2029-08-27",
+          "isin": "XS2802891833",
+          "divisa": "EUR",
+          "valor_mercado_eur": 141858.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.8443
+        },
+        {
+          "nombre": "Bonos ABANCA CORPORACION BANCARIA S VAR 2029-04-02",
+          "instrumento": "Bonos ABANCA CORPORACION BANCARIA S VAR 2029-04-02",
+          "isin": "ES0265936056",
+          "divisa": "EUR",
+          "valor_mercado_eur": 110144.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 0.6556
+        },
+        {
+          "nombre": "Bonos FORD MOTOR CREDIT CO LLC 4,87 2027-08-03",
+          "instrumento": "Bonos FORD MOTOR CREDIT CO LLC 4,87 2027-08-03",
+          "isin": "XS2586123965",
+          "divisa": "EUR",
+          "valor_mercado_eur": 104226.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.6204
+        },
+        {
+          "nombre": "Bonos Ferrari NV 3,63 2030-05-21",
+          "instrumento": "Bonos Ferrari NV 3,63 2030-05-21",
+          "isin": "XS2824763044",
+          "divisa": "EUR",
+          "valor_mercado_eur": 102214.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.6084
+        },
+        {
+          "nombre": "Bonos GESTAMP AUTOMOCION SA 4,38 2030-10-15",
+          "instrumento": "Bonos GESTAMP AUTOMOCION SA 4,38 2030-10-15",
+          "isin": "XS3193932699",
+          "divisa": "EUR",
+          "valor_mercado_eur": 100747.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 0.5997
+        },
+        {
+          "nombre": "Bonos TELEFONICA ,S.A. 2,88 2049-11-24",
+          "instrumento": "Bonos TELEFONICA ,S.A. 2,88 2049-11-24",
+          "isin": "XS2410367747",
+          "divisa": "EUR",
+          "valor_mercado_eur": 97662.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.5813
+        },
+        {
+          "nombre": "Bonos ACCIONA SA 1,86 2028-02-15",
+          "instrumento": "Bonos ACCIONA SA 1,86 2028-02-15",
+          "isin": "XS2300169419",
+          "divisa": "EUR",
+          "valor_mercado_eur": 96642.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "INTERIOR",
+          "peso_pct": 0.5752
+        },
+        {
+          "nombre": "Bonos Chubb Ina Holdings LLC 0,88 2029-12-15",
+          "instrumento": "Bonos Chubb Ina Holdings LLC 0,88 2029-12-15",
+          "isin": "XS2091606330",
+          "divisa": "EUR",
+          "valor_mercado_eur": 91796.0,
+          "tipo_cnmv": "Renta Fija Cotizada Mas 1 Anio",
+          "ambito": "EXTERIOR",
+          "peso_pct": 0.5464
+        }
+      ]
+    },
+    "rotacion_pct": 0.81
+  },
+  "calidad": {
+    "score": 30,
+    "bucket": "BLOQUEADO",
+    "esenciales": "3/10",
+    "flags": []
+  }
+}

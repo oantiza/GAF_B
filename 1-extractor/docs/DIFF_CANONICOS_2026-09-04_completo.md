@@ -1,0 +1,276 @@
+# Diff campo a campo de canónicos
+
+Antes: `reports/baseline/export_bdb_20260903` (763 canónicos) · Después: `export_bdb` (763 canónicos) · comunes: 763
+
+| Categoría | Hojas | % |
+|---|---:|---:|
+| identico | 125309 | 58.58 % |
+| cambia | 3092 | 1.45 % |
+| aparece | 85492 | 39.97 % |
+| desaparece | 2 | 0.00 % |
+
+## Campos que desaparecen (regresión salvo justificación): 2 hojas en 1 rutas
+
+| Ruta | Hojas | ISINs | Ejemplo (antes → después) |
+|---|---:|---|---|
+| `classification_v2.sources_used[]` | 2 | IE00B4M6YD48, IE00BDFD9C92 | IE00B4M6YD48: "fondosdb:morningstar_lt" → null |
+
+## Campos que cambian de valor: 3092 hojas en 16 rutas
+
+| Ruta | Hojas | ISINs | Ejemplo (antes → después) |
+|---|---:|---|---|
+| `classification_v2.sources_used[]` | 1306 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+679) | BE0943877671: "fondosdb:eodhd" → "fondosdb:config_csv" |
+| `derived.ruleset_version` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: "fondosdb_adapter_1.0" → "fondosdb_adapter_1.1" |
+| `quality.parser_version` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: "fondosdb_adapter_1.0" → "fondosdb_adapter_1.1" |
+| `ms.holdings_top10[].weight` | 90 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+3) | IE0002PG6CA6: 8.37 → 8.17 |
+| `ms.holdings_top10[].name` | 63 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+3) | IE0002PG6CA6: "PLS Group" → "Albemarle" |
+| `validation.warnings[]` | 38 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: "credit_missing" → "mifid_ongoing_from_kid" |
+| `classification_v2.warnings[]` | 23 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: "credit_missing" → "mifid_ongoing_from_kid" |
+| `quality.warnings[]` | 23 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: "credit_missing" → "mifid_ongoing_from_kid" |
+| `ms.holdings_stats.top10_weight` | 9 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+3) | IE0002PG6CA6: 61.58 → 60.85 |
+| `ms.report_date` | 3 | ES0127097030, LU0704154706, LU0835722488 | ES0127097030: "2026-07-18" → "2026-09-04" |
+| `report_date` | 3 | ES0127097030, LU0704154706, LU0835722488 | ES0127097030: "2026-07-18" → "2026-09-04" |
+| `quality.ok` | 2 | ES0105394003, ES0127097030 | ES0105394003: true → false |
+| `routing.status` | 2 | ES0105394003, ES0127097030 | ES0105394003: "ok" → "blocked" |
+| `validation.ok` | 2 | ES0105394003, ES0127097030 | ES0105394003: true → false |
+| `ms.costs.ter` | 1 | LU0835722488 | LU0835722488: 2.38 → 2.49 |
+| `ms.fixed_income.avg_credit_quality` | 1 | LU1697018064 | LU1697018064: "BB" → "BBB" |
+
+## Campos que aparecen (mejora a justificar): 85492 hojas en 214 rutas
+
+| Ruta | Hojas | ISINs | Ejemplo (antes → después) |
+|---|---:|---|---|
+| `regulatory.registers.esma.host_countries[]` | 6698 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "AT" |
+| `provenance.plan[]` | 2204 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+681) | BE0943877671: null → "morningstar_lt" |
+| `classification_v2.sources_used[]` | 1242 | BE0943877671, DE000A0X7541, ES0110407006, ES0111166031, ES0112231016, ES0112602000 (+634) | BE0943877671: null → "fondosdb:morningstar_lt" |
+| `regulatory.periodic_report.top10[].currency` | 776 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → "EUR" |
+| `regulatory.periodic_report.top10[].name` | 776 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → "BANCO INVERSIS, S.A." |
+| `regulatory.periodic_report.top10[].type` | 776 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → "Adquisicion Temporal Activos" |
+| `regulatory.periodic_report.top10[].weight` | 776 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → 13.4207 |
+| `regulatory.periodic_report.top10[].isin` | 774 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → "ES0L02601166" |
+| `provenance.acquired_at` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → "2026-09-04T22:01:17+00:00" |
+| `provenance.dependency.canonical_fields_mapped` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 33 |
+| `provenance.dependency.from_morningstar_only` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 24 |
+| `provenance.dependency.regulatory_fields` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 11 |
+| `provenance.dependency.regulatory_from_official_sources` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 5 |
+| `provenance.version` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 1 |
+| `validation.diagnostics.calidad_alertas` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 3 |
+| `validation.diagnostics.calidad_esenciales` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → "10/10" |
+| `validation.diagnostics.calidad_score` | 763 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005140008, DE0005190003 (+757) | BE0943877671: null → 84 |
+| `regulatory.version` | 689 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+683) | BE0943877671: null → 1 |
+| `regulatory.domicile` | 688 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+682) | BE0943877671: null → "BEL" |
+| `regulatory.launch_date_class` | 688 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+682) | BE0943877671: null → "1996-10-04" |
+| `regulatory.launch_date_fund` | 688 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+682) | BE0943877671: null → "1996-10-04" |
+| `regulatory.sri` | 688 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+682) | BE0943877671: null → 3 |
+| `regulatory.ucits` | 688 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+682) | BE0943877671: null → true |
+| `provenance.fields.name` | 687 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+681) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `regulatory.management_company` | 687 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+681) | BE0943877671: null → "Degroof Petercam" |
+| `provenance.endpoints.morningstar_lt:ETFsnapshot.fetched_at` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "2026-07-11T02:16:53+00:00" |
+| `provenance.endpoints.morningstar_lt:MFsnapshot.fetched_at` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "2026-07-11T02:16:52+00:00" |
+| `provenance.endpoints.morningstar_lt:Mifid.fetched_at` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "2026-07-11T02:16:54+00:00" |
+| `provenance.endpoints.morningstar_lt:screener.fetched_at` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "2026-07-11T02:16:52+00:00" |
+| `provenance.endpoints.morningstar_lt:sustainability.fetched_at` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "2026-07-11T02:16:56+00:00" |
+| `provenance.fields.classification_v2.commercial_type` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:sal_quote" |
+| `provenance.fields.currency` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:sal_quote" |
+| `provenance.fields.derived.asset_class` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:ETFsnapshot+morningstar_lt:sal_quote" |
+| `provenance.fields.ms.category_morningstar` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:sal_quote" |
+| `provenance.fields.regulatory.domicile` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "esma:cbdif" |
+| `provenance.fields.regulatory.launch_date_class` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:screener" |
+| `provenance.fields.regulatory.launch_date_fund` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.regulatory.sri` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:Mifid" |
+| `provenance.fields.regulatory.ucits` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "esma:cbdif" |
+| `provenance.fields.report_date` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.sources.morningstar_lt.canonical_fields` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → 29 |
+| `provenance.sources.morningstar_lt.v2_fields` | 686 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+680) | BE0943877671: null → 215 |
+| `provenance.fields.ms.costs.management_fee` | 685 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+679) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.regulatory.management_company` | 685 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+679) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.holdings_top10` | 684 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+678) | BE0943877671: null → "morningstar_lt:sal_position" |
+| `provenance.fields.ms.portfolio.as_of` | 684 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+678) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.portfolio.asset_allocation` | 684 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+678) | BE0943877671: null → "morningstar_lt:ETFsnapshot+morningstar_lt:sal_allocation... |
+| `provenance.fields.ms.costs.ter` | 683 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+677) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.fixed_income` | 681 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+675) | BE0943877671: null → "morningstar_lt:ETFsnapshot+morningstar_lt:sal_fixedIncom... |
+| `regulatory.mifid_ex_ante_costs.as_of` | 676 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+670) | BE0943877671: null → "2026-03-31" |
+| `regulatory.mifid_ex_ante_costs.ongoing_pct` | 676 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+670) | BE0943877671: null → 0.65734 |
+| `regulatory.mifid_ex_ante_costs.transaction_pct` | 676 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+670) | BE0943877671: null → 0.02017 |
+| `provenance.fields.regulatory.mifid_ex_ante_costs` | 675 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+669) | BE0943877671: null → "morningstar_lt:Mifid" |
+| `provenance.endpoints.morningstar_lt:sal_allocationMap.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:06+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_creditQuality.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:16+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_distribution.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:26+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_equityStyle.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:12+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_esgData.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:22+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_feeLevel.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:16:59+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_fixedIncomeStyle.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:14+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_investmentFee.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:16:57+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_investmentStrategy.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:27+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_marketCap.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:11+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_maturitySchedule.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:17+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_maxDrawDown.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:04+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_multiLevelFixedIncome.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:19+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_parentSummary.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:25+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_people.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:23+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_position.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:20+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_quote.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:16:56+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_regional.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:09+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_riskVolatility.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:03+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_salesFees.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:00+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_sector.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:08+00:00" |
+| `provenance.endpoints.morningstar_lt:sal_trailingReturn.fetched_at` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "2026-07-11T02:17:02+00:00" |
+| `provenance.fields.ms.costs.mifid_ongoing` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "morningstar_lt:Mifid" |
+| `provenance.fields.ms.objective` | 674 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+668) | BE0943877671: null → "morningstar_lt:sal_investmentStrategy" |
+| `regulatory.srri` | 652 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+646) | BE0943877671: null → 4 |
+| `provenance.fields.regulatory.srri` | 650 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+644) | BE0943877671: null → "morningstar_lt:Mifid" |
+| `regulatory.mifid_ex_ante_costs.incidental_pct` | 650 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, ES0110407006 (+644) | BE0943877671: null → 0.0 |
+| `provenance.fields.ms.rating_stars` | 636 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+630) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.sustainability_rating` | 636 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+630) | BE0943877671: null → "morningstar_lt:sustainability" |
+| `provenance.fields.ms.medalist_rating` | 624 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962 (+618) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.regulatory.management_company_legal` | 607 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, ES0110407006 (+601) | BE0943877671: null → "esma:cbdif" |
+| `regulatory.management_company_legal` | 607 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, ES0110407006 (+601) | BE0943877671: null → "CA Indosuez Fund Solutions, en abrégé CAI FS" |
+| `provenance.fields.regulatory.legal_framework` | 526 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+520) | BE0943877671: null → "esma:cbdif" |
+| `regulatory.legal_framework` | 526 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+520) | BE0943877671: null → "UCITS" |
+| `provenance.fields.ms.regions` | 526 | BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962, DE000A0X7541 (+520) | BE0946564383: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.endpoints.esma:cbdif.fetched_at` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "2026-09-04T22:01:17+00:00" |
+| `provenance.endpoints.esma:cbdif.modo` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "tokens" |
+| `provenance.fields.regulatory.registers.esma` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "esma:cbdif" |
+| `provenance.sources.esma.canonical_fields` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → 5 |
+| `provenance.sources.esma.v2_fields` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → 8 |
+| `regulatory.registers.esma.legal_name` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "DPAM B-Bonds Eur Government" |
+| `regulatory.registers.esma.marketed_in_spain` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → true |
+| `regulatory.registers.esma.status` | 518 | BE0943877671, BE0946564383, BE0947853660, BE6213829094, DE000A0X7541, FI0008801097 (+512) | BE0943877671: null → "Active" |
+| `provenance.fields.ms.equity_style.market_cap` | 508 | BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962, DE000A0X7541 (+502) | BE0946564383: null → "morningstar_lt:ETFsnapshot+morningstar_lt:sal_marketCap" |
+| `provenance.fields.ms.sectors` | 508 | BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962, DE000A0X7541 (+502) | BE0946564383: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.equity_style.style` | 506 | BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962, DE000A0X7541 (+500) | BE0946564383: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.ms.holdings_stats.holdings_count_equity` | 492 | BE0946564383, BE0947853660, BE6213829094, DE0005318406, DE0008490962, DE000A0X7541 (+486) | BE0946564383: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.endpoints.cssf:identificadores.fichero` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "2026-09" |
+| `provenance.fields.regulatory.registers.cssf` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "cssf:identificadores" |
+| `provenance.sources.cssf.canonical_fields` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → 3 |
+| `provenance.sources.cssf.v2_fields` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → 8 |
+| `regulatory.registers.cssf.authorisation_date` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "1980-01-01" |
+| `regulatory.registers.cssf.compartment_currency` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "EUR" |
+| `regulatory.registers.cssf.share_class` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "A2" |
+| `regulatory.registers.cssf.umbrella` | 481 | LU0011889846, LU0028119013, LU0034353002, LU0048293368, LU0072462186, LU0073229253 (+475) | LU0011889846: null → "JANUS HENDERSON HORIZON FUND" |
+| `regulatory.registers.cssf.compartment` | 478 | LU0011889846, LU0028119013, LU0048293368, LU0072462186, LU0073229253, LU0073235904 (+472) | LU0011889846: null → "EUROLAND FUND" |
+| `provenance.fields.ms.holdings_stats.holdings_count_bond` | 310 | BE0943877671, DE0005318406, DE000A0X7541, DE000DWS17J0, ES0111166031, ES0112231016 (+304) | BE0943877671: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.sources.derivado.canonical_fields` | 236 | DE000A0X7541, ES0127795005, ES0142046038, ES0148181003, ES0160873008, ES0161032034 (+230) | DE000A0X7541: null → 1 |
+| `provenance.sources.derivado.v2_fields` | 236 | DE000A0X7541, ES0127795005, ES0142046038, ES0148181003, ES0160873008, ES0161032034 (+230) | DE000A0X7541: null → 15 |
+| `provenance.fields.regulatory.lei` | 119 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+113) | ES0110407006: null → "gleif:lei-record" |
+| `regulatory.lei` | 119 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+113) | ES0110407006: null → "9598007XUXXRHS6MQ130" |
+| `provenance.endpoints.gleif:lei-record.fetched_at` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → "2026-09-04T21:15:44+00:00" |
+| `provenance.fields.regulatory.registers.gleif` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → "gleif:lei-record" |
+| `provenance.sources.gleif.canonical_fields` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → 2 |
+| `provenance.sources.gleif.v2_fields` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → 4 |
+| `regulatory.registers.gleif.creation_date` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → "2017-08-01" |
+| `regulatory.registers.gleif.legal_name` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → "GESTION BOUTIQUE VI / ARGOS" |
+| `regulatory.registers.gleif.status` | 118 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+112) | ES0110407006: null → "ISSUED" |
+| `provenance.fields.regulatory.depositary` | 104 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+98) | ES0110407006: null → "cnmv:zip_mensual" |
+| `regulatory.depositary` | 104 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+98) | ES0110407006: null → "BANCO INVERSIS, S.A." |
+| `provenance.fields.regulatory.kid` | 97 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+91) | ES0110407006: null → "cnmv_ficha:ficha+cnmv_ficha:kid" |
+| `regulatory.kid.costs.entry_pct` | 97 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+91) | ES0110407006: null → 0.0 |
+| `regulatory.kid.language` | 97 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+91) | ES0110407006: null → "es" |
+| `regulatory.kid.sha256` | 97 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+91) | ES0110407006: null → "b5a317d1124eb57177f8e894ed22832b1c5b3810945d7f2cd43996d2... |
+| `regulatory.kid.url` | 97 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+91) | ES0110407006: null → "https://www.cnmv.es/webservices/verdocumento/ver?e=JhVUo... |
+| `regulatory.kid.costs.exit_pct` | 92 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+86) | ES0110407006: null → 0.0 |
+| `regulatory.kid.date` | 90 | ES0110407006, ES0111166031, ES0112231016, ES0114633003, ES0114673033, ES0114904008 (+84) | ES0110407006: null → "2026-01-01" |
+| `regulatory.kid.costs.performance_fee_pct` | 89 | ES0110407006, ES0112231016, ES0112602000, ES0114633003, ES0114673033, ES0114904008 (+83) | ES0110407006: null → 0.0 |
+| `regulatory.kid.costs.transaction_pct` | 88 | ES0110407006, ES0112231016, ES0112602000, ES0114633003, ES0114673033, ES0114904008 (+82) | ES0110407006: null → 0.01 |
+| `regulatory.kid.costs.management_and_other_pct` | 86 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+80) | ES0110407006: null → 1.47 |
+| `regulatory.kid.recommended_holding_years` | 85 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+79) | ES0110407006: null → 5 |
+| `provenance.endpoints.cnmv:zip_mensual.periodo` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "2026-05" |
+| `provenance.endpoints.cnmv:zip_trimestral.periodo` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "2025-12" |
+| `provenance.fields.regulatory.periodic_report` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "cnmv:zip_trimestral" |
+| `provenance.fields.regulatory.registers.cnmv` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "cnmv:zip_mensual+cnmv:zip_trimestral+cnmv_ficha:ficha" |
+| `provenance.sources.cnmv.canonical_fields` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 6 |
+| `provenance.sources.cnmv.v2_fields` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 52 |
+| `regulatory.kid.manufacturer` | 83 | ES0110407006, ES0112231016, ES0114904008, ES0116419005, ES0116567035, ES0116848005 (+77) | ES0110407006: null → "ANDBANK WEALTH MANAGEMENT, SGIIC, S. A. U." |
+| `regulatory.periodic_report.depositary_fee_period_pct` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 0.04 |
+| `regulatory.periodic_report.management_fee_period_pct` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 0.68 |
+| `regulatory.periodic_report.period` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "2025-12" |
+| `regulatory.periodic_report.period_months` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 6 |
+| `regulatory.periodic_report.ter_12m_pct` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 1.47 |
+| `regulatory.periodic_report.ter_quarter_pct` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → 0.37 |
+| `regulatory.registers.cnmv.compartment` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "GESTION BOUTIQUE VI / ARGOS" |
+| `regulatory.registers.cnmv.fund_class` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "Fondo que invierte más del 10% en otros fondos y/o socie... |
+| `regulatory.registers.cnmv.number` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "5206" |
+| `regulatory.registers.cnmv.share_class` | 83 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+77) | ES0110407006: null → "CLASE 0" |
+| `provenance.endpoints.cnmv_ficha:ancv.fetched_at` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2026-09-04T21:15:43+00:00" |
+| `provenance.endpoints.cnmv_ficha:ancv.url` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "https://www.cnmv.es/portal/ancv/isin.aspx?isin=ES0110407... |
+| `provenance.endpoints.cnmv_ficha:ficha.fetched_at` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2026-09-04T21:15:42+00:00" |
+| `provenance.endpoints.cnmv_ficha:ficha.url` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "https://www.cnmv.es/portal/consultas/iic/fondo.aspx?isin... |
+| `provenance.endpoints.cnmv_ficha:kid.fetched_at` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2026-09-04T21:30:16+00:00" |
+| `provenance.endpoints.cnmv_ficha:kid.url` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "https://www.cnmv.es/webservices/verdocumento/ver?e=JhVUo... |
+| `provenance.fields.regulatory.isin_issue_date` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "cnmv_ficha:ancv" |
+| `provenance.sources.cnmv_ficha.canonical_fields` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → 7 |
+| `provenance.sources.cnmv_ficha.v2_fields` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → 22 |
+| `regulatory.isin_issue_date` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2017-10-16" |
+| `regulatory.registers.cnmv.date` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2017-10-16" |
+| `regulatory.registers.cnmv.last_prospectus_date` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "2026-06-08" |
+| `regulatory.registers.cnmv.management_company_number` | 82 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+76) | ES0110407006: null → "237" |
+| `regulatory.periodic_report.as_of` | 79 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → "2025-12-31" |
+| `regulatory.periodic_report.holdings_count` | 79 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → 24 |
+| `regulatory.periodic_report.top10_weight` | 79 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → 65.52 |
+| `regulatory.periodic_report.total_net_assets_eur` | 79 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → 9090407.0 |
+| `regulatory.periodic_report.turnover_pct` | 79 | ES0110407006, ES0111166031, ES0112231016, ES0112602000, ES0114633003, ES0114673033 (+73) | ES0110407006: null → 0.1 |
+| `provenance.endpoints.cnmv_ficha:kid.documento` | 75 | ES0110407006, ES0111166031, ES0112231016, ES0114633003, ES0114673033, ES0114904008 (+69) | ES0110407006: null → "2026-01-01" |
+| `regulatory.registers.cnmv.vocation` | 72 | ES0110407006, ES0112231016, ES0112602000, ES0114633003, ES0114673033, ES0114904008 (+66) | ES0110407006: null → "Renta Variable Mixta Internacional" |
+| `provenance.fields.regulatory.sfdr_article` | 30 | ES0116848005, ES0159201013, ES0159259011, ES0160873008, ES0162946034, ES0165142003 (+24) | ES0116848005: null → "cnmv_ficha:kid" |
+| `regulatory.sfdr_article` | 30 | ES0116848005, ES0159201013, ES0159259011, ES0160873008, ES0162946034, ES0165142003 (+24) | ES0116848005: null → "8" |
+| `provenance.endpoints.amf_geco:clase.fetched_at` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "2026-09-04T21:49:07+00:00" |
+| `provenance.endpoints.amf_geco:compartimento.fetched_at` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "2026-09-04T21:49:06+00:00" |
+| `provenance.fields.regulatory.management_company_lei` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "amf_geco:compartimento" |
+| `provenance.fields.regulatory.registers.amf` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "amf_geco:compartimento" |
+| `provenance.sources.amf_geco.canonical_fields` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → 6 |
+| `provenance.sources.amf_geco.v2_fields` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → 12 |
+| `regulatory.management_company_lei` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "969500X727PNIAL33P77" |
+| `regulatory.registers.amf.authorisation_date` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "2003-06-24" |
+| `regulatory.registers.amf.authorisation_number` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "SCV20030007" |
+| `regulatory.registers.amf.classification` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "Actions de pays de la zone euro" |
+| `regulatory.registers.amf.compartment_creation_date` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "2003-06-24" |
+| `regulatory.registers.amf.legal_form` | 21 | FR0000174310, FR0000989626, FR0000989915, FR0007008750, FR0010041822, FR0010148981 (+15) | FR0000174310: null → "SICAV - Société d'investissement à capital variable" |
+| `ms.holdings_top10[].name` | 20 | LU0251119078, LU0251131362 | LU0251119078: null → "Buy USD Sell EUR on 23/06/2026 with BBH-A Purchased" |
+| `ms.holdings_top10[].weight` | 20 | LU0251119078, LU0251131362 | LU0251119078: null → 6.75312 |
+| `provenance.endpoints.amf_geco:kid.documento` | 15 | FR0000989626, FR0007008750, FR0010041822, FR0010148981, FR0010149120, FR0010172767 (+9) | FR0000989626: null → "2026-04-16" |
+| `provenance.endpoints.amf_geco:kid.fetched_at` | 15 | FR0000989626, FR0007008750, FR0010041822, FR0010148981, FR0010149120, FR0010172767 (+9) | FR0000989626: null → "2026-09-04T21:32:19+00:00" |
+| `provenance.endpoints.amf_geco:kid.url` | 15 | FR0000989626, FR0007008750, FR0010041822, FR0010148981, FR0010149120, FR0010172767 (+9) | FR0000989626: null → "https://geco.amf-france.org/back-office/document/downloa... |
+| `provenance.fields.classification_v2.vehicle_complexity` | 13 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B03HD191, IE00B0M62Q58 (+7) | IE0002PG6CA6: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.identifiers.ticker` | 12 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94 (+6) | IE0002PG6CA6: null → "morningstar_lt:ETFsnapshot" |
+| `provenance.fields.identifiers.eodhd_code` | 11 | IE0002PG6CA6, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94, IE00B3XXRP09 (+5) | IE0002PG6CA6: null → "eodhd" |
+| `provenance.fields.identifiers.exchange` | 11 | IE0002PG6CA6, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94, IE00B3XXRP09 (+5) | IE0002PG6CA6: null → "eodhd" |
+| `provenance.fields.identifiers.source_listing_id` | 11 | IE0002PG6CA6, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94, IE00B3XXRP09 (+5) | IE0002PG6CA6: null → "eodhd" |
+| `provenance.sources.eodhd.canonical_fields` | 11 | IE0002PG6CA6, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94, IE00B3XXRP09 (+5) | IE0002PG6CA6: null → 3 |
+| `provenance.sources.eodhd.v2_fields` | 11 | IE0002PG6CA6, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3Q19T94, IE00B3XXRP09 (+5) | IE0002PG6CA6: null → 5 |
+| `validation.warnings[]` | 10 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+4) | ES0116419005: null → "rf_sin_calidad_crediticia" |
+| `provenance.fields.ms.holdings_stats.top10_weight` | 10 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+4) | IE0002PG6CA6: null → "justetf" |
+| `provenance.sources.justetf.canonical_fields` | 10 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+4) | IE0002PG6CA6: null → 2 |
+| `provenance.sources.justetf.v2_fields` | 10 | IE0002PG6CA6, IE000DR59CI3, IE000M7V94E1, IE000X59ZHE2, IE00B0M62Q58, IE00B3XXRP09 (+4) | IE0002PG6CA6: null → 5 |
+| `ms.holdings_top10[].sector` | 9 | LU0251119078, LU0251131362 | LU0251119078: null → "technology" |
+| `classification_v2.warnings[]` | 8 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: null → "region_primary_inferred_from_category" |
+| `ms.costs.mifid_ongoing` | 8 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: null → 0.62 |
+| `quality.warnings[]` | 8 | ES0116419005, ES0125240038, ES0146309002, ES0156873004, ES0162295002, ES0162296000 (+2) | ES0116419005: null → "region_primary_inferred_from_category" |
+| `routing.reason` | 2 | ES0105394003, ES0127097030 | ES0105394003: null → "calidad_bloqueada(esenciales=2/10)" |
+| `validation.errors[]` | 2 | ES0105394003, ES0127097030 | ES0105394003: null → "calidad_bloqueada(esenciales=2/10)" |
+| `derived.portfolio_exposure.equity_sectors_total.industrials` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 2.66 |
+| `derived.portfolio_exposure.equity_sectors_total.utilities` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 1.53 |
+| `ms.sectors.industrials` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 2.66 |
+| `ms.sectors.utilities` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 1.53 |
+| `portfolio_exposure_v2.sectors.industrials` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 0.0266 |
+| `portfolio_exposure_v2.sectors.utilities` | 1 | IE0002PG6CA6 | IE0002PG6CA6: null → 0.0153 |
+| `ms.holdings_stats.top10_weight` | 1 | IE00B3YCGJ38 | IE00B3YCGJ38: null → 37.2 |
+
+## ISINs con más desapariciones/cambios
+
+| ISIN | idéntico | cambia | aparece | desaparece |
+|---|---:|---:|---:|---:|
+| IE0002PG6CA6 | 128 | 26 | 112 | 0 |
+| IE000X59ZHE2 | 130 | 26 | 103 | 0 |
+| IE000M7V94E1 | 130 | 25 | 102 | 0 |
+| IE000DR59CI3 | 136 | 24 | 97 | 0 |
+| IE00B53L3W79 | 143 | 23 | 75 | 0 |
+| IE00B0M62Q58 | 171 | 20 | 93 | 0 |
+| IE00B4L5Y983 | 171 | 20 | 93 | 0 |
+| ES0116419005 | 112 | 19 | 187 | 0 |
+| ES0125240038 | 117 | 19 | 192 | 0 |
+| ES0156873004 | 118 | 19 | 190 | 0 |
+| ES0162295002 | 111 | 19 | 188 | 0 |
+| ES0162296000 | 114 | 18 | 187 | 0 |
+| IE00B3XXRP09 | 165 | 18 | 113 | 0 |
+| IE00B5BMR087 | 167 | 18 | 74 | 0 |
+| IE00B4M6YD48 | 170 | 3 | 82 | 1 |

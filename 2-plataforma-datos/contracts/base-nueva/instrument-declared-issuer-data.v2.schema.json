@@ -1,0 +1,733 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-issuer-data.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/issuer_data — v2",
+  "description": "Lo que publica de un ETF su propio emisor (iShares, Amundi, Xtrackers, Vanguard, SPDR o Invesco), tal como lo deja el bloque `emisor.*` del extractor (decision 51 de Oscar, 08-11-2026). Tambien un fondo indice de Vanguard, por el mismo adaptador.\n\nNO SUSTITUYE a nada (decision 52). El TER, la replica, el indice y el patrimonio de `declared/costs`, `declared/profile`, `declared/size` y `declared/holdings` siguen siendo los de siempre (KID, Morningstar, justETF); que el emisor mande es otra decision de Oscar. Por eso esto es un documento aparte y no un bloque dentro de cada uno de esos cinco contratos: los lectores de hoy no pueden tomar la cifra del emisor por error, y si las condiciones de uso de una web (decision 53) frenan a un emisor, se retira un solo documento por instrumento.\n\nNo cuenta en la cobertura: es un dato nuevo que solo tienen 15 instrumentos, y moverles sus 'Datos disponibles' por tenerlo no diria nada de ellos. No lleva el nombre `declared/issuer` porque `issuers/*` e `instrument_issuer` son ya el emisor de una accion por LEI.",
+  "x-collection": "instruments/{instrument_id}/declared/issuer_data",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrument_type FUND, ETF con bloque del emisor en el extractor",
+  "x-applies-when": "FONDO_O_ETF",
+  "x-counts-when": "NUNCA",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "as_of",
+    "issuer_product_id",
+    "name"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "description": "El adaptador que lo trajo, con el prefijo `issuer:`, por ejemplo `issuer:ishares`. Sale de `emisor.fuente`.",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "El dia de la descarga (`emisor.fecha_descarga`). Cada dato conserva ademas su propia fecha cuando el emisor la da: VL, patrimonio y cartera no son del mismo dia.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "issuer_product_id": {
+      "type": "string",
+      "description": "El identificador de este producto en la web del emisor (`emisor.id_emisor`): numero, ticker o el propio ISIN, segun cada emisor. No es un `issuer_id` de `issuers/*`.",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "name": {
+      "type": "string",
+      "description": "El nombre del producto tal como lo publica el emisor (`emisor.nombre`).",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "issuer_asset_class": {
+      "type": "string",
+      "description": "El literal del emisor (`emisor.clase_activo`). No se traduce a `classification.asset_class`, que es del proveedor.",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "management_style": {
+      "type": "string",
+      "description": "`emisor.estilo_gestion`, solo Invesco. Dice si el indice es el que replica o solo su comparador.",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "region": {
+      "type": "array",
+      "maxItems": 20,
+      "description": "`emisor.region`, los literales del emisor.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "x-unit": "text",
+        "x-layer": "declared",
+        "x-owner": "platform"
+      }
+    },
+    "share_class_currency": {
+      "type": "string",
+      "description": "`emisor.divisa_clase`.",
+      "pattern": "^[A-Z]{3}$",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "inception_date": {
+      "type": "string",
+      "description": "`emisor.fecha_lanzamiento`, cuando el emisor la declara. Puede ser posterior al primer punto del VL, si la serie viene de un predecesor.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "costs": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Los costes que declara el emisor.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "ongoing_charge": {
+          "type": "number",
+          "description": "El TER que publica el emisor, en fraccion (`emisor.ter_pct` / 100). NO sustituye a `declared/costs.ongoing_charge`, que manda el KID (decision 43): se ensena junto a el cuando difiere.",
+          "minimum": 0,
+          "maximum": 0.2,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "swap_fee": {
+          "type": "number",
+          "description": "La comision de swap de una replica sintetica (`emisor.comision_swap_pct` / 100), solo Invesco. NO esta en el TER y el inversor la paga igual: en el S&P 500 de Invesco es 0,0718 % frente a 0,05 % de TER, asi que comparar costes solo por el TER subestima un sintetico. Se guarda aparte y no se suma a nada. Cero es un dato: el emisor dice que no cobra.",
+          "minimum": 0,
+          "maximum": 0.1,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "distribution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "`emisor.politica.valor`. Falta si el emisor no lo declara o publica una clase mixta: entonces no se deduce.",
+          "enum": [
+            "ACCUMULATING",
+            "DISTRIBUTING"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "text": {
+          "type": "string",
+          "description": "El literal del emisor (`emisor.politica.texto`).",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "frequency": {
+          "type": "string",
+          "description": "`emisor.politica.frecuencia`, el literal.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "replication": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "`emisor.replica.tipo`.",
+          "enum": [
+            "PHYSICAL",
+            "SYNTHETIC"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "structure": {
+          "type": "string",
+          "description": "`emisor.replica.estructura`, el literal.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "method": {
+          "type": "string",
+          "description": "`emisor.replica.metodo`, el literal.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "sampling": {
+          "type": "boolean",
+          "description": "`emisor.replica.muestreo`. Ausente si el emisor no dice si muestrea (Amundi, Vanguard, Invesco): no se supone que no.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "`emisor.indice.nombre`. En un ETF activo es su comparador: leer con `management_style`.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "ticker": {
+          "type": "string",
+          "description": "`emisor.indice.ticker`, si lo publica.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "`emisor.patrimonio`, sin convertir y cada cifra con su divisa y su fecha. Clase y fondo son dos cifras distintas: tres emisores solo dan la del fondo, en Xtrackers y en Invesco en la divisa de la clase. No sustituye a `declared/size`.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "share_class": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "aum",
+            "currency",
+            "as_of"
+          ],
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED",
+          "properties": {
+            "aum": {
+              "type": "number",
+              "minimum": 0,
+              "x-unit": "currency_amount",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "minLength": 1,
+              "x-unit": "code",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "x-unit": "date",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            }
+          }
+        },
+        "fund": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "aum",
+            "currency",
+            "as_of"
+          ],
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED",
+          "properties": {
+            "aum": {
+              "type": "number",
+              "minimum": 0,
+              "x-unit": "currency_amount",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "minLength": 1,
+              "x-unit": "code",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "x-unit": "date",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            }
+          }
+        }
+      }
+    },
+    "nav": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "series_class",
+        "source",
+        "first_date",
+        "last_date",
+        "observations"
+      ],
+      "description": "De que serie se trata. Es dato declarado y NUNCA la serie sobre la que se calculan las metricas de un ETF: esas siguen sobre precio de mercado (metodo, seccion 11; decision 52).",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "series_class": {
+          "type": "string",
+          "description": "`emisor.vl.clase_de_serie`. ISSUER_NAV es el valor liquidativo que declara el emisor. ISSUER_NAV_DERIVED lo dedujimos de su serie de crecimiento y un VL declarado (Invesco, ver `anchor`): no se ha contrastado con ningun VL historico y esta en la escala de participaciones de hoy. ISSUER_CUMULATIVE_RETURN no es un precio: es rentabilidad acumulada que reinvierte repartos, y no se puede leer como VL.",
+          "enum": [
+            "ISSUER_NAV",
+            "ISSUER_NAV_DERIVED",
+            "ISSUER_CUMULATIVE_RETURN"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "currency": {
+          "type": "string",
+          "description": "`emisor.vl.divisa`.",
+          "pattern": "^[A-Z]{3}$",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "source": {
+          "type": "string",
+          "description": "`emisor.vl.fuente`.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "first_date": {
+          "type": "string",
+          "description": "El inicio de la serie, no del fondo: mira `inception_date`.",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "last_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "observations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000,
+          "x-unit": "count",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "last_value": {
+          "type": "number",
+          "description": "El ultimo VL de la serie, en `currency`, para no tener que leer `issuer_nav` en la ficha. Ausente en ISSUER_CUMULATIVE_RETURN: esa serie no da un precio.",
+          "exclusiveMinimum": 0,
+          "x-unit": "currency_amount",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "derived": {
+          "type": "boolean",
+          "description": "`emisor.vl.derivado`, true en las dos clases de Invesco.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "method": {
+          "type": "string",
+          "description": "`emisor.vl.metodo`, en texto: como se llego a la serie.",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "base": {
+          "type": "number",
+          "description": "La base de la serie de crecimiento (10.000).",
+          "exclusiveMinimum": 0,
+          "x-unit": "count",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "date",
+            "growth"
+          ],
+          "description": "El VL declarado del que cuelga toda la serie deducida: `VL(t) = anchor.value x G(t) / anchor.growth`.",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "x-unit": "currency_amount",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "date": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "x-unit": "date",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            },
+            "growth": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1000000000,
+              "x-unit": "ratio",
+              "x-layer": "declared",
+              "x-owner": "platform"
+            }
+          }
+        },
+        "rounding_bound": {
+          "type": "number",
+          "description": "Cota relativa del error de redondeo de la serie deducida.",
+          "minimum": 0,
+          "maximum": 1,
+          "x-unit": "ratio",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "no_anchor_reason": {
+          "type": "string",
+          "description": "`emisor.vl.motivo_sin_anclaje`: por que una serie ISSUER_CUMULATIVE_RETURN no se pudo convertir en VL.",
+          "enum": [
+            "SHARE_CLASS_DISTRIBUTES",
+            "POLICY_NOT_DECLARED",
+            "NO_DECLARED_NAV",
+            "CURRENCY_MISMATCH",
+            "NAV_DATE_OUTSIDE_SERIES"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "last_declared_value": {
+          "type": "number",
+          "description": "`emisor.vl.ultimo_declarado`: el VL del dia, si existe, en una serie que no se pudo anclar.",
+          "exclusiveMinimum": 0,
+          "x-unit": "currency_amount",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        }
+      }
+    },
+    "holdings": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "El resumen de la cartera que publica el emisor. No sustituye a `declared/holdings`.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "as_of": {
+          "type": "string",
+          "description": "`emisor.cartera.fecha`.",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "positions_count": {
+          "type": "integer",
+          "description": "`emisor.cartera.num_posiciones`. Las posiciones sueltas no llegan a este documento: `core/exporta.py` las saca del documento ligero.",
+          "minimum": 0,
+          "maximum": 100000,
+          "x-unit": "count",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "declared_positions_count": {
+          "type": "integer",
+          "description": "`emisor.cartera.num_posiciones_declarado`, si es distinto del contado.",
+          "minimum": 0,
+          "maximum": 100000,
+          "x-unit": "count",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "top10_weight": {
+          "type": "number",
+          "description": "`emisor.cartera.peso_top10_pct` / 100. Una cesta de sustitucion puede sumar mas de 100 %.",
+          "minimum": 0,
+          "maximum": 2,
+          "x-unit": "fraction",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "nature": {
+          "type": "string",
+          "description": "`emisor.cartera.naturaleza`. En un ETF por swap, las posiciones son la cesta de sustitucion, no lo que replica: sin esto alguien leeria Apple como la mayor posicion de un ETF de Topix.",
+          "enum": [
+            "SUBSTITUTE_BASKET"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "counterparties": {
+          "type": "array",
+          "maxItems": 20,
+          "description": "`emisor.cartera.contrapartes`, solo Xtrackers.",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_APPLICABLE",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "x-unit": "text",
+                "x-layer": "declared",
+                "x-owner": "platform"
+              },
+              "gross_exposure": {
+                "type": "number",
+                "description": "Exposicion bruta; el emisor avisa de que puede no sumar 100.",
+                "minimum": 0,
+                "maximum": 3,
+                "x-unit": "fraction",
+                "x-layer": "declared",
+                "x-owner": "platform",
+                "x-absence": "NOT_PROVIDED"
+              }
+            }
+          }
+        }
+      }
+    },
+    "distributions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "records_checked"
+      ],
+      "description": "Los repartos que publica el emisor. No sustituye a `declared/distributions`.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "records_checked": {
+          "type": "boolean",
+          "description": "`emisor.distribuciones.historial_consultado`.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "currency": {
+          "type": "string",
+          "description": "`emisor.distribuciones.divisa`.",
+          "pattern": "^[A-Z]{3}$",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "currency_origin": {
+          "type": "string",
+          "description": "`emisor.distribuciones.divisa_origen`. ASSUMED_SHARE_CLASS significa que la tabla del emisor no la declara y se escribio la de la clase: iShares y Xtrackers.",
+          "enum": [
+            "DECLARED",
+            "ASSUMED_SHARE_CLASS"
+          ],
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "payments": {
+          "type": "array",
+          "maxItems": 500,
+          "description": "`emisor.distribuciones.historial`. Es lo que permite ajustar el VL de una clase de reparto para compararlo con el cierre ajustado.",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ex_date",
+              "amount"
+            ],
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "properties": {
+              "ex_date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "x-unit": "date",
+                "x-layer": "declared",
+                "x-owner": "platform"
+              },
+              "payment_date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "x-unit": "date",
+                "x-layer": "declared",
+                "x-owner": "platform",
+                "x-absence": "NOT_PROVIDED"
+              },
+              "record_date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "x-unit": "date",
+                "x-layer": "declared",
+                "x-owner": "platform",
+                "x-absence": "NOT_PROVIDED"
+              },
+              "amount": {
+                "type": "number",
+                "minimum": 0,
+                "x-unit": "currency_amount",
+                "x-layer": "declared",
+                "x-owner": "platform"
+              }
+            }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 20,
+      "description": "Lo que el adaptador avisa sobre este bloque.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code"
+        ],
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "`emisor.avisos[].codigo`, por ejemplo `politica_distinta_del_kid`.",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          }
+        }
+      }
+    }
+  }
+}

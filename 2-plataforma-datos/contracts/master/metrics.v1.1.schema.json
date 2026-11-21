@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/master/metrics.v1.1.schema.json",
+  "title": "Master metrics latest (assets/{asset_id}/metrics/latest) - v1.1",
+  "description": "Documento normalizado de metricas cuantitativas para fondos y acciones. Todas las rentabilidades, volatilidades, risk-free rates y drawdowns son fracciones decimales; los drawdowns son negativos.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["asset_id", "population", "source", "updated_at", "windows", "risk_score_source"],
+  "properties": {
+    "asset_id": { "type": "string", "minLength": 1 },
+    "population": { "type": "string", "enum": ["fund", "stock"] },
+    "source": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "minLength": 1 },
+    "windows": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "1y": { "$ref": "#/$defs/window" },
+        "3y": { "$ref": "#/$defs/window" },
+        "5y": { "$ref": "#/$defs/window" },
+        "10y": { "$ref": "#/$defs/window" }
+      }
+    },
+    "ytd_return": { "type": "number" },
+    "max_drawdown_hist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": { "type": "number", "maximum": 0 },
+        "date": { "type": "string" }
+      }
+    },
+    "max_drawdown_5y": { "type": "number", "maximum": 0 },
+    "srri": { "type": "integer", "minimum": 1, "maximum": 7 },
+    "risk_score_source": { "type": "string", "enum": ["SRRI", "VOL_BUCKET"] },
+    "observations_count": { "type": "integer", "minimum": 0 },
+    "first_date": { "type": "string" },
+    "last_date": { "type": "string" }
+  },
+  "$defs": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "annualized_return": { "type": "number" },
+        "annualized_volatility": { "type": "number", "minimum": 0 },
+        "sharpe_ratio": { "type": "number" },
+        "risk_free_rate": { "type": "number" }
+      }
+    }
+  }
+}

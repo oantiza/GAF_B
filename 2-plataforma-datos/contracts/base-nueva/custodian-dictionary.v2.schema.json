@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/custodian-dictionary.v2.schema.json",
+  "title": "custodian_dictionaries/{custodian_id}_{document_type} — v2",
+  "description": "El diccionario que traduce los literales de un extracto a tipos canonicos. Va POR DEPOSITARIO Y POR TIPO DE DOCUMENTO, no solo por depositario, y eso esta medido: el mismo depositario escribe la misma operacion de tres maneras en sus tres documentos. Es una DECISION HUMANA con autor y fecha, porque alguien decide que dos literales son la misma cosa, y SIN VALOR POR DEFECTO: con varios depositarios un literal desconocido deja de ser una posibilidad remota y pasa a ser una certeza, asi que la ingesta se para y pide la traduccion en vez de adivinar. Y necesita NORMALIZAR ANTES DE TRADUCIR, porque las comisiones de custodia llevan el periodo dentro del propio literal y eso convierte una sola clase en nueve literales distintos.",
+  "x-collection": "custodian_dictionaries/{custodian_id}_{document_type}",
+  "x-layer": "human",
+  "x-owner": "human",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["custodian_id", "document_type", "shape", "entries", "decided_by", "decided_at"],
+  "properties": {
+    "custodian_id": {
+      "type": "string",
+      "pattern": "^CUST_[0-9]{3}$",
+      "description": "El depositario por id opaco. El nombre comercial no es la clave de nada: si alguna vez hay que mostrarlo, es un dato, no una constante del programa.",
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": ["CASH_STATEMENT", "SECURITIES_STATEMENT", "POSITIONS_STATEMENT", "REPORT"],
+      "x-unit": "code",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "decimal_separator", "encoding"],
+      "description": "La forma del fichero, DECLARADA y no deducida. Hay dos trampas medidas que lo justifican. Una: la cabecera declara 6 columnas y las filas de datos traen 7, porque un encabezado cubre dos columnas —la letra de cargo o abono y el importe ya firmado—, y las filas de saldo inicial traen 3. Otra: el mismo depositario usa coma decimal en el extracto por cliente y punto decimal en el export global, y leer uno con la convencion del otro produce cifras que parecen validas y no lo son.",
+      "x-layer": "human",
+      "x-owner": "human",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "maxItems": 150,
+          "description": "Los nombres de columna esperados, en orden.",
+          "x-layer": "human",
+          "x-owner": "human",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "human",
+            "x-owner": "human"
+          }
+        },
+        "decimal_separator": {
+          "type": "string",
+          "enum": [",", "."],
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "thousands_separator": {
+          "type": "string",
+          "enum": [",", ".", "SPACE", "NONE"],
+          "description": "NONE y SPACE se nombran en vez de escribirse como cadena vacia o espacio: una cadena vacia en un campo de vocabulario es un centinela, y la segunda prueba los prohibe.",
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "encoding": {
+          "type": "string",
+          "enum": ["latin-1", "windows-1252", "utf-8"],
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human"
+        },
+        "date_format": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "human",
+          "x-owner": "human",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "normalizations": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "Lo que se recorta del literal ANTES de buscarlo en la tabla: periodos, fechas e importes incrustados. Se declara, no se improvisa: el diccionario no puede ser una tabla de igualdades si el literal lleva datos dentro.",
+      "x-layer": "human",
+      "x-owner": "human",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pattern", "replacement", "reason"],
+        "x-layer": "human",
+        "x-owner": "human",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "replacement": {
+            "type": "string",
+            "x-unit": "code",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "human",
+            "x-owner": "human"
+          }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 500,
+      "minItems": 1,
+      "description": "Literal normalizado -> tipo canonico. Medido sobre un catalogo real: un solo depositario emite 54 tipos distintos, de los que una cuenta concreta solo usa 10, asi que el tope de 500 sobra y la lista no crece con el universo. Ojo con los FALSOS POSITIVOS, que son peores que un literal sin traducir: cuatro literales reales contienen la palabra suscripcion y son operaciones societarias sin dinero (generacion de derechos, cancelacion de ejercicio, suscripcion por fusion, suscripcion liberada), y una regla por subcadena los clasifica como compras.",
+      "x-layer": "human",
+      "x-owner": "human",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["literal", "transaction_type", "decided_by", "decided_at"],
+        "x-layer": "human",
+        "x-owner": "human",
+        "properties": {
+          "literal": {
+            "type": "string",
+            "minLength": 1,
+            "description": "El literal normalizado, en MAYUSCULAS y sin diacriticos. Coincidencia EXACTA, nunca por subcadena.",
+            "x-unit": "code",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "transaction_type": {
+            "type": "string",
+            "enum": [
+              "BUY",
+              "SELL",
+              "SUBSCRIPTION",
+              "REDEMPTION",
+              "DIVIDEND",
+              "COUPON",
+              "FEE",
+              "TAX",
+              "TAX_REFUND",
+              "REPO",
+              "CASH_IN",
+              "CASH_OUT",
+              "TRANSFER_IN",
+              "TRANSFER_OUT",
+              "ACCOUNT_OPEN",
+              "ACCOUNT_CLOSE",
+              "CORPORATE_ACTION_NO_CASH",
+              "NOTE"
+            ],
+            "x-unit": "code",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "decided_by": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "decided_at": {
+            "type": "string",
+            "x-unit": "date",
+            "x-layer": "human",
+            "x-owner": "human"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "human",
+            "x-owner": "human",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    },
+    "decided_by": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "human"
+    },
+    "decided_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "human"
+    }
+  }
+}

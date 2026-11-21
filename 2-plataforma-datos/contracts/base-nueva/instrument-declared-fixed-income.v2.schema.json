@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-declared-fixed-income.v2.schema.json",
+  "title": "instruments/{instrument_id}/declared/fixed_income — v2",
+  "description": "El detalle duro de renta fija, que es lo unico del catalogo de composicion por debajo del 61 %. Este bloque es el que obliga a x-applies-to y x-coverage-target: la duracion efectiva al 57 % NO es un 57 % de cobertura, es un 57 % de los 314 fondos que tienen renta fija, y en un fondo de renta variable el campo no es que falte, es que no aplica. La leccion del 30-10: el denominador tiene que ser la poblacion a la que el campo aplica, no el total de la base.",
+  "x-collection": "instruments/{instrument_id}/declared/fixed_income",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+  "x-applies-when": "CON_RENTA_FIJA",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "effective_duration": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 60,
+      "description": "En anios. Admite negativo: hay fondos con duracion negativa a proposito.",
+      "x-unit": "years",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.57,
+      "x-absence": "NOT_PROVIDED"
+    },
+    "modified_duration": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 60,
+      "x-unit": "years",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "effective_maturity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "x-unit": "years",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "yield_to_maturity": {
+      "type": "number",
+      "minimum": -0.5,
+      "maximum": 1,
+      "description": "TIR en FRACCION. La maestra de hoy la guarda en por ciento; aqui no.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.61,
+      "x-absence": "NOT_PROVIDED"
+    },
+    "investment_grade": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "high_yield": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "avg_credit_quality": {
+      "type": "string",
+      "enum": ["AAA", "AA", "A", "BBB", "BB", "B", "CCC", "CC", "C", "D", "NR"],
+      "description": "Calidad crediticia media. Vocabulario cerrado: NR es 'not rated' y es un valor con significado, no un centinela.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-coverage-target": 0.8,
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

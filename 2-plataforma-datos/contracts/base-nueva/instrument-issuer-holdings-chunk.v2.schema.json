@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-issuer-holdings-chunk.v2.schema.json",
+  "title": "instruments/{instrument_id}/issuer_holdings_chunks/{chunk_id} — v2",
+  "description": "Un trozo de la cartera COMPLETA que publica el emisor de un ETF, 500 posiciones como maximo. El resumen, con su fuente, su fecha y si sirve para medir, esta en `declared/issuer_holdings` (decision B-79 de Oscar, 11-11-2026).\n\nUSO INTERNO, SOLO PARA EL ASESOR (B-53 y B-79): Analisis fuera del Modo cliente y el informe interno. NINGUN camino de cliente lo lee; el informe de cliente y el Modo cliente siguen con `declared/holdings` y `holdings_chunks` del proveedor. Es una coleccion aparte de `holdings_chunks` a proposito: un lector de cliente que liste `holdings_chunks` no puede encontrar aqui nada por error, y una cartera del emisor no puede pisar ni completar en silencio la del proveedor.\n\nSolo hay trozos de una cartera que sirve para medir: un ETF fisico con la lista entera. Un sintetico (cesta de sustitucion) o una lista recortada se quedan en el resumen, sin posiciones.\n\nPor que troceado: el Global Aggregate de iShares da 20.000 lineas, unos 3 MB, por encima del limite de 1 MiB de un documento. Se lee LISTANDO la coleccion, ordenada por `chunk_id`: las posiciones van de mayor a menor peso en el conjunto, asi que el trozo 000 lleva las mayores.",
+  "x-collection": "instruments/{instrument_id}/issuer_holdings_chunks/{chunk_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "chunk_id",
+    "source",
+    "as_of",
+    "positions"
+  ],
+  "properties": {
+    "chunk_id": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$",
+      "description": "El orden del trozo, con tres digitos.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "source": {
+      "type": "string",
+      "description": "El mismo `issuer:<adaptador>` del resumen.",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "La fecha de la cartera, la misma que la del resumen en `declared/issuer_holdings`. Si no coinciden, uno de los dos es de otra pasada.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "market_value_currency": {
+      "type": "string",
+      "description": "La divisa de `positions[].market_value`, la de la cartera.",
+      "pattern": "^[A-Z]{3}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "positions": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "Las posiciones, de mayor a menor peso.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "weight"
+        ],
+        "description": "Una linea de la cartera del emisor. `name`, `isin` y `weight` significan lo mismo que en `holdings_chunks`; el tipo y los literales llevan otro nombre porque no son el mismo dato.",
+        "x-layer": "declared",
+        "x-owner": "platform",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "isin": {
+            "type": "string",
+            "description": "Lo dan SPDR, Xtrackers y Amundi. iShares y Vanguard no lo publican en la lista: ahi el identificador es `ticker` (y `sedol` en Vanguard), y cruzarlo con una cartera que va por ISIN es trabajo del lector.",
+            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "ticker": {
+            "type": "string",
+            "description": "El ticker que publica el emisor, sin bolsa. No es unico entre mercados.",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "sedol": {
+            "type": "string",
+            "pattern": "^[0-9A-Z]{7}$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": -10,
+            "maximum": 10,
+            "description": "El peso que declara el emisor, en FRACCION y con su signo: la liquidez o un derivado pueden restar. Mismo rango que `holdings_chunks.positions[].weight` y por lo mismo. En iShares va redondeado a 0,0001: ver `declared/issuer_holdings.weight_step`.",
+            "x-unit": "fraction",
+            "x-layer": "declared",
+            "x-owner": "platform"
+          },
+          "market_value": {
+            "type": "number",
+            "description": "El valor de mercado de la linea en la divisa del trozo, si el emisor lo da (iShares). Con el peso redondeado, es lo que permite el peso exacto: valor de la linea sobre `declared/issuer_holdings.market_value_total`.",
+            "minimum": -1000000000000000,
+            "maximum": 1000000000000000,
+            "x-unit": "currency_amount",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "position_type": {
+            "type": "string",
+            "description": "La clase de la linea, traducida del literal del emisor por la tabla medida de `1-extractor/core/cartera_emisor.py`: acciones (incluidas socimis y preferentes), renta fija, derivados (futuros, contado y plazo de divisa, permutas, derechos), liquidez (efectivo, colateral y fondos monetarios del emisor), fondos y otros. Falta si el emisor no da clase o da una que no esta en la tabla.",
+            "enum": [
+              "EQUITY",
+              "FIXED_INCOME",
+              "DERIVATIVE",
+              "CASH",
+              "FUND",
+              "OTHER"
+            ],
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "issuer_asset_class": {
+            "type": "string",
+            "description": "El literal de clase tal cual lo publica el emisor (`Equity`, `EQ.STOCK`, `EQUITY_ORDINARY`...).",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "issuer_sector": {
+            "type": "string",
+            "description": "El sector tal cual lo publica el emisor. No es el codigo de Morningstar de `holdings_chunks.positions[].sector`.",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "issuer_country": {
+            "type": "string",
+            "description": "El pais tal cual lo publica el emisor (`United States`, `US`...). No esta normalizado.",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "currency": {
+            "type": "string",
+            "description": "La divisa de cotizacion de la linea que declara el emisor.",
+            "pattern": "^[A-Z]{3}$",
+            "x-unit": "code",
+            "x-layer": "declared",
+            "x-owner": "platform",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    }
+  }
+}

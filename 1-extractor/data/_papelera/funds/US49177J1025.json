@@ -1,0 +1,391 @@
+{
+  "identificacion": {
+    "nombre": "Kenvue Inc.",
+    "tipo": "accion",
+    "isin": "US49177J1025",
+    "ticker": "J4D",
+    "mercado": "F",
+    "pais": "Germany",
+    "divisa_base": "EUR",
+    "simbolo_eodhd": "J4D.F",
+    "source_listing_id": "EODHD:J4D.F",
+    "cotizacion_aviso": "mercado_de_origen_no_disponible",
+    "sector": "Consumer Defensive",
+    "industria": "Household & Personal Products",
+    "descripcion": "Kenvue Inc. operates as a consumer health company in the United States, rest of North America, Europe, the Middle East, Africa, the Asia-Pacific, and Latin America. It operates in three segments: Self Care, Skin Health and Beauty, and Essential Health. The company offers over-the-counter medicine for cough, cold and allergy, pain care, digestive health, smoking cessation, and eye care, as well as other naturally inspired and self-care products, digital diagnostics, and telemedicine; face and body care, hair, sun, and other care products; oral and baby care, women's health, wound care, and other essential health products; tampons; cosmetics; and vitamins and supplements. It sells its products under the Benadryl, Calpol, Motrin, Nicorette, Rhinocort, Tylenol, Zarbee's Naturals, and Zyrtec; Aveeno, Dr.Ci:Labo, Le Petit Marseillais, Lubriderm, Neutrogena, OGX, and Rogaine; BAND-AID, Carefree, Desitin, Johnson's, Listerine, o.b., and Stayfree; and ORSL, Clean & Clear, Versalie, Benylin, Daktarin, Imodium, Johnson's Baby, Johnson's Adult, Maui Moisture, Microlax, Motilium, Neosporin, Neostrata, Pepcid, Pulmicort, Regaine, Sudafed, and Visine/Vispring/Visclear brands. Kenvue Inc. was incorporated in 2022 and is headquartered in Summit, New Jersey.",
+    "simbolo_yahoo": "J4D.F",
+    "nombre_oficial_firds": "KENVUE INC. REGISTERED SHARES DL -,001",
+    "nombre_corto_firds": "KENVUE INC/SH",
+    "cfi": "ESVUFR",
+    "cfi_tipo": "ACCION",
+    "divisa_nominal_firds": "USD",
+    "lei_emisor": "5493008HSF8L4M2LIJ82",
+    "autoridad_competente_firds": "DE",
+    "mercados_ue": [
+      {
+        "mic": "TPIR",
+        "primera_negociacion": "2023-09-01"
+      },
+      {
+        "mic": "WBDM",
+        "primera_negociacion": "2026-10-05"
+      }
+    ],
+    "tipo_producto": "accion",
+    "clase_cubierta": false
+  },
+  "valoracion": {
+    "vl": 17.235,
+    "vl_fecha": "2026-10-30",
+    "vl_divisa": "EUR"
+  },
+  "riesgo": {
+    "historial_precios": {
+      "divisa": "EUR",
+      "divisa_metricas": "EUR",
+      "rf_referencia": "ESTR_EUR",
+      "rf_hasta": "2026-10-30",
+      "source_history": "eodhd",
+      "source_listing_id": "EODHD:J4D.F",
+      "first_date": "2023-05-05",
+      "last_date": "2026-10-30",
+      "observations_count": 873,
+      "fecha_inicio": "2023-05-05",
+      "fecha_fin": "2026-10-30",
+      "observaciones": 873,
+      "history_quality_status": "PARTIAL"
+    },
+    "fecha_dato": "2026-10-30",
+    "volatilidad_pct": {
+      "1a": {
+        "fondo": 35.7294
+      },
+      "3a": {
+        "fondo": 36.1759
+      }
+    },
+    "rf_pct": {
+      "1a": {
+        "fondo": 2.061
+      },
+      "3a": {
+        "fondo": 2.7391
+      }
+    },
+    "sharpe": {
+      "1a": {
+        "fondo": 1.3661
+      },
+      "3a": {
+        "fondo": 0.0655
+      }
+    },
+    "max_drawdown_pct": {
+      "1a": {
+        "fondo": -11.7703
+      },
+      "3a": {
+        "fondo": -46.8066
+      }
+    },
+    "max_drawdown": {
+      "pct": -46.8066,
+      "periodo": "inferior_5a"
+    },
+    "relativas": {
+      "indice_nombre": "MSCI Europe",
+      "indice_variante": "NR",
+      "indice_proxy": "IE0007987708",
+      "indice_clase_de_serie": "VALOR_LIQUIDATIVO",
+      "base_indice": "TOTAL_RETURN",
+      "fecha_dato": "2026-09-30",
+      "alcance": "AREA",
+      "beta": {
+        "3a": 1.1515
+      },
+      "r2": {
+        "3a": 14.3175
+      }
+    }
+  },
+  "rentabilidad": {
+    "fecha_dato": "2026-10-30",
+    "trailing_pct": {
+      "1a": {
+        "fondo": 50.8694
+      },
+      "3a_anualizada": {
+        "fondo": 5.1101
+      }
+    }
+  },
+  "fundamentales": {
+    "market_cap": 33400334336.0,
+    "per": 22.86842,
+    "eps": 0.76,
+    "dividend_yield_pct": 4.3,
+    "beta": 0.397,
+    "max_52s": 17.495,
+    "min_52s": 13.564,
+    "precio_valor_contable": 3.6909335,
+    "roe_pct": 16.253,
+    "profit_margin_pct": 10.882,
+    "fuente": "yahoo",
+    "profile": {
+      "sector": "Consumer Defensive",
+      "industry": "Household & Personal Products",
+      "employees": 21780
+    },
+    "valuation": {
+      "market_cap": 33400334336.0,
+      "enterprise_value": 40702337024.0,
+      "pe_trailing": 22.86842,
+      "peg": 1.5389,
+      "price_sales_ttm": 2.1506975,
+      "price_book_mrq": 3.6909335,
+      "ev_revenue": 2.621,
+      "ev_ebitda": 11.616
+    },
+    "profitability": {
+      "profit_margin": 0.10882,
+      "operating_margin_ttm": 0.19223,
+      "return_on_assets_ttm": 0.07034,
+      "return_on_equity_ttm": 0.16253
+    },
+    "growth": {
+      "quarterly_revenue_yoy": 0.032,
+      "quarterly_earnings_yoy": 0.08
+    },
+    "per_share": {
+      "eps": 0.76,
+      "book_value": 4.7088356,
+      "revenue_ttm": 8.095,
+      "dividend": 0.833
+    },
+    "capital": {
+      "shares_outstanding": 1921768446.0,
+      "shares_float": 1918981882.0,
+      "insiders_ratio": 0.076,
+      "institutions_ratio": 95.526
+    },
+    "dividends": {
+      "forward_annual_rate": 0.75,
+      "payout_ratio": 0.946,
+      "ex_dividend_date": "2026-09-21",
+      "yield_ratio": 0.043
+    },
+    "technicals": {
+      "beta": 0.397,
+      "high_52w": 17.495,
+      "low_52w": 13.564,
+      "moving_average_50d": 15.906,
+      "moving_average_200d": 15.508865
+    },
+    "schema_version": "bdb.fundamentals-summary.v1",
+    "instrument_type": "STOCK",
+    "symbol": "J4D.F",
+    "currency": "EUR",
+    "as_of_date": "2026-09-27",
+    "source": "yahoo",
+    "fetched_at": "2026-11-09T23:30:27+00:00",
+    "quality": {
+      "coverage_ratio": 0.9429,
+      "coverage_status": "PARTIAL",
+      "warnings": [
+        "unofficial_source:yahoo"
+      ]
+    }
+  },
+  "meta": {
+    "firds_visto": "2026-11-07",
+    "isin": "US49177J1025",
+    "actualizado": "2026-11-09T23:30:27+00:00",
+    "version_esquema": 2,
+    "fuentes": {
+      "identificacion": [
+        "eodhd",
+        "esma_firds",
+        "config_csv"
+      ],
+      "valoracion": [
+        "eodhd"
+      ],
+      "riesgo": [
+        "eodhd"
+      ],
+      "rentabilidad": [
+        "eodhd"
+      ],
+      "fundamentales": [
+        "eodhd"
+      ],
+      "meta": [
+        "esma_firds"
+      ]
+    },
+    "errores": [],
+    "procedencia": {
+      "calidad.bucket": "derivado:calidad",
+      "calidad.esenciales": "derivado:calidad",
+      "calidad.flags": "derivado:calidad",
+      "calidad.score": "derivado:calidad",
+      "fundamentales.as_of_date": "eodhd",
+      "fundamentales.beta": "eodhd",
+      "fundamentales.capital.insiders_ratio": "eodhd",
+      "fundamentales.capital.institutions_ratio": "eodhd",
+      "fundamentales.capital.shares_float": "eodhd",
+      "fundamentales.capital.shares_outstanding": "eodhd",
+      "fundamentales.currency": "eodhd",
+      "fundamentales.dividend_yield_pct": "eodhd",
+      "fundamentales.dividends.ex_dividend_date": "eodhd",
+      "fundamentales.dividends.forward_annual_rate": "eodhd",
+      "fundamentales.dividends.payout_ratio": "eodhd",
+      "fundamentales.dividends.yield_ratio": "eodhd",
+      "fundamentales.eps": "eodhd",
+      "fundamentales.fetched_at": "eodhd",
+      "fundamentales.fuente": "eodhd",
+      "fundamentales.growth.quarterly_earnings_yoy": "eodhd",
+      "fundamentales.growth.quarterly_revenue_yoy": "eodhd",
+      "fundamentales.instrument_type": "eodhd",
+      "fundamentales.market_cap": "eodhd",
+      "fundamentales.max_52s": "eodhd",
+      "fundamentales.min_52s": "eodhd",
+      "fundamentales.per": "eodhd",
+      "fundamentales.per_share.book_value": "eodhd",
+      "fundamentales.per_share.dividend": "eodhd",
+      "fundamentales.per_share.eps": "eodhd",
+      "fundamentales.per_share.revenue_ttm": "eodhd",
+      "fundamentales.precio_valor_contable": "eodhd",
+      "fundamentales.profile.employees": "eodhd",
+      "fundamentales.profile.industry": "eodhd",
+      "fundamentales.profile.sector": "eodhd",
+      "fundamentales.profit_margin_pct": "eodhd",
+      "fundamentales.profitability.operating_margin_ttm": "eodhd",
+      "fundamentales.profitability.profit_margin": "eodhd",
+      "fundamentales.profitability.return_on_assets_ttm": "eodhd",
+      "fundamentales.profitability.return_on_equity_ttm": "eodhd",
+      "fundamentales.quality.coverage_ratio": "eodhd",
+      "fundamentales.quality.coverage_status": "eodhd",
+      "fundamentales.quality.warnings": "eodhd",
+      "fundamentales.roe_pct": "eodhd",
+      "fundamentales.schema_version": "eodhd",
+      "fundamentales.source": "eodhd",
+      "fundamentales.symbol": "eodhd",
+      "fundamentales.technicals.beta": "eodhd",
+      "fundamentales.technicals.high_52w": "eodhd",
+      "fundamentales.technicals.low_52w": "eodhd",
+      "fundamentales.technicals.moving_average_200d": "eodhd",
+      "fundamentales.technicals.moving_average_50d": "eodhd",
+      "fundamentales.valuation.enterprise_value": "eodhd",
+      "fundamentales.valuation.ev_ebitda": "eodhd",
+      "fundamentales.valuation.ev_revenue": "eodhd",
+      "fundamentales.valuation.market_cap": "eodhd",
+      "fundamentales.valuation.pe_trailing": "eodhd",
+      "fundamentales.valuation.peg": "eodhd",
+      "fundamentales.valuation.price_book_mrq": "eodhd",
+      "fundamentales.valuation.price_sales_ttm": "eodhd",
+      "identificacion.autoridad_competente_firds": "esma_firds:fulins",
+      "identificacion.cfi": "esma_firds:fulins",
+      "identificacion.cfi_tipo": "esma_firds:fulins",
+      "identificacion.clase_cubierta": "derivado:derivados",
+      "identificacion.cotizacion_aviso": "eodhd",
+      "identificacion.descripcion": "eodhd",
+      "identificacion.divisa_base": "eodhd",
+      "identificacion.divisa_nominal_firds": "esma_firds:fulins",
+      "identificacion.industria": "eodhd",
+      "identificacion.isin": "eodhd",
+      "identificacion.lei_emisor": "esma_firds:fulins",
+      "identificacion.mercado": "eodhd",
+      "identificacion.mercados_ue": "esma_firds:fulins",
+      "identificacion.nombre": "eodhd",
+      "identificacion.nombre_corto_firds": "esma_firds:fulins",
+      "identificacion.nombre_oficial_firds": "esma_firds:fulins",
+      "identificacion.pais": "eodhd",
+      "identificacion.sector": "eodhd",
+      "identificacion.simbolo_eodhd": "eodhd",
+      "identificacion.simbolo_yahoo": "eodhd",
+      "identificacion.source_listing_id": "eodhd",
+      "identificacion.ticker": "eodhd",
+      "identificacion.tipo": "eodhd",
+      "identificacion.tipo_producto": "derivado:derivados",
+      "meta.firds_visto": "esma_firds:fulins",
+      "rentabilidad.fecha_dato": "eodhd",
+      "rentabilidad.trailing_pct.1a.fondo": "eodhd",
+      "rentabilidad.trailing_pct.3a_anualizada.fondo": "eodhd",
+      "riesgo.fecha_dato": "eodhd",
+      "riesgo.historial_precios.divisa": "eodhd",
+      "riesgo.historial_precios.divisa_metricas": "eodhd",
+      "riesgo.historial_precios.fecha_fin": "eodhd",
+      "riesgo.historial_precios.fecha_inicio": "eodhd",
+      "riesgo.historial_precios.first_date": "eodhd",
+      "riesgo.historial_precios.history_quality_status": "eodhd",
+      "riesgo.historial_precios.last_date": "eodhd",
+      "riesgo.historial_precios.observaciones": "eodhd",
+      "riesgo.historial_precios.observations_count": "eodhd",
+      "riesgo.historial_precios.rf_hasta": "eodhd",
+      "riesgo.historial_precios.rf_referencia": "eodhd",
+      "riesgo.historial_precios.source_history": "eodhd",
+      "riesgo.historial_precios.source_listing_id": "eodhd",
+      "riesgo.max_drawdown.pct": "eodhd",
+      "riesgo.max_drawdown.periodo": "eodhd",
+      "riesgo.max_drawdown_pct.1a.fondo": "eodhd",
+      "riesgo.max_drawdown_pct.3a.fondo": "eodhd",
+      "riesgo.relativas.alcance": "eodhd",
+      "riesgo.relativas.base_indice": "eodhd",
+      "riesgo.relativas.beta.3a": "eodhd",
+      "riesgo.relativas.fecha_dato": "eodhd",
+      "riesgo.relativas.indice_clase_de_serie": "eodhd",
+      "riesgo.relativas.indice_nombre": "eodhd",
+      "riesgo.relativas.indice_proxy": "eodhd",
+      "riesgo.relativas.indice_variante": "eodhd",
+      "riesgo.relativas.r2.3a": "eodhd",
+      "riesgo.rf_pct.1a.fondo": "eodhd",
+      "riesgo.rf_pct.3a.fondo": "eodhd",
+      "riesgo.sharpe.1a.fondo": "eodhd",
+      "riesgo.sharpe.3a.fondo": "eodhd",
+      "riesgo.volatilidad_pct.1a.fondo": "eodhd",
+      "riesgo.volatilidad_pct.3a.fondo": "eodhd",
+      "valoracion.vl": "eodhd",
+      "valoracion.vl_divisa": "eodhd",
+      "valoracion.vl_fecha": "eodhd"
+    },
+    "adquisicion": {
+      "plan": [
+        "eodhd",
+        "esma_firds"
+      ],
+      "familias": [
+        "identidad"
+      ],
+      "fuentes": {
+        "eodhd": {
+          "hojas": 108,
+          "endpoints": {},
+          "segundos": 0.82
+        },
+        "esma_firds": {
+          "hojas": 12,
+          "endpoints": {
+            "esma_firds:fulins": {
+              "fetched_at": "2026-11-07T00:00:00+00:00"
+            }
+          },
+          "segundos": 0.01
+        }
+      }
+    },
+    "disponibilidad": {
+      "estado": "cotiza",
+      "desde": "2026-11-10",
+      "visto": "2026-11-10"
+    }
+  },
+  "calidad": {
+    "score": 95,
+    "bucket": "ALTO",
+    "esenciales": "11/11",
+    "flags": [
+      "vl_antiguo(10d)"
+    ]
+  }
+}

@@ -1,0 +1,1359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/instrument-read-card.v2.schema.json",
+  "title": "instruments/{instrument_id}/read/card — v2",
+  "description": "La tarjeta de lectura: un solo documento con todo lo que la app consume hoy de un activo, compuesto por el lote desde declared/* y computed/*. Existe por una razon medida. Partir la raiz en nueve subdocumentos esta bien para ESCRIBIR, pero para LEER no basta: la pantalla de una cartera de 25 posiciones pasaria de 25 lecturas a 75, y la Function que trae varios activos a la vez las multiplicaria igual. Con la tarjeta, la app lee UNO.\n\nY si, DUPLICA: es una proyeccion, lleva x-layer projection y computed_at, y no es fuente de nada. Si la tarjeta y el bloque declarado dicen cosas distintas, el bloque tiene razon y la tarjeta esta vieja. Por eso es el unico documento de la base nueva al que no se le aplica la regla de un dato un sitio, y el unico donde se toleran los nombres heredados con sufijo de unidad: su forma la manda el consumidor que ya existe (contracts/read/asset-for-bdb.v1), no este diseno. La unidad sigue declarada en x-unit en cada campo, que es lo que importa.\n\nEfecto lateral bueno: con la tarjeta, los punteros de la raiz sobran. Eran el 40 % de sus 1,2 KB y obligaban a reescribir la raiz cada vez que cambiaba un bloque.",
+  "x-collection": "instruments/{instrument_id}/read/card",
+  "x-layer": "projection",
+  "x-owner": "batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instrument_id",
+    "computed_at",
+    "instrument_type",
+    "identity",
+    "classification",
+    "quality"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": ["instrument_type"],
+        "properties": { "instrument_type": { "enum": ["FUND", "ETF"] } }
+      },
+      "then": { "properties": { "classification": { "required": ["asset_class"] } } },
+      "$comment": "La categoria dejo de ser obligatoria el 02-11-2026, igual que en la raiz y por lo mismo: la exigia tambien AQUI, asi que el fondo cuya categoria no publica el proveedor tenia raiz pero se quedaba sin tarjeta, que es el documento que la pantalla lee. Lo que pierde lo dice la aptitud COMPARAR_CON_SU_GRUPO, que viaja en la propia tarjeta."
+    },
+    {
+      "if": {
+        "required": ["instrument_type"],
+        "properties": { "instrument_type": { "const": "STOCK" } }
+      },
+      "then": { "properties": { "classification": { "required": ["asset_class"] } } },
+      "$comment": "La tarjeta de una accion NO es la de un fondo con huecos, y esta es la primera consecuencia: la categoria del proveedor es obligatoria en un fondo y no existe en una accion —las 73 del universo la traen a null, medido el 01-11-2026—, asi que exigirla aqui dejaba a las 73 sin tarjeta. Lo que agrupa a una accion es su sector, que esta mas abajo en este mismo bloque. Es la misma condicion que la raiz, y la tarjeta no puede ser mas exigente que la fuente de la que se compone."
+    },
+    {
+      "if": {
+        "required": ["instrument_type"],
+        "properties": { "instrument_type": { "const": "STOCK" } }
+      },
+      "then": {
+        "properties": {
+          "metrics": {
+            "properties": {
+              "annualized_return": { "$ref": "#/$defs/ventanas_rentabilidad_accion" },
+              "ytd_return": { "$ref": "#/$defs/cifra_rentabilidad_accion" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "metrics": {
+            "properties": {
+              "annualized_return": { "$ref": "#/$defs/ventanas_fraction" },
+              "ytd_return": { "$ref": "#/$defs/cifra_fraction" }
+            }
+          }
+        }
+      },
+      "$comment": "Decision B-73 (Oscar, 09-11-2026), la misma regla que computed/metrics: la rentabilidad anualizada y la del ano en curso de una ACCION admiten [-1, 20] y las de cualquier otro tipo siguen en [-5, 5]. Aqui el tipo esta en la propia tarjeta (instrument_type) y se usa tal cual. Sin esto, la tarjeta de Moderna (US60770K1079, +980,95 % a un ano) no se escribia aunque su computed/metrics si, y la pantalla la perdia entera. Las demas familias no cambian, y las cifras del proveedor tampoco: una accion no tiene bloque del proveedor."
+    }
+  ],
+  "properties": {
+    "instrument_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "computed_at": {
+      "type": "string",
+      "description": "Cuando se compuso. La app decide si esta vieja: el umbral de frescura es de LECTURA, no de escritura, para que cambiarlo no obligue a reescribir la base. Si la tarjeta esta vieja, la app puede leer los bloques y decirlo.",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "instrument_type": {
+      "type": "string",
+      "enum": ["FUND", "ETF", "STOCK", "INDEX", "CURRENCY", "OTHER"],
+      "x-unit": "code",
+      "x-layer": "projection",
+      "x-owner": "batch"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "currency"],
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "ticker": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_class"],
+      "description": "Lo obligatorio de aqui depende del tipo y lo deciden los dos allOf de la raiz de la tarjeta, que es el unico sitio desde el que se ve instrument_type: igual que en la raiz del instrumento.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "La categoria del proveedor. Obligatoria en fondos y ETF por el allOf de la raiz; en una accion no aplica, y lo que ocupa su sitio es `sector`.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "asset_class": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "asset_class_resolution": {
+          "type": "string",
+          "enum": ["PROVIDER", "DERIVED_FROM_ASSET_MIX"],
+          "description": "Viaja en la tarjeta porque la pantalla pinta la clase de activo y tiene que poder decir que esa clase la dedujimos nosotros del reparto del proveedor, no que la afirme el proveedor. Ver la raiz del instrumento para el porque y los umbrales.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "benchmark_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "El nombre del indice, para poder NOMBRAR la referencia junto a cualquier cifra medida contra ella. Hoy la maestra guarda la volatilidad del indice, su Sharpe y el alpha contra el sin este campo, lo que deja cifras que pueden acabar en un informe de cliente sin poder decir contra que estan medidas.",
+          "x-unit": "text",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "morningstar_rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "x-unit": "count",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "sector": {
+          "type": "string",
+          "minLength": 1,
+          "description": "El sector de la compania, para una ACCION. Es lo que ocupa el sitio de la categoria del proveedor: lo que permite decir con que se compara y por que grupo filtrar. Se proyecta de declared/equity.sector, que es donde vive con su fuente y su fecha.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "description": "La industria, el escalon fino del sector. Proyectada de declared/equity.industry.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "exchange": {
+          "type": "string",
+          "minLength": 1,
+          "description": "El mercado donde cotiza, en la notacion del proveedor de la serie. Esta en la tarjeta porque es una de las cinco cosas que Oscar decidio que ensena la ficha de una accion, y porque sin el precio y metricas no se pueden nombrar: una accion con dos cotizaciones tiene dos series. Proyectado de declared/equity.listing.exchange.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        }
+      }
+    },
+    "quote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["price", "as_of", "price_class"],
+      "description": "El precio y el dia al que corresponde, proyectado de declared/quote. Las tres cosas van juntas o no va ninguna: un precio sin fecha no se ensena a un cliente —de los 846 del canonico, 770 son de octubre y 74 de julio— y un precio sin decir si es valor liquidativo o cierre de mercado no se compara con otro.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000000,
+          "x-unit": "currency_amount",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "price_class": {
+          "type": "string",
+          "enum": ["NAV", "MARKET_PRICE", "RATE"],
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "La divisa de este precio, proyectada de declared/quote.currency. No es la de identity.currency: en 13 de los 28 ETF la clase esta en USD y el precio en EUR.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "since"],
+      "description": "Si cotiza y desde cuando, proyectado de la raiz (decision 14 de Oscar, 02-11-2026: un instrumento que deja de cotizar se MARCA, no desaparece). Esta en la tarjeta porque la tarjeta es la fila del buscador, y sin esto la lista no podia marcarlo: solo se sabia al abrir la ficha o al pulsar Anadir (hallazgo 96 de la auditoria). Ausente significa lo mismo que en la raiz: no se ha medido, que es lo que les pasa a los fondos.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_YET_FETCHED",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["TRADING", "OUT_OF_SCOPE", "DELISTED", "NEVER_RESOLVED", "UNDETERMINED"],
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "since": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "dividends": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "El dividendo de una ACCION, proyectado de declared/dividends. No es el bloque de reparto de un fondo: lo que una accion paga ya esta dentro de su serie ajustada, asi que estas cifras informan al lector y no entran en ningun calculo.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "yield_12m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "trailing_amount_per_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000,
+          "x-unit": "currency_amount",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "forward_amount_per_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000,
+          "description": "Lo ANUNCIADO, que es una expectativa del emisor y no un hecho. Va en campo propio para que la ficha no pueda presentarlo como lo ya pagado.",
+          "x-unit": "currency_amount",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "ex_dividend_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "costs": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "ongoing_charge": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.2,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "management_fee": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "transaction_costs": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "entry_charge": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "document_url": {
+          "type": "string",
+          "minLength": 1,
+          "description": "El KID del instrumento, de `declared/costs`. Es lo que separa un fondo sin KID de uno con KID que no da una cifra.",
+          "x-unit": "text",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "document_date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "La fecha del KID, de `declared/costs`. La tarjeta lleva las cifras de coste con su fuente porque es lo que lee el informe de costes de una cartera: leer ademas cada documento costaria una lectura por posicion.",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "ongoing_charge_source": {
+          "type": "string",
+          "enum": ["KID", "PROVIDER"],
+          "description": "Copia de `declared/costs`.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "transaction_costs_source": {
+          "type": "string",
+          "enum": ["KID", "PROVIDER"],
+          "description": "Copia de `declared/costs`.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "entry_charge_source": {
+          "type": "string",
+          "enum": ["KID", "PROVIDER"],
+          "description": "Copia de `declared/costs`.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "method", "frequency", "return_basis"],
+      "description": "Las metricas que pinta la ficha, con las cuatro cosas sin las que no significan nada: de donde salen, con que metodo, a que frecuencia y sobre que base de rentabilidad. Las cuatro siguen siendo obligatorias DENTRO del bloque: una cifra sin ellas no se puede ni comparar ni defender.\n\nEl bloque entero, en cambio, dejo de ser obligatorio el 01-11-2026, por el mismo argumento medido que retiro `exposure` de la lista ese dia: la tarjeta es una proyeccion y no puede exigir mas de lo que tiene la fuente de la que se compone. El caso que lo obliga es `ES0105394003`, una de las 73 acciones: su serie son 48 observaciones desde el 13-05-2026, el extractor no calculo ninguna ventana y no hay cifra de proveedor a la que caer, porque de una accion no la hay. Con el bloque obligatorio, ese instrumento se quedaba sin tarjeta —sin nombre, sin sector y sin precio en la pantalla— por no tener una pieza que puede faltar.\n\nLa alternativa era peor y conviene decirla: rellenar `source`, `method` y `frequency` con el metodo que SE APLICARIA si hubiera cifras. Eso es afirmar un metodo sobre un conjunto vacio, y es exactamente la clase de afirmacion sin comprobar que este contrato existe para impedir.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["COMPUTED", "PROVIDER"],
+          "description": "Si la cifra la calculamos nosotros de la serie o la declara el proveedor. Es el campo que hoy no existe y por el que dos volatilidades a tres anios conviven sin que nadie sepa cual es cual.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GEOMETRIC_CAGR", "EXTRACTOR_MONTHLY_V1", "EXTRACTOR_DAILY_V1", "EXTRACTOR_MONTHLY_V2", "EXTRACTOR_DAILY_V2", "EXTRACTOR_MONTHLY_V3", "EXTRACTOR_DAILY_V3", "EXTRACTOR_MONTHLY_V4", "EXTRACTOR_DAILY_V4", "TRAILING_PROVIDER"],
+          "description": "El metodo del titular. `EXTRACTOR_MONTHLY_V1` entra el 01-11-2026 y es el de los FONDOS, el que define METODO_PROPIO_METRICAS: ventanas de 12, 36 y 60 meses cerrados sobre cierres de mes. Cambiar un parametro cambia la version, asi que el nombre lleva la version dentro.\n\n`EXTRACTOR_DAILY_V1` entra el mismo dia y es el de las ACCIONES: rentabilidades diarias por raiz de 252, ventanas de N anios contadas desde el ultimo dia de la serie, y otro estimador del Sharpe. El contrato de computed/metrics lleva los cuatro parametros que los separan.\n\nPor que este campo deja de ser informativo y pasa a ser necesario para leer la tarjeta: la segunda regla del metodo propio dice que nunca se ordena una cifra contra otra de escala distinta. Una tabla que ordene fondos y acciones por volatilidad mezcla dos muestreos, y con este campo la aplicacion puede avisarlo o negarse. Sin el, no podria ni enterarse. Es el mismo argumento que la base de rentabilidad, un nivel mas abajo.\n\n`EXTRACTOR_MONTHLY_V3` y `EXTRACTOR_DAILY_V3` entran el 16-11-2026 (decisiones A-158 y A-166): el tipo sin riesgo mensual capitaliza con su base de dias, la volatilidad diaria se anualiza con las observaciones que hay y no con raiz de 252, y un dato suelto que salta y vuelve no corta la serie. Lo define el contrato de computed/metrics. Una V2 y una V3 no se ordenan juntas.\n\n`EXTRACTOR_MONTHLY_V4` y `EXTRACTOR_DAILY_V4` entran el 17-11-2026 (MET-6 y MET-7): un cierre de mes tiene que ser del final del mes, el anio natural aplica la regla del hueco, y las relativas cierran en el mismo mes que el riesgo o no se dan. Lo define el contrato de computed/metrics. Una V3 y una V4 no se ordenan juntas.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["DAILY", "WEEKLY", "MONTHLY", "PROVIDER"],
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "A que fecha se refieren las cifras del titular: el fin de nuestra serie cuando son nuestras, la fecha de dato del proveedor cuando son suyas. NO es `computed_at`, que es cuando se compuso la tarjeta.\n\nLo pide el primer paso de la decision 8 con su propio argumento: una ficha con el valor liquidativo del 29-10 y una volatilidad del 30-09 se contradice consigo misma. Medido el 01-11-2026: la fecha de dato del proveedor es mas vieja que el fin de nuestra serie en 468 de 468 fondos, con una mediana de 27 dias y un maximo de 57.",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "returns_as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "La fecha de las rentabilidades del TITULAR cuando son del proveedor y no comparten la de `as_of`, que en ese caso es la de su riesgo (decision B-74, Oscar, 09-11-2026). Misma regla que `provider.returns_as_of`: si las ventanas de `annualized_return` y `ytd_return` comparten fecha, es esa, y solo aparece si difiere de `as_of`; si no la comparten, es la mas reciente y la de cada una esta en `returns_as_of_by_window`. Vale con y sin `as_of_by_window` en declared/provider_returns: sin el mapa, todas las rentabilidades del titular son a `provider_returns.as_of`, y si esa fecha no es la del riesgo, aparece aqui. Hasta la decision B-74 no aparecia, y un titular con la rentabilidad del 30-09 se ensenaba bajo un `as_of` del 31-10: eso era el defecto, no una regla, y es lo que la decision quita (Direccion, 09-11-2026). Nunca aparece con el titular nuestro, cuyas cifras son todas a `as_of`.",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "returns_as_of_by_window": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 2,
+          "description": "La fecha de cada rentabilidad del titular del proveedor, por ventana (`ytd` para `ytd_return`), cuando no todas son de la misma fecha (decision B-74): Morningstar da el ano en curso y el 1 ano a fin de mes y el 3, 5 y 10 anos a fin de trimestre. Solo lleva las ventanas que el titular trae.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "1y": { "$ref": "#/$defs/fecha_de_ventana" },
+            "3y": { "$ref": "#/$defs/fecha_de_ventana" },
+            "5y": { "$ref": "#/$defs/fecha_de_ventana" },
+            "10y": { "$ref": "#/$defs/fecha_de_ventana" },
+            "ytd": { "$ref": "#/$defs/fecha_de_ventana" }
+          }
+        },
+        "series_valid_from": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "La fecha desde la que vale la serie de este fondo, de `usable_from` en fund_history_policies.json: lo anterior es la historia previa a la clase y su continuidad no esta revisada. Entra el 05-11-2026 por la decision 112 de Oscar: la lectura del activo ya dejaba fuera la cifra cuyo periodo empieza antes (decision 73), y la ficha y el Comparador, que leen esta tarjeta, la seguian ensenando. M&G Asian daba +9,64 % a 10 anios en la ficha y N/D en el interno.\n\nUna cifra cuyo periodo toque esta fecha no viaja en la tarjeta, sea de quien sea, y `windows_before_series_valid_from` dice cuales.",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "windows_before_series_valid_from": {
+          "type": "array",
+          "maxItems": 5,
+          "description": "Las ventanas que se quedan sin cifra por `series_valid_from`, para poder decirlo en vez de que parezca que la serie no llega. `ytd` es lo que va de anio. No las calcula quien lee: la regla vive en un sitio.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "items": {
+            "type": "string",
+            "enum": ["ytd", "1y", "3y", "5y", "10y"],
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          }
+        },
+        "series_class": {
+          "type": "string",
+          "enum": ["MARKET_PRICE"],
+          "description": "Sobre que precio se calculo cuando NO es el valor liquidativo. Solo aparece en los ETF: el mismo calculo mensual que un fondo, sobre el cierre de mercado ajustado (Oscar, 04-11-2026). Ausente significa valor liquidativo. No cambia el metodo, porque la formula y la frecuencia son las mismas, y no se puede omitir, porque el cierre de mercado mide algo mas de volatilidad que el valor liquidativo (decision 11) y el lector tiene que poder saberlo.",
+          "x-unit": "code",
+          "x-layer": "computed",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "return_basis": {
+          "type": "string",
+          "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+          "description": "Obligatorio. Es lo que la septima prueba comprueba en toda lista ordenada o comparada: una tabla que mezcla bases miente, y sin este campo en la tarjeta la app no puede ni avisarlo.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "distribution_policy": {
+          "type": "string",
+          "enum": ["ACCUMULATING", "DISTRIBUTING", "UNKNOWN"],
+          "description": "Viaja con las metricas para que la ficha pueda MARCAR la base al lado del dato en vez de bloquear la comparacion. UNKNOWN es un valor valido y se ensena como tal.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "distribution_policy_source": {
+          "type": "string",
+          "enum": ["ISSUER"],
+          "description": "De quien es distribution_policy cuando no es del proveedor. Decision 56 (Oscar, 08-11-2026): donde el proveedor dice UNKNOWN y declared/issuer_data declara la politica, la tarjeta lleva la del emisor y este campo lo anota, para que la cabecera, el buscador y la calidad digan lo mismo. Falta en todos los demas casos, incluido el de un proveedor que la da: ahi manda el proveedor y el emisor no sustituye nada (decision 52). No tiene distribution_policy_resolution al lado porque ese campo es el grado de evidencia del proveedor, y declared/profile sigue diciendo UNKNOWN.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "distribution_policy_resolution": {
+          "type": "string",
+          "enum": [
+            "OFFICIAL_REGISTER",
+            "OFFICIAL_KID",
+            "PROVIDER_DISTRIBUTION_RECORDS",
+            "OBSERVED_DISTRIBUTION",
+            "PROVIDER_NO_RECORDS"
+          ],
+          "description": "CON QUE se sabe la politica, aqui y no solo en declared/profile. Entra el 01-11-2026 por una razon concreta: Oscar decidio publicar las ~450 metricas propias con su grado declarado, y el grado estaba en el perfil pero NO en la tarjeta. La tarjeta existe para que la aplicacion no lea bloque a bloque, asi que 'el grado viaja declarado, un informe puede decir en que se apoya' era verdad a medias mientras no estuviera en este documento.\n\nHace falta de verdad, no por simetria: proyectado sobre los 752, en torno al 95 % de las politicas se resolveran con PROVIDER_NO_RECORDS, el grado mas debil de los cuatro —una ausencia afirmada por un tercero, no el folleto—. Una metrica apoyada en eso es defendible, pero un informe tiene que poder decirlo.\n\nLo que sostiene ese grado, medido ese dia: de 14 fondos que reparten por via independiente, los 12 con respuesta traida quedaron confirmados por el endpoint con pagos, y en 525 listas vacias ninguna desmintio al registro ni a un rendimiento repartido.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "volatility": { "$ref": "#/$defs/ventanas_fraction" },
+        "annualized_return": {
+          "$ref": "#/$defs/ventanas_rentabilidad",
+          "description": "Rango por tipo (decision B-73): [-1, 20] en una accion y [-5, 5] en los demas, puesto por el `allOf` de la raiz. El [-5, 20] de aqui es solo la envolvente."
+        },
+        "max_drawdown": { "$ref": "#/$defs/ventanas_fraction" },
+        "sharpe": { "$ref": "#/$defs/ventanas_ratio" },
+        "sortino": { "$ref": "#/$defs/ventanas_ratio" },
+        "ytd_return": {
+          "$ref": "#/$defs/cifra_rentabilidad",
+          "description": "Rango por tipo (decision B-73): [-1, 20] en una accion y [-5, 5] en los demas, puesto por el `allOf` de la raiz. El [-5, 20] de aqui es solo la envolvente."
+        },
+        "windows_out_of_range": {
+          "type": "array",
+          "maxItems": 45,
+          "description": "Las cifras NUESTRAS que `computed/metrics` aparto por salirse del rango de su contrato (decision B-73) y que por eso faltan en el titular, por su ruta: `annualized_return.1y`, `ytd_return`, `relative.r2.3y`. Existe por lo mismo que `windows_before_series_valid_from`: para que la pantalla pueda decir «fuera de rango» donde hay un hueco, en vez de que parezca que la serie no llega. No lleva la cifra: una cifra apartada no se ensena, y el valor y el limite estan en `computed/metrics.out_of_range`.\n\nSolo aparece con el titular nuestro. Si el proveedor publica esa ventana, puede ir en `provider` como suya y con su fecha, que es la regla de la decision 110 para toda ventana sin cifra nuestra.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "items": {
+            "type": "string",
+            "pattern": "^((volatility|annualized_return|max_drawdown|sharpe|sortino|relative\\.(beta|r2|jensen_alpha|active_return|tracking_error|information_ratio))\\.(1y|3y|5y|10y)|ytd_return)$",
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          }
+        },
+        "relative": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "reference"],
+          "description": "Lo que se mide CONTRA un indice, con el indice nombrado al lado y el autor declarado.\n\nEstaba suelto —`jensen_alpha`, `beta` y `r2` al mismo nivel que la volatilidad— y asi no decia contra que se midio ni quien lo calculo. Desde el 01-11-2026 hay las dos cosas que ensenar: la nuestra contra un fondo indice aprobado y la del proveedor contra el suyo, y meterlas en el mismo campo seria volver al problema que esta tarjeta existe para resolver.\n\nUn alpha sin su indice no se puede defender ante un cliente, y por eso `benchmark` es obligatorio: sin identidad del indice no se escribe el bloque.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["COMPUTED", "PROVIDER"],
+              "description": "`COMPUTED` = contra el fondo indice que replica su benchmark, con nuestra serie y nuestro metodo. `PROVIDER` = la cifra del proveedor, que es el cuarto paso de la decision 8: lo que no se puede cocinar va como suyo, con su nombre y su fecha.",
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "reference": {
+              "type": "string",
+              "enum": ["DECLARED_BENCHMARK_PROXY", "PROVIDER_CATEGORY_INDEX", "ASSIGNED_AREA_INDEX", "ASSIGNED_MARKET_INDEX"],
+              "description": "CONTRA QUE se midio, que no es lo mismo que quien lo calculo. Entra el 01-11-2026 porque sin el la tarjeta afirmaba algo que no habiamos comprobado.\n\n`DECLARED_BENCHMARK_PROXY`: contra el fondo indice que replica el benchmark que el folleto declara. Lo nombra `benchmark`, con el ISIN del proxy.\n\n`PROVIDER_CATEGORY_INDEX`: la cifra del proveedor, que NO esta medida contra el benchmark del folleto. Medido ese dia sobre la base: de 24 fondos que declaran «MSCI ACWI NR USD», con la MISMA fecha de dato (30-09) y la MISMA divisa, el proveedor publica DIEZ volatilidades distintas del «indice», de 9,61 % a 22,42 %. Descartadas fecha y divisa, la cifra agrupa por CATEGORIA Morningstar —22,42 % en Sector Equity Technology, 9,61 % en Global Equity Income— y 78 de 105 categorias traen una sola. Controlando fecha y divisa, 218 de 476 fondos comparables (45,8 %) discrepan de la cifra mayoritaria de su propio benchmark.\n\nEl proveedor no nombra su indice, asi que la tarjeta nombra lo que la cifra sigue: la categoria, en `category`. Poner ahi el nombre del folleto seria afirmar una medicion que no se hizo, y eso llega a un cliente.\n\n`ASSIGNED_AREA_INDEX` y `ASSIGNED_MARKET_INDEX`: una accion, que no declara indice y por eso lo elegimos nosotros. El primero es de area y no de su plaza; el segundo, de la plaza donde cotiza.",
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "description": "La categoria cuyo indice sigue la cifra del proveedor. Es obligatoria cuando `reference` es `PROVIDER_CATEGORY_INDEX`: sin ella no se puede decir contra que se midio, y entonces el bloque entero no se escribe.",
+              "x-unit": "text",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "x-absence": "NOT_APPLICABLE"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "x-unit": "date",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "benchmark": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name"],
+              "description": "La identidad del indice hasta donde se conoce, y no mas. La nuestra la trae entera, con el ISIN del fondo indice que hizo de serie —lo que permite decir «medido contra este fondo indice» en vez de insinuar que teniamos la serie del indice, que no la tenemos—. La del proveedor trae solo el nombre, porque es lo unico que declara: inventarle variante o divisa seria afirmar lo que no sabemos.",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "x-reference": true,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "x-unit": "text",
+                  "x-layer": "projection",
+                  "x-owner": "batch"
+                },
+                "instrument_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_APPLICABLE"
+                },
+                "source_series_id": {
+                  "type": "string",
+                  "pattern": "^EODHD:[A-Z0-9][A-Z0-9._-]*\\.INDX$",
+                  "description": "Copia de `computed/metrics.relative.benchmark.source_series_id`: la serie del propio indice que hizo de referencia (decision 23 del 07-11-2026), cuando no fue un instrumento de la base. Solo en la nuestra y solo con series_class INDEX_LEVEL.",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_APPLICABLE"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_PROVIDED"
+                },
+                "variant": {
+                  "type": "string",
+                  "enum": ["NR", "GR", "PR", "TR"],
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_PROVIDED"
+                },
+                "return_basis": {
+                  "type": "string",
+                  "enum": ["TOTAL_RETURN", "PRICE_RETURN"],
+                  "description": "La base del INDICE, que no es la del fondo. El alpha de Jensen exige que las dos coincidan: un fondo medido en rentabilidad total contra un indice de solo precio da un alpha positivo que es el dividendo del mercado, no el acierto del gestor.",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_PROVIDED"
+                },
+                "series_class": {
+                  "type": "string",
+                  "enum": ["NAV", "MARKET_PRICE", "RATE", "INDEX_LEVEL"],
+                  "description": "Sobre QUE se midio la serie del indice, que NO es su base de rentabilidad: la base dice si incluye los dividendos y esto dice cuanto RUIDO lleva la cifra. De los cuatro proxies aprobados uno es un ETF —el de MSCI ACWI, 57 fondos—, y medido el 01-11-2026 un ETF cotizado infla la volatilidad 1,2 puntos a un anio frente al valor liquidativo de un fondo indice, porque XETRA cierra a las 17:30 y el VL se calcula tras el cierre de EE.UU. Quien lea un tracking error contra ese proxy tiene derecho a saberlo sin ir a buscar el ISIN. `INDEX_LEVEL` es el nivel del propio indice (decision 23 del 07-11-2026): su alfa no se ordena con uno medido contra un ETF proxy, que lleva el coste del ETF descontado.",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_PROVIDED"
+                },
+                "equivalent_of": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Copia de `computed/metrics.relative.benchmark.equivalent_of`: el indice que declara el fondo cuando el medido (`name`) es otro equivalente. Solo en la nuestra.",
+                  "x-unit": "text",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_APPLICABLE"
+                },
+                "kid_confirmation": {
+                  "type": "string",
+                  "enum": ["NOT_CONFIRMED", "BRAND_ONLY"],
+                  "description": "Copia de `computed/metrics.relative.benchmark.kid_confirmation`: el KID del fondo no confirma que este sea su indice, y aun asi se mide contra el (decision 21 del 07-11-2026). Solo en la nuestra.",
+                  "x-unit": "code",
+                  "x-layer": "projection",
+                  "x-owner": "batch",
+                  "x-absence": "NOT_APPLICABLE"
+                }
+              }
+            },
+            "beta": { "$ref": "#/$defs/ventanas_ratio" },
+            "r2": {
+              "$ref": "#/$defs/ventanas_fraction",
+              "description": "Viaja SIEMPRE con el alpha. El umbral con el que la app decide desconfiar es de lectura y nace apagado, asi que la app necesita el r2 en la mano para poder aplicarlo o no sin reescribir nada."
+            },
+            "jensen_alpha": { "$ref": "#/$defs/ventanas_fraction" },
+            "active_return": {
+              "$ref": "#/$defs/ventanas_fraction",
+              "description": "Rentabilidad del fondo menos la del indice, sin ajustar por beta. Es una cifra distinta del alpha de Jensen y no comparte campo con el."
+            },
+            "tracking_error": { "$ref": "#/$defs/ventanas_fraction" },
+            "information_ratio": { "$ref": "#/$defs/ventanas_ratio" }
+          },
+          "allOf": [
+            {
+              "if": { "required": ["jensen_alpha"] },
+              "then": { "required": ["r2"] }
+            },
+            {
+              "if": {
+                "required": ["reference"],
+                "properties": { "reference": { "const": "DECLARED_BENCHMARK_PROXY" } }
+              },
+              "then": { "required": ["benchmark"] }
+            },
+            {
+              "if": {
+                "required": ["reference"],
+                "properties": { "reference": { "enum": ["ASSIGNED_AREA_INDEX", "ASSIGNED_MARKET_INDEX"] } }
+              },
+              "then": { "required": ["benchmark"], "not": { "required": ["jensen_alpha"] } }
+            },
+            {
+              "if": {
+                "required": ["reference"],
+                "properties": { "reference": { "const": "PROVIDER_CATEGORY_INDEX" } }
+              },
+              "then": { "required": ["category"], "not": { "required": ["benchmark"] } }
+            }
+          ]
+        },
+        "relative_absence": {
+          "type": "string",
+          "enum": ["NO_REFERENCE_FOR_MARKET", "NO_REFERENCE_DECIDED_FOR_MARKET", "KID_DECLARES_COMPOSITE", "KID_DECLARES_NO_BENCHMARK", "HEDGED_SHARE_CLASS"],
+          "description": "Copia de `computed/metrics.relative_absence`: por que no hay `relative`, cuando lo hemos decidido. Con un motivo del KID (decision 20 del 07-11-2026) la tarjeta tampoco cae a la cifra del proveedor contra su categoria: para BNP Clean Energy esa categoria tiene la volatilidad de un indice mundial amplio (13,9 % a un anio frente al 38 % del fondo), asi que seria publicar por otra puerta el alfa que la decision retira. Con `HEDGED_SHARE_CLASS` (decision 30) pasa lo mismo: el indice de la categoria del proveedor tampoco esta cubierto, y su alfa contra la clase cubierta mediria la misma cobertura que la nuestra no quiere medir.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "provider": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "method", "as_of"],
+          "description": "Lo que el proveedor declara y nosotros NO calculamos, con su nombre y su fecha. Es el cuarto paso de la decision 8, y desde el 05-11-2026 va ventana a ventana (decision 110 de Oscar): Allianz Floating Rate AT2 tenia del proveedor 2,98, 2,18 y 0,95 % a 3, 5 y 10 anios, y se quedaba solo con 1 anio porque nuestras cifras desplazaban a las suyas aunque no llegaran a esa ventana.\n\nNO es una alternativa a la cifra del titular: nunca lleva una cifra que el titular ya traiga en esa ventana. Tampoco una cuyo periodo toque `series_valid_from`: medido ese dia, la del proveedor a 10 anios de esos fondos es la misma que la nuestra al mismo cierre: en 23 de 25 no se separan ni una milesima de punto, y en los otros dos -0,035 (DWS) y -0,001 (Buy & Hold), asi que se apoya en la misma historia sin revisar. Ensenar dos cifras de la misma magnitud al lado contradice «un dato, un sitio» justo donde lo lee un cliente: si la nuestra esta verificada, la segunda no es informacion, es duda presentada como dato.\n\nMedido el 01-11-2026, aqui solo aparece el Sharpe, y en 25 fondos: los de clase fuera del euro, donde nuestro metodo no resta un tipo libre de riesgo de otra divisa. Dejarlos sin Sharpe no es una opcion —no se suprime bajo ningun concepto—, asi que va el del proveedor, dicho como suyo.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "returns_as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "La fecha de su rentabilidad, cuando no es la de su riesgo: `as_of`. Son dos bloques del proveedor con dos fechas, medido el 05-11-2026: en 445 fondos la rentabilidad es del 30-09 y el riesgo del 31-10.\n\nDesde la decision B-74 (Oscar, 09-11-2026) la rentabilidad del proveedor puede traer una fecha por ventana. Si las ventanas que ensena este bloque comparten fecha, esta es esa fecha y solo aparece cuando no es la del riesgo, como antes. Si no la comparten, es la MAS RECIENTE de ellas -igual que `as_of` en declared/provider_returns- y aparece siempre, con la de cada una en `returns_as_of_by_window`.",
+              "x-unit": "date",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "x-absence": "NOT_PROVIDED"
+            },
+            "returns_as_of_by_window": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 2,
+              "description": "La fecha de cada rentabilidad del proveedor que ensena este bloque, cuando no todas son de la misma fecha (decision B-74): Morningstar da el 1 ano a fin de mes y el 3, 5 y 10 anos a fin de trimestre. Solo lleva las ventanas de `annualized_return` de este bloque, que son las que el titular no trae. Sin el, todas son a `returns_as_of` o, si falta, a `as_of`.",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "x-absence": "NOT_APPLICABLE",
+              "properties": {
+                "1y": { "$ref": "#/$defs/fecha_de_ventana" },
+                "3y": { "$ref": "#/$defs/fecha_de_ventana" },
+                "5y": { "$ref": "#/$defs/fecha_de_ventana" },
+                "10y": { "$ref": "#/$defs/fecha_de_ventana" }
+              }
+            },
+            "source": {
+              "type": "string",
+              "enum": ["PROVIDER"],
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "method": {
+              "type": "string",
+              "enum": ["TRAILING_PROVIDER"],
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "Obligatoria: una cifra del proveedor sin su fecha no se ensena, porque es mas vieja que la nuestra en 468 de 468 fondos y no se puede comparar sin saber cuanto.",
+              "x-unit": "date",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "volatility": { "$ref": "#/$defs/ventanas_fraction" },
+            "annualized_return": { "$ref": "#/$defs/ventanas_fraction" },
+            "max_drawdown": { "$ref": "#/$defs/ventanas_fraction" },
+            "sharpe": { "$ref": "#/$defs/ventanas_ratio" }
+          }
+        },
+        "control": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "as_of", "mismatch"],
+          "description": "La marca del tercer paso de la decision 8: donde la cifra del proveedor DISCREPA de la nuestra mas de lo que explica su desfase, para que una persona mire ese fondo antes de que llegue a un cliente. No se escribe cuando no hay discrepancia, asi que su presencia ya es la senal.\n\nLleva los nombres de las magnitudes y no las dos cifras: la nuestra esta en el titular y la del proveedor en `declared/provider_risk`, y copiarlas aqui pondria dos valores de la misma magnitud en el mismo documento, que es lo que el segundo paso prohibe.\n\nQue significa la marca, dicho sin adornos: este fondo discrepa mas que el 99 % del libro. No es una cota de error —no tenemos con que calcularla—, es un detector de extremos, que es lo que pide «que lo mire una persona».\n\nEl umbral es POR VENTANA porque la concordancia lo es, medido el 01-11-2026 sobre los pares que existen: la diferencia relativa de la volatilidad va del 0,32 % de mediana y p99 del 20,1 % a un anio, al 0,26 % y p99 del 7,4 % a tres, y 0,09 % y 7,0 % a cinco; la del Sharpe, de 0,183 de mediana y p99 de 1,37 a un anio, a 0,067 y 0,71 a tres, y 0,082 y 0,94 a cinco. La razon es el desfase: 27 dias de mediana desplazan una ventana de 12 meses un mes entero, y a tres anios ese mes es un treintavo. El Sharpe se compara en absoluto porque es un ratio; la volatilidad en relativo porque su escala cambia con el fondo.\n\nUn umbral unico —10 % y 0,5 para todas las ventanas— fue la primera version y marcaba 159 de 642, una cuarta parte del libro: eso no es una lista que una persona mire, es ruido. Con el umbral por ventana en el percentil 98-99 de cada una (volatilidad 20 % / 7,5 % / 7,5 %; Sharpe 1,25 / 0,75 / 0,75) mas un suelo de medio punto de volatilidad absoluta —sin el, cuatro monetarios se marcaban por 0,02 puntos, el 22 % en relativo y nada en la ficha de un cliente— se marcan 31 fondos de 642, con 37 marcas: 22 de Sharpe y 15 de volatilidad.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["PROVIDER"],
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "as_of": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "x-unit": "date",
+              "x-layer": "projection",
+              "x-owner": "batch"
+            },
+            "mismatch": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 12,
+              "uniqueItems": true,
+              "description": "Magnitud y ventana donde discrepa, con el nombre que esa magnitud tiene en el titular.",
+              "x-unit": "code",
+              "x-layer": "projection",
+              "x-owner": "batch",
+              "items": {
+                "type": "string",
+                "x-unit": "code",
+                "x-layer": "projection",
+                "x-owner": "batch",
+                "enum": [
+                  "volatility.1y",
+                  "volatility.3y",
+                  "volatility.5y",
+                  "volatility.10y",
+                  "sharpe.1y",
+                  "sharpe.3y",
+                  "sharpe.5y",
+                  "sharpe.10y"
+                ]
+              }
+            }
+          }
+        },
+        "risk_score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7,
+          "description": "El 1-7 que ensena la ficha, SIEMPRE copiado de un documento: el SRI de un KID de PRIIPs o el SRRI. Nunca calculado. Una ACCION no lo lleva, y la ficha lo dice en vez de dejar un hueco: no hay KID detras de una accion, asi que el indicador no existe para ese producto y no es una laguna que se vaya a cerrar.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        },
+        "risk_score_source": {
+          "type": "string",
+          "enum": ["SRI_KID", "SRRI"],
+          "description": "Son dos y no tres: `VOL_BUCKET` se retiro el 01-11-2026 por decision de Oscar, y con el la posibilidad de que la tarjeta ensene un 1-7 que no venga de un documento.\n\nQue era: un cubo de volatilidad calculado en readmodel/mappers.py de la base vieja, que reparte la volatilidad en siete tramos. Lo llevan las 312 acciones de la base vieja y no viene de ningun KID; es uno de los cinco defectos que motivan esta base. Esta retirado del contrato y no solo sin usar, porque la tentacion de rellenar el hueco llega justo cuando entran las acciones, y asi es el esquema el que lo impide y no la disciplina.\n\nLo que una accion si tiene, y la ficha ensena con su metodo y su ventana al lado, es nuestra volatilidad: una medida de riesgo que no finge ser un sello regulatorio.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE"
+        }
+      }
+    },
+    "exposure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidence"],
+      "description": "Sin `asset_mix` desde el 05-11-2026 si el reparto por clases no cuadra y lo demas si vale (decision 109): es lo que dice declared/exposure, y una proyeccion no puede pedir mas que su fuente. Quien necesite el reparto mira ese campo, no que el bloque exista. La composicion, cuando hay una de la que uno pueda responder. NO es obligatoria en la tarjeta, y es una correccion medida del 01-11: de 769 instrumentos escritos, 608 tienen reparto y 161 no, porque lo que declara la fuente no suma 1. Exigirla aqui habria dejado sin tarjeta a esos 161 —sin nombre, sin coste y sin metricas en la pantalla— por no tener una pieza que la ficha pinta en un sitio y puede faltar.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "asset_mix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["equity", "fixed_income", "cash", "other"],
+          "description": "Las mismas CUATRO que exige declared/exposure, no seis. La tarjeta es una proyeccion: no puede pedir mas de lo que tiene la fuente de la que se compone, y pedirlo dejaba 608 instrumentos sin tarjeta por un requisito que el bloque declarado ya habia relajado. Una proyeccion mas exigente que su fuente es un contrato que se contradice.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "properties": {
+            "equity": { "$ref": "#/$defs/peso_de_clase" },
+            "fixed_income": { "$ref": "#/$defs/peso_de_clase" },
+            "cash": { "$ref": "#/$defs/peso_de_clase" },
+            "alternative": { "$ref": "#/$defs/peso_de_clase" },
+            "real_asset": { "$ref": "#/$defs/peso_de_clase" },
+            "other": { "$ref": "#/$defs/peso_de_clase" }
+          }
+        },
+        "sectors": { "$ref": "#/$defs/mapa_de_pesos" },
+        "equity_regions": { "$ref": "#/$defs/mapa_de_pesos" },
+        "equity_styles": { "$ref": "#/$defs/mapa_de_pesos" },
+        "market_caps": { "$ref": "#/$defs/mapa_de_pesos" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "derivation": {
+          "type": "string",
+          "enum": ["DECLARED", "BY_INSTRUMENT_TYPE"],
+          "description": "De donde sale este reparto, y entra el 01-11-2026 con las acciones. `DECLARED` es lo de siempre: una composicion que un tercero midio a una fecha, con su confianza, proyectada de declared/exposure.\n\n`BY_INSTRUMENT_TYPE` es el de una ACCION, y dice que el reparto no lo midio nadie: una accion es renta variable al 100 % por ser una accion. Eso explica por que una accion no tiene bloque declared/exposure —escribir una tautologia en la capa de lo que afirma un tercero seria mentir sobre quien lo afirma— y por que si la tiene la tarjeta, que es una proyeccion y es el unico documento donde una copia derivada esta en su sitio.\n\nSin este campo la ficha ensenaria dos repartos con la misma pinta y confianza 1, uno medido y otro deducido del tipo. Con el, una radiografia de cartera puede sumarlos y seguir sabiendo cual es cual.",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "fixed_income": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
+      "x-applies-when": "CON_RENTA_FIJA",
+      "x-absence": "NOT_APPLICABLE",
+      "properties": {
+        "effective_duration": { "$ref": "#/$defs/anios" },
+        "modified_duration": { "$ref": "#/$defs/anios" },
+        "effective_maturity": { "$ref": "#/$defs/anios" },
+        "yield_to_maturity": {
+          "type": "number",
+          "minimum": -0.5,
+          "maximum": 1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "investment_grade": { "$ref": "#/$defs/peso" },
+        "high_yield": { "$ref": "#/$defs/peso" },
+        "avg_credit_quality": {
+          "type": "string",
+          "enum": ["AAA", "AA", "A", "BBB", "BB", "B", "CCC", "CC", "C", "D", "NR"],
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "holdings_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positions_count", "as_of"],
+      "description": "Si el resumen esta, dice cuantas posiciones y a que fecha: un resumen sin fecha no se puede ensenar a un cliente.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "positions_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000,
+          "x-unit": "count",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "top10_weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aum", "currency", "as_of"],
+      "description": "El patrimonio del fondo, con su divisa y su fecha. Entro el 02-11-2026 con la decision de para quien es esta tarjeta: es la fila de una LISTA, no la carga de una ficha. Una ficha es un instrumento y puede permitirse varias lecturas; un buscador son cientos y no puede. El patrimonio entra porque se ordena y se filtra por el. El bloque completo sigue en declared/size, y de el no se proyecta la fuente, que solo se mira con la ficha delante.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "aum": {
+          "type": "number",
+          "minimum": 0,
+          "x-unit": "currency_amount",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "sustainability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["esg_globes", "as_of"],
+      "description": "La calificacion de sostenibilidad del proveedor en su escala de 1 a 5, que es por la que se filtra una lista. La puntuacion absoluta de riesgo ESG y la intensidad de carbono NO se proyectan: se leen con la ficha delante y se quedan en declared/sustainability. Entro el 02-11-2026, por el mismo criterio que size.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "esg_globes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "x-unit": "count",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "x-unit": "date",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fitness", "coverage"],
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "fitness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "COMPARAR_COSTE",
+            "RADIOGRAFIA_DE_CARTERA",
+            "COMPARAR_RENTABILIDAD",
+            "MOSTRAR_ALPHA",
+            "METRICAS_PROPIAS",
+            "COMPARAR_CON_SU_GRUPO"
+          ],
+          "description": "Para que sirve este instrumento, uso por uso, copiado de quality/latest. Es lo que la ficha necesita para MARCAR en vez de bloquear: con esto puede ensenar el instrumento y callar el alpha, diciendo por que. Sustituye al semaforo de cuatro estados, que metia 761 de 769 instrumentos en el mismo cajon y no servia para ordenar ni para filtrar.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "properties": {
+            "COMPARAR_COSTE": { "$ref": "#/$defs/aptitud" },
+            "RADIOGRAFIA_DE_CARTERA": { "$ref": "#/$defs/aptitud" },
+            "COMPARAR_RENTABILIDAD": { "$ref": "#/$defs/aptitud" },
+            "MOSTRAR_ALPHA": { "$ref": "#/$defs/aptitud" },
+            "METRICAS_PROPIAS": { "$ref": "#/$defs/aptitud" },
+            "COMPARAR_CON_SU_GRUPO": { "$ref": "#/$defs/aptitud" }
+          }
+        },
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "x-unit": "fraction",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "warnings": {
+          "type": "array",
+          "maxItems": 20,
+          "description": "Los avisos que la ficha debe mostrar, con tope. No todos: los que caben en una pantalla.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "severity", "message"],
+            "x-layer": "projection",
+            "x-owner": "batch",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "x-unit": "code",
+                "x-layer": "projection",
+                "x-owner": "batch"
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["INFO", "WARN", "ERROR"],
+                "x-unit": "code",
+                "x-layer": "projection",
+                "x-owner": "batch"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "x-unit": "text",
+                "x-layer": "projection",
+                "x-owner": "batch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "history_available_years": {
+      "type": "array",
+      "maxItems": 60,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "items": {
+        "type": "integer",
+        "minimum": 1900,
+        "maximum": 2200,
+        "x-unit": "count",
+        "x-layer": "projection",
+        "x-owner": "batch"
+      }
+    },
+    "available_sections": {
+      "type": "array",
+      "maxItems": 30,
+      "description": "Que secciones EXISTEN en la base para este instrumento. Sustituye a los punteros de la raiz: la app ya no necesita leer la raiz para saber que bloques existen. Lo que NO dice, y el 02-11-2026 se vio que se estaba leyendo asi: no dice que la tarjeta traiga esas secciones. De las doce que declara un fondo, la tarjeta proyecta costs, exposure, holdings, quote, size y sustainability, y de profile y regulatory solo la politica de reparto y el indicador de 1 a 7. Las otras cuatro -distributions, provenance, provider_returns y provider_risk- se declaran aqui y se leen en su propio documento, porque solo se miran con la ficha delante y la tarjeta es la fila de una lista. Un nombre en esta lista significa 'hay un documento que leer', no 'esta aqui dentro'. Los nombres salen sin su capa: declared/costs y computed/metrics son costs y metrics.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "x-unit": "code",
+        "x-layer": "projection",
+        "x-owner": "batch"
+      }
+    },
+    "is_investable": {
+      "type": "boolean",
+      "x-unit": "code",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    }
+  },
+  "$defs": {
+    "aptitud": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["apt"],
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "apt": {
+          "type": "boolean",
+          "x-unit": "code",
+          "x-layer": "projection",
+          "x-owner": "batch"
+        },
+        "missing": {
+          "type": "array",
+          "maxItems": 10,
+          "description": "Las rutas que faltan, nombradas, para que la ficha pueda decir POR QUE no sirve.",
+          "x-layer": "projection",
+          "x-owner": "batch",
+          "x-absence": "NOT_APPLICABLE",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          }
+        }
+      }
+    },
+    "peso": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "x-unit": "fraction",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "peso_de_clase": {
+      "type": "number",
+      "minimum": -0.01,
+      "maximum": 1.01,
+      "description": "El peso de una clase en el reparto, neto: una clase puede salirse de 0-1 hasta un punto, de -0,01 a 1,01 (decision A-63 de Oscar, 05-11-2026). Es el mismo rango de declared/exposure, porque esto es una copia de aquello; el porque esta alli. Quien sume o dibuje esto tiene que aceptar un negativo pequeno.",
+      "x-unit": "fraction",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "anios": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 100,
+      "x-unit": "years",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "mapa_de_pesos": {
+      "type": "object",
+      "maxProperties": 60,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_APPLICABLE",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "x-unit": "fraction",
+        "x-layer": "projection",
+        "x-owner": "batch"
+      }
+    },
+    "cifra_fraction": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 5,
+      "x-unit": "fraction",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cifra_ratio": {
+      "type": "number",
+      "minimum": -20,
+      "maximum": 20,
+      "x-unit": "ratio",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "fecha_de_ventana": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "La fecha de la cifra de esa ventana, segun el proveedor.",
+      "x-unit": "date",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cifra_rentabilidad": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 20,
+      "description": "La ENVOLVENTE de los dos rangos de la rentabilidad (decision B-73). No es el de ningun instrumento: el suyo lo pone el `allOf` de la raiz.",
+      "x-unit": "fraction",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "cifra_rentabilidad_accion": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 20,
+      "description": "La rentabilidad de una ACCION: de -100 % a +2.000 % (decision B-73), el mismo rango que computed/metrics.",
+      "x-unit": "fraction",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "ventanas_rentabilidad": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "3y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "5y": { "$ref": "#/$defs/cifra_rentabilidad" },
+        "10y": { "$ref": "#/$defs/cifra_rentabilidad" }
+      }
+    },
+    "ventanas_rentabilidad_accion": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "3y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "5y": { "$ref": "#/$defs/cifra_rentabilidad_accion" },
+        "10y": { "$ref": "#/$defs/cifra_rentabilidad_accion" }
+      }
+    },
+    "ventanas_fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_fraction" },
+        "3y": { "$ref": "#/$defs/cifra_fraction" },
+        "5y": { "$ref": "#/$defs/cifra_fraction" },
+        "10y": { "$ref": "#/$defs/cifra_fraction" }
+      }
+    },
+    "ventanas_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "properties": {
+        "1y": { "$ref": "#/$defs/cifra_ratio" },
+        "3y": { "$ref": "#/$defs/cifra_ratio" },
+        "5y": { "$ref": "#/$defs/cifra_ratio" },
+        "10y": { "$ref": "#/$defs/cifra_ratio" }
+      }
+    }
+  }
+}

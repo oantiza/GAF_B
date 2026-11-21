@@ -1,0 +1,15 @@
+# Reglas de alta senal: fallos reales, no estilo.
+#
+# El repositorio tiene 8.990 lineas escritas antes de que hubiera linter, y el
+# juego completo de ruff da 192 avisos, casi todos de estilo y de `except
+# Exception` deliberados alrededor de llamadas de red. Poner eso en el CI seria
+# ruido. E9 (errores de sintaxis) y F (pyflakes: nombres indefinidos, imports y
+# variables sin usar) cazan fallos de verdad: la primera pasada encontro un
+# NameError latente en el boton "Actualizar" de app.py (auditoria 03-09).
+#
+# Ampliar el juego de reglas es una decision aparte, con su propia limpieza.
+line-length = 120
+exclude = ["cache", "data", "logs", "export", "export_bdb", "reports", "contracts_cache", ".venv", "venv"]
+
+[lint]
+select = ["E9", "F"]

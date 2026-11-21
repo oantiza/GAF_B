@@ -1,0 +1,15 @@
+bolsa,benchmark,alcance,nota
+MC,MSCI Europe,AREA,Espana
+PA,MSCI Europe,AREA,Francia
+XETRA,MSCI Europe,AREA,Alemania
+F,MSCI Europe,AREA,Alemania
+AS,MSCI Europe,AREA,Paises Bajos
+LSE,MSCI Europe,AREA,Reino Unido
+SW,MSCI Europe,AREA,Suiza
+HE,MSCI Europe,AREA,Finlandia
+US,S&P 500 NR,MERCADO,Estados Unidos; tambien las de domicilio irlandes que cotizan alli; NR porque desde el 07-11 el S&P 500 tiene dos filas (NR fondo indice y TR nivel de indice) y la de las acciones sigue siendo la NR
+TO,,SIN_REFERENCIA,Canada; decidido que no se mide contra un indice de otra plaza
+ST,MSCI Europe,AREA,Suecia; decision 40 (08-11-2026)
+BR,MSCI Europe,AREA,Belgica; decision 40 (08-11-2026)
+CO,MSCI Europe,AREA,Dinamarca; decision 40 (08-11-2026)
+VI,MSCI Europe,AREA,Austria; decision 40 (08-11-2026)

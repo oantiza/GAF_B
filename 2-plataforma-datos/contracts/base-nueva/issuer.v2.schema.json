@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/issuer.v2.schema.json",
+  "title": "issuers/{issuer_id} — v2",
+  "description": "La entidad, una sola vez, con sus roles. Decidido el 01-11: el contrato DECLARA LOS TRES ROLES desde el principio y el alfa puebla SOLO EQUITY_ISSUER. El coste de los roles no era el campo, que es una linea: era emparejar a mano los nombres de las 118 gestoras y los 14 depositarios con su entidad, y eso no hace falta ahora. Anadirlos despues es cargar datos, no migrar un esquema. La clave es un id interno y no el LEI, porque medido el 31-10 solo 2 de 771 fondos traen LEI: una clave que falta en el 99,7 % de los casos no es una clave.",
+  "x-collection": "issuers/{issuer_id}",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["issuer_id", "schema_version", "updated_at", "identity", "roles"],
+  "properties": {
+    "issuer_id": {
+      "type": "string",
+      "pattern": "^ISS_[0-9]{6}$",
+      "description": "Id interno estable: se escribe una vez y no se recalcula. Hasta el 07-11-2026 asignarlo era una DECISION HUMANA, porque decidir que dos cadenas de texto son la misma entidad no lo puede hacer un lote. Desde ese dia, para el papel EQUITY_ISSUER, la regla 'un LEI, un emisor' la aprobo Oscar (decision 8 de DECISIONES_DATOS_2026-11-07) y los lotes la aplican: el LEI lo pone FIRDS en cada accion y no hay nombres que casar, asi que dos ISIN con el mismo LEI son la misma entidad por definicion del LEI (ISO 17442), no por juicio. El registro LEI -> id vive en 1-extractor/config/emisores_lei.csv, en Git, y es lo que hace estable el id: un LEI que ya tiene id lo conserva, y un numero no se reutiliza. Dueno 'platform' por eso mismo: lo escribe el lote que aplica la regla. Una entidad que no tenga LEI (las gestoras y depositarios de hoy, casi todos) sigue necesitando una decision humana para casarse, y esa decision ira en matched_by y matched_at.",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "base-nueva.issuer.v2",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "updated_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "platform"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["legal_name", "legal_name_folded", "country"],
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "properties": {
+        "legal_name": {
+          "type": "string",
+          "minLength": 1,
+          "x-unit": "text",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "legal_name_folded": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Para emparejar. Es lo que hoy no existe y por lo que una misma casa escrita a secas, con 'Wealth Management' y con 'Asset Management' cuenta como tres entidades distintas, dejando sin respuesta la pregunta de cuanto del patrimonio de un cliente esta gestionado por una sola casa.",
+          "x-unit": "text",
+          "x-layer": "computed",
+          "x-owner": "platform"
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "Pais de constitucion (ISO 3166-1 alfa-2). Con LEI, el de la jurisdiccion legal que registra GLEIF, y solo si no la trae, el de su direccion legal; una jurisdiccion subnacional da su pais (US-DE, Delaware, es US) y la completa va en 'jurisdiction'. No es el pais del mercado donde cotiza: Ferrovial cotiza en Madrid y esta constituida en Paises Bajos.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform"
+        },
+        "lei": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{20}$",
+          "description": "Identificador global, cuando se tiene. No es la clave: en 771 fondos solo hay 2.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "jurisdiction": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}(-[A-Z0-9]{1,3})?$",
+          "description": "La jurisdiccion legal tal como la registra GLEIF, con su subdivision cuando la tiene (US-DE). Anadido el 07-11-2026.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "lei_registration_status": {
+          "type": "string",
+          "enum": ["ISSUED", "LAPSED", "MERGED", "RETIRED", "ANNULLED", "DUPLICATE", "TRANSFERRED", "PENDING_TRANSFER", "PENDING_ARCHIVAL", "PENDING_VALIDATION", "CANCELLED"],
+          "description": "Estado del registro del LEI en GLEIF (registration.status). LAPSED no es una baja de la entidad: es que no ha renovado el registro y sus datos pueden estar viejos. RETIRED o MERGED si suelen ser una entidad que ya no existe como tal. Anadido el 07-11-2026.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "entity_status": {
+          "type": "string",
+          "enum": ["ACTIVE", "INACTIVE"],
+          "description": "Estado de la entidad en GLEIF (entity.status): si sigue existiendo como persona juridica. GLEIF escribe NULL cuando no lo sabe, y eso aqui es ausencia, no un valor. Anadido el 07-11-2026.",
+          "x-unit": "code",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "registry_updated_at": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Ultima actualizacion del registro en GLEIF (registration.lastUpdateDate). Dice cuan viejos pueden ser el nombre y el pais. Anadido el 07-11-2026.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Cuando se pregunto a GLEIF (la fecha de la respuesta, aunque se lea de la cache). Anadido el 07-11-2026.",
+          "x-unit": "date",
+          "x-layer": "declared",
+          "x-owner": "platform",
+          "x-absence": "NOT_PROVIDED"
+        }
+      }
+    },
+    "roles": {
+      "type": "array",
+      "maxItems": 4,
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Los tres roles estan declarados desde el principio; el alfa solo puebla EQUITY_ISSUER.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "items": {
+        "type": "string",
+        "enum": ["EQUITY_ISSUER", "FUND_MANAGER", "DEPOSITARY"],
+        "x-unit": "code",
+        "x-layer": "declared",
+        "x-owner": "platform"
+      }
+    },
+    "matched_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Quien decidio que esta entidad es esta entidad.",
+      "x-unit": "text",
+      "x-layer": "human",
+      "x-owner": "human",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "matched_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "human",
+      "x-owner": "human",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

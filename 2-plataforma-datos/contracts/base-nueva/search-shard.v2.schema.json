@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/search-shard.v2.schema.json",
+  "title": "search_shards/{shard_id} — v2",
+  "description": "Fragmento del indice de busqueda, 500 entradas como maximo. Sustituye a meta/search_index, que hoy son 209 KB y 1.097 filas en un documento y revienta hacia los 5.505 activos. Un documento por activo seria peor: la busqueda de la app es por SUBCADENA en memoria (nq in name_folded), asi que un indice por activo convierte una lectura en 1.097. Con fragmentos de 500, hoy son 3 lecturas y a 5.000 activos 10, ningun documento crece con el universo, y la busqueda por subcadena sigue funcionando igual.",
+  "x-collection": "search_shards/{shard_id}",
+  "x-layer": "projection",
+  "x-owner": "batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["shard_id", "computed_at", "entries"],
+  "properties": {
+    "shard_id": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$",
+      "x-unit": "code",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "computed_at": {
+      "type": "string",
+      "x-unit": "date",
+      "x-layer": "metadata",
+      "x-owner": "batch"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "El tope es el que hace que la prueba cuarta siga valiendo: 500, no 'los que haya'.",
+      "x-layer": "projection",
+      "x-owner": "batch",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["instrument_id", "name_folded", "instrument_type"],
+        "x-layer": "projection",
+        "x-owner": "batch",
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "pattern": "^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$",
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          },
+          "name_folded": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "text",
+            "x-layer": "projection",
+            "x-owner": "batch",
+            "x-absence": "NOT_PROVIDED"
+          },
+          "instrument_type": {
+            "type": "string",
+            "enum": ["FUND", "ETF", "STOCK", "INDEX", "CURRENCY", "OTHER"],
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch"
+          },
+          "ticker": {
+            "type": "string",
+            "minLength": 1,
+            "x-unit": "code",
+            "x-layer": "projection",
+            "x-owner": "batch",
+            "x-absence": "NOT_PROVIDED"
+          }
+        }
+      }
+    }
+  }
+}

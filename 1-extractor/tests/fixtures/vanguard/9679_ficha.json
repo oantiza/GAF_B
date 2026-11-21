@@ -1,0 +1,214 @@
+{
+"data": {
+"funds": [
+{
+"profile": {
+"portId": "9679",
+"fundFullName": "Vanguard FTSE All-World UCITS ETF (USD) Accumulating",
+"fundCurrency": "USD",
+"assetClassificationLevel1": "Equity",
+"marketRegionFocus": "Global",
+"fundInceptionDate": "2019-07-23",
+"distributionStrategy": "Accumulating Income",
+"fundDistributionFrequency": "Not Applicable",
+"etfReplicationMethodology": "Physical",
+"benchMarkNameFromECS": "FTSE All-World Index",
+"benchmarkPolarisData": {
+"FBPC": [
+{
+"benchmarkShortName": "FTSE All World Index USD Net of Tax",
+"identifiers": [
+{
+"altId": "FactSet ID",
+"altIdValue": "FTAWI:ALL_WORLD_INDEX"
+},
+{
+"altId": "FTSE Code",
+"altIdValue": "AWNT01"
+},
+{
+"altId": "Neoxam ID",
+"altIdValue": "V1005167400"
+},
+{
+"altId": "RIMES ID",
+"altIdValue": "AWORLDSNRUSD0"
+},
+{
+"altId": "RIMES Index Source",
+"altIdValue": "FTGEIS"
+},
+{
+"altId": "Ticker",
+"altIdValue": "TAWNT01U"
+}
+]
+}
+]
+},
+"identifiers": [
+{
+"altIdCode": "ISIN",
+"altIdValue": "IE00BK5BQT80"
+}
+],
+"feesAndExpenses": {
+"feesAndExpensesType": [
+{
+"expenseType": [
+{
+"code": "TOTEXPRTPC",
+"value": 0.14
+}
+]
+}
+]
+}
+},
+"distributionDetails": {
+"periodicDistributions": {
+"items": []
+}
+}
+}
+],
+"polarisAnalyticsHistory": [
+{
+"monthly": {
+"valuation": {
+"fund": {
+"items": [
+{
+"TNA": [
+{
+"fundAssetAmount": 62185240807.37,
+"effectiveDate": "2026-10-31",
+"currency": "USD"
+},
+{
+"fundAssetAmount": 79457191441.62,
+"effectiveDate": "2026-10-31",
+"currency": "SGD"
+},
+{
+"fundAssetAmount": 110365121680.1,
+"effectiveDate": "2026-10-31",
+"currency": "NZD"
+},
+{
+"fundAssetAmount": 487846323395.86,
+"effectiveDate": "2026-10-31",
+"currency": "HKD"
+},
+{
+"fundAssetAmount": 51181562446.51,
+"effectiveDate": "2026-10-31",
+"currency": "CHF"
+},
+{
+"fundAssetAmount": 86801268380.97,
+"effectiveDate": "2026-10-31",
+"currency": "CAD"
+},
+{
+"fundAssetAmount": 55706782420.06,
+"effectiveDate": "2026-10-31",
+"currency": "EUR"
+},
+{
+"fundAssetAmount": 413746390449.8,
+"effectiveDate": "2026-10-31",
+"currency": "CNH"
+},
+{
+"fundAssetAmount": 9793242648548.66,
+"effectiveDate": "2026-10-31",
+"currency": "JPY"
+},
+{
+"fundAssetAmount": 88393832398.04,
+"effectiveDate": "2026-10-31",
+"currency": "AUD"
+},
+{
+"fundAssetAmount": 46418794853.07,
+"effectiveDate": "2026-10-31",
+"currency": "GBP"
+},
+{
+"fundAssetAmount": 1169166477253.65,
+"effectiveDate": "2026-10-31",
+"currency": "MXN"
+}
+],
+"AUM": [
+{
+"fundAssetAmount": 13991555366004.85,
+"effectiveDate": "2026-10-31",
+"currency": "JPY"
+},
+{
+"fundAssetAmount": 1670382128333.72,
+"effectiveDate": "2026-10-31",
+"currency": "MXN"
+},
+{
+"fundAssetAmount": 126287813382.61,
+"effectiveDate": "2026-10-31",
+"currency": "AUD"
+},
+{
+"fundAssetAmount": 124012525368.37,
+"effectiveDate": "2026-10-31",
+"currency": "CAD"
+},
+{
+"fundAssetAmount": 88843733473.06,
+"effectiveDate": "2026-10-31",
+"currency": "USD"
+},
+{
+"fundAssetAmount": 591117338476.34,
+"effectiveDate": "2026-10-31",
+"currency": "CNH"
+},
+{
+"fundAssetAmount": 696983531282.83,
+"effectiveDate": "2026-10-31",
+"currency": "HKD"
+},
+{
+"fundAssetAmount": 157678081293.31,
+"effectiveDate": "2026-10-31",
+"currency": "NZD"
+},
+{
+"fundAssetAmount": 66318293288.3,
+"effectiveDate": "2026-10-31",
+"currency": "GBP"
+},
+{
+"fundAssetAmount": 113520080445.21,
+"effectiveDate": "2026-10-31",
+"currency": "SGD"
+},
+{
+"fundAssetAmount": 73122834835.01,
+"effectiveDate": "2026-10-31",
+"currency": "CHF"
+},
+{
+"fundAssetAmount": 79587993319.84,
+"effectiveDate": "2026-10-31",
+"currency": "EUR"
+}
+]
+}
+]
+}
+}
+}
+}
+]
+}
+}

@@ -1,0 +1,26 @@
+{
+  "decision": "B-79, DECISIONES_DATOS_2026-11-07.md",
+  "fecha": "2026-11-11",
+  "descripcion": "ETF cuya cartera completa, la que publica su emisor, se exporta aparte (export/posiciones_emisor.ndjson) para las vistas del asesor. Son los que del proveedor solo traen sus diez mayores posiciones. Uso interno (B-53): ningun camino de cliente la lee. La lee core/cartera_emisor.py del bloque emisor.cartera de la ficha; un ETF de la lista sin ese bloque no exporta nada y `python main.py export` lo dice.",
+  "etf": {
+    "DE0005933956": {"nombre": "iShares Core EURO STOXX 50 UCITS ETF (DE)", "nota": "Domiciliado en Alemania: la busqueda de iShares UK no lo conoce y el fichero de producto de la web del Reino Unido no lo sirve (medido el 11-11-2026). Sin cartera del emisor hasta que haya una via que no pida aceptar avisos."},
+    "IE000X59ZHE2": {"nombre": "iShares AI Infrastructure UCITS ETF"},
+    "IE00B0M62Q58": {"nombre": "iShares MSCI World UCITS ETF (Dist)"},
+    "IE00B27YCK28": {"nombre": "iShares MSCI EM Latin America UCITS ETF"},
+    "IE00B3T9LM79": {"nombre": "SPDR Bloomberg Euro Corporate Bond UCITS ETF"},
+    "IE00B3VWMM18": {"nombre": "iShares MSCI EMU Small Cap UCITS ETF"},
+    "IE00B3XXRP09": {"nombre": "Vanguard S&P 500 UCITS ETF"},
+    "IE00B4L5Y983": {"nombre": "iShares Core MSCI World UCITS ETF (Acc)"},
+    "IE00B53L3W79": {"nombre": "iShares Core EURO STOXX 50 UCITS ETF (Acc)"},
+    "IE00B53QG562": {"nombre": "iShares Core MSCI EMU UCITS ETF"},
+    "IE00B5BMR087": {"nombre": "iShares Core S&P 500 UCITS ETF"},
+    "IE00B5L8K969": {"nombre": "iShares MSCI EM Asia UCITS ETF"},
+    "IE00B6R52259": {"nombre": "iShares MSCI ACWI UCITS ETF"},
+    "IE00BDBRDM35": {"nombre": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged"},
+    "IE00BJ5JPG56": {"nombre": "iShares MSCI China UCITS ETF"},
+    "IE00BKWQ0M75": {"nombre": "SPDR MSCI Europe Small Cap UCITS ETF"},
+    "IE00BM67HK77": {"nombre": "Xtrackers MSCI World Health Care UCITS ETF"},
+    "IE00BZCQB185": {"nombre": "iShares MSCI India UCITS ETF"},
+    "LU0908500753": {"nombre": "Amundi Core Stoxx Europe 600 UCITS ETF"}
+  }
+}

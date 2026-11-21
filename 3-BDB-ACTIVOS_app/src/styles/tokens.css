@@ -1,0 +1,416 @@
+/* ============================================================================
+   Gestor Activos Financieros · TOKENS
+   Fuente única de verdad. Ningún otro fichero declara valores en crudo.
+   El sistema es el de `docs/frontend/SISTEMA_DISENO.md`: la estructura aprobada
+   el 13-11-2026 («Informe vivo»), ahora con el aspecto de la dirección A
+   («Banca privada, puesta al día»), que Óscar eligió el 17-11-2026 y que se
+   migra desde el 18-11-2026 empezando por Análisis y el marco.
+   Espejo en TypeScript para Recharts: `src/core/theme.ts`.
+   ========================================================================== */
+
+:root {
+  /* Superficies admitidas: escritorio y tablet. */
+  --app-min-width: 768px;
+
+  /* ------------------------------------------------------------------ *
+   * 1. Lienzo, papel y tinta — neutros cálidos.
+   *
+   *    El lienzo es marfil y todo lo que lleva contenido es una tarjeta de
+   *    papel blanco encima (dirección A). La jerarquía la hacen el tamaño, el
+   *    peso y la tarjeta, no los niveles de gris.
+   *
+   *    Todo par que lleva texto está medido en `tests/contrastePaleta.test.ts`,
+   *    sobre el papel y sobre el lienzo: la cabecera de página y la barra
+   *    superior van sobre el lienzo.
+   * ------------------------------------------------------------------ */
+  --lienzo: #faf8f3;         /* el fondo de la página, de la barra superior y de lo que no es tarjeta */
+  --papel: #ffffff;          /* las tarjetas, los diálogos */
+  --banda: #f7f4ec;          /* la banda de la respuesta dentro de una tarjeta, el botón discreto bajo el ratón,
+                                la fila marcada para comparar */
+  --banda-fuerte: #f5f1e6;   /* el grupo y la fila elegida de una tabla; la opción deshabilitada de un selector
+                                segmentado; un botón pulsado; lo que está bajo el ratón en la barra superior */
+  --filete: #e4ddcf;         /* la línea entre filas y el borde de una tarjeta */
+  --filete-fuerte: #d9d2c3;  /* la línea bajo las pestañas, entre las cifras de la banda de Análisis, el borde de un distintivo */
+  --filete-fila: #eee9de;    /* la línea entre las filas de dentro de una tarjeta: una tabla, una lista de datos · 1,21:1, solo separa */
+  --pista: #efeae0;          /* la pista de una barra de reparto y el hueco de lo que está cargando */
+  /* El borde de un control: 3,04:1 sobre el papel, donde hacen falta 3:1 para reconocer
+     que ahí se escribe. Es el gris cálido más claro de la dirección A que llega: la vista
+     previa lo pedía en #cfc7b6, que da 1,68:1. No sirve para texto (por eso la tinta
+     terciaria es otra). */
+  --borde-control: #9b9385;
+  --tinta: #1c1a17;          /* texto y cifras · 17,36:1 sobre el papel, 16,36:1 sobre el lienzo */
+  --tinta-2: #57524a;        /* rótulos, texto secundario; el borde de un control bajo el ratón · 7,75:1 */
+  /* La tinta más clara admitida para texto, también la de un control desactivado: 5,70:1
+     sobre el papel, 5,37:1 sobre el lienzo y 5,05:1 sobre la banda fuerte. */
+  --tinta-3: #6b665d;        /* procedencia, apuntes, rótulo de un campo */
+  --tinta-inversa: #ffffff;  /* el texto sobre un relleno de marca o de error */
+
+  /* ------------------------------------------------------------------ *
+   * 2. Marca — el marino. El botón principal, lo activo y lo elegido van en
+   *    marino; el enlace y el anillo de foco, en el azul de enlace
+   *    (--marca-fuerte), que se distingue del texto sin dejar de ser sobrio.
+   * ------------------------------------------------------------------ */
+  --marca: #0f1e33;          /* el botón principal, lo activo · 16,75:1 sobre el papel, 15,78:1 sobre el lienzo */
+  --marca-encima: #1a2f4d;   /* el botón principal bajo el ratón · el texto blanco, 13,48:1 */
+  --marca-pulsada: #0a1524;  /* el botón principal pulsado · el texto blanco, 18,33:1 */
+  --marca-fuerte: #1f4470;   /* el enlace y el anillo de foco · 9,91:1 sobre el papel */
+  --marca-tenue: #eef2f7;    /* el fondo de una nota; la fila bajo el cursor en una lista */
+  --marca-linea: #c9d5e3;    /* el borde de lo ya añadido y de una nota */
+  /* El marino del marco: el menú, el aviso emergente (.mensaje) y el último paso de la rampa. */
+  --marco: #0f1e33;
+  /* El latón de la dirección A: el filete de lo activo, el segundo trazo del doble filete de
+     cabecera, la marca de serie de la cartera actual (--ochre-50). 3,53:1 sobre el papel y
+     4,75:1 sobre el marino: trazo o relleno, nunca texto. */
+  --laton: #a8824a;
+  /* El latón claro, para lo que se lee sobre el marino del menú: el icono de la entrada activa y el
+     rótulo de su grupo. 7,30:1 sobre el marino y 5,82:1 sobre la entrada activa. */
+  --laton-claro: #c9a66b;
+
+  /* ------------------------------------------------------------------ *
+   * 3. Signo — verde si gana, rojo si pierde. De uso general.
+   *    Solo en magnitudes que pueden ser positivas o negativas y dicen si se gana
+   *    o se pierde: resultado, rentabilidad, diferencia con la referencia,
+   *    contribución. Siempre con su «+» o su «−» escrito: el color refuerza, no
+   *    sustituye. Un peso, una volatilidad, una caída máxima, un coste o el
+   *    importe de un movimiento no llevan color. Un cero, tampoco.
+   *    El rojo es también el del error de una acción, la validación que falla,
+   *    la acción destructiva y el fallo del sistema.
+   *    El verde y el rojo no cambian con la dirección A: el papel de los
+   *    informes los copia (tests/plantilla/tema.test.ts). Sus fondos sí.
+   * ------------------------------------------------------------------ */
+  --sube: #0a7a53;           /* 5,35:1 sobre el papel; 4,72:1 sobre su fondo suave */
+  --sube-suave: #e9f3ec;     /* la casilla de un mes que gana, en la tabla de rentabilidades por meses */
+  --sube-linea: #b5d3c0;     /* el borde de un distintivo favorable */
+  --baja: #c2261b;           /* 5,85:1 sobre el papel; 5,21:1 sobre su fondo suave */
+  --baja-suave: #fbefed;     /* el fondo de una acción destructiva bajo el ratón */
+  --baja-linea: #e7c3be;     /* el borde de un botón de peligro y de un aviso de error */
+  --baja-enfasis: #7a241d;   /* el título de un aviso de error · 8,90:1 sobre su fondo suave */
+
+  /* ------------------------------------------------------------------ *
+   * 4. Atención — ocre. Lo que pide la atención del asesor: un aviso, un
+   *    dato que falta, una cobertura parcial, lo que solo ve el asesor.
+   *    Un aviso lleva siempre su palabra, nunca solo el color. Sustituye a la
+   *    terracota de la dirección del 02-11, que se retira.
+   * ------------------------------------------------------------------ */
+  --aviso: #8a4b14;          /* 6,78:1 sobre el papel; 6,29:1 sobre su fondo suave */
+  --aviso-suave: #fbf6ea;    /* el fondo de un aviso */
+  --aviso-linea: #e2d3ae;    /* el borde de un aviso */
+  --aviso-enfasis: #6b4f1f;  /* el título de un aviso y la palabra de un distintivo de atención · 7,05:1 sobre el fondo suave, 7,60:1 sobre el papel */
+
+  /* ------------------------------------------------------------------ *
+   * 5. Gráficos — el color sale del PAPEL de la serie, no de su posición
+   *    (chartTheme.ts, `estilosPorPapel`): la cartera, --serie-1, marino,
+   *    siempre; la referencia (el índice, la cartera con que se compara, el
+   *    dinero aportado, la asignación estratégica), --serie-referencia, gris
+   *    cálido, siempre y a trazos; las demás, --serie-2 a --serie-6 en el orden
+   *    en que llegan, sin reciclar. Desde la dirección A (18-11-2026) la
+   *    referencia tiene su color propio y deja de ser «la segunda de la
+   *    paleta»: un segundo activo lleva el azul de --serie-2. El RESTO de un
+   *    reparto («Otros», «sin clasificar», lo que no entra) no es una serie: es
+   *    --clase-resto.
+   *    Recharts consume la paleta a través del espejo `CHART_PALETTE` de
+   *    theme.ts (no resuelve var() en todos los atributos SVG), así que algunas
+   *    series no tienen var() propio. El censo deadCssD3 las da por vivas
+   *    mientras su valor siga en theme.ts, y themeTokensMirror.test.ts
+   *    comprueba que ambos lados coinciden en valor y orden. Todas ≥ 3:1 sobre
+   *    el papel (la más clara, el latón, 3,53:1). Las series comparten color con
+   *    las clases (--serie-2..6 son --clase-renta-variable, -renta-fija,
+   *    -alternativos, -mixto y -activos-reales), y la pasada del validador de
+   *    `dataviz` del 18-11-2026 (OKLab ×100, Machado 2009, fondo blanco;
+   *    listones 15 normal, 8 daltonismo, 6-8 solo con rótulo) deja tres de las
+   *    quince parejas bajo algún listón, ninguna grave: azul/salvia, 13,1;
+   *    salvia/latón, 13,4 y 7,4 con protanopía; azul/violeta, 13,9 y 8,0. Y el
+   *    cacao queda a 15,3 y 10,9 del marino de la cartera: pasa, por poco, y
+   *    los dos son oscuros. Por eso la leyenda es obligatoria desde dos series
+   *    y la etiqueta directa, hasta cuatro. El violeta y el cacao sustituyeron
+   *    ese día, por decisión de Óscar, al malva #7a5c8e (a 10,6 y 2,6 del azul)
+   *    y a la teja #b0683c (a 6,4 y 4,0 del latón); el detalle, en el bloque de
+   *    --clase-*.
+   * ------------------------------------------------------------------ */
+  --serie-1: #0f1e33;        /* marino · la cartera, el activo principal · 16,75:1 */
+  --serie-2: #2f5d8a;        /* azul · la primera serie que no es la cartera ni la referencia · 6,88:1 */
+  --serie-3: #4e7d6a;        /* verde salvia · 4,70:1; no es el del signo (--sube), que va solo en cifras */
+  --serie-4: #a8824a;        /* latón · 3,53:1 */
+  --serie-5: #8365b3;        /* violeta · 4,69:1 */
+  --serie-6: #553230;        /* cacao · 11,14:1 */
+  --serie-referencia: #7d776c; /* gris cálido · la referencia, siempre a trazos · 4,44:1 */
+  /* Ocre de serie de la cartera actual en la frontera y de la propuesta en el histórico: solo
+     trazo o marca en un gráfico. Nunca texto, y nunca aviso. En la dirección A es el latón. */
+  --ochre-50: var(--laton);
+
+  /* El color de cada clase de activo (coloresDeClase.ts), el mismo en el aro, en la barra de
+     «En qué está invertida» y en el punto de una tabla. Es de la clase, no de un puesto de la
+     paleta de series: la renta variable no es la cartera. Los consume el espejo CLASS_COLORS
+     de theme.ts, porque el color llega en línea desde JavaScript. Sobre el papel: 6,88, 4,70,
+     3,25, 3,53, 4,69 y 11,14:1. Pasados por el validador de `dataviz` el 18-11-2026 (OKLab ×100,
+     Machado 2009, fondo blanco; listones 15 normal, 8 daltonismo, 6-8 solo con rótulo), de las
+     21 parejas de los siete colores (las seis clases y el resto) 8 quedan bajo algún listón,
+     ninguna grave: están entre 10,3 y 13,9 en visión normal y no bajan de 7,4 con daltonismo.
+     Por eso todos llevan siempre su nombre al lado. Dos colores cambiaron ese día por decisión
+     de Óscar. El mixto pasó del malva #7a5c8e (a 10,6 y 2,6 de la renta variable) al violeta
+     (13,9 y 8,0). Los activos reales, de la teja #b0683c (a 6,4 y 4,0 de los alternativos) al
+     cacao (28,0 y 28,0; su clase más cercana, la renta variable, a 16,9 y 14,8). El cacao es
+     oscuro a propósito: los tonos de tierra de luz media los ocupan --aviso y --aviso-enfasis, y
+     una teja oscura (#8c3d12) quedaba a 3,3 del ocre de aviso. Así queda a 13,9 y 12,5 del
+     aviso, a 10,7 y 10,3 de su énfasis y a 22,1 y 10,8 del rojo de pérdida; a cambio sale de la
+     banda de luz del validador (0,36 frente a un mínimo de 0,43) y pesa más en un aro. La
+     paleta, apagada, tampoco llega al suelo de croma del validador (0,10) en seis de los siete.
+     Ninguno es color de texto: el violeta da 4,42:1 sobre el lienzo y no llegaría a 4,5:1. El
+     detalle y los candidatos descartados, en docs/frontend/SISTEMA_DISENO.md, apartado 14. */
+  --clase-renta-variable: #2f5d8a;
+  --clase-renta-fija: #4e7d6a;
+  --clase-liquidez: #8a8f98;          /* monetario y liquidez: un gris frío, distinto del resto */
+  --clase-alternativos: #a8824a;
+  --clase-mixto: #8365b3;
+  --clase-activos-reales: #553230;    /* inmobiliario, materias primas */
+  /* El resto: «Otros», «sin clasificar», lo que no entra en un reparto (sea o no por clase). Un
+     gris cálido y claro, 2,26:1 sobre el papel, para que no se confunda con la liquidez (3,25:1):
+     solo relleno de una barra o una porción con su nombre al lado, nunca una línea ni un texto. */
+  --clase-resto: #b3ac9e;
+
+  --chart-grid: #ece7db;
+  --chart-axis: #cfc7b6;
+  /* La línea de base (el 100 de una evolución, el cero): un trazo fino, 2,73:1, solo decoración. */
+  --chart-zero: #a39c8d;
+  --chart-ink: #6b665d;
+  --chart-crosshair: var(--chart-reference);
+  /* La línea de referencia de un gráfico de dispersión, el cursor y los puntos de contexto:
+     3,52:1 sobre el papel, solo trazo, nunca texto. Recharts la consume por el espejo
+     OAA_COLORS.textMuted de theme.ts. */
+  --chart-reference: #8f887a;
+  /* La marca al 6 %. Espejo: OAA_COLORS.chartCursorFill. */
+  --chart-cursor-fill: rgba(15, 30, 51, 0.06);
+  --chart-plot-empty: var(--banda);
+
+  /* Rampa secuencial — una sola magnitud, de un marfil apenas tostado al marino del marco,
+     pasando por la piedra: las matrices (correlación, solapamiento) y la caja de estilo.
+     Ocho pasos, espejo de SEQUENTIAL_RAMP en theme.ts, con la luz bajando en cada paso.
+     Las matrices usan siete clases y se saltan el paso 4 (chartTheme.ts,
+     SEQUENTIAL_CLASS_STEPS), y la cifra cambia a tinta de papel desde el paso 5: cada paso
+     con su cifra, por encima de 4,5:1 (tests/themeTokensMirror.test.ts). Tinta sobre los
+     pasos 0 a 4: 15,02, 13,48, 11,17, 8,79 y 6,36:1; papel sobre el 5 a 7: 6,46, 8,54 y 16,75:1. */
+  --rampa-0: #f3eee4;
+  --rampa-1: #e8e2d8;
+  --rampa-2: #d4cfc3;
+  --rampa-3: #beb8aa;
+  --rampa-4: #a39c8d;
+  --rampa-5: #5a5f63;
+  --rampa-6: #464d57;
+  --rampa-7: #0f1e33; /* el marino del marco */
+
+  /* ------------------------------------------------------------------ *
+   * 6. Tipografía — tres letras y once tamaños.
+   *    IBM Plex Sans en casi todo, con cifras tabulares siempre que haya una
+   *    columna de números; IBM Plex Mono para el ISIN y los códigos. Es la letra
+   *    de la aplicación de BDB (Óscar, 17-11-2026). La dirección A añade una
+   *    serifa, Source Serif 4 en seminegrita, solo para lo que titula o contesta una
+   *    pantalla: el título de pantalla, la cifra de un indicador y la de la respuesta,
+   *    el título de la tarjeta de acceso y el nombre de la casa en el menú; lista
+   *    completa en el apartado 14 de SISTEMA_DISENO.md (--fuente-serifa). Los títulos
+   *    de bloque siguen en Plex (--fuente-titulos). Autoalojadas
+   *    (`src/assets/fuentes-de-pantalla/`, SIL OFL 1.1), declaradas en base.css. Los
+   *    PDF conservan su propia voz en src/reports/.
+   *    Nada que lleve información por debajo de 12 px. En rem, para que siga
+   *    el tamaño de letra que elija quien lee.
+   * ------------------------------------------------------------------ */
+  --fuente: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fuente-titulos: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fuente-serifa: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --fuente-codigo: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  --texto-xxs: 0.75rem;      /* 12 · procedencia, apunte bajo una cifra, encabezado de tabla, distintivo: el menor de la escala */
+  --texto-xs: 0.8125rem;     /* 13 · rótulo de una cifra, botón pequeño, columna de texto de una tabla */
+  --texto-sm: 0.875rem;      /* 14 · celda de tabla, rótulo, botón */
+  --texto-md: 0.875rem;      /* 14 · texto base: en la dirección A el texto corrido y la celda van al mismo tamaño */
+  --texto-ml: 0.9375rem;     /* 15 · título de una tarjeta (con 20 px de interlínea) y descripción de una pantalla */
+  --texto-lg: 1.0625rem;     /* 17 · cifra de fila, entradilla */
+  --titulo-sm: 1.125rem;     /* 18 · título de subvista, cifra secundaria */
+  --titulo-md: 1.375rem;     /* 22 · título de diálogo o de subvista */
+  --cifra-lg: 1.875rem;      /* 30 · cifra destacada en Plex (tabular) */
+  --cifra-indicador: 2rem;   /* 32 · la cifra de un indicador, en serifa, con 36 px de interlínea (1,125) */
+  --titulo-lg: 2.5rem;       /* 40 · título de página, en serifa, con 46 px de interlínea (1,15) */
+  --cifra-xl: 2.75rem;       /* 44 · la cifra que contesta la pantalla: una por pantalla */
+  /* Los pesos y el tracking de los títulos, los de BDB: seminegra (600), que es lo más negro que usaba de Plex, y casi sin
+     apretar, porque Plex no es tan ancha como la Manrope que pedía -0,02 em. */
+  --peso-titulo-pagina: 600;
+  --peso-titulo: 600;
+  --tracking-titulo: -0.01em;
+  --lh-snug: 1.3;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.6;
+
+  /* ------------------------------------------------------------------ *
+   * 7. Espaciado — se conserva la escala que la app ya usa en todas sus hojas
+   * ------------------------------------------------------------------ */
+  --s-1: 2px;
+  --s-2: 4px;
+  --s-3: 6px;
+  --s-4: 8px;
+  --s-5: 12px;
+  --s-6: 16px;
+  --s-7: 20px;
+  --s-8: 24px;
+  --s-9: 32px;
+  --s-10: 40px;
+  --s-11: 48px;
+  --s-12: 64px;
+
+  /* ------------------------------------------------------------------ *
+   * 8. Geometría
+   * ------------------------------------------------------------------ */
+  /* Cuatro radios, los de la dirección A: esquinas apenas redondeadas, de papel y no de
+     burbuja. Lo de dentro va un punto por debajo, para no ser más redondo que su tarjeta.
+     Las filas, las barras y los filetes van rectos. */
+  --radio-control: 5px;      /* botones, campos, selectores, casillas, opciones */
+  --radio-flotante: 8px;     /* diálogos, menús, notas emergentes */
+  --radio-bloque: 6px;       /* una tarjeta */
+  --radio-pieza: 5px;        /* lo que va dentro de una tarjeta: un aviso, una nota, la banda de la respuesta */
+  --radio-distintivo: 3px;   /* los distintivos: una etiqueta, no una pastilla */
+  /* La píldora queda solo en los interruptores (topbar-switch) y en el pulgar de la barra de
+     desplazamiento; --radius-round es la marca circular: punto de estado de un distintivo,
+     orbe de salud, radio, spinner y avatar. */
+  --radius-pill: 999px;
+  --radius-round: 50%;
+
+  --control-xs: 28px;
+  --control-sm: 34px;
+  --control-md: 38px;
+  --control-lg: 46px;
+  /* El alto de una entrada del menú en una pantalla táctil. */
+  --control-tactil: 44px;
+  /* El ancho de un desplegable de una barra de filtros (18-11-2026, dirección A): el de la lámina del Buscador. Sin él,
+     cada desplegable mide su opción más larga y la barra se parte distinto según el catálogo. */
+  --mando-filtro: 176px;
+
+  /* Densidad de tabla */
+  --row-h: 46px;
+  --row-head-h: 40px;
+  --columna-nombre-min: 260px; /* el nombre de un activo en un catálogo (Buscador, Planes): por debajo, una fila llega a seis líneas */
+  --columna-nombre-corta: 200px; /* el nombre de un activo en una tabla de pocas filas (posiciones, cuentas) */
+  --respuesta-relleno: clamp(var(--s-5), calc(5vw - 48px), var(--s-7)); /* el relleno lateral de cada dato de la banda de respuesta: 20 px desde 1.360 de ancho y hasta 12 en una tableta, para que la cifra quepa en su casilla */
+  --columna-prosa-min: 45ch; /* una frase larga dentro de una tabla (un motivo, una lista de avisos): el mínimo que se lee de corrido */
+  --cell-px: 14px;
+  --cell-fs: var(--texto-sm);
+
+  /* ------------------------------------------------------------------ *
+   * 9. Elevación — solo lo que flota. Las sombras llevan el canal de la tinta (28, 26, 23).
+   * ------------------------------------------------------------------ */
+  --sombra-flotante: 0 10px 28px rgba(28, 26, 23, 0.12), 0 1px 3px rgba(28, 26, 23, 0.06);
+  --sombra-dialogo: 0 24px 64px rgba(28, 26, 23, 0.26);
+  /* Una tarjeta apenas se despega del lienzo: no flota, pero el marfil y el papel están muy cerca. */
+  --sombra-tarjeta: 0 1px 2px rgba(28, 26, 23, 0.04);
+  /* El filete de la columna fija es una sombra porque un borde no viaja con una celda sticky. */
+  --shadow-columna-fija: 1px 0 0 var(--filete);
+  --shadow-columna-fija-cabecera: 1px 0 0 var(--filete), inset 0 -1px 0 var(--tinta);
+  --shadow-columna-fija-derecha: -1px 0 0 var(--filete);
+  --shadow-columna-fija-derecha-cabecera: -1px 0 0 var(--filete), inset 0 -1px 0 var(--tinta);
+  --backdrop: rgba(28, 26, 23, 0.46);
+
+  /* ------------------------------------------------------------------ *
+   * 10. Movimiento — solo en lo que aparece o cambia de estado; los datos no se animan
+   * ------------------------------------------------------------------ */
+  --curva: cubic-bezier(0.2, 0, 0.2, 1);
+  --dur-rapida: 110ms;
+  --dur: 160ms;
+  --dur-slow: 240ms;
+
+  /* ------------------------------------------------------------------ *
+   * 11. Marco — menú, barra superior, foco, anchos y capas
+   * ------------------------------------------------------------------ */
+  /* Las tintas sobre el marino (--marco): las del menú lateral de la dirección A y las del
+     aviso emergente (.mensaje). La barra superior, que va sobre el lienzo, les da sus tintas
+     claras en layout.css. Medidas sobre el marino en `tests/contrastePaleta.test.ts`. */
+  --rail-line: rgba(255, 255, 255, 0.12);
+  --rail-chip-line: rgba(255, 255, 255, 0.18);
+  --rail-chip-bg: rgba(255, 255, 255, 0.08);
+  --rail-chip-line-hover: rgba(255, 255, 255, 0.35);
+  --rail-chip-bg-hover: rgba(255, 255, 255, 0.12);
+  --rail-switch-track: rgba(255, 255, 255, 0.28);
+  --rail-ink: #e9e4d8;        /* la entrada del menú · 13,20:1 sobre el marino */
+  --rail-ink-active: #ffffff; /* la entrada bajo el ratón · 14,67:1 sobre su fondo */
+  --rail-ink-label: #9fb0c6;  /* el rótulo de grupo, los iconos, el cargo · 7,58:1 */
+  --rail-ink-marca: #f3efe6;  /* el nombre de la marca y el de quien entra · 14,60:1 */
+  --rail-hover: rgba(255, 255, 255, 0.05);
+  --rail-active: rgba(255, 255, 255, 0.08);
+  --rail-active-ink: var(--rail-ink-active); /* 13,36:1 sobre la entrada activa */
+  --rail-marker: var(--laton-claro);
+  --rail-avatar-line: rgba(255, 255, 255, 0.22);
+  --rail-scroll: rgba(255, 255, 255, 0.24);
+  /* El rótulo de grupo y el subtítulo de la marca van en versalitas a 12 px, el menor tamaño
+     de la escala: la lámina los dibuja a 11 y Óscar los subió el 19-11-2026, porque ninguna
+     letra a la vista baja de 12 (SISTEMA_DISENO.md, apartado 14.4). El nombre corto bajo el
+     icono, en tablet, también a 12. */
+  --rail-texto-rotulo: var(--texto-xxs);
+  --rail-texto-corto: var(--texto-xxs);
+
+  /* Foco — visible sin excepción.
+     Un solo anillo (hallazgo 86, 04-11-2026), en el azul de enlace de la dirección A
+     (--marca-fuerte, 9,91:1 sobre el papel): el marino del botón principal no se
+     distinguiría de un botón principal enfocado. Por dentro donde el contenedor recortaría
+     el de fuera (pestañas y selectores), y sobre el marco oscuro la tinta clara. Con
+     contraste forzado, un contorno real: base.css. Medidos en `tests/contrastePaleta.test.ts`. */
+  --focus-ring: 0 0 0 2px var(--papel), 0 0 0 4px var(--marca-fuerte);
+  --focus-ring-inset: inset 0 0 0 2px var(--marca-fuerte);
+  /* Por dentro y con un filete de papel delante: sobre la opción elegida de un selector, que es marina, el azul solo
+     no se vería (1,69:1); el papel sí (16,75:1). */
+  --focus-ring-inset-doble: inset 0 0 0 2px var(--papel), inset 0 0 0 4px var(--marca-fuerte);
+  --focus-ring-dark: 0 0 0 2px var(--marco), 0 0 0 4px var(--rail-ink);
+  --focus-ring-dark-inset: inset 0 0 0 2px var(--rail-ink);
+
+  --rail-w: 248px;
+  --rail-w-compact: 224px;
+  /* En tablet, el icono con su nombre corto debajo, a 12 px (--rail-texto-corto): «Comparador», el
+     más largo, cabe con holgura. */
+  --rail-w-tablet: 96px;
+  --topbar-h: 60px;
+  /* El recuadro de la propuesta en curso: un nombre largo cede antes que la miga. El mínimo es lo que
+     mide sin nombre, «sin nombre · 8 posiciones · 100,0 %». */
+  --topbar-chip-max: clamp(270px, 36vw, 520px);
+  /* Ancho útil. Crece por tramos en monitores de 27" y 32": el asesor no
+     debe mirar una columna estrecha en medio de un panel vacío. */
+  --page-max: 1560px;
+  /* Los carriles del flujo en columnas. */
+  --carril-w: 360px; /* la columna de datos de Jubilación: con la letra a 15 px, 300 apretaban los campos */
+  --filas-max-w: 38em; /* una lista de rótulo y cifra: el ancho máximo de un bloque de prosa */
+  --tabla-lectura-max: 72rem; /* una tabla de rótulo y pocas cifras: más ancha, la cifra se aleja de su nombre y se salta de fila al leer (Salud del catálogo) */
+  --calendario-cifra-w: 9.5rem; /* «Previsión 160.700 M» o «Anterior 1.080.000 M» enteras, en el calendario económico */
+  /* A partir de aquí una frontera se aplana: la pendiente es lo que se lee (hallazgo 88). */
+  --grafico-frontera-max: 950px;
+  --page-px: 32px;
+  --page-py: 24px;
+
+  /* Las capas. Las dos primeras solo ordenan dentro de su propia zona de desplazamiento: lo que se pega (una columna
+     fija, la cabecera de un día) pasa por encima de las filas que se mueven, y el sello de un gráfico, por encima del
+     dibujo. Ninguna hoja escribe un z-index con número (MAR-19). */
+  --z-pegado: 1;
+  --z-sello: 2;
+  --z-sticky: 20;
+  --z-rail: 60;
+  --z-topbar: 50;
+  --z-backdrop: 200;
+  --z-dialog: 210;
+  --z-pop: 300;
+}
+
+@media (max-width: 1239.98px) {
+  :root {
+    --page-px: 24px;
+    --page-py: 20px;
+    --rail-w: var(--rail-w-compact);
+  }
+}
+
+/* Monitores grandes: se ensancha el marco, no la tipografía. */
+@media (min-width: 1800px) {
+  :root {
+    --page-max: 1760px;
+    --page-px: 40px;
+    --page-py: 28px;
+  }
+}
+
+@media (min-width: 2200px) {
+  :root {
+    --page-max: 1960px;
+    --page-px: 48px;
+  }
+}

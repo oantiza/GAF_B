@@ -1,0 +1,189 @@
+/* ============================================================================
+   Hoja de impresión (hallazgo 108 de la auditoría del 04-11-2026)
+
+   Ctrl+P es la única salida en papel de la ficha, el Buscador y Mercado. Se ocultaba el
+   menú pero su columna seguía reservada, y el contenido caía dentro: en A4 vertical, una
+   columna de 56 px con una palabra por línea.
+
+   Una sola columna a todo el ancho, sin menú ni barra; tablas sin recorte y sin partir
+   filas; gráficos ajustados al ancho de la hoja. Se carga la última, y lo que compite con
+   una hoja que llega después (`tabla.css`, `ficha.css`) va bajo `.app-shell .app-content`.
+
+   Esto no gobierna los informes en PDF: esos viven en `src/reports/` y son otro medio.
+   ========================================================================== */
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body,
+  #root {
+    min-width: 0;
+    min-height: 0;
+    background: none;
+  }
+
+  /* --- el marco --------------------------------------------------------- */
+
+  .app-rail,
+  .app-topbar,
+  .salto-al-contenido {
+    display: none;
+  }
+
+  .app-shell,
+  .app-main {
+    display: block;
+    min-height: 0;
+  }
+
+  .app-shell .app-content {
+    display: block;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .app-shell .app-content > * {
+    animation: none;
+  }
+
+  /* Las pilas y las rejillas, en bloque. Partidas entre dos hojas, una fila que no cabe se va a la
+     siguiente y lo que venía detrás se le queda encima: el aire entre bloques no se puede dejar al
+     `gap`, y aquí lo pone un margen. */
+  .app-shell .app-content > *,
+  .app-shell .app-content :is(.stack, .grid, .panel, .panel__body, .xray-dist-grid, .builder-compose__main, .builder-compose__side) {
+    display: block;
+  }
+
+  .app-shell .app-content > * > * + *,
+  .app-shell .app-content :is(.stack, .grid, .xray-dist-grid, .builder-compose__main, .builder-compose__side) > * + * {
+    margin-top: var(--s-6);
+  }
+
+  /* En papel no se pulsa nada, y un botón que no hace nada es ruido en lo que se entrega. */
+  .app-shell .app-content .ui-button,
+  .app-shell .app-content .tabla__celda--acciones,
+  .app-shell .app-content .portfolio-row-actions {
+    display: none;
+  }
+
+  /* Los botones nativos, igual (MAR-27). Salvo los que en pantalla son un enlace con texto —el nombre de un fondo o
+     de una cartera, una palabra dentro de una frase—, que en papel se leen como texto; y el título de una columna
+     ordenable, que se queda en su texto más abajo (el `:where` deja esta regla por debajo de esa). */
+  .app-shell .app-content button:not(:where(.enlace-a-ficha, .gestor-enlace)) {
+    display: none;
+  }
+
+  /* Un diálogo abierto vive en un portal fuera de `.app-shell`: sin esto se imprimía encima de la página, con su
+     velo. Y la página, que el diálogo deja `inert`, se imprime igual. */
+  .ui-dialog-backdrop {
+    display: none;
+  }
+
+  /* Un foco a la vista no se imprime. */
+  .app-shell .app-content :focus-visible {
+    box-shadow: none;
+  }
+
+  /* --- los títulos no se quedan solos al pie de una hoja ------------------ */
+
+  .app-shell .app-content :is(h1, h2, h3, h4, .panel__head) {
+    break-after: avoid;
+  }
+
+  /* --- nada se recorta ---------------------------------------------------- */
+
+  /* Lo que en pantalla se desplaza de lado, en papel no tiene cómo. */
+  .app-shell .app-content :is(div, section, article, figure, ul, dl) {
+    overflow: visible;
+  }
+
+  /* El nombre de un fondo se imprime entero: la elipsis es para ahorrar sitio en pantalla. */
+  .app-shell .app-content .cell-entity__name {
+    display: block;
+    overflow: visible;
+    white-space: normal;
+    -webkit-line-clamp: none;
+    line-clamp: none;
+  }
+
+  /* --- las tablas ---------------------------------------------------------- */
+
+  .app-shell .app-content table {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* El encabezado se repite en cada hoja; pegajoso, se superpondría a la primera fila. */
+  .app-shell .app-content thead th {
+    position: static;
+  }
+
+  /* Ordenar no se hace en papel: del botón queda su texto. Como caja de botón no se repetía con el
+     encabezado: en la segunda hoja salía el filete y ningún título. */
+  .app-shell .app-content th button {
+    display: contents;
+  }
+
+  .app-shell .app-content :is(th, td) {
+    height: auto;
+    padding-inline: var(--s-2);
+    font-size: var(--texto-xs);
+    white-space: normal;
+  }
+
+  .app-shell .app-content :is(th, td):first-child {
+    padding-left: 0;
+  }
+
+  .app-shell .app-content :is(th, td):last-child {
+    padding-right: 0;
+  }
+
+  /* Una cifra no se parte en dos líneas: se parte el nombre que tiene al lado. */
+  .app-shell .app-content :is(.tabla__celda--cifra, .num) {
+    white-space: nowrap;
+  }
+
+  .app-shell .app-content tr {
+    break-inside: avoid;
+  }
+
+  /* --- los gráficos -------------------------------------------------------- */
+
+  /* Recharts escribe el ancho y el alto en línea con la medida de la pantalla, y al imprimir no
+     vuelve a medir: es el único caso de esta hoja que necesita ganar por la fuerza. El marco conserva
+     su alto: si se le quitara y alguien volviera a medir, el gráfico colapsaría a cero y desaparecería,
+     que es mucho peor que un poco de aire debajo. */
+  .app-shell .app-content .recharts-responsive-container {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* El primer hijo del contenedor es una caja de 0 × 0 en línea: sin esto, el 100 % del gráfico es
+     el 100 % de nada, y el gráfico sale en blanco. */
+  .app-shell .app-content .recharts-responsive-container > div,
+  .app-shell .app-content .recharts-wrapper {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Solo encoge: un gráfico de media columna que creciera a toda la hoja se saldría de su marco y
+     taparía lo que viene debajo. */
+  .app-shell .app-content .recharts-surface {
+    width: auto !important;
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  .app-shell .app-content :is(.recharts-wrapper, .oaa-chart-frame, svg) {
+    break-inside: avoid;
+  }
+
+  .app-shell .app-content .recharts-tooltip-wrapper {
+    display: none;
+  }
+}

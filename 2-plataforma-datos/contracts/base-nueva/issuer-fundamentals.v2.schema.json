@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gestor-activos.local/contracts/base-nueva/issuer-fundamentals.v2.schema.json",
+  "title": "issuers/{issuer_id}/fundamentals/latest — v2",
+  "description": "Los fundamentales de la EMPRESA, no del instrumento. Es el cambio de sitio que pedia ESPECIFICACION_PROGRAMA_FUNDAMENTALES: el PER de Inditex es de Inditex, no de una de sus acciones, y hoy el bloque fundamentals cuelga del activo, cubre 319 de 1.097, no tiene escritor vigente y es donde viven los 22 centinelas de la maestra. Ese bloque se tira; este lo sustituye. Solo existe si la entidad tiene el rol EQUITY_ISSUER.",
+  "x-collection": "issuers/{issuer_id}/fundamentals/latest",
+  "x-layer": "declared",
+  "x-owner": "platform",
+  "x-applies-to": "entidades con el rol EQUITY_ISSUER",
+  "x-applies-when": "EMISOR_DE_ACCIONES",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "as_of", "currency"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Fecha del cierre contable al que se refieren las cifras, no la de descarga.",
+      "x-unit": "date",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "fiscal_period": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-Q[1-4]$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Divisa de las cifras contables. Las de la empresa, no las del mercado donde cotiza.",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform"
+    },
+    "document_url": {
+      "type": "string",
+      "minLength": 1,
+      "x-unit": "text",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "x-unit": "code",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE"
+    },
+    "valuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "pe": { "$ref": "#/$defs/multiplo" },
+        "pb": { "$ref": "#/$defs/multiplo" },
+        "ps": { "$ref": "#/$defs/multiplo" },
+        "ev_ebitda": { "$ref": "#/$defs/multiplo" }
+      }
+    },
+    "profitability": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "roe": { "$ref": "#/$defs/fraccion" },
+        "roa": { "$ref": "#/$defs/fraccion" },
+        "operating_margin": { "$ref": "#/$defs/fraccion" },
+        "net_margin": { "$ref": "#/$defs/fraccion" }
+      }
+    },
+    "growth": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "revenue_growth": { "$ref": "#/$defs/fraccion" },
+        "eps_growth": { "$ref": "#/$defs/fraccion" }
+      }
+    },
+    "dividends": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED",
+      "properties": {
+        "dividend_yield": { "$ref": "#/$defs/fraccion" },
+        "payout_ratio": { "$ref": "#/$defs/fraccion" }
+      }
+    }
+  },
+  "$defs": {
+    "multiplo": {
+      "type": "number",
+      "minimum": -1000,
+      "maximum": 1000,
+      "description": "Un multiplo, no un porcentaje. Se declara como multiple para que no se confunda con una fraccion.",
+      "x-unit": "multiple",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    },
+    "fraccion": {
+      "type": "number",
+      "minimum": -5,
+      "maximum": 5,
+      "description": "En FRACCION. El rango [-5, 5] es el que la especificacion de fundamentales ya fija: fuera de ahi es casi seguro un error de escala.",
+      "x-unit": "fraction",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_PROVIDED"
+    }
+  }
+}

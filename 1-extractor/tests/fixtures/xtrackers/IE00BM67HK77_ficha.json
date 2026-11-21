@@ -1,0 +1,532 @@
+{
+"pdpResult": {
+"pagePopups": {
+"hideEntryGate": false
+},
+"pageSections": {
+"keyFacts": {
+"accordionItems": [
+{
+"id": "fundinformation-basicinformation",
+"type": "Bundle",
+"headlineText": "Fund key facts",
+"expanded": true,
+"listBundle": [
+{
+"items": [
+{
+"value": "IE00BM67HK77",
+"key": "ISIN",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "04.03.2016 (launch date of merged sub-fund 22.11.2010)<PageFootnoteReference component-id='fundinformation-basicinformation' title=\"On 15 April 2016 db x-trackers MSCI World Health Care Index UCITS ETF (a sub-fund of the Luxembourg domiciled db x-trackers SICAV) merged into db x-trackers MSCI World Health Care Index UCITS ETF (DR) (a sub-fund of the Irish domiciled Concept Fund Solutions plc). Both ETFs had a comparable investment policy and risk profile. Performance reported prior to 15 April 2016 relates to the db x-trackers MSCI World Health Care Index UCITS ETF (the now closed Luxembourg domiciled sub-fund).\"></PageFootnoteReference>",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "04.03.2016 (launch date of merged sub-fund 22.11.2010)<PageFootnoteReference component-id='fundinformation-basicinformation' title=\"On 15 April 2016 db x-trackers MSCI World Health Care Index UCITS ETF (a sub-fund of the Luxembourg domiciled db x-trackers SICAV) merged into db x-trackers MSCI World Health Care Index UCITS ETF (DR) (a sub-fund of the Irish domiciled Concept Fund Solutions plc). Both ETFs had a comparable investment policy and risk profile. Performance reported prior to 15 April 2016 relates to the db x-trackers MSCI World Health Care Index UCITS ETF (the now closed Luxembourg domiciled sub-fund).\"></PageFootnoteReference>",
+"key": "Share class launch date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Global certificate",
+"key": "Type of investment fund shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": true,
+"key": "UCITS compliant",
+"type": "BOOL",
+"isHighlighted": false
+},
+{
+"value": "Jan 01 - Dec 31",
+"key": "Fiscal year",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "USD",
+"key": "Share class currency",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Capitalizing",
+"key": "Income treatment",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Exchange traded fund",
+"key": "Exchange traded fund / Non-exchange traded fund",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-fundprofile",
+"headlineText": "Fund profile",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+},
+{
+"items": [
+{
+"value": "Direct Replication (physically)",
+"key": "Investment methodology",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Full Replication",
+"key": "Portfolio structure",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": true,
+"key": "Securities lending<PageFootnoteReference component-id='fundinformation-basicinformation' title=\"Please refer to the section “Securities Lending” for further details. If the details are unavailable, the Sub-Fund has not engaged in securities lending transactions during the previous 30 days.\"></PageFootnoteReference>",
+"type": "BOOL",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-indexreplication",
+"headlineText": "Index replication technique",
+"disclaimers": [],
+"scope": "fundinformation-basicinformation",
+"expanded": true
+}
+],
+"disclaimers": []
+},
+{
+"id": "fundinformation-feesandexpenses",
+"type": "List",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"expanded": true,
+"list": {
+"items": [
+{
+"value": "0.10%",
+"key": "Fund management company fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "+ 0.15%",
+"key": "Fund fixed fee",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "= 0.25%",
+"key": "Fund all-in fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-feesandexpenses",
+"headlineText": "Fund fees and expenses p.a.",
+"subHeadlineText": "Fund (ETF)",
+"disclaimers": [],
+"scope": "fundinformation-feesandexpenses",
+"expanded": true
+},
+"disclaimers": []
+},
+{
+"id": "fundinformation-currentdata",
+"type": "Bundle",
+"headlineText": "Current data",
+"expanded": false,
+"listBundle": [
+{
+"items": [
+{
+"value": "60.49 EUR",
+"key": "NAV",
+"type": "STRING",
+"tooltip": "Conversion in EUR with 4 PM Reuters Fixing",
+"isHighlighted": false
+},
+{
+"value": "05.11.2026",
+"key": "NAV date",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "68,213,527",
+"key": "Outstanding shares",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "4.13 B EUR",
+"key": "Total AUM of fund",
+"type": "STRING",
+"tooltip": "Conversion in EUR with 4 PM Reuters Fixing",
+"isHighlighted": false
+}
+],
+"id": "fundinformation-currentdata",
+"headlineText": "",
+"disclaimers": [],
+"scope": "fundinformation-currentdata",
+"expanded": false
+}
+],
+"disclaimers": []
+}
+]
+},
+"indexKeyFacts": {
+"accordionItems": [
+{
+"id": "indexinformation-keyfacts",
+"type": "List",
+"headlineText": "Index key facts",
+"expanded": false,
+"list": {
+"items": [
+{
+"value": "MSCI WORLD HEALTH CARE TRN INDEX",
+"key": "Index name",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "MSCI Inc.",
+"key": "Index provider",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "16",
+"key": "Countries in index",
+"type": "STRING",
+"tooltip": "Note: the country classification shown is based on the securities’ countries of registration, this may differ from the index provider’s classification.",
+"isHighlighted": false
+},
+{
+"value": "111",
+"key": "Constituents count",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "1.74%",
+"key": "Dividend yield",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": ".dMIWO0HC00NUS",
+"key": "Reuters index ticker",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "NDWUHC",
+"key": "Bloomberg index ticker",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "USD",
+"key": "Index base currency",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "17.82",
+"key": "P/E ratio",
+"type": "STRING",
+"isHighlighted": false
+}
+],
+"id": "indexinformation-keyfacts",
+"headlineText": "Index key facts",
+"disclaimers": [
+{
+"text": "<p>Source: DWS 30.09.2026</p>",
+"disableDefaultWrapping": true
+}
+],
+"scope": "indexinformation-keyfacts",
+"expanded": false
+},
+"disclaimers": [
+{
+"text": "<p>Source: DWS 30.09.2026</p>",
+"disableDefaultWrapping": true
+}
+]
+}
+]
+},
+"portfolio": {
+"charts": {
+"cards": [
+{
+"title": "Security type",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "Equities",
+"weighting": 0.9982929234900989,
+"weightingText": "1.00%"
+},
+{
+"id": "1",
+"allocationName": "Cash",
+"weighting": 0.0017070765099010438,
+"weightingText": "0.00%"
+}
+]
+},
+{
+"title": "Currency weighting equities",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "USD",
+"weighting": 0.7388698251004331,
+"weightingText": "0.74%"
+},
+{
+"id": "1",
+"allocationName": "CHF",
+"weighting": 0.09447851550154296,
+"weightingText": "0.09%"
+},
+{
+"id": "2",
+"allocationName": "EUR",
+"weighting": 0.053570834122727146,
+"weightingText": "0.05%"
+},
+{
+"id": "3",
+"allocationName": "GBP",
+"weighting": 0.04805815352325022,
+"weightingText": "0.05%"
+},
+{
+"id": "4",
+"allocationName": "JPY",
+"weighting": 0.03356827771272488,
+"weightingText": "0.03%"
+},
+{
+"id": "5",
+"allocationName": "DKK",
+"weighting": 0.019382223951442144,
+"weightingText": "0.02%"
+},
+{
+"id": "6",
+"allocationName": "AUD",
+"weighting": 0.009350433459455965,
+"weightingText": "0.01%"
+},
+{
+"id": "7",
+"allocationName": "NZD",
+"weighting": 0.0017427690501985818,
+"weightingText": "0.00%"
+},
+{
+"id": "8",
+"allocationName": "SEK",
+"weighting": 0.0009789675782250619,
+"weightingText": "0.00%"
+}
+]
+},
+{
+"title": "Country allocation",
+"asOfDate": "",
+"data": [
+{
+"id": "0",
+"allocationName": "United States",
+"weighting": 0.7376638634246018,
+"weightingText": "0.74%"
+},
+{
+"id": "1",
+"allocationName": "Switzerland",
+"weighting": 0.09887145571202123,
+"weightingText": "0.10%"
+},
+{
+"id": "2",
+"allocationName": "United Kingdom",
+"weighting": 0.04366521301225896,
+"weightingText": "0.04%"
+},
+{
+"id": "3",
+"allocationName": "Japan",
+"weighting": 0.03356827771272488,
+"weightingText": "0.03%"
+},
+{
+"id": "4",
+"allocationName": "France",
+"weighting": 0.02058505658574202,
+"weightingText": "0.02%"
+},
+{
+"id": "5",
+"allocationName": "Denmark",
+"weighting": 0.019382223951442144,
+"weightingText": "0.02%"
+},
+{
+"id": "6",
+"allocationName": "Germany",
+"weighting": 0.0154794004104553,
+"weightingText": "0.02%"
+},
+{
+"id": "7",
+"allocationName": "Netherlands",
+"weighting": 0.01000143206765735,
+"weightingText": "0.01%"
+},
+{
+"id": "8",
+"allocationName": "Israel",
+"weighting": 0.005324892329445001,
+"weightingText": "0.01%"
+},
+{
+"id": "9",
+"allocationName": "Others",
+"weighting": 0.015458184793651372,
+"weightingText": "0.02%"
+}
+]
+}
+]
+},
+"headlineText": "Fund portfolio",
+"asOfDate": "05.11.2026"
+},
+"topProducts": {
+"topics": [],
+"cards": [
+{
+"title": "Xtrackers Artificial Intelligence & Big Data UCITS ETF 1C",
+"list": [
+{
+"value": [
+{
+"text": "Equities",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"tealiumTrackingModel": {},
+"name": "Equities",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"autoHyphenation": "custom"
+}
+],
+"key": "Asset class",
+"type": "URLLIST"
+},
+{
+"value": [
+{
+"text": "Sector",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"tealiumTrackingModel": {},
+"name": "Sector",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Sector",
+"autoHyphenation": "custom"
+},
+{
+"text": "Developed Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"tealiumTrackingModel": {},
+"name": "Developed Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Developed+Markets",
+"autoHyphenation": "custom"
+},
+{
+"text": "Emerging Markets",
+"title": "",
+"href": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"tealiumTrackingModel": {},
+"name": "Emerging Markets",
+"url": "https://etf.deutsche-am.com/en-lu/product-finder/?Regions=Emerging+Markets",
+"autoHyphenation": "custom"
+}
+],
+"key": "Region",
+"type": "URLLIST"
+},
+{
+"value": "Strategic beta/factors",
+"key": "Strategy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "Capitalizing",
+"key": "Distribution policy",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "0.35%",
+"key": "All-in-fee (TER)",
+"type": "STRING",
+"isHighlighted": false
+},
+{
+"value": "29.01.2019",
+"key": "Sub-fund launch date",
+"type": "STRING",
+"isHighlighted": false
+}
+]
+}
+],
+"searchUrl": "https://etf.deutsche-am.com/en-lu/product-finder/?AssetClasses=Equities",
+"id": "top-products",
+"sideNavigationTitle": "Popular products",
+"headlineText": "Popular products",
+"asOfDate": "",
+"disclaimerHtml": []
+}
+}
+},
+"tealium": {
+"attributes": {
+"product_name": "MSCI World Health Care UCITS ETF 1C",
+"product_category": [
+"Equities"
+],
+"product_subcategory": [
+"Sector",
+"Developed Markets",
+"Global",
+"Capitalizing",
+"Savings Plan"
+]
+}
+}
+}

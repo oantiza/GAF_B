@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdb.local/contracts/canonical/fondosdb-holdings.v1.schema.json",
+  "title": "FondosDB canonical holdings line (export/posiciones.ndjson) — v1",
+  "description": "Cada linea de posiciones.ndjson: una PARTE de la cartera de un fondo. ENTRADA de la ingesta de holdings. La cartera de un fondo puede repartirse en varias partes (parte / total_partes). peso_pct en PORCENTAJE (0-100).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["isin"],
+  "properties": {
+    "isin": { "type": "string", "description": "ISIN del FONDO contenedor (no de la posicion)." },
+    "parte": { "type": ["number", "null"] },
+    "total_partes": { "type": ["number", "null"] },
+    "fecha": { "type": ["string", "null"], "description": "as-of date YYYY-MM-DD." },
+    "posiciones": {
+      "type": ["array", "null"],
+      "items": { "$ref": "#/$defs/posicion" }
+    },
+    "procedencia": { "$ref": "#/$defs/procedencia" }
+  },
+  "$defs": {
+    "procedencia": {
+      "description": "Opcional (aditivo, 14-10-2026): de donde sale la cartera. Todas las partes de un fondo llevan la misma. La plataforma la escribe como provenance en master/holdings.v1.2.",
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "fuente": { "type": ["string", "null"], "description": "Adaptador: morningstar_lt, justetf, cnmv..." },
+        "endpoint": { "type": ["string", "null"], "description": "sal_position, ETFsnapshot, MFsnapshot, FONDCART..." },
+        "id_fuente": { "type": ["string", "null"], "description": "SecId u otro identificador en la fuente." },
+        "url": { "type": ["string", "null"], "description": "URL publica del documento (PDF); nunca la de una API con clave." },
+        "obtenido": { "type": ["string", "null"], "description": "fetched_at de la respuesta (ISO 8601)." },
+        "sha256_respuesta": { "type": ["string", "null"] },
+        "fecha_de": { "type": ["string", "null"], "description": "detalle_posiciones | snapshot | documento | desconocida" },
+        "cobertura": { "type": ["string", "null"], "description": "completa | top_n | parcial | desconocida" },
+        "posiciones_declaradas": { "type": ["integer", "null"] },
+        "supresion_proveedor": { "type": ["boolean", "null"] },
+        "run_id": { "type": ["string", "null"] }
+      }
+    },
+    "posicion": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "nombre": { "type": ["string", "null"] },
+        "isin": { "type": ["string", "null"], "description": "ISIN de la posicion (puede faltar)." },
+        "ticker": { "type": ["string", "null"] },
+        "tipo": { "type": ["string", "null"] },
+        "peso_pct": { "type": ["number", "null"], "description": "Peso en PORCENTAJE (0-100)." },
+        "divisa": { "type": ["string", "null"] },
+        "sector": { "type": ["string", "null"] },
+        "pais": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

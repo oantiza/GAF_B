@@ -1,0 +1,642 @@
+/* ============================================================================
+   Ficha de instrumento — dirección A + B (02-11-2026)
+
+   Los colores están en tokens.css. Aquí no hay ninguno en crudo, igual que en el
+   resto de hojas.
+
+   La disposición de la ficha viene de la «A + B» del 02-11-2026 (registro: hoy el
+   aspecto lo manda la dirección A del 17-11, apartado 14 del sistema). De ella
+   quedan la procedencia pegada al título, las filas con filete y el flujo en
+   columnas; los bloques son tarjetas y las partes de un todo llevan su barra.
+   ========================================================================== */
+
+/* La cabecera de la ficha va sobre el lienzo, como la de cualquier pantalla; sus bloques son tarjetas. */
+.ficha {
+  color: var(--tinta);
+  font-size: var(--texto-lg);
+  line-height: 1.55;
+  min-width: 0;
+}
+
+/* --- cabecera ----------------------------------------------------------
+   La monta PageHeader: el tipo arriba, el nombre en serifa y la línea de identidad. Las acciones,
+   a la derecha. El filete grueso no es suyo: es el de arriba de la banda de la respuesta. */
+
+.ficha__cabecera {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ficha__acciones {
+  align-items: center;
+}
+
+/* --- la banda de cifras --------------------------------------------------
+   La abierta de la pieza (`<Respuesta abierta>`), como la de Análisis. Aquí solo lo que es de la ficha. */
+
+/* Las dos líneas que reserva el rótulo, con su relleno de abajo: sin él, un rótulo que dobla bajaba su cifra 2 px. */
+.ficha > .respuesta .respuesta__rotulo {
+  min-height: calc(var(--texto-xs) * var(--lh-snug) * 2 + var(--s-1));
+}
+
+/* El ISIN, en la fuente de código: es lo único de la ficha que se copia letra a letra. */
+.ficha__isin {
+  font-family: var(--fuente-codigo);
+  font-size: var(--texto-xs);
+  color: var(--tinta-2);
+}
+
+/* La línea de identidad no es prosa: el tope de lectura de 38 em de la descripción la partía en tres líneas con media
+   cabecera vacía al lado. Se parte donde se acaba el sitio que dejan las acciones. */
+.ficha__cabecera .ui-page-header__description {
+  max-width: none;
+}
+
+/* Un dato de la línea de identidad no se parte: la línea salta en el separador, no a mitad de un índice. */
+.ficha__dato,
+.ficha__disponibilidad {
+  white-space: nowrap;
+}
+
+.ficha__disponibilidad {
+  color: var(--tinta-3);
+}
+
+.ficha__disponibilidad b {
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+
+.ficha__disponibilidad--baja b {
+  color: var(--aviso);
+}
+
+/* Sin medir no es una baja ni una alarma: es que no se ha comprobado. */
+.ficha__disponibilidad--sin-medir b {
+  color: var(--tinta-3);
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* --- avisos y pestañas --------------------------------------------------- */
+
+.ficha__avisos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.ficha__panel {
+  min-width: 0;
+}
+
+/* Un aviso dentro de una sección, bajo su procedencia: para lo que el asesor no puede pasar por alto. */
+.ficha__aviso {
+  font-size: var(--texto-sm);
+  line-height: var(--lh-normal);
+  color: var(--tinta-2);
+  border-left: 3px solid var(--marca);
+  padding: var(--s-1) 0 var(--s-1) var(--s-5);
+  margin: var(--s-5) 0 var(--s-6);
+  max-width: 62em;
+}
+
+.ficha__aviso b {
+  color: var(--marca);
+  font-weight: 600;
+}
+
+/* El mismo aviso dentro de una sección, bajo su procedencia: el aire de abajo lo pone la primera fila. */
+.ficha__seccion > .ficha__aviso {
+  margin: var(--s-3) 0 var(--s-4);
+}
+
+/* --- el resumen ----------------------------------------------------------
+   Dos columnas en escritorio: la evolución y sus rentabilidades, ancha; los tres bloques cortos, estrecha.
+   Una en tableta. Sin bloques cortos, la evolución ocupa todo el ancho. */
+
+.ficha__resumen {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--s-9);
+  align-items: start;
+}
+
+.ficha__resumen--una {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ficha__resumen-principal,
+.ficha__resumen-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  min-width: 0;
+}
+
+/* Las tarjetas de la ficha: la evolución con sus rentabilidades en el Resumen, y el contenido entero de cada otra
+   pestaña. */
+.ficha__resumen-principal,
+.ficha__panel:not(:has(> .ficha__resumen)) {
+  padding: var(--s-7) var(--s-8) var(--s-8);
+  border: 1px solid var(--filete);
+  border-radius: var(--radio-bloque);
+  background: var(--papel);
+}
+
+.ficha__evolucion {
+  min-width: 0;
+}
+
+.ficha__rentabilidades {
+  overflow-x: auto;
+}
+
+.ficha__rentabilidades th[scope="row"] {
+  font-size: var(--texto-sm);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--tinta-2);
+  border-bottom: 1px solid var(--filete);
+  padding: var(--s-3) var(--s-4) var(--s-3) 0;
+}
+
+/* El lateral no hereda los 17 px de la ficha: sus listas y sus cifras van a 14, como las filas de la lámina, y no pesan
+   más que la evolución. */
+.ficha__resumen-lateral {
+  font-size: var(--texto-md);
+}
+
+.ficha__resumen-lateral .ficha__valor {
+  font-size: var(--texto-sm);
+}
+
+/* La procedencia dobla antes de que «Ver la cartera» baje a una fila propia y deje una franja vacía en la cabecera. */
+.ficha__resumen-lateral .panel-head-text {
+  min-width: 0;
+}
+
+/* Sin lateral, la tabla de rentabilidades no se estira a todo el ancho: sus cifras se leerían lejos de su rótulo. */
+.ficha__resumen--una .ficha__rentabilidades .ficha__tabla {
+  max-width: var(--filas-max-w);
+}
+
+/* El enlace «Ver …» de un bloque del Resumen: un botón discreto que cambia de pestaña. Fuera de la cabecera de un Panel
+   («Leer entero») también se lee como enlace: en su azul, como los de la cabecera. */
+.ficha__ver {
+  white-space: nowrap;
+}
+
+.ficha .ficha__ver.ui-button--quiet {
+  font-weight: 500;
+  color: var(--marca-fuerte);
+}
+
+.ficha .ficha__ver.ui-button--quiet:hover:not(:disabled) {
+  background: var(--marca-tenue);
+  color: var(--marca);
+}
+
+/* Los fundamentales que llegan tarde (ACT-08): su hueco, con la forma de lo que viene. */
+.ficha__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-bottom: var(--s-8);
+}
+
+/* «Qué se puede hacer con él», en Documentos y datos: una sección más del flujo. */
+.ficha__aptitudes {
+  break-inside: avoid;
+  margin-bottom: var(--s-8);
+}
+
+@media (max-width: 1024.98px) {
+  .ficha__resumen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- la retícula -------------------------------------------------------- */
+
+.ficha__flujo {
+  column-width: calc(var(--s-12) * 4.5);
+  column-gap: var(--s-10);
+}
+
+/* Una sola sección no se queda en un tercio de la tarjeta con dos columnas vacías al lado: va a lo ancho de una lista. */
+.ficha__flujo:has(> :only-child) {
+  columns: auto;
+  max-width: var(--filas-max-w);
+}
+
+/* Con «Qué se puede hacer con él», dos columnas como mucho: en tres, sus filas partían rótulo y valor y la tercera
+   quedaba vacía. */
+.ficha__flujo:has(> .ficha__aptitudes) {
+  column-count: 2;
+}
+
+/* En bloque, no en línea: con `inline-block` una columna entera podía quedarse vacía, porque el flujo
+   no repartía las secciones como bloques. Lo que evita que una se parta es `break-inside`. */
+.ficha__seccion {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  display: block;
+  width: 100%;
+  margin-bottom: var(--s-8);
+}
+
+.ficha__banda {
+  display: grid;
+  /* El min() evita que a 400px el minmax empuje la página a lo ancho. */
+  grid-template-columns: repeat(auto-fill, minmax(min(calc(var(--s-12) * 9), 100%), 1fr));
+  gap: var(--s-8) var(--s-10);
+  align-items: start;
+  margin-top: var(--s-1);
+}
+
+.ficha__seccion--ancha {
+  margin-bottom: 0;
+}
+
+/* Entre las columnas y lo que va debajo a todo el ancho, el mismo aire que entre dos secciones. El margen de la última
+   sección de una columna se pierde en el salto de columna, y «Nuestras métricas» quedaba pegada a la fila de encima:
+   el aire lo pone lo de abajo, y la última sección de las columnas no lo dobla cuando hay una sola. */
+.ficha__flujo > :last-child {
+  margin-bottom: 0;
+}
+
+.ficha__flujo + .ficha__banda {
+  margin-top: var(--s-8);
+}
+
+/* En una sección ancha, una fila no llega de lado a lado: su cifra se quedaría lejos de su rótulo. */
+.ficha__seccion--ancha > .ficha__fila {
+  max-width: 28em;
+}
+
+.ficha__titulo {
+  font-family: var(--fuente-titulos);
+  font-weight: 600;
+  /* El mismo tamaño que la cabecera de Panel: un solo valor para las dos (decisión 24). */
+  font-size: var(--texto-ml);
+  line-height: 1.25;
+  color: var(--tinta);
+  margin: 0 0 var(--s-1);
+}
+
+.ficha__procedencia {
+  font-size: var(--texto-xs);
+  color: var(--tinta-3);
+  line-height: var(--lh-normal);
+  margin: 0;
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--filete-fuerte);
+}
+
+.ficha__procedencia b {
+  color: var(--tinta-2);
+  font-weight: 500;
+}
+
+/* Una sección con mando: a la derecha del título, y la procedencia debajo a todo el ancho, porque el filete es suyo. */
+.ficha__cabecera-con-acciones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--s-5);
+  margin-bottom: var(--s-4);
+}
+
+.ficha__cabecera-con-acciones .ficha__procedencia {
+  grid-row: 2;
+  grid-column: 1 / -1;
+}
+
+/* --- la fila ------------------------------------------------------------ */
+
+.ficha__fila {
+  display: grid;
+  /* El rótulo conserva al menos un cuarto de la fila; el valor ocupa lo que mide y, si no cabe, se parte. */
+  grid-template-columns: minmax(25%, 1fr) minmax(0, auto);
+  gap: var(--s-5);
+  align-items: baseline;
+  padding: var(--s-3) 0;
+  /* Lo que separa dos filas es un filete, que es lo que hace un libro de
+     cuentas. Ni una barra bajo estas cifras sueltas: una barra bajo una cifra solo
+     sirve si hay contra qué compararla, y aquí casi nunca lo hay. */
+  border-bottom: 1px solid var(--filete);
+}
+
+.ficha__rotulo {
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  min-width: 0;
+}
+
+/* Una cifra no se parte: entre el número y su unidad va un espacio duro. Un valor que es una frase («+0,15 % a 1 año ·
+   del proveedor, contra el índice de su categoría») sí puede: con `nowrap` se salía de la página y dejaba el rótulo
+   en una palabra por línea. */
+.ficha__valor {
+  min-width: 0;
+  font-size: var(--texto-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.ficha__valor--destacado {
+  font-size: var(--cifra-lg);
+  letter-spacing: -0.015em;
+}
+
+/* Un texto corrido no es una cifra: sin esto, la actividad de una empresa empujaba
+   la página miles de píxeles. */
+.ficha__fila--larga {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-1);
+}
+
+.ficha__fila--larga .ficha__valor {
+  font-size: var(--texto-sm);
+  font-weight: 400;
+  line-height: var(--lh-normal);
+  /* Un texto corrido se lee desde la izquierda, bajo su rótulo; a la derecha solo van los valores de una fila. */
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.ficha__glosa {
+  grid-column: 1 / -1;
+  font-size: var(--texto-xs);
+  line-height: var(--lh-normal);
+  color: var(--tinta-3);
+  padding: var(--s-1) 0 var(--s-2);
+  max-width: 34em;
+}
+
+/* --- las tres ausencias -------------------------------------------------
+   Tres señales por clase y ninguna compartida: color, forma del filete y lo
+   que dice. Quien no distinga el ocre del marino sigue viendo la línea
+   rota y lee «Pendiente de alta».
+   ----------------------------------------------------------------------- */
+
+/* No aplica: la casilla está CERRADA, no vacía. Nada grita, el filete sigue
+   entero, y el rótulo se atenúa porque no hay nada que buscar. */
+.ficha__fila--no-aplica .ficha__rotulo {
+  color: var(--tinta-3);
+}
+
+.ficha__fila--no-aplica .ficha__valor {
+  font-size: var(--texto-sm);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--tinta-3);
+}
+
+/* Falta el dato: hueco real y es del proveedor. El filete se ROMPE, que es lo
+   que se ve al recorrer la columna sin leer. Nunca un guion: se lee como cero. */
+.ficha__fila--falta {
+  border-bottom: 1px dashed var(--aviso);
+}
+
+.ficha__fila--falta .ficha__valor {
+  font-size: var(--texto-sm);
+  color: var(--aviso);
+}
+
+.ficha__fila--falta .ficha__glosa {
+  color: var(--aviso);
+}
+
+/* Sin pedir: la única que se resuelve trabajando. En marino, y sin subrayar: no es un enlace. */
+.ficha__fila--sin-pedir {
+  border-bottom: 1px solid var(--marca);
+}
+
+.ficha__fila--sin-pedir .ficha__valor {
+  font-size: var(--texto-sm);
+  color: var(--marca);
+}
+
+.ficha__fila--sin-pedir .ficha__glosa {
+  color: var(--marca);
+}
+
+/* --- pies de sección ---------------------------------------------------- */
+
+.ficha__nota {
+  font-size: var(--texto-xs);
+  line-height: 1.5;
+  color: var(--tinta-2);
+  margin: var(--s-4) 0 0;
+  max-width: 38em;
+}
+
+/* Una contradicción del propio dato: el fondo que declara reparto y no reparte
+   desde 2021. Las dos cosas son ciertas y hay que enseñarlas juntas. */
+.ficha__contradiccion {
+  font-size: var(--texto-xs);
+  line-height: 1.5;
+  color: var(--tinta-2);
+  border-left: 3px solid var(--aviso);
+  padding-left: var(--s-5);
+  margin: var(--s-4) 0 0;
+  max-width: 38em;
+}
+
+/* Texto citado del proveedor: en cursiva y en su idioma, porque es legal. */
+.ficha__prosa {
+  font-size: var(--texto-md);
+  line-height: 1.6;
+  color: var(--tinta-2);
+  font-style: italic;
+  margin: var(--s-4) 0 0;
+  max-width: 46em;
+}
+
+/* --- tabla -------------------------------------------------------------- */
+
+.ficha__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+  margin-top: var(--s-2);
+}
+
+.ficha__tabla th {
+  text-align: left;
+  font-size: var(--texto-xxs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--tinta-2);
+  border-bottom: 1px solid var(--filete-fuerte);
+  padding: 0 var(--s-5) var(--s-3) 0;
+}
+
+.ficha__tabla td {
+  border-bottom: 1px solid var(--filete);
+  padding: var(--s-3) var(--s-5) var(--s-3) 0;
+}
+
+/* La última fila, sin filete en ninguna celda: con él solo en la de rótulo, la línea se cortaba a un tercio del ancho. */
+.ficha__tabla tr:last-child td,
+.ficha__tabla tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.ficha__celda--cifra {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* El título de una columna de cifras va sobre sus cifras. `.ficha__tabla th` pesa más que
+   la clase sola, y el «3 años» se leía bajo la cifra de 1 año. */
+.ficha__tabla th.ficha__celda--cifra {
+  text-align: right;
+}
+
+/* Con una o dos ventanas, la tabla no se estira a todo el ancho. */
+.ficha__tabla--corta {
+  max-width: 32em;
+}
+
+/* --- la caja de estilo y tamaño ------------------------------------------
+   Tres por tres, en casillas de color: cuanto más pesa una, más intensa (la rampa
+   secuencial de las matrices), y cada una con su cifra escrita. La casilla con más peso
+   lleva además su contorno, y la nota de la sección la nombra. */
+
+.ficha__caja {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: var(--s-2);
+  table-layout: fixed;
+  font-size: var(--texto-sm);
+  margin-top: var(--s-3);
+}
+
+.ficha__caja th {
+  font-size: var(--texto-xxs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--tinta-2);
+  text-align: right;
+  padding: 0 var(--s-4) var(--s-3) 0;
+}
+
+.ficha__caja thead th {
+  text-align: center;
+  padding: 0 0 var(--s-2);
+}
+
+.ficha__caja tbody th {
+  text-align: left;
+  font-weight: 400;
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+  padding: 0 var(--s-4) 0 0;
+}
+
+/* La columna de los rótulos, algo más ancha que las de cifras: con las cuatro iguales, a 768 px «Tamaño · estilo» se cortaba. */
+.ficha__caja thead th:first-child {
+  width: 30%;
+}
+
+.ficha__caja-ejes {
+  display: block;
+  text-align: left;
+  font-weight: 400;
+  white-space: normal;
+}
+
+.ficha__caja-celda {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: var(--s-7) var(--s-3);
+}
+
+/* Los tramos de `tramoDeLaCaja`: nada que pintar, menos del 10 %, del 10 al 25 %, del 25 al 50 % y desde el
+   50 %. Los pasos de la rampa son los de la radiografía (`PASO_DEL_TRAMO`). La tinta pasa a clara en los dos
+   más intensos. */
+.ficha__caja-celda--t0 {
+  background: var(--banda);
+  color: var(--tinta-3);
+  font-weight: 400;
+}
+
+.ficha__caja-celda--t1 {
+  background: var(--rampa-1);
+  color: var(--tinta);
+}
+
+.ficha__caja-celda--t2 {
+  background: var(--rampa-3);
+  color: var(--tinta);
+}
+
+.ficha__caja-celda--t3 {
+  background: var(--rampa-5);
+  color: var(--tinta-inversa);
+}
+
+.ficha__caja-celda--t4 {
+  background: var(--rampa-7);
+  color: var(--tinta-inversa);
+}
+
+.ficha__caja-celda--mayor {
+  outline: 2px solid var(--tinta);
+  outline-offset: 1px;
+}
+
+/* --- las partes dibujadas (pestaña «Cartera») ----------------------------
+   Regiones, sectores, estilo y tamaño van con su barra (ListaDePartes). Dentro de
+   las secciones de la ficha llevan la letra de sus filas, no la de la pieza suelta:
+   si no, al lado de «Composición», que sigue en filas, parecían de otra pantalla. */
+
+.ficha__seccion .partes__parte {
+  padding: var(--s-3) 0;
+}
+
+.ficha__seccion .partes__nombre {
+  font-size: var(--texto-sm);
+  color: var(--tinta-2);
+}
+
+.ficha__seccion .partes__cifra {
+  font-size: var(--texto-lg);
+}
+
+/* --- la pantalla --------------------------------------------------------
+   La ficha y, encima, por dónde se vuelve. El marco da forma de columna a
+   lo que monta: aquí esa forma pasa a ser de quien pinta la ficha.
+   ----------------------------------------------------------------------- */
+
+.app-content > .ficha-pantalla {
+  gap: var(--s-5);
+}
+
+.ficha-pantalla > .ficha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.ficha-pantalla__vuelta {
+  align-self: flex-start;
+  font-size: var(--texto-sm);
+  color: var(--marca-fuerte);
+  text-decoration: none;
+}
+
+.ficha-pantalla__vuelta:hover {
+  color: var(--marca);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+

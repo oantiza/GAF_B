@@ -1,0 +1,437 @@
+{
+"tables": [
+{
+"columns": [
+{
+"key": "header",
+"value": "ISIN",
+"alignment": "left",
+"isVisibleOnHeader": true,
+"wordBreak": false
+},
+{
+"key": "column_0",
+"value": "Name",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_1",
+"value": "% Weight",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_2",
+"value": "Market value",
+"alignment": "right",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_3",
+"value": "Country",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_4",
+"value": "Industry",
+"alignment": "left",
+"isVisibleOnHeader": true
+},
+{
+"key": "column_5",
+"value": "Asset class",
+"alignment": "left",
+"isVisibleOnHeader": true
+}
+],
+"values": [
+{
+"header": {
+"value": "IT0005676504",
+"type": "text"
+},
+"column_0": {
+"value": "ITALY (REPUBLIC OF)",
+"type": "text"
+},
+"column_1": {
+"value": "1.993%",
+"sortValue": 1.99284542,
+"type": "text"
+},
+"column_2": {
+"value": "492.56 M EUR",
+"sortValue": 492559133.6,
+"type": "text"
+},
+"column_3": {
+"value": "Italy",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "EU000A4EG039",
+"type": "text"
+},
+"column_0": {
+"value": "EUROPEAN UNION",
+"type": "text"
+},
+"column_1": {
+"value": "1.796%",
+"sortValue": 1.79550218,
+"type": "text"
+},
+"column_2": {
+"value": "443.78 M EUR",
+"sortValue": 443783039.3,
+"type": "text"
+},
+"column_3": {
+"value": "--",
+"type": "empty"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "FR0014018OI0",
+"type": "text"
+},
+"column_0": {
+"value": "FRANCE (REPUBLIC OF)",
+"type": "text"
+},
+"column_1": {
+"value": "1.435%",
+"sortValue": 1.43460986,
+"type": "text"
+},
+"column_2": {
+"value": "354.58 M EUR",
+"sortValue": 354583544.1,
+"type": "text"
+},
+"column_3": {
+"value": "France",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "EU000A4E1NP4",
+"type": "text"
+},
+"column_0": {
+"value": "EUROPEAN UNION BILL",
+"type": "text"
+},
+"column_1": {
+"value": "1.396%",
+"sortValue": 1.39649508,
+"type": "text"
+},
+"column_2": {
+"value": "345.16 M EUR",
+"sortValue": 345162950.0,
+"type": "text"
+},
+"column_3": {
+"value": "Belgium",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Supranational Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "FR0000187635",
+"type": "text"
+},
+"column_0": {
+"value": "FRANCE (REPUBLIC OF)",
+"type": "text"
+},
+"column_1": {
+"value": "1.333%",
+"sortValue": 1.33321026,
+"type": "text"
+},
+"column_2": {
+"value": "329.52 M EUR",
+"sortValue": 329521239.1,
+"type": "text"
+},
+"column_3": {
+"value": "France",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "DE0001142057",
+"type": "text"
+},
+"column_0": {
+"value": "BUNDESREPUB. DEUTSCHLAND",
+"type": "text"
+},
+"column_1": {
+"value": "1.232%",
+"sortValue": 1.23163828,
+"type": "text"
+},
+"column_2": {
+"value": "304.42 M EUR",
+"sortValue": 304416328.0,
+"type": "text"
+},
+"column_3": {
+"value": "Germany",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Government Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "TRT200827F11",
+"type": "text"
+},
+"column_0": {
+"value": "TURKIYE GOVERNMENT BOND",
+"type": "text"
+},
+"column_1": {
+"value": "1.052%",
+"sortValue": 1.05161454,
+"type": "text"
+},
+"column_2": {
+"value": "259.92 M EUR",
+"sortValue": 259920985.6,
+"type": "text"
+},
+"column_3": {
+"value": "Turkey",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Government Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "FR001400PM68",
+"type": "text"
+},
+"column_0": {
+"value": "FRANCE (REPUBLIC OF)",
+"type": "text"
+},
+"column_1": {
+"value": "1.017%",
+"sortValue": 1.01710299,
+"type": "text"
+},
+"column_2": {
+"value": "251.39 M EUR",
+"sortValue": 251390981.5,
+"type": "text"
+},
+"column_3": {
+"value": "France",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "BE0000363722",
+"type": "text"
+},
+"column_0": {
+"value": "BELGIUM KINGDOM OF (GOVERNMENT)",
+"type": "text"
+},
+"column_1": {
+"value": "1.016%",
+"sortValue": 1.01602607,
+"type": "text"
+},
+"column_2": {
+"value": "251.12 M EUR",
+"sortValue": 251124808.1,
+"type": "text"
+},
+"column_3": {
+"value": "Belgium",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "EU000A3K4DV0",
+"type": "text"
+},
+"column_0": {
+"value": "EUROPEAN UNION",
+"type": "text"
+},
+"column_1": {
+"value": "0.973%",
+"sortValue": 0.97277683,
+"type": "text"
+},
+"column_2": {
+"value": "240.44 M EUR",
+"sortValue": 240435162.1,
+"type": "text"
+},
+"column_3": {
+"value": "--",
+"type": "empty"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "XS3277023944",
+"type": "text"
+},
+"column_0": {
+"value": "OPEC FUND FOR INTL DEV",
+"type": "text"
+},
+"column_1": {
+"value": "0.955%",
+"sortValue": 0.95542769,
+"type": "text"
+},
+"column_2": {
+"value": "236.15 M EUR",
+"sortValue": 236147083.8,
+"type": "text"
+},
+"column_3": {
+"value": "Austria",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Supranational Bond",
+"type": "text"
+}
+},
+{
+"header": {
+"value": "TRT190728F14",
+"type": "text"
+},
+"column_0": {
+"value": "TURKIYE GOVERNMENT BOND",
+"type": "text"
+},
+"column_1": {
+"value": "0.865%",
+"sortValue": 0.86503382,
+"type": "text"
+},
+"column_2": {
+"value": "213.80 M EUR",
+"sortValue": 213804998.2,
+"type": "text"
+},
+"column_3": {
+"value": "Turkey",
+"type": "text"
+},
+"column_4": {
+"value": "Unknown",
+"type": "text"
+},
+"column_5": {
+"value": "Government Bond",
+"type": "text"
+}
+}
+]
+}
+]
+}
