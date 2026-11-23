@@ -44,30 +44,31 @@ describe("la cifra destacada", () => {
     expect(sinComentarios(hoja("components.css"))).not.toMatch(/\.ui-kpi__value\.(pos|neg)/);
   });
 
-  /* 18-11-2026. «1.234.567 €» se partía en dos líneas en Comparador › Patrimonial a 1.920: allí la columna mide 163 px
-     y el importe, a 32 px, 163,17 (medido en la pantalla; en la rama principal, con columnas de 171,7 px, cabía). La
-     medida que no se puede leer de la hoja es el ancho del importe en la serifa de la cifra: 163,17 / 32 = 5,099 em.
-     Lo demás se lee, y la prueba vigila las tres condiciones que hacen que quepa, no un número: si cambian el tamaño
-     de la cifra, el umbral o el porcentaje, tienen que seguir cumpliéndose. Con los valores de hoy (32 px, 168 px y
-     19 %): 5,099 × 0,19 = 0,969; 5,099 × 32 = 163,17 < 168; y 0,19 × 168 = 31,92 ≤ 32. */
-  test("en una tira de importes la cifra mengua antes, y un importe de siete cifras cabe en cualquier columna", () => {
-    const EM_DE_SIETE_CIFRAS = 5.099;
-    const css = sinComentarios(hoja("components.css"));
-    const regla = css.match(/@container \(max-width: ([\d.]+)rem\)\s*\{\s*\.ui-kpi-strip--importes \.ui-kpi__value:not\(\.ui-kpi__value--text\)\s*\{\s*font-size: ([\d.]+)cqi;\s*\}\s*\}/);
-    expect(regla).not.toBeNull();
-    const umbralEnPx = Number(regla![1]) * 16;
-    const parteDeLaColumna = Number(regla![2]) / 100;
-    /* El tamaño de la cifra, de su token: la regla de la cifra lo usa, y aquí se cuenta con él. */
-    expect(reglaDe(hoja("components.css"), ".ui-kpi__value")).toContain("font-size: var(--cifra-indicador)");
-    const cifraEnPx = Number(hoja("tokens.css").match(/--cifra-indicador:\s*([\d.]+)rem;/)![1]) * 16;
-    /* 1. Por debajo del umbral la cifra mide una parte del ancho de su columna, y el importe, 5,099 veces eso: menos que la columna. */
-    expect(EM_DE_SIETE_CIFRAS * parteDeLaColumna).toBeLessThan(1);
-    /* 2. Por encima del umbral la cifra va a su tamaño entero, y el importe mide menos que la columna más estrecha de ese tramo. */
-    expect(EM_DE_SIETE_CIFRAS * cifraEnPx).toBeLessThan(umbralEnPx);
-    /* 3. Al cruzar el umbral la cifra no da un salto: ni crece por encima de su tamaño ni baja más de medio píxel. */
-    expect(parteDeLaColumna * umbralEnPx).toBeLessThanOrEqual(cifraEnPx);
-    expect(parteDeLaColumna * umbralEnPx).toBeGreaterThan(cifraEnPx - 0.5);
+  /* 18-11-2026. «1.234.567 €» se partía en dos líneas en Comparador › Patrimonial a 1.920. 20-11-2026: las de ocho
+     cifras y las de siete con signo se salían de su casilla a 1.920, 1.440, 1.024 y 768 px. Lo que no se puede leer de
+     la hoja es el ancho de cada importe en la serifa de la cifra, medido en la pantalla: «1.234.567 €» 5,099 em (11
+     caracteres), «26.165.538 €» 5,64 (12) y «+12.936.757 €» 6,17 (13). La regla da a la cifra 200 / N del ancho de su
+     columna, con N los caracteres de la más larga de la tira, así que un importe ocupa (em / N) × 2 de la columna: la
+     prueba vigila que eso quede por debajo de 1 en los tres, no un número. */
+  test("en una tira de importes la cifra mengua según la más larga, y cabe con siete u ocho cifras y con signo", () => {
+    const MEDIDOS = [
+      { texto: "1.234.567 €", em: 5.099 },
+      { texto: "26.165.538 €", em: 5.64 },
+      { texto: "+12.936.757 €", em: 6.17 }
+    ];
+    const regla = reglaDe(hoja("components.css"), ".ui-kpi-strip--importes .ui-kpi__value:not(.ui-kpi__value--text)");
+    const formula = regla.match(/font-size: min\(var\(--cifra-indicador\), calc\(([\d.]+)cqi \/ var\(--kpi-caracteres, (\d+)\)\)\);/);
+    expect(formula).not.toBeNull();
+    const parteDeLaColumnaPorCaracter = Number(formula![1]) / 100;
+    /* Sin contar aún (primer pintado), se cuenta como once caracteres: lo que mide «1.234.567 €». */
+    expect(Number(formula![2])).toBe(11);
+    for (const { texto, em } of MEDIDOS) {
+      const n = texto.length;
+      expect(em * (parteDeLaColumnaPorCaracter / n)).toBeLessThan(1);
+    }
+    expect(regla).toContain("white-space: nowrap");
     /* La regla de todas las tiras no cambia: el 21 % por debajo de 152 px, que es lo que pide un porcentaje. */
+    const css = sinComentarios(hoja("components.css"));
     expect(css).toMatch(/@container \(max-width: 9\.5rem\)\s*\{\s*\.ui-kpi__value:not\(\.ui-kpi__value--text\)\s*\{\s*font-size: 21cqi;\s*\}\s*\}/);
   });
 

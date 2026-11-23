@@ -25,7 +25,7 @@
  */
 
 /** El proyecto de la base nueva. Solo se usa para formar la URL del emulador. */
-import { firebaseConfig } from "../firebaseEnv";
+import { firebaseConfig, USE_EMULATORS } from "../firebaseEnv";
 
 const PROYECTO = "bdb-gestor-de-activos";
 
@@ -41,19 +41,28 @@ const EMULADOR =
 const EN_SU_PROYECTO = firebaseConfig.projectId === PROYECTO;
 
 /**
- * Qué camino se usa, y el reparto es por ENTORNO, no por configuración.
+ * Qué camino se usa.
  *
- * En desarrollo, siempre REST contra el emulador de la base nueva: el SDK de la aplicación
- * apunta al emulador del OTRO proyecto (8082), que es una base distinta. En producción,
- * siempre el SDK, porque `Bearer owner` no existe fuera del emulador y las reglas exigen
- * sesión.
+ * El SDK, siempre que la aplicación esté configurada contra este proyecto: en producción, y
+ * desde el 21-11-2026 también en desarrollo, donde el SDK habla con el emulador de la base
+ * nueva (8092) con la sesión del usuario local y las mismas reglas que la nube. Así lo que se
+ * prueba en local es el camino de producción.
+ *
+ * REST con `Bearer owner` queda solo para un desarrollo configurado contra otro proyecto (la
+ * base vieja, `gestor-activos-local`), donde el SDK apunta a un emulador que es otra base.
  *
  * Equivocarse es imposible por construcción: el camino REST no se arma fuera de
- * `import.meta.env.DEV` y el del SDK solo cuando el proyecto configurado es este.
+ * `import.meta.env.DEV`, y en desarrollo el SDK solo se usa si está conectado a los
+ * emuladores, así que una copia local nunca lee la nube por accidente.
  */
-const USAR_SDK = !import.meta.env.DEV && EN_SU_PROYECTO;
+const USAR_SDK = EN_SU_PROYECTO && (!import.meta.env.DEV || USE_EMULATORS);
 
-/** La web publicada: lee la nube, y lo que aún habla con la base vieja no tiene de dónde leer. */
+/**
+ * La aplicación lee la base nueva como en la nube: la web publicada, y desde el 21-11-2026 el
+ * desarrollo local contra su emulador. Sistema lo usaba para ocultar las pestañas de la base vieja, que se
+ * borraron el 21-11-2026; hoy lo leen las pruebas del camino (`tests/baseNuevaCaminoDeProduccion.test.ts`), que
+ * fijan con él cuándo se usa el SDK y cuándo REST.
+ */
 export const LEE_LA_NUBE = USAR_SDK;
 
 /**

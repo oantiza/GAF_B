@@ -91,19 +91,19 @@ describe("el diálogo de informes", () => {
     expect(document.body.textContent).toContain("Del 31/12/2025 al 13/11/2026");
     expect(document.body.textContent).toContain("Para entregar o enseñar en una reunión");
 
-    await pulsar(boton("Descargar el PDF: Informe del cliente"));
+    await pulsar(boton("Descargar el PDF: Informe de la cartera"));
     await esperar(() => document.body.textContent?.includes("se ha descargado") ?? false);
     expect(informes.pdf).toHaveBeenCalledWith("cliente", { analisis, cartera: CARTERA, asesor: { nombre: "Ana Asesora", entidad: "Despacho Prueba" }, generado: hoy() });
     expect(document.body.textContent).toContain("«Familia Prueba - informe del cliente.pdf»");
   });
 
   it("ofrece el informe de costes y lo genera con el mismo periodo y los mismos datos", async () => {
-    informes.pdf.mockResolvedValue("Informe de costes - Familia Prueba - 2026-01-01 a 2026-11-13.pdf");
+    informes.pdf.mockResolvedValue("Costes de la cartera - Familia Prueba - 2026-01-01 a 2026-11-13.pdf");
     const analisis = analisisCon();
     await pintar(analisis);
-    expect(document.body.textContent).toContain("Informe de costes");
+    expect(document.body.textContent).toContain("Costes de la cartera");
     expect(document.body.textContent).toContain("lo que ha costado la cartera");
-    await pulsar(boton("Descargar el PDF: Informe de costes"));
+    await pulsar(boton("Descargar el PDF: Costes de la cartera"));
     await esperar(() => document.body.textContent?.includes("se ha descargado") ?? false);
     expect(informes.pdf).toHaveBeenCalledWith("costes", expect.objectContaining({ analisis, cartera: CARTERA, generado: hoy() }));
   });
@@ -116,8 +116,8 @@ describe("el diálogo de informes", () => {
       interno: fila.querySelector(".distintivo")?.classList.contains("distintivo--interno")
     }));
     expect(filas).toEqual([
-      { nombre: "Informe del cliente", para: "Para el cliente", interno: false },
-      { nombre: "Informe de costes", para: "Para el cliente", interno: false },
+      { nombre: "Informe de la cartera", para: "Para el cliente", interno: false },
+      { nombre: "Costes de la cartera", para: "Para el cliente", interno: false },
       { nombre: "Informe del asesor", para: "Interno", interno: true },
       { nombre: "Datos en Excel", para: "Interno", interno: true }
     ]);
@@ -177,7 +177,7 @@ describe("la firma de los informes", () => {
     await esperar(() => document.body.querySelector(".gestor-firma")?.textContent?.includes("Ana Asesora · ana@ejemplo.test") ?? false);
 
     /* Lo que va a los informes es esa identidad. */
-    await pulsar(boton("Descargar el PDF: Informe del cliente"));
+    await pulsar(boton("Descargar el PDF: Informe de la cartera"));
     await esperar(() => informes.pdf.mock.calls.length === 1);
     expect(informes.pdf.mock.calls[0][1].asesor).toEqual({ nombre: "Ana Asesora", contacto: "ana@ejemplo.test" });
 

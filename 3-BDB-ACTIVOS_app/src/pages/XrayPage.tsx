@@ -16,6 +16,7 @@ import { ComposicionSubyacente, MayoresAcciones, PortfolioXray } from "../compon
 import { SaludYControl } from "../components/SaludYControl";
 import { XrayMetricsStyle } from "../components/XrayMetricsStyle";
 import { RegionAllocation } from "../components/RegionAllocation";
+import { RiesgoPorClase } from "../components/RiesgoPorClase";
 import { useReportLookThrough } from "../core/reportPipeline";
 import { loadReportOverlap } from "../core/reportOverlap";
 import { entradaDelInformeDeCliente, motivoParaNoGenerarElInformeDeCliente, posicionesDelInformeDeCliente } from "../core/reportPipelineCliente";
@@ -24,6 +25,7 @@ import { backtestCoverageNotices } from "../core/backtestCoverage";
 import { CLAVE_SIN_DATO_DEL_REPARTO } from "../core/portfolio";
 import { evaluatePortfolioHealth } from "../core/portfolioHealth";
 import { riesgoMedidoDe } from "../core/riesgoMedido";
+import { esSinClasificar } from "../core/riesgoPorClase";
 import { checkPortfolioFeasibility, createDefaultPortfolioConstraints } from "../core/portfolioConstraints";
 import { AppError, esFaltaDeDatos, limiteDelCalculo, motivoDelServidor, toAppError } from "../core/appError";
 import { referenceProfilesForDates } from "../core/benchmarkProfiles";
@@ -338,7 +340,12 @@ export function XrayPage({ positions, sourceKind, totalCapital, portfolioName, o
       .filter((bucket) => bucket.weight_percent > 0.05)
       .map((bucket) => ({ clave: bucket.key, rotulo: rotulo(bucket.key), peso: bucket.weight_percent }));
   const xray = report?.xray ?? null;
-  const filasDeClase = filasDeReparto(xray?.by_economic_asset_class, (clave) => CLASS_LABELS[clave] ?? readableBackendLabel(clave));
+  /* A-202 (Óscar, 21-11-2026): «Otros» es una clase y «Sin clasificar», una posición de la que no se sabe la clase. `CLASS_LABELS`
+     llama «Otros» a `UNKNOWN`, y en «En qué está invertida» salía así al lado de «Riesgo por clase de activo», que la llama
+     «Sin clasificar». Va al final, como en el riesgo: es lo que falta, no una clase más. */
+  const filasDeClase = filasDeReparto(xray?.by_economic_asset_class, (clave) =>
+    esSinClasificar(clave) ? "Sin clasificar" : (CLASS_LABELS[clave] ?? readableBackendLabel(clave))
+  ).sort((a, b) => Number(esSinClasificar(a.clave)) - Number(esSinClasificar(b.clave)));
   const filasDeDivisa = filasDeReparto(xray?.by_currency, (clave) => clave);
   const reparto = repartoDeLaCartera(report?.summary);
 
@@ -454,21 +461,30 @@ export function XrayPage({ positions, sourceKind, totalCapital, portfolioName, o
                 positions={positions}
               />
             </div>
-            <div className="analisis-rejilla__estrecha analisis-rejilla__estrecha--menos">
-              <Panel acciones={verLaPestana("exposicion", "Ver la exposición")} claseDelCuerpo="stack stack--3" subtitulo="Por clase de activo · pesos de hoy" titulo="En qué está invertida">
-                {filasDeClase.length > 0 ? (
-                  <ListaDePartes
-                    etiqueta="Peso por clase de activo"
-                    partes={[
-                      /* Cada clase en su color fijo, el mismo que en el aro de Diseño (14-11-2026); lo que no entra, apagado. */
-                      ...filasDeClase.map((fila) => ({ nombre: fila.rotulo, fraccion: fila.peso / 100, color: colorDeLaClase(fila.clave) })),
-                      ...reparto.fuera.map((parte) => ({ nombre: parte.rotulo, fraccion: parte.peso / 100, apagada: true }))
-                    ]}
-                  />
-                ) : (
-                  <p className="analisis-nota">Sin clases con peso asignado en esta cartera.</p>
-                )}
-              </Panel>
+            {/* AN1 (21-11-2026): el peso de cada clase y, a su lado, lo que aporta al riesgo. Lado a lado si caben; si no, uno bajo otro. */}
+            <div className="analisis-rejilla__estrecha analisis-rejilla__estrecha--menos analisis-clases">
+              <div className="analisis-clases__rejilla">
+                <Panel acciones={verLaPestana("exposicion", "Ver la exposición")} claseDelCuerpo="stack stack--3" subtitulo="Por clase de activo · pesos de hoy" titulo="En qué está invertida">
+                  {filasDeClase.length > 0 ? (
+                    <ListaDePartes
+                      etiqueta="Peso por clase de activo"
+                      partes={[
+                        /* Cada clase en su color fijo, el mismo que en el aro de Diseño (14-11-2026); lo que no entra, apagado. */
+                        ...filasDeClase.map((fila) => ({
+                          nombre: fila.rotulo,
+                          fraccion: fila.peso / 100,
+                          color: colorDeLaClase(fila.clave),
+                          apagada: esSinClasificar(fila.clave)
+                        })),
+                        ...reparto.fuera.map((parte) => ({ nombre: parte.rotulo, fraccion: parte.peso / 100, apagada: true }))
+                      ]}
+                    />
+                  ) : (
+                    <p className="analisis-nota">Sin clases con peso asignado en esta cartera.</p>
+                  )}
+                </Panel>
+                <RiesgoPorClase anos={anos} assets={assets} horizonte={horizonte} midiendo={midiendo} />
+              </div>
             </div>
           </div>
         );
@@ -560,7 +576,7 @@ export function XrayPage({ positions, sourceKind, totalCapital, portfolioName, o
             <SegmentedControl label="Periodo" onChange={setAnalysisWindow} options={PERIODOS} value={analysisWindow} />
             <BenchmarkSelect variante="cabecera" />
             <Button disabled={!report || pdfBusy} onClick={() => setDialogoAbierto(true)} variant="primary">
-              Informe para el cliente
+              Informe de la propuesta
             </Button>
           </>
         }

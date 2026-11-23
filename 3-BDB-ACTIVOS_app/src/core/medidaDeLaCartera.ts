@@ -424,11 +424,27 @@ export function fraseDelMaximoSinLoQueNoSePuedeComprar(
   horizonte: Pick<PortfolioHorizon, "frontierNotSelectable">,
   nombreDe: (assetId: string) => string
 ): string | null {
+  return fraseSinLoQueNoSePuedeComprar("La de Máximo Sharpe", horizonte, nombreDe);
+}
+
+/** Lo mismo para la equiponderada, que reparte a partes iguales solo entre lo que se puede comprar (la regla de la frontera). */
+export function fraseDeLaEquiponderadaSinLoQueNoSePuedeComprar(
+  horizonte: Pick<PortfolioHorizon, "frontierNotSelectable">,
+  nombreDe: (assetId: string) => string
+): string | null {
+  return fraseSinLoQueNoSePuedeComprar("La equiponderada", horizonte, nombreDe);
+}
+
+function fraseSinLoQueNoSePuedeComprar(
+  quien: string,
+  horizonte: Pick<PortfolioHorizon, "frontierNotSelectable">,
+  nombreDe: (assetId: string) => string
+): string | null {
   const lista = horizonte.frontierNotSelectable ?? [];
   if (lista.length === 0) return null;
   const uno = lista.length === 1;
   const quienes = lista.map((a) => `${nombreDe(a.assetId)} (${a.reasonLabel})`).join(", ");
-  return `La de Máximo Sharpe no lleva ${quienes}: ${uno ? "no se puede" : "no se pueden"} comprar. La cartera actual sí ${uno ? "lo" : "los"} lleva.`;
+  return `${quien} no lleva ${quienes}: ${uno ? "no se puede" : "no se pueden"} comprar. La cartera actual sí ${uno ? "lo" : "los"} lleva.`;
 }
 
 /** Tope de activos de la frontera eficiente: `MAX_ACTIVOS_FRONTERA` de `functions_python/portfolio_horizon.py`, y

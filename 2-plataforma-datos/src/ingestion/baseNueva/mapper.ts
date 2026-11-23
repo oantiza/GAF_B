@@ -27,6 +27,7 @@ import {
     CLASE_DE_SERIE,
     type ClaseDeSerie,
     AUSENCIA_RELATIVA_DECIDIDA,
+    claveDelAvisoDeRelativas,
     COTIZACION_NO_PRINCIPAL,
     ausenciaRelativaDeAccion,
     CONFIRMACION_DEL_KID,
@@ -48,7 +49,13 @@ import {
 import { componerTrozos, pesoCreible } from './posiciones';
 import { leerIndice } from './indice';
 import { resolverDistribucion } from './distribucion';
-import { apartarFueraDeRango, enRango } from '../../config/baseNueva/validadores';
+import {
+    aplicaAlInstrumento,
+    pesoDeRentaFijaConConvertibles,
+    UMBRAL_DE_RENTA_FIJA_DE_SUS_MAPAS,
+    type RasgosDelInstrumento
+} from './aplicabilidad';
+import { apartarFueraDeRango, enRango, rangoDe } from '../../config/baseNueva/validadores';
 import {
     CENTINELAS_PROHIBIDOS,
     CLAVES_DEL_SOBRE,
@@ -460,9 +467,44 @@ function mapaDePesos(valor: unknown): Record<string, number> | undefined {
 const TIPO_EXPOSICION = 'instrument-declared-exposure.v2.schema.json';
 
 /**
+ * Uno de los tres mapas de la renta fija (`bond_types`, `duration_buckets` y `credit_buckets`), neto como lo da el
+ * proveedor (decisión C-31 de Óscar, 21-11-2026, la regla del reparto por clase de la C-29 llevada a estos mapas).
+ *
+ * Un mapa con una parte fuera de 0-1 —la liquidez en negativo de un fondo con derivados o liquidez prestada, o una parte
+ * por encima de 1 que la compensa— se escribe **tal cual, con su signo**, si todas sus partes caben en los topes del
+ * contrato (de -5 a 6, `$defs.peso_de_mapa_neto`) y entre todas suman 1 con `TOLERANCIA_DEL_REPARTO`, la misma de la
+ * C-29. Hasta ese día `mapaDePesos` saltaba lo que no era un peso, y el mapa sumaba de más: UBS Duración 0-2 escribía
+ * gobierno, corporativa y titulizada sin su liquidez de -4,87 %, y sumaba 1,049.
+ *
+ * Lo que no cuadra —no suma 1, o una parte se sale de los topes— sigue con la regla de antes, `mapaDePesos`: se saltan
+ * las partes fuera de 0-1 y se escribe el resto, sin comprobar la suma, que es lo que hacía el mapper con todos estos
+ * mapas. Se avisa, para que la pasada lo cuente. Un mapa sin partes fuera de 0-1 no cambia.
+ *
+ * Las claves pasan tal cual, sin lista: son las del canónico. En `bond_types`, desde la decisión C-33 (21-11-2026), las
+ * seis del proveedor —`government`, `municipal`, `corporate`, `securitized`, `cash` y `derivative`—; hasta ese día el
+ * extractor no pasaba las dos que faltan, y por eso 49 mapas con la liquidez en negativo no sumaban 1.
+ */
+function mapaDeRentaFija(valor: unknown, campo: string, avisos: string[]): Record<string, number> | undefined {
+    const partes = Object.entries(obj(valor)).flatMap(([clave, bruto]): [string, number][] => {
+        const n = num(bruto);
+        return n === undefined ? [] : [[clave, n]];
+    });
+    if (!partes.some(([, n]) => n < 0 || n > 1)) return mapaDePesos(valor);
+    const suma = partes.reduce((total, [, n]) => total + n, 0);
+    const fuera = partes.filter(([, n]) => !enRango(TIPO_EXPOSICION, `${campo}.*`, n));
+    if (fuera.length === 0 && Math.abs(suma - 1) <= TOLERANCIA_DEL_REPARTO) return Object.fromEntries(partes);
+    avisos.push(
+        `${campo} neto que no se escribe tal cual (${fuera.length > 0 ? `${fuera.map(([clave, n]) => `${clave} ${n}`).join(', ')} fuera de los topes` : `suma ${suma.toFixed(5)}`}): ` +
+            'se saltan sus partes fuera de 0-1, como antes de la C-31'
+    );
+    return mapaDePesos(valor);
+}
+
+/**
  * El peso de una clase en el reparto de activos. No es un `peso`: el proveedor da el reparto neto, y una
- * clase puede salirse de 0-1 hasta lo que diga el contrato, que es un punto (decisión A-63 de Óscar,
- * 05-11-2026). La cifra pasa tal cual: un -0,08 no se escribe como cero.
+ * clase puede salirse de 0-1 hasta los topes del contrato, de -5 a 6 (decisión C-29 de Óscar, 21-11-2026;
+ * hasta ese día, un punto por la A-63). La cifra pasa tal cual: un -0,08 no se escribe como cero, ni un
+ * -2,43 de liquidez prestada.
  */
 function pesoDeClase(valor: unknown): number | undefined {
     const n = num(valor);
@@ -754,6 +796,8 @@ function conLoDesplazado(fuente: unknown, rutaBase: string, contraste: Record<st
 interface RepartoDeActivos {
     mezcla: Record<string, unknown> | undefined;
     completado: 'REPORTED' | 'IMPLIED_BY_SUM' | undefined;
+    /** Por qué no hay reparto, cuando no lo hay y se sabe decir mejor que «no suma 1». */
+    sinReparto?: string;
 }
 
 /**
@@ -781,10 +825,30 @@ const CUATRO_CLASES = ['equity', 'fixed_income', 'cash', 'other'] as const;
  *  - lo declarado no suma 1 → no hay reparto. No se completa con ceros, porque un cero en un
  *    reparto afirma que el fondo no tiene nada de esa clase.
  *
- * Y una clase que se sale de lo que admite el contrato tampoco deja reparto, sume lo que sume el
- * resto. No es una clase sin declarar: hasta el 05-11-2026 se trataba como tal, y 52 fondos entraban
- * con su negativo escrito como un cero y las demás sumando de más.
+ * Desde el 21-11-2026 (decisión C-29 de Óscar) el reparto es el NETO del proveedor, que suma 1: una
+ * clase negativa (un corto, liquidez prestada) o por encima de 1 (apalancamiento) entra con su cifra.
+ * Hasta ese día una clase que se salía de 0-1 más de un punto dejaba al fondo sin reparto aunque el
+ * reparto cuadrase, y eran 95 fondos del canónico del 17-11; los 95 sumaban 1 y los 95 lo recuperan.
+ *
+ * Lo que sigue sin dejar reparto: lo que no suma 1 con la tolerancia, lo que no trae números, las
+ * cuatro clases a cero y una clase que se sale de los TOPES del contrato (de -5 a 6), que ya no es un
+ * reparto neto sino un error de unidades. Esa clase no es una clase sin declarar: hasta el 05-11-2026
+ * se trataba como tal, y 52 fondos entraban con su negativo escrito como un cero y las demás sumando
+ * de más.
  */
+/**
+ * ¿Es un reparto neto con cortos o apalancamiento? Lo es si una clase queda por debajo de 0 o por encima de 1 más allá
+ * del punto de redondeo y descubierto de tesorería que ya admitía la A-63 (`TOLERANCIA_DEL_REPARTO`): un -0,08 % de
+ * Lazard no es una posición corta. Lo usan la clase de la raíz, que no se deduce de un reparto así, y los mapas de la
+ * renta variable, que en un fondo así se escriben con la misma regla que tenían cuando no había reparto.
+ */
+export function esRepartoNeto(mezcla: Record<string, unknown> | undefined): boolean {
+    if (mezcla === undefined) return false;
+    return Object.values(mezcla).some(
+        (valor) => typeof valor === 'number' && (valor < -TOLERANCIA_DEL_REPARTO || valor > 1 + TOLERANCIA_DEL_REPARTO)
+    );
+}
+
 function repartoDeActivos(exposicion: Record<string, unknown>, avisos: string[]): RepartoDeActivos {
     const asignacion = obj(exposicion['asset_mix']);
     const fuera = ['equity', 'bond', 'cash', 'other'].filter(
@@ -792,7 +856,12 @@ function repartoDeActivos(exposicion: Record<string, unknown>, avisos: string[])
     );
     if (fuera.length > 0) {
         avisos.push(`asset_mix con una clase fuera de rango: ${fuera.map((clave) => `${clave} ${String(asignacion[clave])}`).join(', ')}`);
-        return { mezcla: undefined, completado: undefined };
+        const topes = rangoDe(TIPO_EXPOSICION, 'asset_mix.equity');
+        return {
+            mezcla: undefined,
+            completado: undefined,
+            sinReparto: `una clase se sale de los topes del contrato, de ${String(topes?.minimum)} a ${String(topes?.maximum)}: no es un reparto neto, es un error de unidades`
+        };
     }
     const mezcla = limpiar({
         /* El canónico llama `bond` a la renta fija y no trae `real_asset`; aquí van con el
@@ -805,9 +874,19 @@ function repartoDeActivos(exposicion: Record<string, unknown>, avisos: string[])
         real_asset: pesoDeClase(asignacion['real_asset']),
         other: pesoDeClase(asignacion['other'])
     });
-    if (mezcla === undefined) return { mezcla: undefined, completado: undefined };
+    if (mezcla === undefined) return { mezcla: undefined, completado: undefined, sinReparto: 'el proveedor no trae numeros del reparto por clases' };
 
     const presentes = CUATRO_CLASES.filter((clave) => clave in mezcla);
+    /*
+     * Las cuatro clases a cero no son un fondo vacío: son un reparto que el proveedor no ha dado (Óscar, 21-11-2026). El
+     * canónico las rellena con ceros cuando el extractor no trae la asignación (`asset_allocation_unavailable`). Ya se
+     * quedaba sin reparto por no sumar 1; esto lo dice por su nombre, como regla y no por ISIN. Medido sobre el canónico
+     * del 17-11-2026: 3 instrumentos, ES0132526031, LU1814994353 e IE00B4ND3602.
+     */
+    if (presentes.length === CUATRO_CLASES.length && presentes.every((clave) => Number(mezcla[clave]) === 0)) {
+        avisos.push('asset_mix con las cuatro clases a 0: el proveedor no da el reparto');
+        return { mezcla: undefined, completado: undefined, sinReparto: 'las cuatro clases llegan a 0: el reparto no se conoce, y no se escriben ceros' };
+    }
     const suma = presentes.reduce((total, clave) => total + Number(mezcla[clave] ?? 0), 0);
     if (Math.abs(suma - 1) > TOLERANCIA_DEL_REPARTO) {
         /* Vale igual con las cuatro clases que con dos: si no suma 1, no es un reparto. Un
@@ -831,6 +910,47 @@ function repartoDeActivos(exposicion: Record<string, unknown>, avisos: string[])
  * puedan discutir, no escondidos en un `if`.
  */
 const PESO_PARA_SER_DE_UNA_CLASE = 0.8;
+
+/** El peso mínimo de renta fija, convertibles incluidos, para escribir sus tres mapas. Vive en `aplicabilidad.ts`. */
+export { UMBRAL_DE_RENTA_FIJA_DE_SUS_MAPAS };
+
+/**
+ * El `x-applies-when` de `bond_types`, `duration_buckets` y `credit_buckets` en `instrument-declared-exposure.v2`. El
+ * mapper decide con él, y una prueba comprueba que es el que declara el contrato: si uno cambia sin el otro, falla.
+ */
+export const PREDICADO_DE_LOS_MAPAS_DE_RENTA_FIJA = 'CON_RENTA_FIJA_NO_RESIDUAL';
+
+/**
+ * Los rasgos con los que se decide si se escriben `bond_types`, `duration_buckets` y `credit_buckets`: los mismos que
+ * leerá de la base el predicado `CON_RENTA_FIJA_NO_RESIDUAL` de su contrato —el reparto que se escribe y la categoría de
+ * la raíz— más el peso propio de los convertibles del registro universal (`cartera.asignacion_activos.convertibles.neto`,
+ * en por ciento), que la base no guarda. La regla no está aquí: está en `pesoDeRentaFijaConConvertibles`, una sola vez.
+ */
+function rasgosParaLosMapasDeRentaFija(
+    mezcla: Record<string, unknown> | undefined,
+    asignacionDelExtractor: Record<string, unknown>,
+    categoria: string | undefined
+): RasgosDelInstrumento {
+    const propio = num(obj(asignacionDelExtractor['convertibles'])['neto']);
+    return {
+        instrument_type: 'FUND',
+        asset_mix: mezcla as Record<string, number> | undefined,
+        category: categoria,
+        convertibles: propio === undefined ? undefined : propio / 100
+    };
+}
+
+/**
+ * Cuánto pesa la renta fija a efectos de escribir sus tres mapas, con los convertibles (Óscar, 21-11-2026). Sin reparto,
+ * 0. Es `pesoDeRentaFijaConConvertibles` con lo que trae el canónico; se queda con este nombre porque lo leen las pruebas.
+ */
+export function pesoDeRentaFijaDeSusMapas(
+    mezcla: Record<string, unknown> | undefined,
+    asignacionDelExtractor: Record<string, unknown>,
+    categoria: string | undefined
+): number {
+    return pesoDeRentaFijaConConvertibles(rasgosParaLosMapasDeRentaFija(mezcla, asignacionDelExtractor, categoria)) ?? 0;
+}
 const PESO_MINIMO_DE_LA_SEGUNDA = 0.1;
 
 /**
@@ -849,6 +969,10 @@ const PESO_MINIMO_DE_LA_SEGUNDA = 0.1;
 function claseSegunElReparto(reparto: RepartoDeActivos): string | undefined {
     const mezcla = reparto.mezcla;
     if (mezcla === undefined) return undefined;
+    /* Un reparto neto con cortos o apalancamiento (C-29) no dice de qué clase es el fondo: un 246 % de liquidez con la
+       bolsa a -188 % no es un monetario, es un fondo que vende bolsa. Ahí manda lo que diga el proveedor, aunque sea OTHER.
+       Medido el 21-11-2026 sobre el canónico del 17-11: ninguno de los 95 fondos con reparto neto llega como OTHER. */
+    if (esRepartoNeto(mezcla)) return undefined;
     const peso = (clave: string): number => Number(mezcla[clave] ?? 0);
 
     const dominantes: Readonly<Record<string, string>> = {
@@ -1407,11 +1531,53 @@ export function mapearInstrumento(
     /* Lo de la renta variable, que no depende de que el reparto por clases cuadre (decisión 109 de Óscar, 05-11-2026). */
     /* Y sin reparto, solo si todo el mapa son pesos. `mapaDePesos` salta lo que no lo es, y de un fondo con una zona al 448 %, como BLK
        Systematic, dejaría un 36 % suelto que antes no se enseñaba: son los 13 de hasta 7.646 %, que no se arreglan aquí y no se empeoran. */
+    /* Y con un reparto neto (C-29, 21-11-2026), la misma regla que cuando no había reparto: hasta ese día esos 95 fondos no
+       lo tenían, y BLK Systematic, que es uno de ellos, dejaría ahora su 36 % suelto. Recuperar el reparto no cambia sus mapas. */
     const entero = (mapa: unknown): boolean => Object.values(obj(mapa)).every((bruto) => num(bruto) === undefined || peso(bruto) !== undefined);
-    const sectores = completa || entero(exposicion['sectors']) ? mapaDePesos(exposicion['sectors']) : undefined;
-    const regiones = completa || entero(exposicion['equity_regions']) ? mapaDePesos(exposicion['equity_regions']) : undefined;
+    const sinGuarda = completa && !esRepartoNeto(mezclaFinal);
+    const sectores = sinGuarda || entero(exposicion['sectors']) ? mapaDePesos(exposicion['sectors']) : undefined;
+    const regiones = sinGuarda || entero(exposicion['equity_regions']) ? mapaDePesos(exposicion['equity_regions']) : undefined;
     const conPeso = (mapa: Record<string, number> | undefined): boolean => Object.values(mapa ?? {}).some((valor) => valor > 0);
     const queda = conPeso(sectores) || conPeso(regiones);
+    /*
+     * Del reparto ya cerrado, con el nombre del contrato: `bond` es `fixed_income` aquí. Lo leen dos sitios, los
+     * tres mapas de renta fija de este bloque y `declared/fixed_income`, y por eso se calcula una vez, aquí arriba.
+     *
+     * Los tres mapas, solo si hay renta fija (Óscar, 21-11-2026; decisión 17: un campo presente donde no aplica es
+     * un error). El contrato ya lo decía —`x-applies-when: CON_RENTA_FIJA`, el mismo predicado y el mismo `> 0`—,
+     * pero el mapper los escribía con que el reparto cerrase. Medido el 21-11-2026 sobre la base nueva: 224 fondos
+     * y ETF con `fixed_income` 0 llevaban `bond_types`, 148 de ellos `{cash: 1}`, que es el 100 % de nada
+     * repartido al efectivo; y la equivalencia de fondos los comparaba en «Tipo de emisor».
+     *
+     * Y con un umbral, decidido por Óscar el mismo día: los tres, solo si la renta fija pesa al menos un 0,5 % del
+     * reparto («los que tienen menos son posiciones residuales, no representativas»), contando como renta fija los
+     * convertibles (ver `pesoDeRentaFijaDeSusMapas`). `tieneRentaFija` sigue siendo `> 0`: es lo que decide
+     * `declared/fixed_income`, y eso no lo cambia esta decisión.
+     *
+     * Y se decide con el MISMO predicado que declara su contrato desde el 21-11-2026, `CON_RENTA_FIJA_NO_RESIDUAL`, y con
+     * la misma función que lo evalúa al medir la calidad y al auditar la base: así no puede escribirse un mapa que la base
+     * llame «presente donde no aplica», ni dejarse uno sin escribir que la calidad cuente como «falta».
+     */
+    const tieneRentaFija = Number(reparto.mezcla?.['fixed_income'] ?? 0) > 0;
+    const rasgosDeSusMapas = rasgosParaLosMapasDeRentaFija(
+        completa ? mezclaFinal : undefined,
+        obj(en(universal, 'cartera', 'asignacion_activos')),
+        categoria
+    );
+    const pesoParaSusMapas = pesoDeRentaFijaConConvertibles(rasgosDeSusMapas) ?? 0;
+    const conRentaFija = aplicaAlInstrumento(PREDICADO_DE_LOS_MAPAS_DE_RENTA_FIJA, rasgosDeSusMapas) === true;
+    /*
+     * Lo único que la base no puede reproducir: el peso propio de los convertibles, que no se guarda. Si cambia el
+     * veredicto, la calidad y la auditoría de la base dirán otra cosa que este mapper, y eso se dice aquí en vez de
+     * descubrirlo allí. Medido el 21-11-2026 sobre el canónico del 17-11: no pasa en ninguno de los 1.334.
+     */
+    const desdeLaBase = aplicaAlInstrumento(PREDICADO_DE_LOS_MAPAS_DE_RENTA_FIJA, { ...rasgosDeSusMapas, convertibles: undefined }) === true;
+    if (completa && desdeLaBase !== conRentaFija) {
+        avisos.push(
+            `mapas de renta fija: el peso propio de los convertibles (${((rasgosDeSusMapas.convertibles ?? 0) * 100).toFixed(2)} %) ` +
+                `decide que ${conRentaFija ? 'se escriben' : 'no se escriben'}, y la base, que no lo guarda, dira lo contrario`
+        );
+    }
     const exposicionDoc = limpiar({
         ...(sobre('canonical:fondosdb', fecha(en(ms, 'portfolio', 'as_of')) ?? fechaFicha) ?? {}),
         asset_mix: completa ? mezclaFinal : undefined,
@@ -1421,12 +1587,24 @@ export function mapearInstrumento(
         equity_styles: mapaDePesos(exposicion['equity_styles']),
         market_caps: mapaDePesos(exposicion['market_caps']),
         equity_style_box: cajaDelFondo,
-        /* Estos tres son de la renta fija, y la decisión solo conserva lo de la variable. */
-        bond_types: completa ? mapaDePesos(exposicion['bond_types']) : undefined,
-        duration_buckets: completa ? mapaDePesos(exposicion['duration']) : undefined,
-        credit_buckets: completa ? mapaDePesos(exposicion['credit']) : undefined,
+        /* Estos tres son de la renta fija, y la decisión solo conserva lo de la variable. Netos, con su signo, si
+           suman 1 (C-31, 21-11-2026): `mapaDeRentaFija`. */
+        bond_types: conRentaFija ? mapaDeRentaFija(exposicion['bond_types'], 'bond_types', avisos) : undefined,
+        duration_buckets: conRentaFija ? mapaDeRentaFija(exposicion['duration'], 'duration_buckets', avisos) : undefined,
+        credit_buckets: conRentaFija ? mapaDeRentaFija(exposicion['credit'], 'credit_buckets', avisos) : undefined,
         confidence: confianza
     });
+    if (completa && !conRentaFija) {
+        /* Con el reparto cerrado se SABE que no hay renta fija, o que es residual: no aplica, no falta. Sin reparto
+           no se sabe, y ahí no se afirma nada (la ausencia de `asset_mix` ya va abajo). */
+        for (const ruta of ['bond_types', 'duration_buckets', 'credit_buckets']) {
+            ausencias.push({
+                ruta: `declared/exposure.${ruta}`,
+                razon: 'NOT_APPLICABLE',
+                detalle: `renta fija, con convertibles, del ${(pesoParaSusMapas * 100).toFixed(2)} %: por debajo del 0,5 %`
+            });
+        }
+    }
     if ((completa || queda) && confianza !== undefined && exposicionDoc !== undefined) {
         documentos.push({
             ruta: `instruments/${isin}/declared/exposure`,
@@ -1441,7 +1619,7 @@ export function mapearInstrumento(
         ausencias.push({
             ruta: 'declared/exposure.asset_mix',
             razon: 'NOT_PROVIDED',
-            detalle: 'lo declarado no suma 1, o una clase se sale de 0-1 mas de un punto, y no se completa con ceros'
+            detalle: reparto.sinReparto ?? 'lo declarado no suma 1, y no se completa con ceros'
         });
     } else if (confianza === undefined) {
         ausencias.push({ ruta: 'declared/exposure.confidence', razon: 'NOT_PROVIDED' });
@@ -1470,8 +1648,6 @@ export function mapearInstrumento(
         high_yield: siCabe(TIPO_RF, 'high_yield', frac(rf['high_yield_pct'])),
         avg_credit_quality: calidad
     });
-    /* Del reparto ya cerrado, con el nombre del contrato: `bond` es `fixed_income` aquí. */
-    const tieneRentaFija = Number(reparto.mezcla?.['fixed_income'] ?? 0) > 0;
     if (rfDoc !== undefined && Object.keys(rfDoc).length > 2 && fechaFicha !== undefined) {
         documentos.push({
             ruta: `instruments/${isin}/declared/fixed_income`,
@@ -2024,9 +2200,14 @@ export function mapearInstrumento(
      * motivo, la frase del KID que lo justifica y, si antes se publicaban cifras, desde cuándo ya no
      * (§10 del método). Las tres solo cuando no hay `relative`: con cifras, decir que no las hay sería
      * contradecirse. Decisión 30: la clase cubierta es otro motivo decidido, sin frase ni retirada,
-     * porque sale del nombre de la clase y nunca tuvo cifras.
+     * porque sale del nombre de la clase y nunca tuvo cifras. C-28 (21-11-2026): la serie de su índice era
+     * otra clase del mismo fondo. Sí tuvo cifras, y la retirada la escribe el extractor, que es quien sabe desde
+     * cuándo ya no se publican, con el mismo mecanismo que la del KID (desde el 21-11-2026): aquí viaja igual.
      */
-    const avisoDeRelativas = txt(relativas['aviso']);
+    /* Sin el paréntesis que lleva detrás el de la C-28 (el proxy que resultó ser otra clase del mismo fondo). */
+    const avisoDeRelativasCompleto = txt(relativas['aviso']);
+    const avisoDeRelativas =
+        avisoDeRelativasCompleto === undefined ? undefined : claveDelAvisoDeRelativas(avisoDeRelativasCompleto);
     /* Un aviso del KID que no esté en la tabla rompe el mapeo (es una decisión que no sabemos nombrar);
        los avisos del cálculo (`sin_relativas_divisa_*`) no son una decisión y no escriben motivo. */
     const esAvisoDecidido =
@@ -2383,6 +2564,42 @@ export const BLOQUES_QUE_NO_APLICAN_A_UNA_ACCION: Readonly<Record<string, string
         'ese bloque es la politica y el historial de reparto de una CLASE, y existe para ARREGLAR la serie. Una accion paga dividendos de verdad, que van a declared/dividends, y su serie ya esta ajustada por ellos: no hay nada que arreglar'
 };
 
+/** Cuánto atrás cuenta una fecha ex-dividendo como señal de que la acción pagó en los últimos doce meses. */
+const DIAS_DE_PAGOS_RECIENTES = 365;
+
+/**
+ * «Pagado en 12 meses»: un cero que el propio proveedor desmiente no se escribe (Óscar, 21-11-2026).
+ *
+ * El importe llega de Yahoo (`trailingAnnualDividendRate`), y medido el 21-11-2026 sobre las 508 acciones con bloque de
+ * dividendos, 144 lo traen a 0 y 49 de ellas tienen a la vez rentabilidad por dividendo o dividendo previsto mayor que
+ * cero (Roche, yield 2,2 % y 12,9 previstos), y 2 más una fecha ex-dividendo de los últimos doce meses. El proveedor se
+ * contradice consigo mismo, y un cero creíble es peor que un hueco: ese importe no entra, y queda como no proporcionado.
+ *
+ * Sin ninguna de las tres señales el cero SÍ se escribe: es una empresa que no paga, y decir que falta el dato sería
+ * esconderlo. Las tres señales son del mismo proveedor y no hay historial de pagos con el que contrastarlas (la serie
+ * está ajustada por dividendos): es una regla sobre la coherencia del dato, no una comprobación contra los pagos.
+ *
+ * La fecha de referencia es la de la ficha, no la de la pasada, para que la misma ficha dé siempre lo mismo. Una
+ * ex-dividendo posterior a la ficha no cuenta: es un dividendo anunciado, y eso ya lo dice el previsto.
+ */
+export function pagadoQueNoSeContradice(
+    pagado: number | undefined,
+    rendimiento: number | undefined,
+    previsto: number | undefined,
+    exDividendo: string | undefined,
+    fechaDeLaFicha: string | undefined
+): { valor: number | undefined; contradicho?: string } {
+    if (pagado !== 0) return { valor: pagado };
+    const senales: string[] = [];
+    if (rendimiento !== undefined && rendimiento > 0) senales.push(`rentabilidad por dividendo ${rendimiento}`);
+    if (previsto !== undefined && previsto > 0) senales.push(`dividendo previsto ${previsto}`);
+    if (exDividendo !== undefined && fechaDeLaFicha !== undefined) {
+        const dias = (Date.parse(`${fechaDeLaFicha}T00:00:00Z`) - Date.parse(`${exDividendo}T00:00:00Z`)) / 86_400_000;
+        if (dias >= 0 && dias <= DIAS_DE_PAGOS_RECIENTES) senales.push(`ex-dividendo el ${exDividendo}`);
+    }
+    return senales.length === 0 ? { valor: 0 } : { valor: undefined, contradicho: senales.join(', ') };
+}
+
 /**
  * Mapea una ACCION. Produce la raíz, los tres bloques que una acción sí tiene
  * —`declared/equity`, `declared/dividends` y `declared/quote`—, `computed/metrics` cuando hay
@@ -2570,15 +2787,23 @@ export function mapearAccion(
     const rendimiento =
         num(bloqueDividendos['yield_ratio']) ?? frac(fundamentales['dividend_yield_pct']);
     const divisaDelDividendo = txt(fundamentales['currency']) ?? divisa;
-    const pagado = num(porAccion['dividend']);
     const anunciado = num(bloqueDividendos['forward_annual_rate']);
+    const exDividendo = fecha(bloqueDividendos['ex_dividend_date']);
+    const pagado = pagadoQueNoSeContradice(num(porAccion['dividend']), rendimiento, anunciado, exDividendo, fechaFicha);
+    if (pagado.contradicho) {
+        ausencias.push({
+            ruta: 'declared/dividends.trailing_amount_per_share',
+            razon: 'NOT_PROVIDED',
+            detalle: `el proveedor da 0 pagado en 12 meses y a la vez ${pagado.contradicho}`
+        });
+    }
     const dividendos = limpiar({
         ...(sobre('canonical:fondosdb', fechaFicha) ?? {}),
-        currency: pagado !== undefined || anunciado !== undefined ? divisaDelDividendo : undefined,
+        currency: pagado.valor !== undefined || anunciado !== undefined ? divisaDelDividendo : undefined,
         yield_12m: siCabe(TIPO_DIVIDENDOS, 'yield_12m', rendimiento),
-        trailing_amount_per_share: siCabe(TIPO_DIVIDENDOS, 'trailing_amount_per_share', pagado),
+        trailing_amount_per_share: siCabe(TIPO_DIVIDENDOS, 'trailing_amount_per_share', pagado.valor),
         forward_amount_per_share: siCabe(TIPO_DIVIDENDOS, 'forward_amount_per_share', anunciado),
-        ex_dividend_date: fecha(bloqueDividendos['ex_dividend_date'])
+        ex_dividend_date: exDividendo
     });
     const hayDividendo =
         dividendos !== undefined && Object.keys(dividendos).some((clave) => !CLAVES_DEL_SOBRE.includes(clave));
@@ -2659,31 +2884,29 @@ export function mapearAccion(
     }
 
     /*
-     * El Sharpe, y aquí hay una decisión que conviene leer entera.
-     *
-     * El extractor lo calcula para las 73 restando el €STR del BCE a una rentabilidad que está
-     * en la divisa del listado, sin convertir nada: lo dice el propio código, que lo deja
-     * escrito como limitación. En las 71 acciones en euros eso es coherente. En las 2 que
-     * cotizan en dólares, el exceso mezcla una rentabilidad en dólares con un tipo en euros, y
-     * la volatilidad no recoge el riesgo de cambio que soporta un inversor en euros: no es una
-     * cifra peor, es una cifra de otra cosa.
-     *
-     * No publicarla NO es suprimir el Sharpe, y esto no es una interpretación mía:
-     * `METODO_PROPIO_METRICAS` dice que el Sharpe no se suprime bajo ningún concepto y nombra
-     * los dos únicos casos en que no sale, que no son decisiones sino ingredientes que faltan,
-     * y uno de ellos es «la falta del tipo libre de riesgo de esa divisa». Es exactamente este
-     * caso. Y a diferencia de un fondo, aquí no hay cifra de proveedor a la que caer: la ficha
-     * de esas dos acciones se queda sin Sharpe y `quality/latest` dice por qué.
+     * La divisa EN LA QUE SE CALCULÓ, que no es la del listado. Desde la versión 2 del método
+     * (§5 de `METODO_PROPIO_METRICAS`) el extractor lleva la serie de toda acción a euros con el
+     * cambio del BCE antes de calcular, y lo sella en `historial_precios.divisa_metricas`; una
+     * ficha anterior sin el sello solo cuenta como euros si su serie ya lo era.
      */
-    const enEuros = divisa === 'EUR';
-    const sharpe = enEuros ? porVentanaDelFondo(riesgo['sharpe'], num) : undefined;
-    if (!enEuros && porVentanaDelFondo(riesgo['sharpe'], num) !== undefined) {
-        ausencias.push({
-            ruta: 'computed/metrics.sharpe',
-            razon: 'NOT_APPLICABLE',
-            detalle: `serie en ${divisa} y tipo libre de riesgo en EUR: el exceso mezclaria dos divisas`
-        });
-    }
+    const divisaDelCalculo =
+        txt(historial['divisa_metricas']) ?? (txt(historial['divisa']) === 'EUR' ? 'EUR' : undefined);
+
+    /*
+     * El Sharpe, que va con la divisa del CÁLCULO y no con la del listado (P1-05, 21-11-2026).
+     *
+     * Hasta la versión 1 la rentabilidad estaba en la divisa del listado y restarle el €STR
+     * mezclaba dos divisas, así que aquí se miraba la divisa de cotización y fuera del euro no
+     * se publicaba. Desde la 2 la serie llega en euros y el €STR es el tipo que le corresponde:
+     * mirar la cotización borraba un Sharpe coherente en todas las acciones que no cotizan en
+     * euros —259 de 261 en la exportación del 17-11-2026— y dejaba una ausencia falsa.
+     *
+     * Lo que no cambia: el de una acción no se ENSEÑA (Óscar, 04-11-2026; §9 del método), y la
+     * tarjeta ya lo quita. Se guarda en `computed/metrics`, como el de las que cotizan en euros.
+     * Y una ficha calculada en otra divisa no publica ninguna métrica (`NEEDS_FX`, más abajo).
+     */
+    const sharpeCalculado = porVentanaDelFondo(riesgo['sharpe'], num);
+    const sharpe = divisaDelCalculo === 'EUR' ? sharpeCalculado : undefined;
 
     /*
      * La caída máxima de una acción, en TODAS sus ventanas.
@@ -2725,13 +2948,10 @@ export function mapearAccion(
     const ajuste = AJUSTE_DE_SERIE[txt(historial['source_history']) ?? ''];
     const hayCifra =
         volatilidad !== undefined ||
-        sharpe !== undefined ||
+        sharpeCalculado !== undefined ||
         sortino !== undefined ||
         caidaMaxima !== undefined ||
         Object.keys(anualizada).length > 0;
-
-    const divisaDelCalculo =
-        txt(historial['divisa_metricas']) ?? (txt(historial['divisa']) === 'EUR' ? 'EUR' : undefined);
 
     /*
      * Beta y R² contra la referencia de donde cotiza (decisiones 12 y 24). Las dos únicas: el

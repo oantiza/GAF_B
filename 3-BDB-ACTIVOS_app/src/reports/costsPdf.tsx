@@ -31,7 +31,7 @@ export interface CostsPdfInput {
 }
 
 const TITULO = "El coste de su cartera";
-const DOCUMENTO = "Informe de costes";
+const DOCUMENTO = "Costes de la propuesta";
 const ADVERTENCIA = "Estimación de un año: no es una factura ni un compromiso de tarifas";
 const NO_APLICA = textoDeAusencia("no-aplica");
 const FALTA = textoDeAusencia("falta");

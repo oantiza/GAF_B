@@ -5,8 +5,8 @@
  * pruebas de cada pantalla:
  * - Mercado: la pestaña «Tipos y calendario» abre con la respuesta, los cuatro tipos del BCE con la fecha de cada uno y
  *   sin color (son niveles, no resultados), y lo que no ha llegado se dice.
- * - Sistema: sus pestañas van en la dirección y se recuperan al recargar; siguen las nueve (también «Referencia
- *   técnica»); y el aviso de escrituras bloqueadas sale una sola vez en su pestaña, como `Aviso`.
+ * - Sistema: sus dos pestañas (las de la base nueva; las siete de la vieja se borraron el 21-11-2026) van en la
+ *   dirección y se recuperan al recargar, y una pestaña que ya no existe abre la primera.
  * - Salud del catálogo: cada ruta de campo va con qué dato es, en palabras.
  */
 import { act, createElement } from "react";
@@ -16,8 +16,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   tipos: vi.fn(),
   curva: vi.fn(),
-  calidades: vi.fn(),
-  estadoDeLaMaestra: vi.fn()
+  calidades: vi.fn()
 }));
 
 vi.mock("../src/adapters/ecbRatesBackend", () => ({ fetchEcbRates: mocks.tipos }));
@@ -25,24 +24,10 @@ vi.mock("../src/adapters/ecbYieldCurveBackend", () => ({ fetchEcbYieldCurve: moc
 vi.mock("../src/charts/EuroYieldCurveChart", () => ({ EuroYieldCurvePanel: () => <p>curva-del-euro</p> }));
 vi.mock("../src/components/EconomicCalendarPanel", () => ({ EconomicCalendarPanel: () => <p>calendario</p> }));
 vi.mock("../src/firebase", () => ({ auth: null, firestore: null, functions: null }));
-vi.mock("../src/adapters/systemStatusBackend", () => ({ getSystemStatus: () => new Promise(() => undefined) }));
-vi.mock("../src/adapters/adminBackend", () => ({
-  adminIngestAsset: vi.fn(),
-  fetchAdminDbStatus: mocks.estadoDeLaMaestra,
-  fetchAdminRefreshAllStale: vi.fn(),
-  refreshSampleRebuildLabel: vi.fn(),
-  fetchAdminAssets: vi.fn(() => new Promise(() => undefined)),
-  fetchAdminAssetDetail: vi.fn(),
-  recomputeMetric: vi.fn(),
-  refreshAssetPrices: vi.fn(),
-  fetchAdminBackfillCandidates: vi.fn(() => new Promise(() => undefined)),
-  runAdminBackfillHistory: vi.fn(),
-  fetchAdminFundQuality: vi.fn(() => new Promise(() => undefined))
-}));
+vi.mock("../src/components/AdminRetrocessions", () => ({ AdminRetrocessions: () => <p>retrocesiones</p> }));
 vi.mock("../src/adapters/baseNuevaLectura", async (original) => ({
   ...(await original<typeof import("../src/adapters/baseNuevaLectura")>()),
   BASE_NUEVA_DISPONIBLE: true,
-  LEE_LA_NUBE: false,
   listarCalidades: mocks.calidades,
   listarTarjetas: () => new Promise(() => undefined)
 }));
@@ -60,7 +45,6 @@ beforeEach(() => {
   mocks.tipos.mockReset();
   mocks.curva.mockReset().mockResolvedValue(null);
   mocks.calidades.mockReset();
-  mocks.estadoDeLaMaestra.mockReset();
   host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
@@ -122,58 +106,31 @@ describe("Mercado · los tipos del día", () => {
   });
 });
 
-describe("Sistema · pestañas en la dirección y avisos", () => {
+describe("Sistema · pestañas en la dirección", () => {
   const pestana = (texto: string) => [...host.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((b) => b.textContent === texto)!;
 
-  test("siguen las nueve pestañas, la elegida va en la dirección y se recupera al recargar", async () => {
+  test("son las dos de la base nueva, la elegida va en la dirección y se recupera al recargar", async () => {
     window.history.replaceState(null, "", "/sistema");
     await act(async () => { root!.render(createElement(AdminPage)); });
-    expect([...host.querySelectorAll('[role="tab"]')].map((p) => p.textContent)).toEqual(
-      expect.arrayContaining(["Estado del sistema", "BBDD maestra", "Calidad de fondos", "Históricos", "Inspección", "Retrocesiones", "Ingesta", "Referencia técnica"])
-    );
+    expect([...host.querySelectorAll('[role="tab"]')].map((p) => p.textContent)).toEqual(["Estado del sistema", "Retrocesiones"]);
     expect(pestana("Estado del sistema").getAttribute("aria-selected")).toBe("true");
 
-    await act(async () => pestana("Referencia técnica").click());
-    expect(window.location.hash).toBe("#pestana=referencia");
-    expect(host.querySelector('[role="tabpanel"]')?.getAttribute("aria-labelledby")).toBe("admin-tab-referencia");
+    await act(async () => pestana("Retrocesiones").click());
+    expect(window.location.hash).toBe("#pestana=retrocesiones");
+    expect(host.querySelector('[role="tabpanel"]')?.getAttribute("aria-labelledby")).toBe("admin-tab-retrocesiones");
 
     await act(async () => root!.unmount());
     root = createRoot(host);
     await act(async () => { root!.render(createElement(AdminPage)); });
-    expect(pestana("Referencia técnica").getAttribute("aria-selected")).toBe("true");
-    expect(host.textContent).toContain("Documento de referencia");
+    expect(pestana("Retrocesiones").getAttribute("aria-selected")).toBe("true");
+    expect(host.textContent).toContain("retrocesiones");
   });
 
-  test("con las escrituras bloqueadas, la pestaña de la maestra lo avisa una sola vez, como aviso", async () => {
-    mocks.estadoDeLaMaestra.mockResolvedValue({
-      generated_at: "2026-11-13T08:00:00Z",
-      total_assets: 1097,
-      by_type: { FUND: 1097 },
-      with_history: 1090,
-      without_history: 7,
-      reach_2011: 800,
-      not_reach_2011: 297,
-      stale: 5,
-      stale_days_threshold: 5,
-      last_refresh_date: "2026-11-12",
-      master_writes_enabled: false,
-      master_writes_mode: "disabled",
-      metrics_present: { vol: 1, sharpe: 1, srri: 1, mdd: 1, mdd_hist: 1 },
-      start_year_histogram: { "2010": 1097 },
-      anomalies: { sin_historico: 7, desactualizados: 5, no_llega_2011: 297, valle_reciente: 0, total_flagged: 309 }
-    });
-    window.history.replaceState(null, "", "/sistema#pestana=estado");
+  test("una dirección guardada con una pestaña de la base vieja abre la primera", async () => {
+    window.history.replaceState(null, "", "/sistema#pestana=operaciones");
     await act(async () => { root!.render(createElement(AdminPage)); });
-    await reposar();
-
-    const avisos = [...host.querySelectorAll(".aviso")].filter((aviso) => aviso.textContent?.includes("Escrituras maestras bloqueadas"));
-    expect(avisos).toHaveLength(1);
-    expect(avisos[0].className).toContain("aviso--aviso");
-    /* PLA-12: recuentos con su punto de millar y fechas con el formato común. */
-    expect(host.textContent).toContain("1.097");
-    expect(host.textContent).toContain("12/11/2026");
-    /* PLA-18: «Último refresco» una sola vez. */
-    expect(host.textContent?.split("Último refresco").length).toBe(2);
+    expect(pestana("Estado del sistema").getAttribute("aria-selected")).toBe("true");
+    expect(host.querySelector('[role="tabpanel"]')?.getAttribute("aria-labelledby")).toBe("admin-tab-sistema");
   });
 });
 

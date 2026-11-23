@@ -3,6 +3,7 @@
  * cuánto valen y cuánto costaron) y la cuenta de efectivo (su saldo y su extracto).
  */
 import { useMemo, useState } from "react";
+import { useModoCliente } from "../../../app/ClientModeContext";
 import { EmptyState } from "../../../components/ui/AsyncState";
 import { Campo } from "../../../components/ui/Campo";
 import { Cifra } from "../../../components/ui/Cifra";
@@ -103,6 +104,7 @@ export function VistaCuentas({ datos }: { datos: DatosDeVista }) {
   const divisa = cartera.divisaBase;
   const [aFecha, setAFecha] = useState(hoy);
   const [criterio, setCriterio] = useState<"operacion" | "valor">("operacion");
+  const seVenLasNotas = useModoCliente().seEnsena("notasDelAsesor");
   const primerDia = preparado.valoracion.dias[0];
 
   /*
@@ -144,7 +146,7 @@ export function VistaCuentas({ datos }: { datos: DatosDeVista }) {
     .map((linea) => ({
       id: `${linea.movimiento.id}-${linea.fecha}`,
       fecha: linea.fecha,
-      concepto: descripcionDelMovimiento(linea.movimiento, cartera.activos.find((activo) => activo.id === linea.movimiento.activoId)?.nombre) || nombreDelTipo(linea.movimiento.tipo),
+      concepto: descripcionDelMovimiento(linea.movimiento, cartera.activos.find((activo) => activo.id === linea.movimiento.activoId)?.nombre, undefined, { conNota: seVenLasNotas }) || nombreDelTipo(linea.movimiento.tipo),
       importe: aNumero(linea.importe),
       saldo: aNumero(linea.saldo),
       divisa: linea.divisa

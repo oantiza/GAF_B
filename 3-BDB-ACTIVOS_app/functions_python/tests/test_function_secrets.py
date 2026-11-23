@@ -10,6 +10,11 @@ Se inspecciona main.py con `ast` (sin importarlo) para fijar la configuración d
 Los dos calendarios salieron de esta lista el 03-11-2026: el plan de EODHD no incluye su calendario
 (422 y 403), su fuente real es Yahoo, y sin clave caen a ella. Lo fija la prueba de abajo.
 
+Desde el 21-11-2026 la lista esta vacia: las cuatro que llegaban a EODHD (`admin_refresh_prices`,
+`admin_refresh_all_stale`, `admin_ingest_asset`, `scheduled_refresh_prices`) escribian precios en la base
+vieja y se borraron con ella (decision 31 del censo CENSO_BASE_VIEJA_2026-11-21.md). Lo que queda fijado es
+que ninguna pide ya ese secreto: si una vuelve a llegar a EODHD, tiene que declararlo y entrar aqui.
+
 Run: `python -m pytest functions_python/tests/test_function_secrets.py -q`
 """
 import ast
@@ -19,12 +24,7 @@ import pytest
 
 MAIN_PY = os.path.join(os.path.dirname(__file__), "..", "main.py")
 
-FUNCIONES_CON_EODHD = [
-    "admin_refresh_prices",
-    "admin_refresh_all_stale",
-    "admin_ingest_asset",
-    "scheduled_refresh_prices",
-]
+FUNCIONES_CON_EODHD: list = []
 
 
 def _funciones_decoradas():
@@ -48,21 +48,14 @@ def _secretos(fn: ast.FunctionDef) -> list:
     return [ast.literal_eval(item) for item in valor.elts]
 
 
-@pytest.mark.parametrize("nombre", FUNCIONES_CON_EODHD)
-def test_las_funciones_que_llegan_a_eodhd_declaran_el_secreto(nombre):
-    fn = _funciones_decoradas()[nombre]
-    assert "EODHD_API_KEY" in _secretos(fn), f"{nombre} no declara secrets=[\"EODHD_API_KEY\"]"
-
-
-def test_admin_refresh_prices_tiene_margen_para_reparar_todo_el_historico():
-    fn = _funciones_decoradas()["admin_refresh_prices"]
-    timeout = _keywords(fn).get("timeout_sec")
-    assert timeout is not None and ast.literal_eval(timeout) >= 540
+def test_solo_piden_eodhd_las_de_la_lista():
+    piden = sorted(nombre for nombre, fn in _funciones_decoradas().items() if "EODHD_API_KEY" in _secretos(fn))
+    assert piden == sorted(FUNCIONES_CON_EODHD)
 
 
 def test_las_callables_de_escritura_siguen_con_la_identidad_writer():
     decoradas = _funciones_decoradas()
-    for nombre in ("admin_refresh_prices", "admin_refresh_all_stale", "admin_ingest_asset"):
+    for nombre in ("save_portfolio", "delete_portfolio", "admin_publish_report"):
         cuenta = _keywords(decoradas[nombre]).get("service_account")
         assert isinstance(cuenta, ast.Name) and cuenta.id == "WRITER_SERVICE_ACCOUNT", nombre
 

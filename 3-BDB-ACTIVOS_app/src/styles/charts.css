@@ -319,6 +319,15 @@
   margin-left: auto;
 }
 
+/* La nota de un reparto neto (C-29, 21-11-2026): bajo el aro y la leyenda, a todo el ancho del bloque. */
+.oaa-donut-nota {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--texto-xs);
+  line-height: var(--lh-snug);
+  color: var(--tinta-3);
+}
+
 /* Columna lateral (B″): el aro arriba, la leyenda debajo, a todo el ancho. */
 .oaa-donut-layout--stack {
   grid-template-columns: minmax(0, 1fr);

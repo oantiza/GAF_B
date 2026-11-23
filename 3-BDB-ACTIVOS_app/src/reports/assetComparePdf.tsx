@@ -14,6 +14,7 @@ import { NO_SE_MIDE } from "../core/correlation";
 import { descargar, diaDelDocumento, nombreDelFichero } from "../core/descargaDeFicheros";
 import { categoriaLegible } from "../core/etiquetasDeReparto";
 import { esAccion } from "../core/esAccion";
+import { rotuloDeEstrellas } from "../core/estrellasDeMorningstar";
 import { fecha as escribirFecha, fechaLarga, numero, oFalta, porcentaje, ratio, rentabilidad, signoDe } from "../core/formato";
 import { leerIdentidad } from "../core/identidadDelAsesor";
 import { readableBackendLabel, TYPE_LABELS } from "../core/labels";
@@ -480,7 +481,7 @@ function AssetCompareDoc({ input }: { input: AssetComparePdfInput }) {
             { titulo: `3 años${marca("annualized_return-3y")}`, cifra: true },
             { titulo: `5 años${marca("annualized_return-5y")}`, cifra: true },
             { titulo: `10 años${marca("annualized_return-10y")}`, cifra: true },
-            { titulo: "Morningstar", cifra: true }
+            { titulo: rotuloDeEstrellas(interno), cifra: true }
           ]}
           filas={assets.map((asset, indice) => ({
             celdas: [
@@ -598,6 +599,10 @@ export function nombreDelFicheroDeLaComparativa(input: Pick<AssetComparePdfInput
   });
 }
 
-export async function downloadAssetComparisonPdf(input: AssetComparePdfInput): Promise<void> {
-  descargar(await createAssetComparisonPdfBlob(input), nombreDelFicheroDeLaComparativa(input));
+/** `puedeDescargar` se pregunta con el documento dibujado: si el Modo cliente se activó entretanto, el interno se descarta (H2-05). Devuelve si se descargó. */
+export async function downloadAssetComparisonPdf(input: AssetComparePdfInput, puedeDescargar: () => boolean = () => true): Promise<boolean> {
+  const blob = await createAssetComparisonPdfBlob(input);
+  if (!puedeDescargar()) return false;
+  descargar(blob, nombreDelFicheroDeLaComparativa(input));
+  return true;
 }

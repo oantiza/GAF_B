@@ -110,6 +110,24 @@ async function hojas(input: Parameters<typeof createComparisonPdfBlob>[0], guard
 }
 
 const OCHO = lado([0, 1, 2, 3, 4, 5, 6, 7]);
+
+describe("un fondo sin reparto de activos no entra en la renta variable por región (A-211, con el sí de Óscar)", () => {
+  /* La primera de A, de bolsa, sin reparto: pesa 8 / 36 = 22,2 % de A. Ni su renta variable ni sus regiones entran, y se dice. */
+  const SIN_REPARTO = { equity: 0, fixed_income: 0, cash: 0, alternative: 0, real_asset: 0, other: 0, source: "NOT_AVAILABLE" };
+  const conUnoSinReparto = () => [{ ...OCHO[0], pms_exposure: SIN_REPARTO } as unknown as BdbAssetDetail, ...OCHO.slice(1)];
+
+  test("la entrada lo deja fuera y lleva su peso", () => {
+    const input = entrada({ fichas: conUnoSinReparto() }, { fichas: DIEZ });
+    expect(input.rentaVariable!.a.sinRepartoPct).toBeCloseTo((8 / 36) * 100, 10);
+    expect(input.rentaVariable!.b.sinRepartoPct).toBeUndefined();
+  });
+
+  test("el papel lo dice de A, y de B no dice nada", async () => {
+    const texto = (await hojas(entrada({ fichas: conUnoSinReparto() }, { fichas: DIEZ }))).join(" ");
+    expect(texto).toContain("Falta el dato: el 22,2 % de A no declara su reparto de activos, y no se sabe qué parte es renta variable; no entra en este reparto.");
+    expect(texto).not.toContain("% de B no declara su reparto de activos");
+  }, 30_000);
+});
 const DIEZ = lado([1, 2, 3, 8, 9, 10, 11, 12, 13, 14]);
 /* El caso real del 10-11-2026: A con 8 y B con 10, ninguna en común (18 filas, tres con el nombre en dos líneas), 16 categorías (cuatro en
    dos líneas), 5 regiones, 2 divisas, sin capital y una posición fuera del cálculo en cada cartera. */

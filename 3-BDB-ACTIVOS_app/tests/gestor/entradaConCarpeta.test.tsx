@@ -39,7 +39,7 @@ async function esperar(condicion: () => boolean) {
 describe("GES-14 · dos ficheros con el mismo identificador", () => {
   it("salen las dos filas, y cada una avisa de que es copia de la otra", async () => {
     window.scrollTo = (() => undefined) as typeof window.scrollTo;
-    almacen.actual = { clase: "carpeta", nombre: "Carteras", listar: async () => [resumen("A.cartera.json", "mismo-id"), resumen("B.cartera.json", "mismo-id"), resumen("C.cartera.json", "otro-id")] } as unknown as AlmacenDeCarteras;
+    almacen.actual = { clase: "carpeta", nombre: "Carteras", retiradas: async () => [], listar: async () => [resumen("A.cartera.json", "mismo-id"), resumen("B.cartera.json", "mismo-id"), resumen("C.cartera.json", "otro-id")] } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     await esperar(() => (document.body.textContent ?? "").includes("Tus carteras"));
     const texto = document.body.textContent ?? "";
@@ -56,7 +56,7 @@ describe("GES-24 · el aviso de una cartera actualizada se ve dentro de ella", (
     almacen.actual = {
       clase: "carpeta",
       nombre: "Carteras",
-      listar: async () => [resumen("Familia Vieja.cartera.json", "migrada")],
+      retiradas: async () => [], listar: async () => [resumen("Familia Vieja.cartera.json", "migrada")],
       abrir: async () => ({ cartera: c, migrada: true }),
       guardar: async () => ({ fichero: "Familia Vieja.cartera.json" }),
       copias: async () => [],

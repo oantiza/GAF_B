@@ -193,6 +193,37 @@ def test_las_functions_no_arrancan_con_el_proyecto_de_bdb_y_si_con_el_de_hoy():
 def test_main_se_niega_antes_de_inicializar_la_app():
     fuente = (RAIZ / "main.py").read_text(encoding="utf-8")
     assert fuente.index("exigir_arranque_sin_bdb()") < fuente.index("initialize_app()")
+    assert fuente.index("exigir_emulador_en_local()") < fuente.index("initialize_app()")
+
+
+def test_en_el_emulador_sin_firestore_emulado_no_arranca():
+    """21-11-2026: el proyecto local es el real; sin el emulador de Firestore, la nube."""
+    with pytest.raises(RuntimeError) as exc:
+        master_project.exigir_emulador_en_local({"FUNCTIONS_EMULATOR": "true"})
+    assert "FIRESTORE_EMULATOR_HOST" in str(exc.value)
+    with pytest.raises(RuntimeError):
+        master_project.exigir_emulador_en_local({"FUNCTIONS_EMULATOR": "true", "FIRESTORE_EMULATOR_HOST": "  "})
+
+
+def test_en_el_emulador_con_firestore_emulado_y_en_la_nube_arranca():
+    master_project.exigir_emulador_en_local({"FUNCTIONS_EMULATOR": "true", "FIRESTORE_EMULATOR_HOST": "127.0.0.1:8092"})
+    master_project.exigir_emulador_en_local({})
+    master_project.exigir_emulador_en_local({"FUNCTIONS_EMULATOR": "false"})
+
+
+def test_main_no_arranca_en_el_emulador_sin_firestore_emulado():
+    """Por la puerta real: importar `main.py` como el emulador, sin `FIRESTORE_EMULATOR_HOST`."""
+    entorno = {k: v for k, v in os.environ.items() if k not in master_project.VARIABLES_DEL_ARRANQUE}
+    entorno.pop("FIRESTORE_EMULATOR_HOST", None)
+    entorno["GCLOUD_PROJECT"] = "bdb-gestor-de-activos"
+    entorno["FUNCTIONS_EMULATOR"] = "true"
+    sin = subprocess.run([sys.executable, "-c", "import main"], cwd=str(RAIZ), env=entorno,
+                         capture_output=True, text=True, timeout=120)
+    assert sin.returncode != 0 and "FIRESTORE_EMULATOR_HOST" in sin.stderr
+    entorno["FIRESTORE_EMULATOR_HOST"] = "127.0.0.1:8092"
+    con = subprocess.run([sys.executable, "-c", "import main"], cwd=str(RAIZ), env=entorno,
+                         capture_output=True, text=True, timeout=120)
+    assert con.returncode == 0, con.stderr
 
 
 def test_el_lector_solo_carga_la_clave_de_la_barrera(monkeypatch, tmp_path):

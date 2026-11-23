@@ -1,3 +1,5 @@
+> **Retirado el 21-11-2026 (C-32).** La pantalla Sistema › Operaciones y la parte de plataforma del servicio local se borraron con el código de la base vieja. Queda el CLI del extractor y el resto de su servicio web. Este documento es registro; no gobierna nada.
+
 # Sistema › Operaciones — el proceso completo desde la app (05-09-2026)
 
 Alta, extracción, canónico, corrección de campos y la plataforma de datos

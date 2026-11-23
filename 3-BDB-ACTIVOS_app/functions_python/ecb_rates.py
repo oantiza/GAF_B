@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta, timezone
+from quietlog import swallowed
 
 
 SCHEMA_VERSION = "ecb-rates.v1"
@@ -375,7 +376,9 @@ def get_euro_yield_curve(_request: dict | None = None) -> dict:
             try:
                 curves_by_id[curve["id"]] = future.result()
             except Exception as exc:  # a partial ECB outage must not hide the other curve
-                errors.append("%s: %s" % (curve["label"], str(exc)[:120]))
+                # A la pantalla, sin el texto de la excepcion (urls, trazas de la libreria): el detalle va al registro.
+                swallowed("ecb_rates.get_euro_yield_curve:%s" % curve["id"])
+                errors.append("%s: no disponible" % curve["label"])
     result = build_euro_yield_curve(curves_by_id, errors)
     if not errors:
         _shared_cache_put("yield_curve", result)
@@ -398,7 +401,8 @@ def get_ecb_rates(_request: dict | None = None) -> dict:
             try:
                 by_id[series["id"]] = future.result()
             except Exception as exc:  # a partial ECB outage must not hide healthy series
-                errors.append("%s: %s" % (series["id"], str(exc)[:120]))
+                swallowed("ecb_rates.get_ecb_rates:%s" % series["id"])
+                errors.append("%s: no disponible" % series["id"])
 
     rates = [by_id[series["id"]] for series in RATE_SERIES if series["id"] in by_id]
     result = {

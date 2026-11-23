@@ -14,6 +14,7 @@ import {
   TYPE_LABELS,
   readableBackendLabel
 } from "../core/labels";
+import { SIN_REPARTO_DECLARADO } from "../core/portfolio";
 import { etiquetaDeCodigo, estadoDeLosDatos, nombreDeLaReplica } from "../core/glosarioDePantalla";
 import { coverageBadgeFor } from "../core/coverageBadge";
 import { officialBenchmarkLine } from "../core/officialBenchmark";
@@ -114,13 +115,16 @@ export function AssetDetail({
   const { seEnsena } = useModoCliente();
   const conCalidad = seEnsena("calidadInterna");
   const activeTab = (pestana === "quality" && !conCalidad) || (pestana === "costs" && !seEnsenaLaMetrica("costeCorriente", asset.instrument_type)) ? "summary" : pestana;
+  /* A-203: un fondo sin reparto declarado no lleva cifras —cinco ceros dirían que no tiene nada—, y cada casilla dice que falta.
+     A-202: «Otros» es una clase; lo que no se sabe no va ahí. */
+  const sinReparto = asset.pms_exposure?.source === SIN_REPARTO_DECLARADO;
   const exposureItems = [
     { label: "RV", value: asset.pms_exposure.equity },
     { label: "RF", value: asset.pms_exposure.fixed_income },
     { label: "Liquidez", value: asset.pms_exposure.cash },
     { label: CLASS_LABELS.ALTERNATIVE, value: asset.pms_exposure.alternative },
-    { label: "Otros/No clasificado", value: asset.pms_exposure.other }
-  ];
+    { label: "Otros", value: asset.pms_exposure.other }
+  ].map((item) => (sinReparto ? { ...item, value: null } : item));
   const visibleExposure = exposureItems.reduce((sum, item) => sum + (item.value || 0), 0);
   const hasHoldings = Boolean(asset.holdings_summary?.has_holdings);
   const fundamentals = asset.fundamentals_summary;
@@ -196,7 +200,7 @@ export function AssetDetail({
               {seEnsenaLaMetrica("morningstar", asset.instrument_type) && typeof asset.morningstar_rating === "number" && asset.morningstar_rating > 0 ? (
                 <>
                   {" · "}
-                  <span className="asset-detail-stars" aria-label={`Morningstar ${Math.round(asset.morningstar_rating)} de 5 estrellas`}>
+                  <span className="asset-detail-stars" aria-label={`${seEnsena("fuenteDeDatos") ? "Morningstar" : "Calificación"} ${Math.round(asset.morningstar_rating)} de 5 estrellas`}>
                     {Array.from({ length: Math.min(5, Math.round(asset.morningstar_rating)) }).map((_, index) => (
                       <svg key={index} viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                         <path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z" />
@@ -483,7 +487,7 @@ export function AssetDetail({
                     </div>
                   ))}
                 </dl>
-                {visibleExposure < 0.95 ? <span className="quality-chip">Exposición incompleta</span> : null}
+                {!sinReparto && visibleExposure < 0.95 ? <span className="quality-chip">Exposición incompleta</span> : null}
               </section>
             </aside>
           </div>

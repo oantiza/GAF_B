@@ -578,7 +578,36 @@ def map_quant_metrics(root: dict, metrics_latest: Optional[dict]) -> dict:
     return mapped
 
 
+# A-203 (Oscar, 21-11-2026): un fondo que no declara su reparto de activos no tiene reparto. Hasta ese dia se le ponia el
+# tipico de su clase (`CLASSIFICATION_FALLBACK`: un fondo de renta fija, 100 % renta fija; un mixto, 100 % «otros»), y la
+# exposicion de la cartera lo sumaba como si fuera suyo. Ahora va la marca `NOT_AVAILABLE`: la aplicacion no lo reparte,
+# dice cuanto peso se queda sin reparto y escribe «Falta el dato». Lo mismo una posicion sin clase conocida: «Sin
+# clasificar» no es «Otros» (A-202). La inversion directa —una accion, un bono, el ETC de oro— si cuenta por su clase,
+# porque su clase es lo que es.
+#
+# El contrato de lectura (`asset-for-bdb.v1`, de la plataforma) pide las seis clases como numero: van a cero, y lo que dice que no
+# son un reparto es `source`. Quien lea el reparto mira `source` antes que las cifras; la aplicacion lo hace en `assetPmsShares`.
+SIN_REPARTO = "NOT_AVAILABLE"
+_SIN_REPARTO_EN_EL_CONTRATO = {"equity": 0.0, "fixed_income": 0.0, "cash": 0.0, "alternative": 0.0, "real_asset": 0.0, "other": 0.0,
+                               "source": SIN_REPARTO}
+
+
+def _es_un_fondo(root: dict) -> bool:
+    """Fondo o ETF: un vehiculo con cartera dentro, cuyo reparto solo lo sabe quien lo declara. Un ETC o un ETN no lo son."""
+    if map_instrument_type(root) not in ("FUND", "ETF"):
+        return False
+    producto = root.get("product") or {}
+    texto = " ".join(str(producto.get(clave) or "") for clave in ("product_type", "commercial_type")).upper().split()
+    return not any(palabra in ("ETC", "ETN") for palabra in texto)
+
+
 def map_pms_exposure(root: dict, econ_class: str) -> dict:
+    """El reparto por clase del activo, tal como lo guarda la base.
+
+    Es el reparto NETO del proveedor y suma 1, con su signo (C-29, Oscar, 21-11-2026): una clase puede ser negativa (un corto,
+    liquidez prestada) o pasar de 1 (apalancamiento), de -5 a 6 en la base nueva. Aqui pasa tal cual, sin recortar a 0-1: la
+    suma ponderada de una cartera sigue siendo correcta con negativos, y recortar uno dejaria las demas sumando de mas.
+    """
     pe = (root.get("portfolio_exposure") or {}).get("asset_mix")
     if isinstance(pe, dict):
         eq = _num(pe.get("equity")) or 0.0
@@ -588,13 +617,15 @@ def map_pms_exposure(root: dict, econ_class: str) -> dict:
         return {"equity": eq, "fixed_income": fi, "cash": cash,
                 "alternative": 0.0, "real_asset": 0.0, "other": other,
                 "source": "PORTFOLIO_EXPOSURE"}
+    if _es_un_fondo(root) or econ_class in ("UNKNOWN", "", None):
+        return dict(_SIN_REPARTO_EN_EL_CONTRATO)
     return {
         "equity": 1.0 if econ_class == "EQUITY" else 0.0,
         "fixed_income": 1.0 if econ_class == "FIXED_INCOME" else 0.0,
         "cash": 1.0 if econ_class == "MONEY_MARKET" else 0.0,
         "alternative": 1.0 if econ_class == "ALTERNATIVE" else 0.0,
         "real_asset": 1.0 if econ_class == "REAL_ASSET" else 0.0,
-        "other": 1.0 if econ_class in ("OTHER", "UNKNOWN", "MIXED", "COMMODITIES") else 0.0,
+        "other": 1.0 if econ_class in ("OTHER", "MIXED", "COMMODITIES") else 0.0,
         "source": "CLASSIFICATION_FALLBACK",
     }
 
@@ -657,6 +688,13 @@ def map_fixed_income_profile(root: dict) -> Optional[dict]:
     y se exponen en fracción 0..1. `bond_types` sale de `portfolio_exposure`
     y ya está en fracción; se omite si todos sus valores son cero. Devuelve None
     cuando no hay ningún dato.
+
+    Desde el 21-11-2026 (decisión C-31) la base nueva guarda `bond_types` neto, como
+    lo da el proveedor: una parte puede ser negativa (la liquidez de un fondo con
+    derivados) y otra pasar de 1. `_frac_map` sirve solo las partes mayores que cero,
+    como antes, y no rompe con eso: la equivalencia de fondos, que es quien lo lee,
+    compara el tipo de emisor sin las negativas, como compara la mezcla de clases
+    (C-29). Una parte por encima de 1 pasa tal cual.
     """
     fip = root.get("fixed_income_profile")
     fip = fip if isinstance(fip, dict) else {}
@@ -899,14 +937,14 @@ def available_sections(itype: str, costs: Optional[dict], holdings: dict,
 
 def data_quality_summary(root: dict, metrics: dict, holdings: dict,
                          fundamentals: Optional[dict], flags: list,
-                         warnings: list, coverage: str) -> dict:
+                         warnings: list, coverage: str, pms_exposure: Optional[dict] = None) -> dict:
     ident = root.get("identity") or {}
     metric_value_keys = [k for k in metrics if k not in _ROTULOS_DE_LAS_METRICAS]
     return {
         "coverage_status": coverage,
         "has_identity": bool(ident.get("name") or root.get("asset_id")),
         "has_metrics": len(metric_value_keys) > 0,
-        "has_pms_exposure": True,
+        "has_pms_exposure": (pms_exposure or {}).get("source") != SIN_REPARTO,
         "has_costs": map_costs(root) is not None,
         "has_holdings_summary": bool(holdings),
         "has_fundamentals": fundamentals is not None,
@@ -989,6 +1027,7 @@ def map_asset_detail(root: dict, metrics_latest: Optional[dict] = None,
     flags = quality_flags(root, metrics, holdings, coverage)
     costs = map_costs(root) if itype in ("FUND", "ETF") else None
     fixed_income = map_fixed_income_profile(root) if itype in ("FUND", "ETF") else None
+    pms_exposure = map_pms_exposure(root, econ)
     warnings = [{"code": f, "severity": "MEDIUM" if f == "PARTIAL_COVERAGE" else "LOW",
                  "message": f"Data quality: {f.lower()}.", "asset_id": root.get("asset_id")}
                 for f in flags]
@@ -1009,14 +1048,14 @@ def map_asset_detail(root: dict, metrics_latest: Optional[dict] = None,
         "metrics": metrics,
         "performance_preview": map_performance_preview(metrics, root, metrics_latest),
         "category": map_category(root),
-        "pms_exposure": map_pms_exposure(root, econ),
+        "pms_exposure": pms_exposure,
         "exposure_detail": map_exposure_detail(root),
         "fixed_income_profile": fixed_income,
         "holdings_summary": holdings,
         "history_available_years": [],
         "available_sections": available_sections(itype, costs, holdings, fundamentals),
         "fundamentals_summary": fundamentals,
-        "data_quality_summary": data_quality_summary(root, metrics, holdings, fundamentals, flags, warnings, coverage),
+        "data_quality_summary": data_quality_summary(root, metrics, holdings, fundamentals, flags, warnings, coverage, pms_exposure),
         "coverage_status": coverage,
         "is_investable": is_investable(root),
         "role": get_role(root),

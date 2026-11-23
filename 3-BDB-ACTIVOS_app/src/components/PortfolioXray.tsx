@@ -10,7 +10,9 @@ import { origenDeLaLinea, resumenDeLasAcciones, resumenDeLoMirado } from "../cor
 import { textoEnPantalla } from "../core/glosarioDePantalla";
 import { CLASS_LABELS, TYPE_LABELS, readableBackendLabel } from "../core/labels";
 import { recuentoEnPantalla, senalDeLoQueQuedaFuera, type FueraDeLaMedida } from "../core/medidaDeLaCartera";
-import { filasDeExposicion, type RepartoDeLaCartera } from "../core/radiografiaDeLaCartera";
+import { CLAVE_SIN_REPARTO, filasDeExposicion, fraseDeLoQueNoTieneReparto, type RepartoDeLaCartera } from "../core/radiografiaDeLaCartera";
+import { esSinClasificar } from "../core/riesgoPorClase";
+import { NOTA_DEL_REPARTO_NETO, tieneCortosOApalancamiento } from "../core/repartoNeto";
 import { filasPorCategoria } from "../core/repartoDelPapel";
 import { useClientMode } from "../app/ClientModeContext";
 import type { ColumnaDeTabla, FilaAgrupable } from "../types/tablaDeDatos";
@@ -216,6 +218,7 @@ export function PortfolioXray({ xray, fueraDeLaMedida = [], posiciones, reparto 
   const fuera = reparto?.fuera ?? [];
   const parteInvertible = reparto?.parteInvertible ?? 1;
   const porSuClasePct = typeof xray.pms_exposure_fallback_percent === "number" ? xray.pms_exposure_fallback_percent * parteInvertible : 0;
+  const filasDeLaExposicion = filasDeExposicion(xray.pms_exposure_percent, parteInvertible, xray.pms_exposure_sin_reparto_percent ?? 0);
   const recuento = posiciones ? recuentoEnPantalla(posiciones, fueraDeLaMedida) : null;
   /* Las señales del núcleo solo miran los avisos de cada ficha: no saben que algo se ha quedado fuera de
      la simulación. Se dice aquí, sin tocar lo que también lee el papel. */
@@ -247,7 +250,10 @@ export function PortfolioXray({ xray, fueraDeLaMedida = [], posiciones, reparto 
                 {TYPE_LABELS[xray.top_position.instrument_type] ?? readableBackendLabel(xray.top_position.instrument_type)}
                 {" · "}
                 <ClaseConColor clave={xray.top_position.economic_asset_class}>
-                  {CLASS_LABELS[xray.top_position.economic_asset_class] ?? readableBackendLabel(xray.top_position.economic_asset_class)}
+                  {/* A-202: sin clase conocida, «Sin clasificar»; «Otros» es una clase. */}
+                  {esSinClasificar(xray.top_position.economic_asset_class)
+                    ? "Sin clasificar"
+                    : (CLASS_LABELS[xray.top_position.economic_asset_class] ?? readableBackendLabel(xray.top_position.economic_asset_class))}
                 </ClaseConColor>
               </small>
             ) : null}
@@ -285,8 +291,17 @@ export function PortfolioXray({ xray, fueraDeLaMedida = [], posiciones, reparto 
         </div>
         <div className="xray-dist-block">
           <h3>Exposición agregada</h3>
-          <FilasDeReparto filas={filasDeExposicion(xray.pms_exposure_percent, parteInvertible)} porClase vacio="Sin posiciones invertibles." />
+          {/* A-203: lo que no tiene reparto va en su fila, «Falta el dato», y la frase de debajo dice qué posiciones son. */}
+          <FilasDeReparto
+            claveDeLoQueFalta={CLAVE_SIN_REPARTO}
+            filas={filasDeLaExposicion}
+            porClase
+            vacio="Sin posiciones invertibles."
+          />
           <LoQueNoEntra partes={fuera} sobreLaCartera />
+          {/* C-29: con un fondo de reparto neto dentro, una clase de la cartera puede salir en negativo o pasar del 100 %. */}
+          {tieneCortosOApalancamiento(filasDeLaExposicion.map((fila) => fila.peso), 100) ? <p className="cmp-note">{NOTA_DEL_REPARTO_NETO}</p> : null}
+          {xray.pms_exposure_sin_reparto?.length ? <p className="cmp-note">{fraseDeLoQueNoTieneReparto(xray.pms_exposure_sin_reparto)}</p> : null}
           {porSuClasePct > 0.05 ? (
             <p className="cmp-note">
               {/* S6a (P5): con relleno por clase, se DICE cuánto peso va rellenado. */}

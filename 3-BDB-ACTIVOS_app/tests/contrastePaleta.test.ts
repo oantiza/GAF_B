@@ -56,7 +56,7 @@ function contraste(a: string, b: string): number {
 /** Texto a 11,5-16 px: WCAG AA exige 4,5:1. Ninguno de estos es texto grande. */
 const PARES_DE_TEXTO: [string, string, string][] = [
   ["la cifra y el texto principal", "tinta", "papel"],
-  ["el rótulo y la nota", "tinta-2", "papel"],
+  ["el rótulo, el de un campo y la nota", "tinta-2", "papel"],
   ["la procedencia, el encabezado de tabla y la ceja", "tinta-3", "papel"],
   ["la procedencia sobre la banda de grupo", "tinta-3", "banda-fuerte"],
   ["la procedencia sobre la fila bajo el cursor", "tinta-3", "banda"],

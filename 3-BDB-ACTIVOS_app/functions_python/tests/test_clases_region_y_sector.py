@@ -73,11 +73,25 @@ def test_en_la_base_vieja_la_categoria_dice_lo_que_su_clase_no_distingue(categor
     assert map_economic_asset_class(raiz) == esperada
 
 
-def test_un_fondo_de_materias_primas_sin_mezcla_declarada_cae_en_otros():
+def test_un_fondo_de_materias_primas_sin_mezcla_declarada_no_tiene_reparto():
+    # Hasta el 21-11-2026 caia en «otros» 100 %, el tipico de su clase. A-203: un fondo que no declara su reparto no lo tiene.
     detalle = map_asset_detail(lector.raiz_vieja("X", fondo_nuevo("REAL_ASSETS"), {}, {}))
     assert detalle["economic_asset_class"] == "COMMODITIES"
+    assert detalle["pms_exposure"]["source"] == "NOT_AVAILABLE"
+    assert all(detalle["pms_exposure"][clase] == 0.0 for clase in ("equity", "fixed_income", "cash", "alternative", "real_asset", "other"))
+    assert detalle["data_quality_summary"]["has_pms_exposure"] is False
+
+
+def test_el_etc_de_oro_sin_mezcla_si_cuenta_por_su_clase_en_otros_y_no_en_inmobiliario():
+    # No es un fondo: su clase es lo que es (decision 13: materias primas, no inmobiliario).
+    raiz = {"instrument_type": "OTHER", "identity": {"name": "iShares Physical Gold ETC", "currency": "EUR"},
+            "classification": {"asset_class": "REAL_ASSETS"}}
+    detalle = map_asset_detail(lector.raiz_vieja("IE00B4ND3602", raiz, {}, {}))
+    assert detalle["instrument_type"] == "ETF"
     assert detalle["pms_exposure"]["other"] == 1.0
     assert detalle["pms_exposure"]["real_asset"] == 0.0
+    assert detalle["pms_exposure"]["source"] == "CLASSIFICATION_FALLBACK"
+    assert detalle["data_quality_summary"]["has_pms_exposure"] is True
 
 
 # ------------------------------------------------------------------ region

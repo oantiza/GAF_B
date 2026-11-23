@@ -3,8 +3,9 @@
  * de cada una, cómo se agrupan los activos y qué hay que mirar. La revisión en sí la hace
  * `importacion/revision.ts`; aquí solo se decide cómo se enseña y qué se elige.
  */
-import { sinClasificar, type ActivoPorResolver, type DecisionSobreUnActivo, type LineaDeRevision, type Revision } from "../../importacion/revision";
+import { MOTIVO_FALTA_EL_TIPO, sinClasificar, type ActivoPorResolver, type DecisionSobreUnActivo, type LineaDeRevision, type Revision } from "../../importacion/revision";
 import type { ResultadoDeImportacion } from "../../importacion/tipos";
+import type { TipoDeActivo } from "../../motor/modelo";
 
 /**
  * Lo que el usuario ha cambiado a mano en las casillas, por identificador provisional de la
@@ -28,9 +29,14 @@ export function elegidas(revision: Revision, marcas: MarcasDeLaRevision): Set<st
   return new Set(revision.lineas.filter((linea) => estaMarcada(linea, marcas)).map((linea) => linea.propuesto.movimiento.id));
 }
 
-/** Si una línea pide que el asesor la mire: no entra por defecto, o el importador avisa de algo. */
+/** Si una línea pide que el asesor la mire: no entra por defecto, o el importador o la revisión avisan de algo. */
 export function hayQueMirar(linea: LineaDeRevision): boolean {
-  return (!linea.porDefecto && !linea.duplicado) || linea.propuesto.requiereRevision || linea.propuesto.avisos.length > 0;
+  return (!linea.porDefecto && !linea.duplicado) || linea.propuesto.requiereRevision || avisosDeLaLinea(linea).length > 0;
+}
+
+/** Los avisos de una línea: los del importador y, detrás, los de la revisión (un importe que no cuadra). */
+export function avisosDeLaLinea(linea: LineaDeRevision): string[] {
+  return [...linea.propuesto.avisos, ...linea.avisos];
 }
 
 export type GravedadDelEstado = "listo" | "revisar" | "duplicado" | "pendiente" | "fuera" | "error";
@@ -42,13 +48,17 @@ export function estadoDeLaLinea(linea: LineaDeRevision): { etiqueta: string; gra
   if (!linea.movimiento) {
     return linea.motivo === "Se ha dejado fuera su activo."
       ? { etiqueta: "Fuera", gravedad: "fuera", detalle: "Se ha dejado fuera su activo." }
-      : { etiqueta: "Falta el activo", gravedad: "pendiente", detalle: "Falta decir qué activo es." };
+      : linea.motivo === MOTIVO_FALTA_EL_TIPO
+        ? { etiqueta: "Falta el tipo", gravedad: "pendiente", detalle: MOTIVO_FALTA_EL_TIPO }
+        : { etiqueta: "Falta el activo", gravedad: "pendiente", detalle: "Falta decir qué activo es." };
   }
   /* A-156: lo que no se ha sabido clasificar no entra solo. Marcada, entra como «Otro cargo o abono» y cuenta como resultado. */
   if (sinClasificar(linea.propuesto)) {
     return { etiqueta: "Sin clasificar", gravedad: "revisar", detalle: "No entra hasta que la marques. Si es dinero que el cliente pone o retira, cámbiale después el tipo: marcada cuenta como ganancia o pérdida." };
   }
-  if (linea.propuesto.requiereRevision) return { etiqueta: "Revisar", gravedad: "revisar" };
+  /* Decisión 1 de la auditoría consolidada del 22-11: un importe que no cuadra con los títulos y el precio tampoco entra solo. */
+  if (linea.conDescuadre) return { etiqueta: "Revisar", gravedad: "revisar", detalle: "No entra hasta que la marques: el importe no cuadra con los títulos y el precio." };
+  if (linea.propuesto.requiereRevision || linea.avisos.length > 0) return { etiqueta: "Revisar", gravedad: "revisar" };
   return { etiqueta: "Listo", gravedad: "listo" };
 }
 
@@ -96,12 +106,33 @@ export function documentosDeLasLineas(revision: Revision): string[] {
   return [...new Set(revision.lineas.map((linea) => linea.propuesto.documento))];
 }
 
+/** Los tipos de activo que el asesor puede elegir para uno nuevo cuyo tipo no dice el documento, en el orden en que se ofrecen. */
+export const TIPOS_PARA_ELEGIR: ReadonlyArray<{ tipo: TipoDeActivo; nombre: string }> = [
+  { tipo: "ACCION", nombre: "Acción" },
+  { tipo: "BONO", nombre: "Bono" },
+  { tipo: "ETF", nombre: "ETF" },
+  { tipo: "FONDO", nombre: "Fondo" },
+  { tipo: "OTRO", nombre: "Otro" }
+];
+
+/** El tipo elegido para un activo nuevo, como se dice al lado de su nombre. */
+const TIPO_ELEGIDO: Record<TipoDeActivo, string> = {
+  ACCION: "acción",
+  BONO: "bono, con el precio en % del nominal",
+  ETF: "ETF",
+  FONDO: "fondo",
+  OTRO: "otro"
+};
+
 /** Qué se hará con un activo que no pide decisión. */
 export function queSeHara(activo: ActivoPorResolver, decision: DecisionSobreUnActivo | undefined, idsDeLaCartera: ReadonlySet<string>): string {
   if (decision === "omitir") return "Se dejan fuera sus movimientos";
   if (decision) {
     if (idsDeLaCartera.has(decision.id)) return `Ya en la cartera: ${decision.nombre}`;
-    return decision.origen === "catalogo" ? `Del catálogo: ${decision.nombre}` : `Activo propio con precio a mano: ${decision.nombre}`;
+    if (decision.origen === "catalogo") return `Del catálogo: ${decision.nombre}`;
+    /* Si el tipo lo ha elegido el asesor, se dice cuál: de él depende cómo se lee el precio. */
+    if (activo.citado.tipoSupuesto) return `Activo propio con precio a mano (${TIPO_ELEGIDO[decision.tipo]}): ${decision.nombre}`;
+    return `Activo propio con precio a mano: ${decision.nombre}`;
   }
   switch (activo.estado) {
     case "en-cartera":
@@ -110,13 +141,15 @@ export function queSeHara(activo: ActivoPorResolver, decision: DecisionSobreUnAc
       return "Del catálogo";
     case "nuevo":
       return "Activo nuevo con precio a mano";
+    case "falta-el-tipo":
+      return MOTIVO_FALTA_EL_TIPO.replace(/\.$/, "");
     case "por-decidir":
       return "Falta decir qué activo es";
   }
 }
 
 export interface GruposDeActivos {
-  /** Solo traen un nombre: piden decisión. Van primero. */
+  /** Solo traen un nombre, o son nuevos y el documento no dice qué tipo de activo son: piden decisión. Van primero. */
   porDecidir: ActivoPorResolver[];
   /** Traen ISIN pero el catálogo no lo tiene, y hay parecidos en el catálogo: se ofrecen. */
   nuevosConSugerencias: ActivoPorResolver[];
@@ -124,12 +157,16 @@ export interface GruposDeActivos {
   resueltos: ActivoPorResolver[];
 }
 
+function pideDecision(activo: ActivoPorResolver): boolean {
+  return activo.estado === "por-decidir" || activo.estado === "falta-el-tipo";
+}
+
 export function agruparActivos(activos: readonly ActivoPorResolver[]): GruposDeActivos {
   const porNombre = (a: ActivoPorResolver, b: ActivoPorResolver) => a.citado.nombre.localeCompare(b.citado.nombre, "es");
   return {
-    porDecidir: activos.filter((activo) => activo.estado === "por-decidir").sort(porNombre),
+    porDecidir: activos.filter(pideDecision).sort(porNombre),
     nuevosConSugerencias: activos.filter((activo) => activo.estado === "nuevo" && activo.sugerencias.length > 0).sort(porNombre),
-    resueltos: activos.filter((activo) => activo.estado !== "por-decidir" && !(activo.estado === "nuevo" && activo.sugerencias.length > 0)).sort(porNombre)
+    resueltos: activos.filter((activo) => !pideDecision(activo) && !(activo.estado === "nuevo" && activo.sugerencias.length > 0)).sort(porNombre)
   };
 }
 

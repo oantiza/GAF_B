@@ -17,6 +17,10 @@ import { FilaDeDato, FilaDeMetrica } from "../piezas";
 import { aclarar, escrito } from "../textos";
 
 const TITULO = "Frente a la referencia";
+/* Lo que se escribe al final de su línea, delante de la cifra. El nombre de una referencia puede ser el de un fondo («JPMorgan Funds - Taiwan Fund D (acc) USD») y
+   recortado a 16 letras la etiqueta se salía 4,7 px del dibujo a 1.440 px y cortaba la última cifra (20-11-2026): el nombre entero está en el subtítulo y en la
+   leyenda, así que aquí va una palabra que cabe siempre. */
+const ETIQUETA_DE_LA_REFERENCIA = "Referencia";
 
 export function BloqueReferencia({ analisis, abierta, cargando = false }: { analisis: Analisis; abierta: CarteraAbierta; cargando?: boolean }) {
   const { cartera } = abierta;
@@ -25,7 +29,7 @@ export function BloqueReferencia({ analisis, abierta, cargando = false }: { anal
     if (!referencia?.disponible) return [];
     return [
       { id: "cartera", label: "Cartera", papel: "cartera", values: aclarar(analisis.serie).map((punto) => ({ date: punto.fecha, value: punto.valor })) },
-      { id: "indice", label: referencia.nombre, papel: "referencia", values: aclarar(referencia.serie).map((punto) => ({ date: punto.fecha, value: punto.valor })) }
+      { id: "indice", label: referencia.nombre, etiquetaFinal: ETIQUETA_DE_LA_REFERENCIA, papel: "referencia", values: aclarar(referencia.serie).map((punto) => ({ date: punto.fecha, value: punto.valor })) }
     ];
   }, [analisis.serie, referencia]);
 

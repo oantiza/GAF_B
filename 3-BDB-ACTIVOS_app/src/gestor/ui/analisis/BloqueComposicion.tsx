@@ -4,6 +4,7 @@
  */
 import { ListaDePartes } from "../../../components/ui/ListaDePartes";
 import { Panel } from "../../../components/ui/Panel";
+import { NOTA_DEL_REPARTO_NETO, tieneCortosOApalancamiento } from "../../../core/repartoNeto";
 import type { Analisis } from "../../motor/analisis";
 import type { Reparto } from "../../motor/composicion";
 import { notaDeLasSinPrecio } from "../../motor/sinPrecio";
@@ -38,7 +39,17 @@ function ListaDeReparto({ titulo, reparto, divisa, porClase = false }: { titulo:
 export function BloqueComposicion({ analisis }: { analisis: Analisis }) {
   const { composicion } = analisis;
   const divisa = analisis.cartera.divisaBase;
-  if (composicion.porTipoDeProducto.lineas.length === 0) return null;
+  if (composicion.porTipoDeProducto.lineas.length === 0) {
+    /* Sin nada que repartir porque lo único que hay no tiene precio (y no hay efectivo), el bloque lo dice: callarse parecía una cartera vacía. */
+    if (analisis.sinPrecio.length === 0) return null;
+    return (
+      <Panel claseDelCuerpo="stack stack--tight" subtitulo={`A ${escrito.fecha(analisis.fecha)}`} titulo="Composición">
+        <p className="cmp-note">
+          No hay nada que repartir: la cartera no tiene efectivo y {analisis.sinPrecio.length === 1 ? "su única posición" : "sus posiciones"} no {analisis.sinPrecio.length === 1 ? "tiene" : "tienen"} precio, así que no se sabe cuánto {analisis.sinPrecio.length === 1 ? "vale" : "valen"}. {notaDeLasSinPrecio(analisis, "El reparto")}
+        </p>
+      </Panel>
+    );
+  }
   const conRentaVariable = composicion.rentaVariable > 0 && (composicion.porRegion.lineas.length > 0 || composicion.porSector.lineas.length > 0);
   const noIncluye = notaDeLasSinPrecio(analisis, "El reparto");
   return (
@@ -57,6 +68,8 @@ export function BloqueComposicion({ analisis }: { analisis: Analisis }) {
         «Sin clasificar» es lo que la plataforma no sabe repartir: no se reparte a ojo.
         {/* El reparto es de lo que se puede valorar: una posición sin precio no entra, y se dice. */}
         {noIncluye ? ` ${noIncluye}` : ""}
+        {/* C-29: con un fondo de reparto neto dentro, una clase puede salir en negativo o pasar del 100 %. */}
+        {tieneCortosOApalancamiento(composicion.porClaseDeActivo.lineas.map((linea) => linea.peso)) ? ` ${NOTA_DEL_REPARTO_NETO}` : ""}
       </p>
     </Panel>
   );

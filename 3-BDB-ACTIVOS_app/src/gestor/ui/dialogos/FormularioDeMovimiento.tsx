@@ -17,7 +17,7 @@ import { aNumero, aTexto, leerCifra, type Decimal } from "../../motor/decimal";
 import { NOMBRE_DEL_GRUPO, type CampoDeMovimiento, type CampoDelTipo, type DefinicionDeMovimiento, type GrupoDeMovimiento } from "../../motor/efectos";
 import { esDia, type Dia } from "../../motor/fechas";
 import { contextoDe } from "../../motor/libro";
-import { nuevoId, type Activo, type Cartera, type Movimiento } from "../../motor/modelo";
+import { LARGO_DEL_CONCEPTO, nuevoId, type Activo, type Cartera, type Movimiento } from "../../motor/modelo";
 import { TIPOS, definicionDe } from "../../motor/movimientos/registro";
 import { ultimoHasta, type DatosDeMercado } from "../../motor/valoracion";
 import { lecturaDeUnaCifraAmbigua, ratio } from "../formato";
@@ -108,6 +108,7 @@ export function FormularioDeMovimiento({ cartera, hoy, movimiento, inicial, prec
   const [fecha, setFecha] = useState<Dia>(partida.fechaOperacion ?? hoy);
   const [texto, setTexto] = useState<Record<CampoDeTexto, string>>(() => camposDe(partida, definicionDe(partida.tipo ?? "compra")));
   const [nota, setNota] = useState(partida.nota ?? "");
+  const [conceptoCliente, setConceptoCliente] = useState(partida.conceptoCliente ?? "");
   const [activo, setActivo] = useState<Activo | undefined>(() => cartera.activos.find((candidato) => candidato.id === partida.activoId));
   const [destino, setDestino] = useState<Activo | undefined>(() => cartera.activos.find((candidato) => candidato.id === partida.destino?.activoId));
   /* Si el usuario ha tecleado el importe o el precio, ya no se le proponen. */
@@ -199,6 +200,8 @@ export function FormularioDeMovimiento({ cartera, hoy, movimiento, inicial, prec
     if (Object.keys(delDestino).length > 0) nuevo.destino = delDestino;
     else delete nuevo.destino;
     nuevo.nota = nota.trim() || undefined;
+    /* Solo lo llevan los cargos del servicio; al pasar a otro tipo, se quita: era del anterior. */
+    nuevo.conceptoCliente = definicion?.conConceptoParaElCliente ? conceptoCliente.trim() || undefined : undefined;
     /* Los campos vacíos no viajan: un fichero de cartera no lleva «undefined». */
     for (const clave of Object.keys(nuevo) as Array<keyof Movimiento>) if (nuevo[clave] === undefined) delete nuevo[clave];
     return { movimiento: nuevo, ilegibles, deQueCampos };
@@ -406,7 +409,20 @@ export function FormularioDeMovimiento({ cartera, hoy, movimiento, inicial, prec
           </>
         ) : null}
 
-        <Campo opcional rotulo="Nota">
+        {definicion?.conConceptoParaElCliente ? (
+          <Campo
+            opcional
+            pista={`${tipo === "otroEfectivo" ? "Si es un cargo: cómo" : "Cómo"} se llama en el informe de costes del cliente, que agrupa por él los cargos. Sin él, sale como «${definicion.nombre}». Hasta ${LARGO_DEL_CONCEPTO} caracteres.`}
+            rotulo="Concepto para el cliente"
+          >
+            <input maxLength={LARGO_DEL_CONCEPTO} onChange={(evento) => {
+              setTocado(true);
+              setConceptoCliente(evento.target.value);
+            }} type="text" value={conceptoCliente} />
+          </Campo>
+        ) : null}
+
+        <Campo opcional pista="Solo para ti: no sale en ningún papel del cliente ni en Modo cliente." rotulo="Nota">
           <input onChange={(evento) => {
             setTocado(true);
             setNota(evento.target.value);

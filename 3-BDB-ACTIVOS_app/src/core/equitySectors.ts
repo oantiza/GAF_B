@@ -111,6 +111,7 @@ export function computeEquitySectorAllocation(
   positions: readonly BdbManualPortfolioPosition[],
   assets: readonly BdbAssetDetail[]
 ): EquityBreakdownAllocation {
+  /* A-211: un fondo sin reparto de activos no entra (`repartoDeclarado`). */
   return repartoDeclarado(positions, assets, (asset) => {
     const dist = asset.exposure_detail?.sectors;
     if (dist && Object.values(dist).reduce((x, y) => x + (y || 0), 0) > 0) return dist;

@@ -67,6 +67,11 @@ def public_flags(asset_id):
     return list(policy.get("flags", []))
 
 
+def tiene_precio_congelado(asset_id):
+    """La politica que hace que `extend_frozen_price` prolongue su serie: la misma pregunta, en un solo sitio."""
+    return bool(policy_for(asset_id).get("frozen_price"))
+
+
 def extend_frozen_price(asset_id, documents, *, today=None, policy=None):
     """Prolonga plano, hasta `today`, un activo con precio congelado (`frozen_price`).
 

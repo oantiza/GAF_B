@@ -10,12 +10,17 @@ import type { BdbAssetDetail, BdbPmsExposure } from "../src/types/bdbAssets";
  * Decisión A-63 de Óscar (05-11-2026): el reparto del proveedor es neto de cortos, y una clase puede salirse de 0-100 hasta un punto.
  * La cifra se lee tal cual: ni se esconde, ni se reparte entre las demás, ni rompe una suma. Los resultados están hechos a mano
  * sobre los números del canónico de ese día, en porcentaje: 100,0401 − 0,0844 + 0,0432 + 0,0011 = 100.
+ *
+ * Y desde la decisión C-29 (Óscar, 21-11-2026) el punto se convierte en los topes del contrato, de −5 a 6: el reparto neto del
+ * proveedor que suma 1 se lee tal cual, con cortos y apalancamiento (`src/core/repartoNeto.ts`).
  */
 
 const LAZARD: BdbPmsExposure = { equity: 1.000401, fixed_income: -0.000844, cash: 0.000432, alternative: 0, real_asset: 0, other: 0.000011, source: "PORTFOLIO_EXPOSURE" };
 const ISHARES: BdbPmsExposure = { equity: 0.996335, fixed_income: 0, cash: 0.003295, alternative: 0, real_asset: 0, other: 0.00037, source: "PORTFOLIO_EXPOSURE" };
-/* El PIMCO de la base vieja: una clase al 165,5 % y otra al −65,5 %. Eso no se deja describir así, y no es lo que trae la nueva. */
+/* El PIMCO de la base vieja: una clase al 165,5 % y otra al −65,5 %. Hasta la C-29 (21-11-2026) no se dejaba describir así. */
 const PIMCO_VIEJO: BdbPmsExposure = { equity: -0.000326, fixed_income: 1.655026, cash: -0.655327, alternative: 0, real_asset: 0, other: 0.000627 };
+/* ES0137396000 en el canónico del 17-11-2026: 3,198089 + 0,115421 − 2,425742 + 0,112232 = 1. */
+const APALANCADO: BdbPmsExposure = { equity: 3.198089, fixed_income: 0.115421, cash: -2.425742, alternative: 0, real_asset: 0, other: 0.112232, source: "PORTFOLIO_EXPOSURE" };
 const VENTANA = 1e-9;
 
 describe("assetPmsShares", () => {
@@ -29,21 +34,36 @@ describe("assetPmsShares", () => {
     expect(Object.values(shares).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 9);
   });
 
-  test("el límite entra, y lo que se pasa cuenta como siempre: lo positivo, normalizado", () => {
+  test("C-29: los topes son los del contrato, de −5 a 6; lo que se pasa cuenta como siempre: lo positivo, normalizado", () => {
     const dentro = assetPmsShares({ pms_exposure: { equity: 1.01, fixed_income: 0, cash: -0.01, alternative: 0, other: 0 } }).shares;
     expect(dentro.equity).toBeCloseTo(1.01, 9);
     expect(dentro.cash).toBeCloseTo(-0.01, 9);
-    const fuera = assetPmsShares({ pms_exposure: { equity: 1.0101, fixed_income: 0, cash: -0.0101, alternative: 0, other: 0 } }).shares;
+    /* Hasta el 21-11-2026 esto ya no era un reparto neto (un punto, A-63); desde la C-29, sí. */
+    const unPocoMas = assetPmsShares({ pms_exposure: { equity: 1.0101, fixed_income: 0, cash: -0.0101, alternative: 0, other: 0 } }).shares;
+    expect(unPocoMas.equity).toBeCloseTo(1.0101, 9);
+    expect(unPocoMas.cash).toBeCloseTo(-0.0101, 9);
+    const enElTope = assetPmsShares({ pms_exposure: { equity: 6, fixed_income: 0, cash: -5, alternative: 0, other: 0 } }).shares;
+    expect([enElTope.equity, enElTope.cash]).toEqual([6, -5]);
+    /* 6,01 − 5,01 = 1, pero pasa del tope: lo positivo, normalizado, que es 6,01 / 6,01. */
+    const fuera = assetPmsShares({ pms_exposure: { equity: 6.01, fixed_income: 0, cash: -5.01, alternative: 0, other: 0 } }).shares;
     expect(fuera.equity).toBe(1);
     expect(fuera.cash).toBe(0);
   });
 
-  test("un vector que no se deja describir así no cambia: el negativo pequeño de PIMCO tampoco se lee, porque el conjunto no vale", () => {
+  test("C-29: el PIMCO de la base vieja suma 1 y se lee con su signo: bonos 165,5 % y liquidez −65,5 %", () => {
+    /* −0,000326 + 1,655026 − 0,655327 + 0,000627 = 1,000000. Hasta el 21-11-2026 se leía lo positivo: bonos 99,96 %. */
     const { shares } = assetPmsShares({ pms_exposure: PIMCO_VIEJO });
-    expect(shares.equity).toBe(0);
-    expect(shares.cash).toBe(0);
-    expect(shares.fixed_income).toBeCloseTo(1.655026 / 1.655653, 9);
-    expect(shares.other).toBeCloseTo(0.000627 / 1.655653, 9);
+    expect(shares.equity).toBeCloseTo(-0.000326, 9);
+    expect(shares.fixed_income).toBeCloseTo(1.655026, 9);
+    expect(shares.cash).toBeCloseTo(-0.655327, 9);
+    expect(shares.other).toBeCloseTo(0.000627, 9);
+  });
+
+  test("C-29: ES0137396000, el más apalancado del canónico del 17-11, cuenta su 319,8 % de bolsa y no el 93 % de lo positivo", () => {
+    const { shares } = assetPmsShares({ pms_exposure: APALANCADO });
+    expect(shares.equity).toBeCloseTo(3.198089, 9);
+    expect(shares.cash).toBeCloseTo(-2.425742, 9);
+    expect(Object.values(shares).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 9);
   });
 
   test("con la suma lejos de 1 tampoco se lee con signo: un negativo pequeño no infla lo demás", () => {
@@ -89,6 +109,20 @@ describe("computePmsExposureDistribution", () => {
     ])!;
     /* 10 × (−0,000844) + 90 × 0,5 = 44,99156. */
     expect(percent.fixed_income).toBeCloseTo(44.99156, 6);
+  });
+
+  test("C-29: un 10 % en el apalancado y un 90 % en bolsa pura: la cartera, con su signo y sumando 100", () => {
+    const { percent, covered_weight_percent } = computePmsExposureDistribution([
+      { weight_percent: 10, pms_exposure: APALANCADO },
+      { weight_percent: 90, pms_exposure: { equity: 1, fixed_income: 0, cash: 0, alternative: 0, real_asset: 0, other: 0, source: "PORTFOLIO_EXPOSURE" } }
+    ])!;
+    /* 90 × 1 + 10 × 3,198089 = 121,98089; 10 × (−2,425742) = −24,25742; 10 × 0,115421 = 1,15421; 10 × 0,112232 = 1,12232. */
+    expect(percent.equity).toBeCloseTo(121.98089, 6);
+    expect(percent.cash).toBeCloseTo(-24.25742, 6);
+    expect(percent.fixed_income).toBeCloseTo(1.15421, 6);
+    expect(percent.other).toBeCloseTo(1.12232, 6);
+    expect(Object.values(percent).reduce((a, b) => a + b, 0)).toBeCloseTo(100, 6);
+    expect(covered_weight_percent).toBe(100);
   });
 });
 

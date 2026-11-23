@@ -30,7 +30,7 @@ const OTRAS: ResumenDeCartera[] = [
   { fichero: "Familia Ruiz.cartera.json", id: "r", nombre: "Familia Ruiz", cliente: "Luis Ruiz", divisaBase: "EUR", movimientos: 7, modificada: "2026-10-01T10:00:00.000Z" }
 ];
 
-const almacenConOtras = () => ({ nombre: "Carteras", listar: async () => OTRAS, leerAjustes: async () => ({}) }) as unknown as AlmacenDeCarteras;
+const almacenConOtras = () => ({ nombre: "Carteras", retiradas: async () => [], listar: async () => OTRAS, leerAjustes: async () => ({}) }) as unknown as AlmacenDeCarteras;
 
 let pintado: Pintado | undefined;
 afterEach(async () => {
@@ -93,11 +93,11 @@ describe("los informes en Modo cliente (GES-08)", () => {
 
   it("fuera del modo ofrece los cuatro documentos", async () => {
     pintado = await pintar(enModo(false, <DialogoDeInformes alCerrar={() => undefined} almacen={null} analisis={analisis} cartera={CARTERA} />));
-    expect(documentos()).toEqual(["Informe del cliente", "Informe de costes", "Informe del asesor", "Datos en Excel"]);
+    expect(documentos()).toEqual(["Informe de la cartera", "Costes de la cartera", "Informe del asesor", "Datos en Excel"]);
   });
 
   it("en Modo cliente no ofrece el informe del asesor ni el Excel", async () => {
     pintado = await pintar(enModo(true, <DialogoDeInformes alCerrar={() => undefined} almacen={null} analisis={analisis} cartera={CARTERA} />));
-    expect(documentos()).toEqual(["Informe del cliente", "Informe de costes"]);
+    expect(documentos()).toEqual(["Informe de la cartera", "Costes de la cartera"]);
   });
 });

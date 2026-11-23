@@ -10,7 +10,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { demostracion } from "../../src/gestor/demo/carteraDemo";
-import type { Cartera, Movimiento } from "../../src/gestor/motor/modelo";
+import { LARGO_DEL_CONCEPTO, type Cartera, type Movimiento } from "../../src/gestor/motor/modelo";
 import type { DatosDeMercado } from "../../src/gestor/motor/valoracion";
 import { FormularioDeMovimiento } from "../../src/gestor/ui/dialogos/FormularioDeMovimiento";
 import { activo, cartera, mov, serie } from "./ayudas";
@@ -223,5 +223,42 @@ describe("A-199 · la ayuda del precio dice de dónde sale la divisa del activo"
       root = undefined;
       document.body.innerHTML = "";
     }
+  });
+});
+
+/* El concepto para el cliente (Óscar, 21-11-2026): solo en la comisión o gasto y en el otro cargo o abono. */
+describe("el formulario pide el concepto para el cliente solo en los cargos", () => {
+  const conMovimiento = (movimiento: Movimiento) => pintar({ cartera: { ...CARTERA, movimientos: [...CARTERA.movimientos, movimiento] }, precios: MERCADO, movimiento });
+  const rotulos = () => [...document.body.querySelectorAll(".field__label")].map((nodo) => nodo.textContent ?? "");
+  const entrada = (rotulo: string) => [...document.body.querySelectorAll<HTMLElement>(".field")].find((campo) => campo.querySelector(".field__label")?.textContent === rotulo)!.querySelector("input")!;
+
+  it("en una comisión lo enseña, lo guarda recortado y vacío lo quita", async () => {
+    const original = mov("comision", "2026-03-31", { id: "c-1", importe: "-30.25", nota: "Lo del trimestre", origen: { via: "manual" } });
+    const alGuardar = await conMovimiento(original);
+    expect(rotulos()).toContain("Concepto para el cliente (opcional)");
+    expect(entrada("Concepto para el cliente (opcional)").maxLength).toBe(LARGO_DEL_CONCEPTO);
+    const escribir = async (valor: string) => {
+      const input = entrada("Concepto para el cliente (opcional)");
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, valor);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    };
+    const guardar = async () => {
+      const boton = [...document.body.querySelectorAll("button")].find((candidato) => candidato.textContent?.trim() === "Guardar los cambios")!;
+      await act(async () => boton.click());
+    };
+    await escribir("  Custodia del primer trimestre  ");
+    await guardar();
+    expect(alGuardar.mock.calls[0][0]).toEqual({ ...original, conceptoCliente: "Custodia del primer trimestre" });
+    await escribir("   ");
+    await guardar();
+    expect(alGuardar.mock.calls[1][0]).toEqual(original);
+  });
+
+  it("en una aportación no lo enseña", async () => {
+    await conMovimiento(mov("aportacion", "2026-03-31", { id: "a-1", importe: "100", origen: { via: "manual" } }));
+    expect(rotulos().some((rotulo) => rotulo.startsWith("Concepto para el cliente"))).toBe(false);
+    expect(rotulos()).toContain("Nota (opcional)");
   });
 });

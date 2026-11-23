@@ -34,8 +34,13 @@ class _Respuesta:
     def __exit__(self, *exc):
         return False
 
-    def read(self):
-        return OK_BODY
+    def __init__(self, cuerpo=OK_BODY):
+        self._pendiente = cuerpo
+
+    def read(self, n=-1):
+        # Como un socket: devuelve lo que queda y despues vacio.
+        trozo, self._pendiente = self._pendiente, b""
+        return trozo
 
 
 def _modelo(request):
@@ -168,3 +173,96 @@ def test_el_callable_declara_un_timeout_que_cubre_el_presupuesto():
     timeout = kwargs.get("timeout_sec")
     assert timeout is not None, "analyze_portfolio no declara timeout_sec"
     assert ast.literal_eval(timeout) >= analyze_portfolio.TOTAL_BUDGET_SEC + 30
+
+
+# --- Auditoria 20-11-2026 (P1-07, restos): respuesta vacia y plazo total de lectura ---------------------------------
+
+VACIO_BODY = json.dumps({"candidates": [{"content": {"parts": [{"text": "  "}]}, "finishReason": "STOP"}]}).encode("utf-8")
+
+
+def test_un_primer_modelo_que_contesta_vacio_deja_probar_el_siguiente(monkeypatch):
+    def fake_urlopen(request, timeout=None):
+        return _Respuesta(VACIO_BODY if _modelo(request) == "vacio" else OK_BODY)
+
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setattr(analyze_portfolio.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(analyze_portfolio, "GEMINI_MODELS", ["vacio", "sano"])
+
+    result = analyze_portfolio.analyze_portfolio(REQUEST)
+
+    assert result["source"] == "GEMINI_LIVE" and result["model"] == "sano"
+
+
+def test_si_todos_contestan_vacio_se_dice_que_fue_sin_texto(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setattr(analyze_portfolio.urllib.request, "urlopen", lambda request, timeout=None: _Respuesta(VACIO_BODY))
+    monkeypatch.setattr(analyze_portfolio, "_discover_flash_model", lambda key, timeout=15: None)
+    monkeypatch.setattr(analyze_portfolio, "GEMINI_MODELS", ["a", "b"])
+
+    result = analyze_portfolio.analyze_portfolio(REQUEST)
+
+    assert result["source"] == "EMPTY_RESPONSE" and result["analysis"] is None
+
+
+def test_vacio_y_caida_juntos_son_un_error_no_una_respuesta_vacia(monkeypatch):
+    def fake_urlopen(request, timeout=None):
+        if _modelo(request) == "caido":
+            raise ConnectionResetError("reset")
+        return _Respuesta(VACIO_BODY)
+
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setattr(analyze_portfolio.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(analyze_portfolio, "_discover_flash_model", lambda key, timeout=15: None)
+    monkeypatch.setattr(analyze_portfolio, "GEMINI_MODELS", ["caido", "vacio"])
+
+    assert analyze_portfolio.analyze_portfolio(REQUEST)["source"] == "ERROR"
+
+
+class _Goteo:
+    """Una respuesta que va soltando bytes sueltos: cada lectura cabe en el timeout del socket, el total no."""
+
+    def __init__(self, reloj):
+        self.reloj = reloj
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self, n=-1):
+        self.reloj["ahora"] += 10  # cada lectura tarda 10 s: dentro del timeout de 25, pero se acumulan
+        return b"x"
+
+
+def test_una_respuesta_que_gotea_se_corta_en_el_plazo_total_y_se_pasa_al_siguiente(monkeypatch):
+    reloj = {"ahora": 0.0}
+
+    def fake_urlopen(request, timeout=None):
+        return _Goteo(reloj) if _modelo(request) == "goteo" else _Respuesta()
+
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setattr(analyze_portfolio, "_monotonic", lambda: reloj["ahora"])
+    monkeypatch.setattr(analyze_portfolio.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(analyze_portfolio, "GEMINI_MODELS", ["goteo", "sano"])
+
+    result = analyze_portfolio.analyze_portfolio(REQUEST)
+
+    # Lecturas a t=0 (10), t=10 (20), t=20 (30): al pasar de 25 s corta, y quedan 20 s de los 50 para el segundo modelo.
+    assert result["model"] == "sano"
+    assert reloj["ahora"] == 30.0
+
+
+def test_una_respuesta_gigante_se_rechaza(monkeypatch):
+    class Gigante(_Respuesta):
+        def read(self, n=-1):
+            return b"x" * analyze_portfolio._READ_CHUNK
+
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setattr(analyze_portfolio.urllib.request, "urlopen", lambda request, timeout=None: Gigante())
+    monkeypatch.setattr(analyze_portfolio, "_discover_flash_model", lambda key, timeout=15: None)
+    monkeypatch.setattr(analyze_portfolio, "GEMINI_MODELS", ["a"])
+
+    result = analyze_portfolio.analyze_portfolio(REQUEST)
+
+    assert result["source"] == "ERROR" and result["analysis"] is None

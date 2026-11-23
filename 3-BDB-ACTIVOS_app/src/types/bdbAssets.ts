@@ -364,7 +364,8 @@ export interface BdbFixedIncomeProfile {
   yield_to_maturity?: number;
   investment_grade_pct?: number;
   high_yield_pct?: number;
-  /** Reparto por tipo de emisor: government, corporate, securitized, cash (fracción). */
+  /** Reparto por tipo de emisor, en fracción y solo sus partes > 0: government, municipal, corporate, securitized, cash
+   *  y derivative (las dos que faltaban llegan desde la decisión C-33, 21-11-2026). */
   bond_types?: Record<string, number>;
 }
 
@@ -703,6 +704,13 @@ export interface BdbPortfolioXray {
    *  clase económica — para poder DECIR la cobertura junto al reparto. */
   pms_exposure_coverage_percent?: number;
   pms_exposure_fallback_percent?: number;
+  /**
+   * A-203 (Óscar, 21-11-2026): % del peso invertido sin reparto de activos —un fondo que no lo declara, o una posición sin clase—.
+   * No se reparte: `pms_exposure_percent` suma 100 menos esto, y la pantalla lo dice con «Falta el dato».
+   */
+  pms_exposure_sin_reparto_percent?: number;
+  /** Las posiciones sin reparto, de más a menos peso (en % del peso invertido), para nombrarlas. */
+  pms_exposure_sin_reparto?: Array<{ asset_id: string; display_name: string; weight_percent: number }>;
   coverage_complete_positions: number;
   performance_preview_available: number;
   data_quality_summary_available: number;

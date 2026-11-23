@@ -118,12 +118,6 @@ const fuenteDe = (ruta: string) => readFileSync(join(RAIZ, "src", ruta), "utf8")
 const DETRAS_DE_LA_PUERTA = new Set([
   "pages/AdminPage.tsx",
   "pages/SaludDelCatalogoPage.tsx",
-  "pages/SystemStatusPage.tsx",
-  "components/AdminBackfill.tsx",
-  "components/AdminFundQuality.tsx",
-  "components/AdminInspector.tsx",
-  "components/AdminOperaciones.tsx",
-  "components/AdminProgress.tsx",
   "components/AdminRetrocessions.tsx",
   "components/EstadoDelCatalogoPanel.tsx",
   "adapters/componerEstado.ts",

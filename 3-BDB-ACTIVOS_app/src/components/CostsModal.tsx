@@ -121,7 +121,7 @@ export function CostsModal({ positions, assets, totalCapital, responsable, onClo
       await downloadCostsPdf({ costs, management, seriesParadas: paradas, clientName: clienteDeLaCartera(improvementFingerprint(positions)), ...(responsable ? { banker: responsable } : {}) });
     } catch (error) {
       /* ANA-28: como en los demás diálogos de informe, un texto propio y el error detrás, sin el mensaje técnico a la vista. */
-      setPdfError(new AppError("BACKEND", "No se pudo generar el informe de costes. Reinténtalo en unos segundos.", { cause: error }));
+      setPdfError(new AppError("BACKEND", "No se pudo generar «Costes de la propuesta». Reinténtalo en unos segundos.", { cause: error }));
     } finally { setPdfBusy(false); }
   }
 

@@ -13,8 +13,16 @@ sigue en diario porque es una propiedad del camino.
 Este modulo es la fuente unica de la regla de semana --ultima observacion de
 cada semana ISO, retornos semana a semana, factor 52-- para que la maestra y el
 optimizador publiquen la misma cifra sobre la misma serie. Solo importa la
-biblioteca estandar: lo importan ingest_asset, fund_ingest y el optimizador sin
-riesgo de ciclo.
+biblioteca estandar: lo importan el optimizador y el horizonte sin riesgo de ciclo.
+
+21-11-2026 (decision 37 del censo CENSO_BASE_VIEJA_2026-11-21.md): el estimador semanal
+de la maestra vieja (`GEOMETRIC_CAGR` / `WEEKLY` en metrics/latest, que calculaban
+`ingest_asset.build_metrics_latest` y `fund_ingest`) se borro con ella, y con el sus
+piezas de aqui (`window_volatility`, `window_complete`, `min_weekly_returns`,
+`partial_risk_free_warning`, `annualization_for_gap`, `median_gap_days`). La base nueva
+mide con el metodo propio (EXTRACTOR_MONTHLY_V1). Lo que queda es lo que usan el
+optimizador, el horizonte y «Mejorar cartera». Estan en la etiqueta de Git
+`referencia-base-vieja-2026-11-21`.
 """
 from __future__ import annotations
 
@@ -23,7 +31,6 @@ from datetime import date
 from typing import Dict, Iterable, List, Set, Tuple
 
 WEEKS_PER_YEAR = 52
-MONTHS_PER_YEAR = 12
 # Anios por fechas (dias / 365,2425) en toda rentabilidad anualizada ex post: backtest,
 # horizonte, «Mejorar cartera», cartera real, maestra y frontend (portfolioExtendedAnalytics).
 # Tambien en la TIR desde la decision 49 (05-11-2026): antes conservaba ACT/365.
@@ -32,20 +39,6 @@ DAYS_PER_YEAR = 365.2425
 # Hueco maximo (en dias entre inicios de semana ISO) que `weekly_returns` puentea:
 # una unica semana sin observacion (14 dias). Huecos mayores cortan la serie.
 MAX_BRIDGED_WEEK_GAP_DAYS = 14
-
-# Hueco mediano (dias entre observaciones) hasta el que la serie se remuestrea a
-# semanal: cubre el VL diario (1-3) y el semanal (7). Hasta 45 se trata como
-# mensual (12/MONTHLY, politica B-06 de fund_ingest); mayor: no se anualiza la
-# volatilidad porque no hay frecuencia del contrato que la describa.
-MAX_WEEKLY_GAP_DAYS = 10
-MAX_MONTHLY_GAP_DAYS = 45
-
-# Retornos minimos para publicar la volatilidad de una ventana (cualquiera que
-# sea su etiqueta). Sustituye a las 20 sesiones diarias de antes (que eran
-# cuatro semanas): 20 retornos semanales son unos cinco meses. Con menos, la
-# ventana no se publica. Para un VL mensual se conservan los 6 de fund_ingest.
-MIN_WEEKLY_RETURNS = 20
-MIN_MONTHLY_RETURNS = 6
 
 # Retornos semanales minimos por anio nominal de ventana para anualizar la
 # rentabilidad y el Sharpe: 44 = 0,85 x 52, la misma cobertura (MIN_WINDOW_COVERAGE)
@@ -132,33 +125,6 @@ def weekly_returns(weekly: List[Tuple[Tuple[int, int], date, float]]) -> Tuple[D
     return returns, dates, bridged
 
 
-def median_gap_days(dates: List[date]) -> int:
-    """Hueco mediano en dias entre observaciones consecutivas (31 si no hay dos)."""
-    gaps = sorted((current - previous).days for previous, current in zip(dates, dates[1:]) if current > previous)
-    return gaps[len(gaps) // 2] if gaps else 31
-
-
-def annualization_for_gap(median_gap: int) -> Tuple[int | None, str | None]:
-    """Factor de anualizacion y frecuencia (metrics.v1.2) segun el hueco mediano.
-
-    A1: un VL diario o semanal se mide en semanal (se remuestrea a la ultima
-    observacion de cada semana ISO). Mensual: 12/MONTHLY (B-06). Mayor: None,
-    no se anualiza.
-    """
-    if median_gap <= MAX_WEEKLY_GAP_DAYS:
-        return WEEKS_PER_YEAR, "WEEKLY"
-    if median_gap <= MAX_MONTHLY_GAP_DAYS:
-        return MONTHS_PER_YEAR, "MONTHLY"
-    return None, None
-
-
-def min_weekly_returns(nominal_days: int | None) -> int:
-    """Retornos semanales que debe tener una ventana nominal para anualizar."""
-    if not nominal_days:
-        return MIN_WEEKLY_RETURNS
-    return max(MIN_WEEKLY_RETURNS, int(round(MIN_WEEKS_PER_WINDOW_YEAR * nominal_days / 365.0)))
-
-
 def sample_volatility(values: List[float], annualization: int) -> float:
     """Desviacion tipica muestral (n-1) anualizada; la misma que la diagonal de una
     covarianza muestral anualizada."""
@@ -220,74 +186,3 @@ def ex_post_sortino(annualized_return, risk_free_rate, weekly_period_returns, de
     if downside <= 1e-12:
         return default
     return (float(annualized_return) - rate) / downside
-
-
-def partial_risk_free_warning(resolved, window, first_date, last_date) -> dict | None:
-    """Aviso RISK_FREE_RATE_PARTIAL_COVERAGE si la media €STR que devuelve el resolutor
-    cubre menos de RISK_FREE_MIN_COVERAGE de la ventana; None si la cubre (o no lo dice).
-
-    La maestra conserva la media parcial, como la simulacion: metrics.v1.3 no admite
-    campos nuevos en la ventana, asi que el aviso se registra fuera del documento (resumen
-    del refresco y log de la ingesta)."""
-    if not isinstance(resolved, dict) or resolved.get("coverage_ratio") is None:
-        return None
-    try:
-        coverage = float(resolved["coverage_ratio"])
-    except (TypeError, ValueError):
-        return None
-    if not math.isfinite(coverage) or coverage >= RISK_FREE_MIN_COVERAGE:
-        return None
-    return {
-        "warning": "RISK_FREE_RATE_PARTIAL_COVERAGE",
-        "window": window,
-        "coverage_ratio": round(coverage, 6),
-        "first_date": str(first_date)[:10],
-        "last_date": str(last_date)[:10],
-    }
-
-
-def window_volatility(points: List[Tuple[date, float]]) -> dict | None:
-    """Volatilidad anualizada de una ventana, medida en la frecuencia que toca.
-
-    `points`: [(fecha, valor)] ordenados, valores > 0.
-
-    Devuelve None si no hay retornos suficientes para publicar la ventana. Si
-    no, un dict con `returns_count` y, cuando el hueco permite anualizar,
-    `annualized_volatility` y `frequency`:
-
-    - hueco mediano <= 10 dias (VL diario o semanal): ultima observacion de cada
-      semana ISO, retornos semana a semana (huecos de una semana puenteados),
-      desviacion muestral x sqrt(52), `frequency: WEEKLY`;
-    - hueco <= 45 (VL mensual): retornos consecutivos x sqrt(12), MONTHLY;
-    - mayor: sin volatilidad (la rentabilidad geometrica la publica el llamador).
-    """
-    if len(points) < 2:
-        return None
-    dates = [point_date for point_date, _value in points]
-    annualization, frequency = annualization_for_gap(median_gap_days(dates))
-    if frequency == "WEEKLY":
-        returns, _dates, _bridged = weekly_returns(weekly_last_observations(points))
-        values = list(returns.values())
-        if len(values) < MIN_WEEKLY_RETURNS:
-            return None
-    else:
-        values = [current / previous - 1.0 for (_d0, previous), (_d1, current) in zip(points, points[1:])
-                  if previous > 0 and current > 0]
-        if len(values) < MIN_MONTHLY_RETURNS:
-            return None
-    out = {"returns_count": len(values)}
-    if annualization:
-        out["annualized_volatility"] = round(sample_volatility(values, annualization), 8)
-        out["frequency"] = frequency
-    return out
-
-
-def window_complete(volatility: dict | None, nominal_days: int | None) -> bool:
-    """Si la ventana tiene observaciones bastantes para anualizar rentabilidad y
-    Sharpe con su etiqueta. Solo aplica al muestreo semanal: en mensual manda
-    unicamente el recorrido en dias (window_span_ok), como hasta ahora."""
-    if not volatility:
-        return False
-    if volatility.get("frequency") != "WEEKLY":
-        return True
-    return int(volatility.get("returns_count") or 0) >= min_weekly_returns(nominal_days)

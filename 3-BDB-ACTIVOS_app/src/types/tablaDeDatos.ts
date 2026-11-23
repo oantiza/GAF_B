@@ -29,6 +29,12 @@ export interface CeldaDeTabla {
   /** Segunda línea en gris bajo el texto: el ISIN, el método con que se calculó. */
   apunte?: string;
   /**
+   * El color del signo de una cifra que lo lleva escrito («+1,82 %»): verde si sube, rojo si baja. Solo para resultados
+   * (regla 3 del sistema: un peso, una volatilidad o una caída sueltos no llevan color), y la caída máxima del Comparador, que es
+   * siempre una pérdida y va en rojo (Óscar, 21-11-2026). Hoy lo pinta `TablaComparativa`.
+   */
+  signo?: "sube" | "baja" | "neutro";
+  /**
    * Una línea más bajo el apunte, solo por debajo de 1.440 px: lo que allí no cabe en su columna
    * (`soloAncho`) baja aquí en vez de perderse.
    */

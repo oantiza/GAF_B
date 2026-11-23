@@ -116,6 +116,18 @@ describe("callable runtime contract guards", () => {
     });
     expect(parseBacktestResponse(conMotivo("FX_QUARANTINE")).stress_scenarios[0].excluded_assets[0].reason).toBe("FX_QUARANTINE");
     expectBackendContractError(() => parseBacktestResponse(conMotivo("MOTIVO_DESCONOCIDO")));
+    /* P1-06 (21-11-2026): la serie parada y el escenario sin caída. Sin ellos, las Functions nuevas tumbaban la respuesta entera. */
+    expect(parseBacktestResponse(conMotivo("SERIES_ENDS_EARLY")).stress_scenarios[0].excluded_assets[0].reason).toBe("SERIES_ENDS_EARLY");
+    /* N03 (22-11-2026): la posición con un hueco dentro de la crisis. Sin el código, la respuesta entera se rechazaría. */
+    expect(parseBacktestResponse(conMotivo("GAP_IN_WINDOW")).stress_scenarios[0].excluded_assets[0].reason).toBe("GAP_IN_WINDOW");
+    const sinCaida = {
+      ...raw,
+      stress_scenarios: raw.stress_scenarios.map((scenario, index) => (index === 0
+        ? { ...scenario, drawdown_pct: 0, recovery_status: "NO_DRAWDOWN", recovery_date: null, recovery_days: null, remaining_to_recover_pct: 0, worst_asset: null }
+        : scenario))
+    };
+    expect(parseBacktestResponse(sinCaida).stress_scenarios[0].recovery_status).toBe("NO_DRAWDOWN");
+    expect(parseBacktestResponse(sinCaida).stress_scenarios[0].worst_asset).toBeNull();
 
     expectBackendContractError(() => parseBacktestResponse({ schema_version: "backtest.v1", metrics: { cagr: "bad" } }));
   });

@@ -18,7 +18,6 @@
     "test:all": "npm test && npm run test:functions",
     "sync:contracts": "node scripts/syncContractsCache.mjs",
     "check:contracts": "node scripts/syncContractsCache.mjs --check",
-    "smoke:firestore-rules": "node scripts/smokeFirestoreRulesNoAuth.mjs",
     "smoke:commercial-retro-rules": "node scripts/smokeCommercialRetroRules.mjs",
     "preview:static-export-sample": "node scripts/buildStaticExportSample.mjs",
     "write:static-export-sample": "node scripts/buildStaticExportSample.mjs --write",

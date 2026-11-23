@@ -28,7 +28,8 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
           celdas: [
             fecha(m.fechaOperacion),
             m.operacion,
-            m.destino && m.activo ? `${m.activo}, a ${m.destino}` : m.activo || m.nota || "Efectivo",
+            /* Sin la nota del movimiento: es del asesor, y esto es papel del cliente (P1-11, 21-11-2026). */
+            m.destino && m.activo ? `${m.activo}, a ${m.destino}` : m.activo || "Efectivo",
             /* Un movimiento de efectivo no lleva títulos: la casilla va vacía a propósito. */
             m.titulos === null ? "" : titulos(m.titulos),
             m.importe === null ? { texto: null, motivo: "no-aplica" as const } : importe(m.importe, { divisa: m.divisa })

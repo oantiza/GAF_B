@@ -554,11 +554,21 @@ def convierte(d: dict) -> dict:
             "ytw_distribution": rf.get("ytw_distribucion_pct"),
             "investment_grade_pct": _num(rf.get("pct_investment_grade")),
             "high_yield_pct": _num(rf.get("pct_high_yield")),
+            # Las seis partes del proveedor (GlobalBondSectorBreakdownLevel1 de
+            # Morningstar), con el nombre de su supersector en minusculas. Hasta el
+            # 21-11-2026 (decision C-33 de Oscar) se pasaban cuatro y se dejaban fuera
+            # el municipal y los derivados, asi que un reparto con los derivados en
+            # negativo no sumaba 100 en el canonico aunque si en la ficha: medido ese
+            # dia en data/funds, los 111 con una negativa en las cuatro de antes suman
+            # 100 con las seis y solo 52 sin esas dos. Netas, con su signo, como las da
+            # el proveedor; la que no viene queda nula, y no pasa a `bond_types`.
             "bond_sectors": {
                 "government": _num(rf_sect.get("gobierno")),
+                "municipal": _num(rf_sect.get("municipal")),
                 "corporate": _num(rf_sect.get("corporativa")),
                 "securitized": _num(rf_sect.get("titulizada")),
                 "cash": _num(rf_sect.get("liquidez")),
+                "derivative": _num(rf_sect.get("derivados")),
             },
         },
         "holdings_top10": top10,

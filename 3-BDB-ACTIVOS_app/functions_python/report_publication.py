@@ -38,6 +38,14 @@ def _replaced_summary(report_id, data):
             "report_model": generation.get("report_model")}
 
 
+def _mark_failed(lease, owned, exc):
+    try:
+        lease.update({"status": "FAILED", "failed_at": datetime.now(timezone.utc),
+                      "error_type": type(exc).__name__}, option=LastUpdateOption(owned.update_time))
+    except FailedPrecondition:
+        pass  # A newer owner has already taken over; never alter its lease.
+
+
 def publish(report_type, *, db, generate, validate, prefix, collection, api_key=None, now=None,
             force=False, forced_by=None):
     """Publica una vez por tipo y día.
@@ -100,19 +108,37 @@ def publish(report_type, *, db, generate, validate, prefix, collection, api_key=
         # Madrid determines the publication slot, while date retains its real UTC timestamp.
         report["id"] = report_id
         batch = db.batch()
-        if replaced is not None:
-            batch.set(ref, report)  # Forced: the lease we own guarantees no concurrent writer.
+        if force:
+            # Forced: the lease we own guarantees no concurrent writer, so it replaces whatever is there now. Using
+            # `create` here failed with AlreadyExists when the report had appeared after the first read (the ~90 s of
+            # generation are a long window) and marked the lease FAILED for a report that was already published.
+            if replaced is None:
+                late = ref.get()
+                if late.exists:
+                    replaced = _replaced_summary(report_id, late.to_dict())
+            batch.set(ref, report)
         else:
             batch.create(ref, report)
         batch.update(lease, {"status": "PUBLISHED", "completed_at": datetime.now(timezone.utc)},
                      option=LastUpdateOption(owned.update_time))
         batch.commit()
-    except Exception as exc:
+    except AlreadyExists:
+        # Not forced, and the report was published between our first read and the commit: nothing is lost, and the
+        # lease must not say FAILED. If what is there does not validate, it is a real failure and goes the usual way.
+        published = ref.get()
         try:
-            lease.update({"status": "FAILED", "failed_at": datetime.now(timezone.utc),
-                          "error_type": type(exc).__name__}, option=LastUpdateOption(owned.update_time))
+            validate(published.to_dict(), expected_type=report_type, require_sources=True)
+        except Exception as exc:
+            _mark_failed(lease, owned, exc)
+            raise
+        try:
+            lease.update({"status": "PUBLISHED", "completed_at": datetime.now(timezone.utc),
+                          "note": "published_by_another_writer"}, option=LastUpdateOption(owned.update_time))
         except FailedPrecondition:
             pass  # A newer owner has already taken over; never alter its lease.
+        return {"status": "ALREADY_PUBLISHED", "report_id": report_id, "type": report_type}
+    except Exception as exc:
+        _mark_failed(lease, owned, exc)
         raise
     generation = report.get("generation") or {}
     result = {"status": "PUBLISHED", "report_id": report_id, "type": report_type,

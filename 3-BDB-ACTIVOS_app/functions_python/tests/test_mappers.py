@@ -203,6 +203,54 @@ def test_fixed_income_profile_fondo_rf_en_fraccion():
     assert "bond_sectors" not in p, "solo las claves del contrato"
 
 
+def test_fixed_income_profile_con_bond_types_neto_sirve_lo_positivo():
+    """C-31 (21-11-2026): la base nueva guarda el mapa neto, y aqui se sirven solo sus partes > 0.
+
+    Los dos casos son del canonico del 17-11: UBS Duracion 0-2 (ES0126547035), con la liquidez a -4,87 %
+    y el resto sumando 1,049, y FON Fineco Inversion (ES0137396000), con la liquidez a 105 % y el gobierno
+    a -5 %. No rompe ninguno, y la parte por encima de 1 pasa tal cual.
+    """
+    root = dict(RF_FUND)
+    root["portfolio_exposure"] = {
+        **RF_FUND["portfolio_exposure"],
+        "bond_types": {"government": 0.095618, "corporate": 0.90365, "securitized": 0.049477, "cash": -0.048737},
+    }
+    p = map_asset_detail(root, None, None)["fixed_income_profile"]
+    assert p["bond_types"] == {"government": 0.095618, "corporate": 0.90365, "securitized": 0.049477}
+
+    root["portfolio_exposure"] = {
+        **RF_FUND["portfolio_exposure"],
+        "bond_types": {"government": -0.049955, "corporate": -0.000007, "securitized": -0.000002, "cash": 1.049964},
+    }
+    p = map_asset_detail(root, None, None)["fixed_income_profile"]
+    assert p["bond_types"] == {"cash": 1.049964}
+
+
+def test_fixed_income_profile_con_derivados_y_municipal_los_sirve_como_otra_clave():
+    """C-33 (21-11-2026): el tipo de emisor trae tambien `municipal` y `derivative`, y no rompe nada.
+
+    Las claves no tienen lista ni aqui ni en el contrato de lectura (`number_map`): pasan como las demas, y
+    solo las partes > 0. Gestion Talento (ES0141991002) y Abante Seleccion (ES0162946034), del canonico
+    que sale de las fichas del 17-11 con el adaptador nuevo.
+    """
+    root = dict(RF_FUND)
+    root["portfolio_exposure"] = {
+        **RF_FUND["portfolio_exposure"],
+        "bond_types": {"government": 0.367105, "corporate": 0.060236, "cash": -1.340189, "derivative": 1.912847},
+    }
+    p = map_asset_detail(root, None, None)["fixed_income_profile"]
+    assert p["bond_types"] == {"government": 0.367105, "corporate": 0.060236, "derivative": 1.912847}
+
+    root["portfolio_exposure"] = {
+        **RF_FUND["portfolio_exposure"],
+        "bond_types": {"government": 0.420698, "municipal": 0.000013, "corporate": 0.478256,
+                       "securitized": 0.196899, "cash": -0.091183, "derivative": -0.004682},
+    }
+    p = map_asset_detail(root, None, None)["fixed_income_profile"]
+    assert p["bond_types"] == {"government": 0.420698, "municipal": 0.000013, "corporate": 0.478256,
+                               "securitized": 0.196899}
+
+
 def test_fixed_income_profile_fondo_rv_con_mapa_a_cero_queda_sin_perfil():
     root = dict(FUND)
     root["portfolio_exposure"] = {

@@ -15,10 +15,14 @@
  * lecturas a 75. Duplica a propósito, lleva `computed_at` y no es fuente de nada: si la
  * tarjeta y el bloque declarado dicen cosas distintas, el bloque tiene razón.
  */
+import { createHash } from 'crypto';
+
 import { CLAVES_DEL_SOBRE, type Ausencia } from '../../config/baseNueva/vocabulario';
-import { aptitudesDe, politicaDeReparto } from '../../config/baseNueva/aptitudes';
+import { aptitudesDe, esMateriaPrimaSinReparto, politicaDeReparto } from '../../config/baseNueva/aptitudes';
+
+export { esMateriaPrimaSinReparto };
 import { cargarEsquemas, rutasDe, type RutaDeclarada } from '../../config/baseNueva/esquemas';
-import { aplicaAlInstrumento, type RasgosDelInstrumento } from './aplicabilidad';
+import { aplicaAlInstrumento, rasgosDeLoEscrito, type RasgosDelInstrumento } from './aplicabilidad';
 import { BLOQUES_DE_INSTRUMENTO } from './mapper';
 
 /** Un instrumento tal como está en la base: su raíz y sus bloques. */
@@ -67,8 +71,14 @@ function documentoDe(
 interface RutaContable {
     /** La ruta dentro de su documento. */
     ruta: string;
-    /** El predicado de aplicabilidad, si lo declara. */
+    /** El predicado de aplicabilidad, si lo declara. Es el que decide si cuenta en la cobertura (`x-counts-when` primero). */
     aplicaCuando: string | undefined;
+    /**
+     * Solo `x-applies-when`, heredado, SIN `x-counts-when`: a quien aplica el campo. Es el que lee la comprobación
+     * de campos presentes donde no aplica (decisión C-17). No es `aplicaCuando`: `relative` cuenta solo en fondos
+     * (`x-counts-when`) pero se rellena también en una acción, y eso no es un error.
+     */
+    aplicaSolo: string | undefined;
     /**
      * Lo que significa su ausencia, declarado en ESTA ruta. `undefined` = no lo dice ella, y
      * entonces lo dice un antepasado o, si ninguno lo dice, es `NOT_PROVIDED`.
@@ -138,6 +148,7 @@ function rutasContables(tipo: string): RutaContable[] {
                se resolvía aquí y solo miraba dos niveles —el nodo y la raíz—, así que un
                subárbol marcado en medio no gobernaba a sus hijos. */
             aplicaCuando: ruta.cuentaCuando ?? ruta.aplicaCuando,
+            aplicaSolo: ruta.aplicaCuando,
             ausencia:
                 typeof ruta.nodo['x-absence'] === 'string'
                     ? (ruta.nodo['x-absence'] as Ausencia)
@@ -237,19 +248,29 @@ export function avisosDe(instrumento: InstrumentoLeido): AvisoDeCalidad[] {
                     'Nuestras métricas de esta acción se calculan con rentabilidades DIARIAS y ventanas contadas desde el último día de la serie; las de un fondo, con rentabilidades mensuales y meses cerrados. Son dos métodos y no dos juegos de datos, así que una tabla que ordene las dos cosas por volatilidad está mezclando dos escalas.'
             });
         }
-        const divisa = valorEn(instrumento.raiz, 'identity.currency');
-        if (divisa !== 'EUR' && valorEn(instrumento.calculadas, 'sharpe') === undefined) {
+        /*
+         * Por la divisa del CÁLCULO y no por la de cotización (P1-05, 21-11-2026): desde la
+         * versión 2 la serie de una acción se lleva a euros antes de calcular, y una acción en
+         * dólares con sus métricas en euros tiene el Sharpe que le corresponde. Mirar la
+         * cotización avisaba en falso en las 259 que no cotizan en euros y lo tienen.
+         */
+        const divisaDelCalculo = valorEn(instrumento.calculadas, 'inputs.currency');
+        if (
+            instrumento.calculadas !== undefined &&
+            divisaDelCalculo !== 'EUR' &&
+            valorEn(instrumento.calculadas, 'sharpe') === undefined
+        ) {
             avisos.push({
                 code: 'SIN_SHARPE_POR_DIVISA',
                 severity: 'WARN',
-                message: `Esta acción cotiza en ${String(divisa)} y el único tipo libre de riesgo que tenemos es el EUR del BCE, así que su Sharpe mezclaría una rentabilidad en una divisa con un tipo en otra y no se publica. No es que se oculte: es un ingrediente que falta, y tampoco hay cifra de proveedor a la que caer.`
+                message: `Las métricas de esta acción están calculadas en ${String(divisaDelCalculo)} y el único tipo libre de riesgo que tenemos es el EUR del BCE, así que su Sharpe mezclaría una rentabilidad en una divisa con un tipo en otra y no se publica. No es que se oculte: es un ingrediente que falta, y tampoco hay cifra de proveedor a la que caer.`
             });
         }
         return avisos;
     }
 
     /* Por el campo y no por el documento: desde la decision 109 puede haber documento sin reparto. */
-    if (exposicion?.['asset_mix'] === undefined) {
+    if (exposicion?.['asset_mix'] === undefined && !esMateriaPrimaSinReparto(instrumento)) {
         avisos.push({
             code: 'SIN_REPARTO_DE_ACTIVOS',
             severity: 'WARN',
@@ -296,17 +317,69 @@ export interface ResultadoDeCalidad {
     cobertura: number;
     /** Rutas que no se han podido decidir porque faltaba el dato del que depende el predicado. */
     indecidibles: number;
+    /**
+     * Las rutas que forman el denominador de la cobertura, escritas como `absences.path`, en el orden en que se
+     * recorrieron. `aplicables` es su longitud y `huella` su huella: las tres salen de esta lista y no pueden separarse.
+     */
+    rutasAplicables: readonly string[];
+    /** `applicable_paths_fingerprint`: la identidad del conjunto sobre el que está calculada la cobertura (decisión 16). */
+    huella: string;
+}
+
+/**
+ * La huella de un conjunto de rutas contables (decisión 16 de la base nueva): SHA-256, en hexadecimal en minúsculas, de
+ * las rutas ordenadas por código de carácter y unidas por un salto de línea, sin salto final.
+ *
+ * Ordena ella, para que el orden en que se recorrió el contrato no entre en la huella: lo que identifica es el conjunto,
+ * no el recorrido. El orden es el de `sort()` sin comparador —por unidad de código, no por idioma—, que es el mismo en
+ * cualquier máquina y el que da `sorted()` en Python sobre rutas ASCII, así que la huella se puede rehacer fuera de aquí.
+ * Una ruta repetida sería un defecto del recorrido y no se esconde quitándola: cambia la huella, como cambia el recuento.
+ */
+export function huellaDeLasRutas(rutas: readonly string[]): string {
+    return createHash('sha256').update([...rutas].sort().join('\n'), 'utf8').digest('hex');
+}
+
+/** Un campo que está en la base donde el contrato dice que no aplica a ese instrumento (decisión C-17). */
+export interface CampoDondeNoAplica {
+    /** El sufijo del bloque: `computed/metrics`, `declared/costs`... o `` para la raíz. */
+    bloque: string;
+    ruta: string;
+    /** El predicado `x-applies-when` que resultó falso. */
+    predicado: string;
+}
+
+/**
+ * Los campos que tienen valor y cuyo `x-applies-when` es FALSO para este instrumento: la lectura de la decisión C-17 en
+ * el sentido que faltaba. Un predicado que no se puede evaluar (`undefined`) no entra aquí: eso ya se cuenta aparte como
+ * indecidible. Se evalúa contra el contrato de hoy y no contra la historia.
+ */
+export function camposPresentesDondeNoAplica(instrumento: InstrumentoLeido): CampoDondeNoAplica[] {
+    const rasgos: RasgosDelInstrumento = rasgosDeLoEscrito(instrumento.raiz, instrumento.bloques['declared/exposure']);
+    const salida: CampoDondeNoAplica[] = [];
+    const revisar = (tipo: string, documento: Record<string, unknown> | undefined, bloque: string): void => {
+        if (documento === undefined) return;
+        for (const contable of contablesDe(tipo)) {
+            if (contable.aplicaSolo === undefined) continue;
+            if (aplicaAlInstrumento(contable.aplicaSolo, rasgos) !== false) continue;
+            if (valorEn(documento, contable.ruta) === undefined) continue;
+            salida.push({ bloque, ruta: contable.ruta, predicado: contable.aplicaSolo });
+        }
+    };
+    revisar('instrument.v2.schema.json', instrumento.raiz, '');
+    for (const [sufijo, tipo] of Object.entries(BLOQUES_DE_INSTRUMENTO)) {
+        revisar(tipo, documentoDe(instrumento, sufijo), sufijo);
+    }
+    return salida;
 }
 
 /** Calcula `quality/latest` de un instrumento. */
 export function calcularCalidad(instrumento: InstrumentoLeido, ahora: string): ResultadoDeCalidad {
-    const rasgos: RasgosDelInstrumento = {
-        instrument_type: String(instrumento.raiz['instrument_type'] ?? ''),
-        asset_mix: instrumento.bloques['declared/exposure']?.['asset_mix'] as Record<string, number> | undefined
-    };
+    const rasgos: RasgosDelInstrumento = rasgosDeLoEscrito(instrumento.raiz, instrumento.bloques['declared/exposure']);
 
     const ausencias: { path: string; reason: Ausencia }[] = [];
-    let aplicables = 0;
+    /* El denominador, ruta a ruta. Es la única fuente: el recuento es su longitud y la huella, su huella (decisión 16),
+       así que no puede publicarse un recuento de una lista y una huella de otra. */
+    const rutasAplicables: string[] = [];
     let presentes = 0;
     let indecidibles = 0;
 
@@ -318,7 +391,7 @@ export function calcularCalidad(instrumento: InstrumentoLeido, ahora: string): R
                 continue;
             }
             if (!veredicto) continue;
-            aplicables += 1;
+            rutasAplicables.push(`${prefijo}${contable.ruta}`);
             const valor = valorEn(documento, contable.ruta);
             if (valor === undefined) {
                 ausencias.push({
@@ -336,6 +409,8 @@ export function calcularCalidad(instrumento: InstrumentoLeido, ahora: string): R
         revisar(tipo, documentoDe(instrumento, sufijo), `${sufijo}.`);
     }
 
+    const aplicables = rutasAplicables.length;
+    const huella = huellaDeLasRutas(rutasAplicables);
     const cobertura = aplicables === 0 ? 0 : presentes / aplicables;
     const avisos = avisosDe(instrumento);
 
@@ -363,12 +438,14 @@ export function calcularCalidad(instrumento: InstrumentoLeido, ahora: string): R
         }),
         coverage: Number(cobertura.toFixed(6)),
         applicable_paths: aplicables,
+        /* Con qué conjunto está calculada la cobertura (decisión 16): dos coberturas solo se comparan si coincide. */
+        applicable_paths_fingerprint: huella,
         present_paths: presentes,
         absences: recortadas
     };
     if (avisos.length > 0) documento['warnings'] = avisos;
 
-    return { documento, aplicables, presentes, cobertura, indecidibles };
+    return { documento, aplicables, presentes, cobertura, indecidibles, rutasAplicables, huella };
 }
 
 /** Quita las claves vacías, en profundidad; `undefined` si no queda nada. */
@@ -812,6 +889,8 @@ export function componerTarjeta(
      * 38 % del fondo), así que sería publicar por otra puerta el mismo alfa que se retira.
      * Decisión 30: con una clase cubierta pasa lo mismo, porque el índice de la categoría del
      * proveedor tampoco está cubierto y su alfa mediría la cobertura que la nuestra no quiere medir.
+     * `SAME_FUND_REFERENCE` (C-28) NO está aquí, a propósito: lo que falla es nuestra serie del índice
+     * —otra clase del mismo fondo—, no lo que mide el proveedor, así que cae a su cifra como un fondo sin proxy.
      */
     const ausenciaRelativa = txt(calculadas?.['relative_absence']);
     const sinRelativasPorElKid =
@@ -822,7 +901,11 @@ export function componerTarjeta(
             ? limpiar({
                   source: 'COMPUTED',
                   reference: txt(relativasPropias['reference']) ?? 'DECLARED_BENCHMARK_PROXY',
-                  as_of: txt(entradas['last_date']),
+                  /* H2-06 (22-11-2026): las cifras relativas son al cierre de mes, como todas las de `computed/metrics`.
+                     `inputs.last_date` es donde acaba la serie de precios (2 de noviembre en cifras de 31 de octubre) y
+                     chocaba con MET-7: 741 tarjetas fechaban la relativa con el último precio. Sale el mismo cierre
+                     que el titular. */
+                  as_of: fechaDelTitular,
                   benchmark: relativasPropias['benchmark'],
                   beta: relativasPropias['beta'],
                   r2: relativasPropias['r2'],
@@ -994,7 +1077,13 @@ export function componerTarjeta(
                   confidence: 1,
                   derivation: 'BY_INSTRUMENT_TYPE'
               }
-            : exposicion === undefined
+            : esMateriaPrimaSinReparto(instrumento)
+              ? {
+                    asset_mix: { equity: 0, fixed_income: 0, cash: 0, other: 1 },
+                    confidence: 1,
+                    derivation: 'BY_INSTRUMENT_TYPE'
+                }
+              : exposicion === undefined
               ? undefined
               : {
                     /* Puede no estar, y lo demás sigue valiendo (decisión 109). */

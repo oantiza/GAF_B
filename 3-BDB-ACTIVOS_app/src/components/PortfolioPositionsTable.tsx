@@ -5,6 +5,7 @@ import { numero, oFalta } from "../core/formato";
 import { textoDeAusencia } from "../core/textoDeAusencia";
 import { CLASS_LABELS, TYPE_LABELS, readableBackendLabel } from "../core/labels";
 import { Button } from "./ui/Button";
+import { Cifra } from "./ui/Cifra";
 import { ClaseConColor } from "./ui/ClaseConColor";
 import { EuroAmountInput } from "./ui/EuroAmountInput";
 import { hayPesoFijado } from "../core/asignacionTactica";
@@ -37,6 +38,12 @@ interface PortfolioPositionsTableProps {
   cargandoFichas?: boolean;
   /** Las herramientas de edición que gobiernan esta tabla (el modo, «Añadir dinero»…), en la cabecera del bloque. */
   acciones?: ReactNode;
+  /**
+   * D1 (Óscar, 21-11-2026): la fila «Total» al pie, con «Normalizar al 100 %» siempre a la vista. Sin esto, la tabla no
+   * lleva pie. `rotulo` cambia a «Repartir a partes iguales» cuando las libres están a cero; con la cartera cuadrada el
+   * botón sigue a la vista, desactivado, y dice por qué.
+   */
+  normalizar?: { alPulsar: () => void; cuadrada: boolean; rotulo: string };
 }
 
 /**
@@ -68,7 +75,8 @@ export function PortfolioPositionsTable({
   onIrAlBuscador,
   aviso = null,
   cargandoFichas = false,
-  acciones
+  acciones,
+  normalizar
 }: PortfolioPositionsTableProps) {
   /* Decisión 37: con un peso fijado, editar un importe no mueve el capital. Lo que dice esto lo hace `editarImporte`. */
   const conPesoFijado = hayPesoFijado(positions, locks);
@@ -287,6 +295,33 @@ export function PortfolioPositionsTable({
                 );
               })}
             </tbody>
+            {normalizar ? (
+              <tfoot>
+                <tr className="portfolio-table__total">
+                  <th colSpan={2} scope="row">
+                    <span className="portfolio-table__total-rotulo">
+                      <span>Total</span>
+                      <Button
+                        disabled={normalizar.cuadrada}
+                        onClick={normalizar.alPulsar}
+                        size="sm"
+                        title={normalizar.cuadrada ? "La cartera ya suma 100 %: no hay nada que normalizar." : undefined}
+                        variant="secondary"
+                      >
+                        {normalizar.rotulo}
+                      </Button>
+                    </span>
+                  </th>
+                  <td className="num">
+                    <Cifra tipo="peso" valor={positions.reduce((suma, position) => suma + (position.weight_percent || 0), 0) / 100} />
+                  </td>
+                  <td className="num">
+                    <Cifra tipo="importe" valor={positions.reduce((suma, position) => suma + portfolioPositionAmount(position, totalCapital), 0)} />
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            ) : null}
           </table>
         </div>
       )}

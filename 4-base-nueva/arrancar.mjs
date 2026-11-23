@@ -14,6 +14,7 @@
  */
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as net from 'node:net';
 import * as path from 'node:path';
 
 const AQUI = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
@@ -53,6 +54,46 @@ function jdkDisponible() {
     }
     return undefined;
 }
+
+/**
+ * ¿Está libre este puerto en 127.0.0.1? Intenta abrirlo de verdad; es la única comprobación que no se engaña
+ * (la de `Test-NetConnection` miraba `::1` y dio falsos «libre» con Vite, ver la habilidad `arrancar-entorno`).
+ */
+function puertoLibre(puerto) {
+    return new Promise((resolver) => {
+        const servidor = net.createServer();
+        servidor.once('error', () => resolver(false));
+        servidor.once('listening', () => servidor.close(() => resolver(true)));
+        servidor.listen(puerto, '127.0.0.1');
+    });
+}
+
+/**
+ * Los cuatro puertos del emulador, leídos de `firebase.json` (no copiados aquí). Si otro emulador ocupa cualquiera de
+ * ellos -el de registro (`logging`) es el que se olvida: el de la base de siempre lleva el suyo-, firebase-tools aborta
+ * con un mensaje que no dice qué puerto ni de quién es. Se comprueban antes y se nombra el que está ocupado.
+ */
+async function comprobarPuertos() {
+    const emuladores = JSON.parse(fs.readFileSync(path.join(AQUI, 'firebase.json'), 'utf-8')).emulators ?? {};
+    const puertos = [
+        ['firestore', emuladores.firestore?.port],
+        ['firestore (websocket)', emuladores.firestore?.websocketPort],
+        ['hub', emuladores.hub?.port],
+        ['registro (logging)', emuladores.logging?.port]
+    ];
+    const ocupados = [];
+    for (const [nombre, puerto] of puertos) {
+        if (typeof puerto === 'number' && !(await puertoLibre(puerto))) ocupados.push(`${nombre}: ${puerto}`);
+    }
+    if (ocupados.length > 0) {
+        console.error(`[base-nueva] no arranco: hay otro proceso escuchando en ${ocupados.join(', ')}.`);
+        console.error('[base-nueva] Puede ser este mismo emulador ya en marcha (no hace falta otro) o el emulador de la base de');
+        console.error('[base-nueva] siempre, que usa sus propios puertos pero puede haberse quedado con uno de estos. Para ver quién');
+        console.error('[base-nueva] es: `Get-NetTCPConnection -LocalPort <puerto>` en PowerShell. No se para nada desde aquí.');
+        process.exit(1);
+    }
+}
+await comprobarPuertos();
 
 fs.mkdirSync(DATOS, { recursive: true });
 const hayVolcado = fs.existsSync(path.join(DATOS, MARCA_DE_VOLCADO));

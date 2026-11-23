@@ -121,33 +121,3 @@ def test_benchmark_retains_its_distinct_exclusion_reason():
     assert detail['is_investable'] is False
     assert 'NON_INVESTABLE_BENCHMARK' in detail['quality_flags']
     assert 'NON_INVESTABLE_CORPORATE_ACTION' not in detail['quality_flags']
-
-
-def test_firestore_fallback_projection_keeps_the_verified_selection_restriction():
-    from types import SimpleNamespace
-    from readmodel import firestore_client
-    original = Reader(['DEREGISTERED_MERGER_VERIFIED']).root
-
-    class Query:
-        fields = []
-        def collection(self, name): return self
-        def where(self, **kwargs): return self
-        def select(self, fields):
-            self.fields = fields
-            return self
-        def limit(self, limit): return self
-        def stream(self):
-            projected = {'asset_type': original['asset_type'], 'identity': original['identity']}
-            if 'quality.review_flags' in self.fields:
-                projected['quality'] = original['quality']
-            return [SimpleNamespace(id=original['asset_id'], to_dict=lambda: projected)]
-
-    firestore_client._LIST_CACHE.clear()
-    try:
-        roots = firestore_client.FirestoreReader(db=Query()).list_assets(['FUND'], 20)
-        assert len(roots) == 1
-        detail = map_asset_detail(roots[0])
-        assert detail['is_investable'] is False
-        assert 'NON_INVESTABLE_CORPORATE_ACTION' in detail['quality_flags']
-    finally:
-        firestore_client._LIST_CACHE.clear()

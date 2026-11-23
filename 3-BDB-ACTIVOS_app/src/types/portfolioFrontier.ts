@@ -226,6 +226,8 @@ export interface FrontierNotSelectableView {
 
 export interface FrontierMethodologyV2 {
   optimizer?: string;
+  /** El objetivo con que se calculó, el que declara el servidor. Falta con un servidor que no lo manda. */
+  objective?: FrontierObjective;
   covarianceEstimator?: string;
   expectedReturnModel?: string;
   targetRiskMode?: string;

@@ -306,6 +306,84 @@ describe("copia obligada en los cambios grandes (GES-10)", () => {
   });
 });
 
+describe("guardados que se solapan (P2-12)", () => {
+  /**
+   * El almacén de verdad, pero cada escritura espera a que la prueba la suelte. Cuenta cuántas hay a la vez.
+   * Soltarlas en orden inverso es el caso malo: la versión vieja acaba la última.
+   */
+  function conCompuertas(real: AlmacenDeCarteras) {
+    const esperando: Array<() => void> = [];
+    let enCurso = 0;
+    let maximo = 0;
+    const deposito: AlmacenDeCarteras = {
+      ...real,
+      guardar: async (cartera, opciones) => {
+        enCurso += 1;
+        maximo = Math.max(maximo, enCurso);
+        await new Promise<void>((soltar) => esperando.push(soltar));
+        try {
+          return await real.guardar(cartera, opciones);
+        } finally {
+          enCurso -= 1;
+        }
+      }
+    };
+    return { deposito, esperando, maximo: () => maximo };
+  }
+
+  it("dos guardados seguidos no escriben a la vez, y en el disco queda el último", async () => {
+    const real = almacen();
+    await real.guardar(garcia());
+    const { deposito, esperando, maximo } = conCompuertas(real);
+    await montar(<Arnes deposito={deposito} fichero={FICHERO} inicial={garcia()} />);
+    anadir("m-2");
+    act(() => void abierta.guardarAhora());
+    anadir("m-3");
+    act(() => void abierta.guardarAhora());
+    await act(async () => new Promise((resolver) => setTimeout(resolver, 20)));
+    /* El segundo espera al primero: solo hay una escritura en curso. */
+    expect(esperando).toHaveLength(1);
+    /* Se sueltan siempre las últimas en llegar: si hubiera dos a la vez, la de m-2 acabaría después que la de m-3. */
+    await esperar(() => {
+      esperando.pop()?.();
+      return esperando.length === 0 && abierta.guardado === "guardado";
+    });
+    expect(maximo()).toBe(1);
+    expect(idsEnDisco()).toEqual(["m-1", "m-2", "m-3"]);
+  });
+
+  it("conectar una carpeta con cambios en pantalla no descarga un rescate: los escribe en la carpeta", async () => {
+    await montar(<Arnes deposito={null} fichero={null} inicial={garcia()} />);
+    anadir("m-2");
+    expect(abierta.guardado).toBe("sin-descargar");
+    const a = almacen();
+    await act(async () => root!.render(<Arnes deposito={a} fichero={null} inicial={garcia()} />));
+    await esperar(() => abierta.guardado === "guardado");
+    expect(descargas.descargar).not.toHaveBeenCalled();
+    expect(idsEnDisco()).toEqual(["m-1", "m-2"]);
+  });
+
+  it("al desmontar con un guardado en curso, la escritura de salida espera a la suya y no repite", async () => {
+    const real = almacen();
+    await real.guardar(garcia());
+    const { deposito, esperando, maximo } = conCompuertas(real);
+    await montar(<Arnes deposito={deposito} fichero={FICHERO} inicial={garcia()} />);
+    anadir("m-2");
+    act(() => void abierta.guardarAhora());
+    await act(async () => root!.unmount());
+    root = undefined;
+    await act(async () => new Promise((resolver) => setTimeout(resolver, 20)));
+    expect(esperando).toHaveLength(1);
+    esperando.pop()!();
+    await esperar(() => idsEnDisco().includes("m-2"));
+    await act(async () => new Promise((resolver) => setTimeout(resolver, 20)));
+    /* Lo de salida ya estaba escrito: no hay una segunda escritura, ni rescate. */
+    expect(esperando).toHaveLength(0);
+    expect(maximo()).toBe(1);
+    expect(descargas.descargar).not.toHaveBeenCalled();
+  });
+});
+
 describe("la pantalla de la cartera ante los fallos (GES-01, GES-02, GES-03)", () => {
   /** Un almacén cuya escritura falla siempre con `codigo`. Con `fichero` nulo la vista guarda nada más abrir. */
   function queFalla(codigo: "PERMISO" | "CONFLICTO") {

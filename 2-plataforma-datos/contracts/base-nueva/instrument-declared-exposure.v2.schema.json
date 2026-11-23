@@ -59,7 +59,7 @@
       "additionalProperties": false,
       "required": ["equity", "fixed_income", "cash", "other"],
       "x-absence": "NOT_PROVIDED",
-      "description": "Dejo de ser obligatorio el 05-11-2026, por la decision 109 de Oscar. Sin el, el bloque se tiraba entero, y con el se iban las regiones y los sectores de 61 y 53 fondos que si los publican: JPMorgan India D o Morgan Stanley Global Brands caian enteros en 'No declarado' porque una clase del reparto se salia mas de un punto. Un documento sin este campo NO dice que el fondo no tenga nada: dice que su reparto por clases no cuadra y no se ensena, y que lo que hay de su renta variable si vale. Quien lea este bloque no puede tomar su presencia por un reparto, y por eso quien lo necesita mira este campo. Reparto en FRACCION, suma 1. Hoy asset_mix.equity es entero en 265 documentos y decimal en 584: ese es el defecto que arregla declarar un solo type y una sola unidad. Obligatorias son CUATRO, no seis, y es una correccion medida del 01-11: el canonico reparte en equity, bond, cash y other, y esas cuatro ya suman 1. alternative y real_asset son una particion mas fina que esta fuente no da, asi que se quedan ausentes con NOT_PROVIDED en vez de salir a cero. Un cero en un reparto no es una ausencia: es la afirmacion de que el fondo no tiene nada de eso. La primera version exigia las seis y dejaba sin bloque de composicion a los 769 instrumentos, que es el 99 % de cobertura convertido en 0 por una linea del contrato.\n\nUna clase puede salirse de 0-1 hasta 0,01, un punto: de -0,01 a 1,01, y solo eso (decision A-63 de Oscar, 05-11-2026). El proveedor da el reparto NETO: un fondo con un poco de cortos o de descubierto trae una clase en negativo y otra por encima de 1, y entre todas suman 1. Lazard Small Caps Euro I trae bolsa 1,000401, renta fija -0,000844, liquidez 0,000432 y otros 0,000011: suma 1 y se quedaba sin nada por 0,08 puntos. Fuera de ese punto sigue sin pasar, aunque lo demas sume 1, porque ya no es un redondeo ni un descubierto de tesoreria: hay fondos que se salen hasta 243 puntos, y un reparto asi no describe el fondo.\n\nLa cifra va tal cual: un -0,08 no se escribe como cero. Hasta esa fecha, una clase fuera de 0-1 se trataba como no declarada, y eso dejaba dos casos. Si lo demas no sumaba 1, el fondo se quedaba sin reparto. Si si lo sumaba con la tolerancia, entraba con esa clase a CERO, IMPLIED_BY_SUM, y las demas sumando de mas. Medido el 05-11-2026 sobre 799 fondos y ETF: 9 estaban en el primer caso y entran, 52 en el segundo y pasan a llevar su cifra, y 94 se salen mas de un punto y siguen sin reparto, junto a 3 que no publican nada. Quien sume o dibuje esto tiene que aceptar un negativo pequeno.",
+      "description": "Dejo de ser obligatorio el 05-11-2026, por la decision 109 de Oscar. Sin el, el bloque se tiraba entero, y con el se iban las regiones y los sectores de 61 y 53 fondos que si los publican: JPMorgan India D o Morgan Stanley Global Brands caian enteros en 'No declarado' porque una clase del reparto se salia mas de un punto. Un documento sin este campo NO dice que el fondo no tenga nada: dice que su reparto por clases no cuadra y no se ensena, y que lo que hay de su renta variable si vale. Quien lea este bloque no puede tomar su presencia por un reparto, y por eso quien lo necesita mira este campo. Reparto en FRACCION, suma 1. Hoy asset_mix.equity es entero en 265 documentos y decimal en 584: ese es el defecto que arregla declarar un solo type y una sola unidad. Obligatorias son CUATRO, no seis, y es una correccion medida del 01-11: el canonico reparte en equity, bond, cash y other, y esas cuatro ya suman 1. alternative y real_asset son una particion mas fina que esta fuente no da, asi que se quedan ausentes con NOT_PROVIDED en vez de salir a cero. Un cero en un reparto no es una ausencia: es la afirmacion de que el fondo no tiene nada de eso. La primera version exigia las seis y dejaba sin bloque de composicion a los 769 instrumentos, que es el 99 % de cobertura convertido en 0 por una linea del contrato.\n\nUna clase puede salirse de 0-1 hasta 0,01, un punto: de -0,01 a 1,01, y solo eso (decision A-63 de Oscar, 05-11-2026). El proveedor da el reparto NETO: un fondo con un poco de cortos o de descubierto trae una clase en negativo y otra por encima de 1, y entre todas suman 1. Lazard Small Caps Euro I trae bolsa 1,000401, renta fija -0,000844, liquidez 0,000432 y otros 0,000011: suma 1 y se quedaba sin nada por 0,08 puntos. Fuera de ese punto sigue sin pasar, aunque lo demas sume 1, porque ya no es un redondeo ni un descubierto de tesoreria: hay fondos que se salen hasta 243 puntos, y un reparto asi no describe el fondo.\n\nLa cifra va tal cual: un -0,08 no se escribe como cero. Hasta esa fecha, una clase fuera de 0-1 se trataba como no declarada, y eso dejaba dos casos. Si lo demas no sumaba 1, el fondo se quedaba sin reparto. Si si lo sumaba con la tolerancia, entraba con esa clase a CERO, IMPLIED_BY_SUM, y las demas sumando de mas. Medido el 05-11-2026 sobre 799 fondos y ETF: 9 estaban en el primer caso y entran, 52 en el segundo y pasan a llevar su cifra, y 94 se salen mas de un punto y siguen sin reparto, junto a 3 que no publican nada. Quien sume o dibuje esto tiene que aceptar un negativo pequeno.\n\nDesde el 21-11-2026 (decision C-29 de Oscar, «Si, las tres») se acepta el reparto NETO tal como lo da el proveedor, que es como lo publica Morningstar: si suma 1, una clase puede ser negativa (un corto, liquidez prestada) o pasar de 1 (apalancamiento), hasta los topes de peso_de_clase, de -5 a 6. Lo de arriba sobre el punto de A-63 queda como historia: aquel punto dejaba sin reparto a fondos cuyo reparto si cuadraba. Medido ese dia sobre el canonico del 17-11-2026: 95 fondos tenian una clase fuera de -0,01 a 1,01 y los 95 sumaban 1 con la tolerancia; los 95 recuperan su reparto. El mas extremo trae renta variable 3,198 y liquidez -2,426. Sigue sin reparto lo que no suma 1 con la tolerancia, lo que no trae numeros, las cuatro clases a cero y una clase fuera de los topes. La cifra se escribe tal cual, con su signo: quien la dibuje no le pone barra ni porcion de aro a una clase negativa, y dice junto al reparto que es neto.",
       "x-layer": "declared",
       "x-owner": "platform",
       "x-applies-to": "instrument_type FUND, ETF",
@@ -129,21 +129,24 @@
       "x-coverage-target": 0.97
     },
     "bond_types": {
-      "$ref": "#/$defs/mapa_de_pesos",
-      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
-      "x-applies-when": "CON_RENTA_FIJA",
+      "$ref": "#/$defs/mapa_neto_de_renta_fija",
+      "description": "El reparto de la renta fija por tipo de emisor, en fraccion, neto como lo da el proveedor (decision C-31 de Oscar, 21-11-2026): la regla, en mapa_neto_de_renta_fija. Sus claves son los seis supersectores de renta fija del proveedor (GlobalBondSectorBreakdownLevel1 de Morningstar), con su nombre en minusculas: `government` (deuda publica), `municipal` (deuda municipal, como la clasifica el proveedor), `corporate` (deuda de empresas), `securitized` (titulizaciones y cedulas), `cash` (liquidez y equivalentes) y `derivative` (la exposicion por derivados, que en un fondo con futuros o permutas suele compensar una liquidez negativa). Las dos ultimas son las que mas veces salen en negativo. Hasta el 21-11-2026 (decision C-33 de Oscar) el adaptador del extractor no pasaba ni `municipal` ni `derivative`, y un mapa con la liquidez en negativo no sumaba 1: medido ese dia en seco sobre el canonico del 17-11, de los 49 bond_types con una parte negativa que no sumaban 1, 45 pasan a sumarlo y a escribirse netos, y los 4 restantes suman 1 pero se salen de los topes. Una clave que el proveedor no da no se escribe: no es un cero. Desde el 21-11-2026 (Oscar) aplica, y se escribe, solo si la renta fija pesa al menos un 0,5 % del reparto contando los convertibles: es su `x-applies-when`, `CON_RENTA_FIJA_NO_RESIDUAL`. Por debajo es una posicion residual y no aplica, igual que con 0. Los convertibles cuentan como renta fija para esto y solo para esto (en `asset_mix` siguen en `other`): su peso propio cuando la fuente lo separa, y si no, en un fondo cuya categoria es de convertibles, lo que el reparto llama `other`. Por eso Lazard Global Convertibles (IE00BMW2TK08), con renta fija 0 y otros 95,3 %, lo lleva. La cuenta vive una sola vez, en `pesoDeRentaFijaConConvertibles` (`src/ingestion/baseNueva/aplicabilidad.ts`), y con ella deciden el mapper, la calidad y la auditoria. El peso propio de los convertibles no se guarda en la base, asi que quien lee de la base decide con la categoria; si el peso propio cambiara el veredicto, el mapper lo avisa (medido el 21-11-2026: en ninguno). Hasta el 21-11-2026 el predicado era `CON_RENTA_FIJA` (renta fija > 0, sin convertibles), que sigue gobernando `declared/fixed_income`. Medido sobre el canonico del 17-11: 129 fondos con renta fija entre 0 y el 0,5 % dejan de aplicar, y Lazard pasa a aplicar.",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income, mas los convertibles, >= 0,005",
+      "x-applies-when": "CON_RENTA_FIJA_NO_RESIDUAL",
       "x-coverage-target": 0.97
     },
     "duration_buckets": {
-      "$ref": "#/$defs/mapa_de_pesos",
-      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
-      "x-applies-when": "CON_RENTA_FIJA",
+      "$ref": "#/$defs/mapa_neto_de_renta_fija",
+      "description": "El reparto de la renta fija por tramos de duracion, en fraccion, neto como lo da el proveedor (C-31, 21-11-2026; la regla, en mapa_neto_de_renta_fija). Medido ese dia sobre el canonico del 17-11: ninguno trae una parte negativa, y casi ninguno suma 1 (12 de los 332 que se escriben), porque son tramos de vencimiento que no cubren toda la renta fija; los 6 con una parte por encima de 1, hasta 2,15, siguen perdiendola. Aplica, y se escribe, con la misma regla que `bond_types` (`CON_RENTA_FIJA_NO_RESIDUAL`, Oscar, 21-11-2026): renta fija, con los convertibles, de al menos un 0,5 % del reparto.",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income, mas los convertibles, >= 0,005",
+      "x-applies-when": "CON_RENTA_FIJA_NO_RESIDUAL",
       "x-coverage-target": 0.96
     },
     "credit_buckets": {
-      "$ref": "#/$defs/mapa_de_pesos",
-      "x-applies-to": "instrumentos con asset_mix.fixed_income > 0",
-      "x-applies-when": "CON_RENTA_FIJA",
+      "$ref": "#/$defs/mapa_neto_de_renta_fija",
+      "description": "El reparto de la renta fija por calidad crediticia, en fraccion, neto como lo da el proveedor (C-31, 21-11-2026; la regla, en mapa_neto_de_renta_fija). Aplica, y se escribe, con la misma regla que `bond_types` (`CON_RENTA_FIJA_NO_RESIDUAL`, Oscar, 21-11-2026): renta fija, con los convertibles, de al menos un 0,5 % del reparto.",
+      "x-applies-to": "instrumentos con asset_mix.fixed_income, mas los convertibles, >= 0,005",
+      "x-applies-when": "CON_RENTA_FIJA_NO_RESIDUAL",
       "x-coverage-target": 0.61
     },
     "confidence": {
@@ -159,13 +162,29 @@
   "$defs": {
     "peso_de_clase": {
       "type": "number",
-      "minimum": -0.01,
-      "maximum": 1.01,
-      "description": "El peso de una clase en el reparto, neto: de -0,01 a 1,01. Por que no es de 0 a 1, en la descripcion de asset_mix.",
+      "minimum": -5,
+      "maximum": 6,
+      "description": "El peso de una clase en el reparto NETO, tal como lo da el proveedor: de -5 a 6, es decir de -500 % a +600 % (decision C-29 de Oscar, 21-11-2026). Una clase negativa es una posicion corta o liquidez prestada; una por encima de 1, apalancamiento; y entre todas suman 1. Los topes son finitos a proposito y cubren con holgura lo medido el 21-11-2026 sobre el canonico del 17-11 (de -2,43 a 3,20): fuera de ellos ya no es un reparto, es un error de unidades. Por que no es de 0 a 1, en la descripcion de asset_mix.",
       "x-unit": "fraction",
       "x-layer": "declared",
       "x-owner": "platform",
       "x-absence": "NOT_PROVIDED"
+    },
+    "mapa_neto_de_renta_fija": {
+      "type": "object",
+      "maxProperties": 60,
+      "description": "Mapa clave-peso de la renta fija (bond_types, duration_buckets, credit_buckets), en fraccion y NETO como lo da el proveedor, con tope de claves (decision C-31 de Oscar, 21-11-2026; es la regla del reparto por clase de la C-29 llevada a estos tres mapas). Una parte puede ser negativa —la liquidez de un fondo con derivados o liquidez prestada, o una calificacion en corto— y otra pasar de 1 para compensarla: el mapa se escribe tal cual, con su signo, si todas sus partes caben en los topes, de -5 a 6, y entre todas suman 1 con TOLERANCIA_DEL_REPARTO, un punto. Lo que no cuadra —no suma 1, o una parte se sale de los topes— sigue con la regla de antes: se saltan las partes fuera de 0-1 y se escribe el resto, sin comprobar la suma, y el mapper lo avisa. Hasta ese dia esa era la regla de todos: un bond_types con la liquidez negativa la perdia y sumaba de mas (UBS Duracion 0-2, ES0126547035: 1,049 sin su liquidez de -4,87 %). Quien lo dibuje no le pone barra a una parte negativa y la escribe con su signo.\n\nLos topes son los de peso_de_clase. Medido el 21-11-2026 sobre el canonico del 17-11, en los mapas que aplican (CON_RENTA_FIJA_NO_RESIDUAL): 91 bond_types y 13 credit_buckets traen una parte negativa, ningun duration_buckets. De ellos suman 1 los 13 de credito y 42 de tipo de emisor; de esos 55, 53 caben en los topes (sus partes van de -3,44 a 4,44, y la mayoria entre -0,5 y 1,1) y 2 no, reescalados sobre una base neta casi nula: Allianz Strategy 75 CT EUR (gobierno -4,14, liquidez 8,50) y Morgan Stanley Euro Corporate Bond (mas y menos 1.600). Los 49 bond_types con negativo que no suman 1 no cuadraban porque al canonico le faltaban dos partes del proveedor, los derivados y el municipal, que el adaptador del extractor no pasaba: en data/funds del extractor, medido el mismo dia, los 111 repartos por tipo de emisor con una parte negativa suman 100 con todas sus claves, y solo 52 sin esas dos. Desde la decision C-33 (Oscar, 21-11-2026) el canonico las lleva, `municipal` y `derivative`; medido en seco sobre las fichas del 17-11, 45 de esos 49 pasan a escribirse netos y 4 suman 1 pero se salen de los topes (dos Nordea 1 y dos Allianz Dynamic, otra vez reescalados sobre una base neta casi nula), y los bond_types netos pasan de 40 a 185, porque 100 sin ninguna parte negativa en las cuatro de antes traen ahora los derivados en negativo: en 51 por menos de un punto, y en el resto hasta -37,6 %. Esos 100 se escribian sumando de mas, hasta 1,376.",
+      "x-layer": "declared",
+      "x-owner": "platform",
+      "x-absence": "NOT_APPLICABLE",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": -5,
+        "maximum": 6,
+        "x-unit": "fraction",
+        "x-layer": "declared",
+        "x-owner": "platform"
+      }
     },
     "mapa_de_pesos": {
       "type": "object",

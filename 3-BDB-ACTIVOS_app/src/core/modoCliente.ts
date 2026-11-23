@@ -55,6 +55,9 @@
  * - **Estrategia.** Sin el proveedor del texto, tampoco en el PDF (decisión 67). La «Redacción automática (IA)» se queda.
  * - **Mercado.** Fuera el proveedor de la agenda (Yahoo, Forex Factory); se queda el periodo. El BCE se
  *   queda: es quien publica el dato, no un proveedor.
+ * - **Carteras de clientes.** Fuera las demás carteras de la carpeta, el informe del asesor y el Excel, y la nota que el asesor
+ *   escribe en un movimiento (en el resumen, en el libro de movimientos y en el extracto de la cuenta de efectivo). En papel la
+ *   nota no llega nunca al cliente, con el modo o sin él (P1-11, 21-11-2026).
  * - **Planes y EPSV.** Fuera el nombre del proveedor de las cifras y «según el banco» de la comisión (decisión D-11). Se quedan
  *   la fecha de cada cifra, el día de la consulta, los avisos de un plan con el valor parado y las notas de la comparación.
  */
@@ -83,6 +86,8 @@ export const SE_OCULTA = {
     "Todo lo que sale del bloque del emisor en la ficha: «Valor liquidativo del emisor» con la prima o descuento, «Lo que dice el emisor» y la comisión de swap en Coste. Sus datos son de uso interno para el desarrollo y no entran en lo que ve un cliente, ni en papel ni en pantalla (decisión B-53). La política de reparto que rellena cuando el proveedor no la sabe sí sale en el Perfil, sin nombrar al emisor (decisión B-65): es un hecho del instrumento, no una cifra del emisor, y su fuente ya se oculta por `fuenteDeDatos`.",
   carteraDelEmisor:
     "De quién es la cartera con la que se mide un ETF en la matriz de solapamiento («cartera del emisor»). La matriz usa la cartera completa del emisor también en Modo cliente y en el informe de cliente (decisión de Óscar del 14-11-2026, que revisa la B-79: «no los dejes fuera»); lo que no se enseña es quién la publica ni la cartera misma: sus datos son de uso interno (decisión 53). Se queda su fecha.",
+  notasDelAsesor:
+    "La nota que el asesor escribe en un movimiento de Carteras de clientes: es texto libre suyo —un acuerdo, una incidencia, algo del cliente— y no un dato de la cartera. En los informes para el cliente no sale nunca, ni en el de cartera ni en el de costes (P1-11 de la auditoría del 20-11-2026, aprobado por Óscar el 21-11-2026); en pantalla, se oculta en Modo cliente.",
   avisosDelMercadoObjetivo:
     "«La cartera frente al mercado objetivo y el horizonte declarados» en Comprobar: los avisos que cruzan el nivel y el horizonte de la cartera con el mercado objetivo que declara el fabricante de cada fondo y con el horizonte de su KID (decisiones 59 y B-66). Son datos del emisor, de uso interno (decisión 53), y la lectura del asesor sobre ellos no es lo que ve un cliente."
 } as const;

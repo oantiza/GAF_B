@@ -18,24 +18,25 @@ Para conocer los activos actualmente importados, la arquitectura de Firestore, m
 # Ejecutar toda la batería de tests unitarios y de regresión
 npm test
 
-# Backup local diario read-only (assets/ + meta/)
-npm run backup:export
-
-# Compactación dry-run de price_series REFRESH -> bucket canónico
-npm run compact:price-series
+# Tipos de código y pruebas
+npm run typecheck
 ```
 
-`npm test` es la suite reproducible usada por CI y comprueba también los tipos
-de código y tests. `npm run test:artifact-fixtures` lanza solo la prueba del
-lector del paquete de FondosDB; las demás verificaciones históricas que tenía
-se borraron con su código el 17-11-2026 (decisión A-160).
+`npm test` es la suite reproducible usada por CI. Las órdenes de la base nueva
+(`baseNueva:*`, `audit:*`, `nube:*`, `planes:*`, `carteras:*`) están en
+`package.json` y, con su orden y sus puertas, en la habilidad `pipeline-extractor`.
 
-Para programar el backup diario en Windows, apunta el Programador de tareas a
-`scripts\backup_export_daily.bat`. El export queda en
-`data/backups/<marca-temporal>/*.ndjson.gz`. Un bloqueo exclusivo evita que dos
-copias se solapen; tras una verificación `PASS`, la tarea aplica la retención y
-solo elimina copias completas de más de 30 días. Las ejecuciones incompletas se
-conservan para diagnóstico.
+**La base vieja ya no tiene código aquí** (21-11-2026, decisiones 30 a 39 de Óscar
+sobre `CENSO_BASE_VIEJA_2026-11-21.md` de la raíz): se borraron el cargador y el
+republish de la maestra (`load:fondosdb`, `republish:fondosdb`,
+`audit:consistency`, `reclassify:stock`, `archive:assets`), sus reparaciones
+(`compact:price-series`, `repair:sri-evidence`, `search-index:reconcile`), la copia
+diaria y su retención (`backup:export`, `backup:retention` y
+`scripts\backup_export_daily.bat`: si la tarea del Programador de tareas de Windows
+sigue dada de alta, hay que quitarla a mano), `dryrun:carteras` y los contratos de
+`contracts/master/`. Queda `backup:restore-drill`, la única vía para abrir en un
+Firestore las copias de la maestra que siguen en `data/backups/` (decisión 33). El
+estado anterior está en la etiqueta de Git `referencia-base-vieja-2026-11-21`.
 
 ## Política de Seguridad y Escrituras
 - Las escrituras reales en la base de datos de producción están cerradas por defecto y protegidas por una variable de entorno estricta (`FIRESTORE_REAL_WRITE_ENABLED`).

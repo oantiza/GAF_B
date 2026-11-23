@@ -130,7 +130,7 @@ export function VistaDeCartera({ inicial, fichero, almacen, alVolver, accionInic
     if (!almacen || !abierta.fichero) return;
     const aceptado = await confirm({
       title: `¿Retirar la cartera «${cartera.nombre}»?`,
-      message: "La cartera y sus copias de seguridad se mueven a la subcarpeta «papelera» de tu carpeta de carteras. No se borra nada: puedes recuperarla moviendo el fichero de vuelta.",
+      message: "La cartera y sus copias de seguridad se mueven a la subcarpeta «papelera» de tu carpeta de carteras. No se borra nada: se recupera desde «Carteras retiradas», al pie de la lista de carteras.",
       confirmLabel: "Retirar",
       tone: "danger"
     });

@@ -4,6 +4,7 @@ import { medimosLoMismo,
     avisosDe,
     calcularCalidad,
     componerTarjeta,
+    huellaDeLasRutas,
     type InstrumentoLeido
 } from '../src/ingestion/baseNueva/calidadYTarjeta';
 import { aplicaAlInstrumento } from '../src/ingestion/baseNueva/aplicabilidad';
@@ -576,6 +577,80 @@ describe('quality/latest', () => {
         expect(calidad.documento['present_paths']).toBe(calidad.presentes);
     });
 
+    describe('la huella del conjunto contable (decision 16)', () => {
+        /*
+         * La cobertura depende de que entro en el denominador, y ese conjunto cambia cuando un contrato se corrige: el
+         * 03-11 declarar que el Sharpe no aplica a una accion movia su cobertura +7,95 puntos de media sin tocar un
+         * dato. La huella es lo que dice si dos coberturas estan calculadas sobre el mismo conjunto.
+         */
+        const huellaDe = (material: InstrumentoLeido): string =>
+            calcularCalidad(material, AHORA).documento['applicable_paths_fingerprint'] as string;
+
+        it('sale de la misma lista que el recuento, y valida', () => {
+            const calidad = calcularCalidad(instrumento(), AHORA);
+            expect(calidad.documento['applicable_paths_fingerprint']).toBe(calidad.huella);
+            expect(calidad.huella).toMatch(/^[a-f0-9]{64}$/);
+            expect(calidad.huella).toBe(huellaDeLasRutas(calidad.rutasAplicables));
+            expect(calidad.rutasAplicables.length).toBe(calidad.documento['applicable_paths']);
+            expect(new Set(calidad.rutasAplicables).size).toBe(calidad.rutasAplicables.length);
+            /* Cada ausencia es una ruta del conjunto: se escriben igual, y por eso la huella se puede rehacer. */
+            for (const ausencia of calidad.documento['absences'] as { path: string }[]) {
+                expect(calidad.rutasAplicables).toContain(ausencia.path);
+            }
+            expect(validarForma('instrument-quality.v2.schema.json', calidad.documento).ok).toBe(true);
+        });
+
+        it('el mismo instrumento con la misma lista da la misma huella', () => {
+            expect(huellaDe(instrumento())).toBe(huellaDe(instrumento()));
+            expect(calcularCalidad(instrumento(), '2026-12-01T00:00:00.000Z').huella).toBe(huellaDe(instrumento()));
+        });
+
+        it('rellenar un dato mueve la cobertura y NO la huella: el denominador es el mismo', () => {
+            const sinCoste = instrumento();
+            sinCoste.bloques['declared/costs'] = { source: 'canonical:fondosdb', as_of: '2026-09-30' };
+            const con = calcularCalidad(instrumento(), AHORA);
+            const sin = calcularCalidad(sinCoste, AHORA);
+            expect(sin.presentes).toBe(con.presentes - 1);
+            expect(sin.aplicables).toBe(con.aplicables);
+            expect(sin.huella).toBe(con.huella);
+        });
+
+        it('una ruta aplicable de mas o de menos da otra huella', () => {
+            /* Con renta fija le aplican las rutas de renta fija: el conjunto crece y la huella cambia, en los dos sentidos. */
+            const soloRv = calcularCalidad(instrumento(), AHORA);
+            const conRf = instrumento();
+            conRf.bloques['declared/exposure'] = {
+                ...(conRf.bloques['declared/exposure'] as object),
+                asset_mix: { equity: 0.2, fixed_income: 0.8, cash: 0, other: 0 }
+            };
+            const mixto = calcularCalidad(conRf, AHORA);
+            expect(mixto.aplicables).toBeGreaterThan(soloRv.aplicables);
+            expect(mixto.huella).not.toBe(soloRv.huella);
+
+            /* Y basta una sola ruta, puesta o quitada. */
+            const rutas = [...soloRv.rutasAplicables];
+            expect(huellaDeLasRutas(rutas.slice(1))).not.toBe(soloRv.huella);
+            expect(huellaDeLasRutas([...rutas, 'declared/costs.una_ruta_nueva'])).not.toBe(soloRv.huella);
+        });
+
+        it('el orden de entrada no importa: identifica el conjunto, no el recorrido', () => {
+            const rutas = [...calcularCalidad(instrumento(), AHORA).rutasAplicables];
+            const huella = huellaDeLasRutas(rutas);
+            expect(huellaDeLasRutas([...rutas].reverse())).toBe(huella);
+            const barajadas = rutas.map((ruta, i) => ({ ruta, clave: (i * 7919) % rutas.length })).sort((a, b) => a.clave - b.clave);
+            expect(huellaDeLasRutas(barajadas.map((entrada) => entrada.ruta))).toBe(huella);
+        });
+
+        it('se rehace fuera de aqui: valores sacados con hashlib de Python, no de esta funcion', () => {
+            // sha256 de «declared/costs.ongoing_charge\nidentity.name», ordenadas y unidas por un salto de linea.
+            expect(huellaDeLasRutas(['identity.name', 'declared/costs.ongoing_charge'])).toBe(
+                'a3399128e0a04a22f157c59f515cc8164c18586792648f39765879d8e569667b'
+            );
+            // El conjunto vacio es el sha256 del texto vacio.
+            expect(huellaDeLasRutas([])).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+        });
+    });
+
     it('los cuatro avisos salen cuando tienen que salir, y no cuando no', () => {
         const avisos = avisosDe(instrumento()).map((aviso) => aviso.code);
         // Politica UNKNOWN e indice sin divisa: los dos se dan en el ejemplo.
@@ -654,6 +729,28 @@ describe('read/card', () => {
         expect(metricas['relative']).toBeUndefined();
     });
 
+    it('H2-06: la relativa nuestra lleva la fecha del cierre de las cifras y no la del último precio', () => {
+        const propia = instrumento({
+            calculadas: {
+                computed_at: AHORA, method: 'EXTRACTOR_MONTHLY_V2', frequency: 'MONTHLY', as_of: '2026-10-31',
+                inputs: { last_date: '2026-11-02' },
+                relative: { benchmark: { name: 'Un Indice NR EUR', instrument_id: 'IE0000000001' }, beta: { '3y': 0.9 }, r2: { '3y': 0.8 }, jensen_alpha: { '3y': 0.01 } }
+            }
+        });
+        const relativa = (componerTarjeta(propia, calcularCalidad(propia, AHORA), AHORA)!['metrics'] as Record<string, any>)['relative'];
+        expect(relativa['source']).toBe('COMPUTED');
+        expect(relativa['as_of']).toBe('2026-10-31');
+        // Sin cierre en el documento (los antiguos), cae a donde acaba la serie, como antes.
+        const antigua = instrumento({
+            calculadas: {
+                computed_at: AHORA, method: 'EXTRACTOR_MONTHLY_V2', frequency: 'MONTHLY', inputs: { last_date: '2026-11-02' },
+                relative: { benchmark: { name: 'Un Indice NR EUR', instrument_id: 'IE0000000001' }, beta: { '3y': 0.9 }, r2: { '3y': 0.8 }, jensen_alpha: { '3y': 0.01 } }
+            }
+        });
+        const vieja = (componerTarjeta(antigua, calcularCalidad(antigua, AHORA), AHORA)!['metrics'] as Record<string, any>)['relative'];
+        expect(vieja['as_of']).toBe('2026-11-02');
+    });
+
     it('el nombre del folleto NO se puede pegar a una cifra del proveedor', () => {
         // La puerta lo impide, no solo el codigo: con `reference` de categoria, un `benchmark`
         // al lado no valida. Es la unica barrera que sobrevive a que alguien reescriba esto.
@@ -730,6 +827,21 @@ describe('read/card', () => {
         const alfa = aptitudesDe({ raiz: fondo.raiz, bloques: fondo.bloques, calculadas: fondo.calculadas })['MOSTRAR_ALPHA'];
         expect(alfa.apt).toBe(false);
         expect(alfa.missing?.[0]).toMatch(/^no aplica: es una clase con cobertura de divisa/);
+    });
+
+    it('con SAME_FUND_REFERENCE (C-28) la tarjeta copia el motivo y SI cae a la cifra del proveedor', () => {
+        /* Lo que falla es nuestra serie del indice, otra clase del mismo fondo, no lo que mide el proveedor
+           contra su categoria: el fondo queda como cualquiera sin proxy, y la aptitud se juzga con esa cifra. */
+        const fondo = instrumento({
+            calculadas: { computed_at: AHORA, method: 'EXTRACTOR_MONTHLY_V2', frequency: 'MONTHLY', relative_absence: 'SAME_FUND_REFERENCE' }
+        });
+        const tarjeta = componerTarjeta(fondo, calcularCalidad(fondo, AHORA), AHORA)!;
+        const metricas = tarjeta['metrics'] as Record<string, any>;
+        expect(metricas['relative_absence']).toBe('SAME_FUND_REFERENCE');
+        expect(metricas['relative']['source']).toBe('PROVIDER');
+        expect(validarForma('instrument-read-card.v2.schema.json', tarjeta).motivos).toEqual([]);
+        const alfa = aptitudesDe({ raiz: fondo.raiz, bloques: fondo.bloques, calculadas: fondo.calculadas })['MOSTRAR_ALPHA'];
+        expect(alfa.missing ?? []).not.toContainEqual(expect.stringMatching(/^no aplica/));
     });
 
     it('con el motivo de una accion la tarjeta lo copia y no cambia nada mas', () => {

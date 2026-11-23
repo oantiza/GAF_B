@@ -634,7 +634,7 @@ describe("el papel de cliente (aprobado por Óscar el 11-11-2026)", () => {
   describe("cliente y responsable", () => {
     test("no se pinta nada si no llegan; tampoco un nombre por defecto", async () => {
       const pages = await texto({ costs: costes(100000), management: sinGestion, banker: { name: "  ", email: "" } });
-      expect(await cabecera({ costs: costes(100000), management: sinGestion, banker: { name: "  ", email: "" } })).toBe("Informe de costes | CONFIDENCIAL");
+      expect(await cabecera({ costs: costes(100000), management: sinGestion, banker: { name: "  ", email: "" } })).toBe("Costes de la propuesta | CONFIDENCIAL");
       expect(pages.join(" ")).not.toMatch(/Elaborado por|Preparado para/);
       expect(pages.join(" ")).not.toContain("Antiza");
     });

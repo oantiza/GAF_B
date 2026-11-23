@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { OaaDonutChart, breakdownQualityProps } from "../charts/oaa";
 import { computeEquitySectorAllocation } from "../core/equitySectors";
+import { pesoSinReparto } from "../core/portfolio";
+import { fraseDelSinRepartoEnLaLectura } from "../core/radiografiaDeLaCartera";
 import type { BdbAssetDetail, BdbManualPortfolioPosition } from "../types/bdbAssets";
+import { Ausencia } from "./ui/Ausencia";
 import { Panel } from "./ui/Panel";
 import { NO_DECLARADO } from "./xrayBreakdownLabels";
 
@@ -23,6 +26,8 @@ interface SuperSectorsDonutProps {
 
 export function SuperSectorsDonut({ positions, assets }: SuperSectorsDonutProps) {
   const sectorAllocation = useMemo(() => computeEquitySectorAllocation(positions, assets), [assets, positions]);
+  /* A-211: un fondo sin reparto de activos no entra en los sectores, y se dice. */
+  const sinReparto = useMemo(() => fraseDelSinRepartoEnLaLectura(pesoSinReparto(positions, assets), "renta variable"), [assets, positions]);
 
   const superSectors = useMemo(() => {
     if (sectorAllocation.rows.length === 0) return [] as { key: string; weight_percent: number }[];
@@ -71,6 +76,11 @@ export function SuperSectorsDonut({ positions, assets }: SuperSectorsDonutProps)
         outerRadius={78}
         {...breakdownQualityProps(sectorAllocation.quality)}
       />
+      {sinReparto ? (
+        <p className="xray-dist-pie">
+          <Ausencia clase="falta" motivo={sinReparto} />
+        </p>
+      ) : null}
     </Panel>
   );
 }

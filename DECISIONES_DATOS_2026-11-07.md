@@ -771,3 +771,35 @@ capitalizado del BCE, y el catálogo queda en 1.315 instrumentos (515 acciones, 
     serie no está en la lista: se reescribe con lo que hay. Si el proveedor vuelve a dar alguno de esos años, el borrador lo ve en
     el origen y no lo borra. **Estado:** construida en la base local y **en la nube desde el 16-11-2026**: los 33 documentos se borraron en la subida del
     catálogo que Óscar aprobó esa noche («Sí, súbelo»), y el plan en seco de antes decía que eran esos y ninguno más.
+
+## Añadida el 21-11-2026: Óscar aprueba borrar los años que EODHD ha dejado de dar de siete acciones más («Sí, bórralos»)
+
+83. **(B-83) Se borran de la base los 84 documentos anuales de serie anteriores al primer dato que EODHD da hoy de siete acciones.**
+    Es la B-82 otra vez. Salió en el refresco del 21-11-2026: el paso de series escribió y verificó, pero contó 7 series que no
+    cuadraban con la fuente y paró la pasada antes de guardar. No se subió nada.
+
+    **Lo medido.** La respuesta del propio proveedor, leída de la copia del día que guarda el extractor, empieza más tarde que la
+    serie guardada:
+
+    | Acción | ISIN | Empezaba | Empieza hoy | Años que sobran |
+    |---|---|---|---|---|
+    | Holcim | CH0012214059 | 05-01-1987 | 02-08-1995 | 1987 a 1994 (8) |
+    | Nokia | FI0009000681 | 30-12-1986 | 30-01-1991 | 1986 a 1990 (5) |
+    | Chevron | US1667641005 | 02-01-1962 | 05-11-1984 | 1962 a 1983 (22) |
+    | Newmont | US6516391066 | 17-03-1980 | 05-11-1984 | 1980 a 1983 (4) |
+    | NextEra Energy | US65339F1012 | 21-02-1973 | 05-11-1984 | 1973 a 1983 (11) |
+    | Procter & Gamble | US7427181091 | 02-01-1962 | 05-11-1984 | 1962 a 1983 (22) |
+    | Walmart | US9311421039 | 25-08-1972 | 05-11-1984 | 1972 a 1983 (12) |
+
+    Dejarlos empalmaba dos ajustes por dividendos de fechas distintas: Holcim pasaba de 6,87 a 2,75 y Newmont de 3,32 a 2,50 en
+    el empalme sin que pasara nada, y en las cinco que hoy empiezan en noviembre de 1984 faltaban de enero a octubre de ese año.
+
+    **Por qué se borran, y lo que se descartó.** Lo mismo que en la B-82: una serie con años que el proveedor ya no sirve no se
+    puede reproducir desde su origen, y dejarlos para el refresco en ese paso cada vez. **No cambia ninguna cifra publicada**: las
+    ventanas llegan como mucho a diez años. Se acorta el gráfico histórico de esas siete.
+
+    **Lo que obliga.** Las 84 rutas están en `BORRADOS_APROBADOS`, una a una, con esta decisión. El año en que hoy empieza cada
+    serie no está en la lista: se reescribe con lo que hay. Si el proveedor vuelve a dar alguno de esos años, el borrador lo ve en
+    el origen y no lo borra. Que EODHD recorte la historia de acciones antiguas ya son dos veces en cinco días (trece acciones):
+    si vuelve a pasar, conviene preguntarse si el gráfico de toda la vida de una acción debe depender de un solo proveedor.
+    **Estado:** construida en la base local el 21-11-2026 y en la nube el 22-11-2026, con la subida del catálogo. Comprobado leyendo la nube: no queda ninguno de los 84, hay 29.336 documentos de serie, los mismos que en la base local, y las siete empiezan en el año en que hoy empieza el proveedor.

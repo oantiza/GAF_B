@@ -12,9 +12,9 @@ import { textoDeAusencia } from "./textoDeAusencia";
  *   composición sube antes de caer, su caída desde el máximo sería mayor que esta cifra.
  * - **Con los pesos de hoy y sin reequilibrar:** cada posición pesa lo de hoy el primer día y luego se mueve sola.
  * - **Con precios observados en euros:** la serie de cada activo a 10 años, antes de la ampliación con referencias.
- * - **Una posición sin precio válido entra o no entra:** sin precio en los cinco primeros días hábiles del tramo, o
- *   bloqueada por calidad, se queda fuera. El resto se lleva al 100 %, y `coverage.weight_pct` dice qué parte de la
- *   cartera original es ese resto.
+ * - **Una posición sin precio válido entra o no entra:** sin precio en los cinco primeros días hábiles del tramo, con un
+ *   hueco de más de catorce días entre dos precios dentro del tramo (N03), o bloqueada por calidad, se queda fuera. El
+ *   resto se lleva al 100 %, y `coverage.weight_pct` dice qué parte de la cartera original es ese resto.
  * - **Por debajo del 60 % no hay cifra** (decisión 103): llevar al 100 % lo que entra puede quedarse muy corto justo donde
  *   se mira cuánto puede caer. Con Vanguard 60 y JPMorgan 40 en la base vieja, la COVID daba −6,4 %, que es solo JPMorgan.
  *   En su lugar se dice cuánto mide y quién queda fuera.
@@ -43,8 +43,11 @@ export const SIN_DATOS_DE_LA_CRISIS = "Sin datos";
 export const queMideLaCifraDeUnaCrisis = (deQuien: string) =>
   `Variación de valor de ${deQuien} entre el primer día de cada crisis y su punto más bajo, calculada con los pesos de hoy y los precios de entonces. Mira al pasado: no es una previsión.`;
 
+/* A-206 (Óscar, 21-11-2026): desde P1-06 tampoco entra una posición cuya serie se detuvo antes que las demás (`SERIES_ENDS_EARLY`, en
+   `functions_python/optimization/stress_analytics.py`), y la frase lo dice: «sin precios recientes». N03 (Óscar, 22-11-2026): ni una que dentro
+   de la crisis tiene un hueco de más de catorce días entre dos precios (`GAP_IN_WINDOW`): «sin cotizaciones durante parte de ella». */
 export const LO_QUE_NO_ES_LA_CIFRA_DE_UNA_CRISIS =
-  "No se mide desde un máximo ni es la peor pérdida posible. Las posiciones sin precios válidos al inicio de cada crisis no entran: la cifra mide el resto, con sus pesos llevados al 100 % y sin reequilibrar. No es lo que obtuvo ninguna cartera real.";
+  "No se mide desde un máximo ni es la peor pérdida posible. Las posiciones sin precios válidos al inicio de cada crisis, sin cotizaciones durante parte de ella o sin precios recientes no entran: la cifra mide el resto, con sus pesos llevados al 100 % y sin reequilibrar. No es lo que obtuvo ninguna cartera real.";
 
 export interface CrisisDelInforme {
   id: IdDeCrisis;
@@ -136,6 +139,41 @@ export function motivoDeUnaCrisisSinCifra(escenario: BacktestStressScenario, pos
   return fuera ? `${pesoQueNoLlega(escenario)} ${fuera}.` : pesoQueNoLlega(escenario);
 }
 
+/**
+ * La frase que va en la tarjeta «Historia común» cuando su caída máxima cae en las mismas fechas que una crisis (Óscar, 20-11-2026): la COVID y la
+ * historia común de una misma cartera pueden ir del mismo máximo al mismo mínimo y dar dos cifras distintas, y en pantalla parecía un error.
+ *
+ * Por qué difieren, leído en `stress_analytics.py`: cada escenario pone los pesos de hoy en su primer día y los deja moverse sin reequilibrar.
+ * La crisis mide desde su primer día (`start_date`), que es aquí el máximo de la historia común (`peak_date`); la historia común, desde el suyo
+ * (`start_date`), así que el día del máximo la cartera ya no pesa lo de hoy. La fecha sale de ese dato, no se escribe a mano.
+ *
+ * Solo sale si las dos explican lo mismo: las dos con cifra (miden el 60 % o más), con el mismo máximo y el mismo mínimo, con las mismas
+ * posiciones dentro —si no, la diferencia sería también de lo que entra— y con cifras que se escriben distintas, `cifraDe`, la de la tarjeta.
+ */
+export function mismasFechasQueUnaCrisis(
+  escenarios: readonly BacktestStressScenario[] | null | undefined,
+  cifraDe: (escenario: BacktestStressScenario) => string | null
+): string | null {
+  const comun = escenarios?.find((escenario) => escenario.id === "COMMON_HISTORY");
+  if (!comun || !comun.peak_date || !comun.trough_date || !comun.start_date || !tieneCifraCalculada(comun) || !comun.representative) return null;
+  const mismas = (a: readonly string[], b: readonly string[]) => a.length === b.length && [...a].sort().every((id, i) => id === [...b].sort()[i]);
+  const crisis = escenarios?.find((escenario) =>
+    escenario.id !== "COMMON_HISTORY" &&
+    tieneCifraCalculada(escenario) &&
+    escenario.representative &&
+    escenario.start_date === comun.peak_date &&
+    escenario.trough_date === comun.trough_date &&
+    mismas(escenario.included_assets, comun.included_assets)
+  );
+  if (!crisis) return null;
+  const deLaCrisis = cifraDe(crisis);
+  const deLaComun = cifraDe(comun);
+  if (!deLaCrisis || !deLaComun || deLaCrisis === deLaComun) return null;
+  const desde = fecha(comun.start_date.slice(0, 10));
+  if (!desde) return null;
+  return `Las mismas fechas que ${crisis.label}, con otra cifra: allí la cartera parte ese día con los pesos de hoy; aquí los lleva puestos desde el ${desde}, sin reequilibrar.`;
+}
+
 /** Cómo se nombra cada posición en una crisis: su nombre y su peso sobre todo lo que pesa la cartera, como en el papel. Sin ella, su código. */
 export function posicionesParaLasCrisis(
   posiciones: readonly { asset_id: string; weight_percent: number }[],
@@ -148,8 +186,24 @@ export function posicionesParaLasCrisis(
   };
 }
 
+/** «del 19/02/2020 al 23/03/2020», el tramo que se pide a la crisis. Sin una de las dos fechas, nada. */
+function tramoConfigurado(escenario: BacktestStressScenario): string | null {
+  const { configured_start_date: desde, configured_end_date: hasta } = escenario;
+  return desde && hasta ? `del ${oFalta(fecha(desde))} al ${oFalta(fecha(hasta))}` : null;
+}
+
 function motivoSinDato(escenario: BacktestStressScenario): string {
   if (escenario.reason === "NO_ELIGIBLE_ASSETS") {
+    /* N03: una posición con un hueco dentro de la crisis sí tenía precio al inicio. Lo que le falta es la crisis entera, y se dice eso. */
+    const motivos = (escenario.excluded_assets ?? []).map((item) => item.reason);
+    if (motivos.includes("GAP_IN_WINDOW")) {
+      const tramo = tramoConfigurado(escenario);
+      const cuando = tramo ? ` (${tramo})` : "";
+      if (!motivos.every((motivo) => motivo === "GAP_IN_WINDOW")) return `Ninguna posición tenía precios válidos durante toda esta crisis${cuando}.`;
+      return motivos.length === 1
+        ? `La posición no tiene cotizaciones durante parte de esta crisis${cuando}, y sin ellas no se puede medir su caída.`
+        : `Las posiciones no tienen cotizaciones durante parte de esta crisis${cuando}, y sin ellas no se puede medir su caída.`;
+    }
     return escenario.configured_start_date
       ? `Ninguna posición tenía precios al inicio de esta crisis (${oFalta(fecha(escenario.configured_start_date))}).`
       : "Ninguna posición tenía precios al inicio de esta crisis.";

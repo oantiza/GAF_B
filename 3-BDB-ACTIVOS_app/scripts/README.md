@@ -21,8 +21,7 @@ escritura local, escritura app-owned y operaciones sensibles sobre maestra/Auth.
 | `node scripts/deadCssD3.mjs` | Censo de CSS muerto: sale con codigo 1 ante una clase sin referencia o un token sin consumidor. Corre tambien dentro de `npm test` (`tests/deadCssCensus.test.ts`). |
 | `npm run smoke:informe`, `npm run smoke:pdf` | Pruebas de humo del flujo de informe y del PDF contra el servidor de desarrollo local (`AUDIT_BASE`). `smoke:informe` entra con el usuario local del emulador. No escriben Firestore. |
 | `npx tsc -p tsconfig.test.json` | Typecheck de `tests/**` (Vitest) junto a `src/**`. No esta en package.json; ejecutar a mano antes de entregar cambios en tests. |
-| `npm run smoke:firestore-rules` | Lee/probe de reglas: espera que `assets/` deniegue lectura sin auth. |
-| `npm run smoke:commercial-retro-rules` | Smoke de reglas de retrocesiones. Solo con un proyecto `demo-` y emuladores. |
+| `npm run smoke:commercial-retro-rules` | Smoke de reglas de retrocesiones, las de produccion (`4-base-nueva/firestore.rules`). Solo con un proyecto `demo-` y emuladores; como se arrancan, en la cabecera de `testCommercialRetroEmulators.mjs`. |
 | `npm run preview:static-export-sample` | Valida intake de muestra estatica sin escribir. |
 | `npm run validate:static-export-canary` | Valida muestra/canary local sin escribir Firestore. |
 | `npm run diff:static-export-sample` | Diff local; no escribe. |
@@ -32,9 +31,6 @@ escritura local, escritura app-owned y operaciones sensibles sobre maestra/Auth.
 
 ## Solo Lectura (maestra o local)
 
-- `plan_capitalgroup_refresh.py`: plan de refresco de cuatro clases de Capital Group; lee Firestore y la web de la gestora y escribe solo en local (`--output`). No escribe Firestore.
-- `plan_price_history_repair.py`: plan de reparacion acotado; lee Firestore y escribe solo evidencia local (`--out`). No escribe Firestore.
-- `verify_price_currency.py`: verifica la divisa de cada documento de precios contra EODHD. No escribe (requiere `EODHD_API_KEY`).
 - `functions_python/scripts/dryrun_metrics_fondos.py`: pasada en seco de metricas de fondos sobre la copia local. No abre Firestore.
 
 ## Escrituras Locales o App-Owned
@@ -48,19 +44,19 @@ No ejecutar sin aprobacion explicita, dry-run previo y backup cuando toque. Todo
 de `functions_python/master_project.py`, que solo admite `gestor-activos-local` y
 `bdb-gestor-de-activos`, y con `--write` exigen el gate maestro:
 
-- `delete_asset.py`: archiva/elimina activos; puede ser destructivo con `--hard`.
-- `load_missing_price_series.py`: carga historicos faltantes en Firestore.
-- `repair_price_series.py`: repara/borra documentos de series con backup. Desde el 05-11 exige el gate maestro.
-- `reload_from_eodhd.py`: reemplaza series desde EODHD; borra docs viejos tras backup.
-- `extend_history_to_15y.py`: extiende historicos existentes. Desde el 05-11 exige el gate maestro.
-- `set_admin.py`: modifica custom claims de Firebase Auth. Desde el 29-09 exige `BDB_ACTIVOS_ENABLE_MASTER_WRITES` y `--project <proyecto-auth>` (debe coincidir con ADC y ser uno de los dos de aqui).
-- `ingest_dow_msci_world_top100.py`: alta incremental (create-only) del Dow Jones y top-100 del MSCI World. Dry-run por defecto; `--write` ESCRIBE roots/series con los gates de la maestra.
-- `ingest_requested_equity_universes.py`: alta incremental (create-only) de los universos de acciones pedidos el 21-08. Dry-run por defecto; `--write` ESCRIBE con los gates de la maestra.
 - `functions_python/scripts/improve_fund_data.py`: `--prepare` solo lee y deja plan + backup local; `--apply-sha256 <hash>` ESCRIBE roots de fondos.
 - `functions_python/scripts/migrate_metrics_latest.py`: normaliza `metrics/latest` heredados. Dry-run; `--write --approval ...` ESCRIBE.
 - `functions_python/scripts/migrate_portfolios_uid.py`: migra carteras app-owned entre UIDs. Dry-run; `--write --approval ...` ESCRIBE (y `--delete-source` borra).
 - `functions_python/scripts/migrate_provisional_roots.py`: normaliza roots provisionales EODHD. Dry-run; `--write --approval ...` ESCRIBE.
 - `functions_python/scripts/run_metrics_refresh.py`: ciclos del refresco de drawdown. Dry-run; `--write --approval ...` ESCRIBE `metrics/*` (fija el gate maestro en el proceso).
+
+(Los once guiones Python de esta carpeta —`delete_asset.py`, `load_missing_price_series.py`, `repair_price_series.py`,
+`reload_from_eodhd.py`, `extend_history_to_15y.py`, `set_admin.py`, `ingest_dow_msci_world_top100.py`,
+`ingest_requested_equity_universes.py`, `plan_capitalgroup_refresh.py`, `plan_price_history_repair.py` y
+`verify_price_currency.py`— y `smokeFirestoreRulesNoAuth.mjs` se borraron el 21-11-2026 con la base vieja (decisiones
+30 a 39 del censo `CENSO_BASE_VIEJA_2026-11-21.md`): todos leian o escribian `assets/`, que la base nueva no tiene. El
+claim de administrador se pone hoy con `npm run nube:administrador`, en `2-plataforma-datos`. Siguen en la etiqueta
+`referencia-base-vieja-2026-11-21`.)
 
 (`publish_weekly_report.py`, `repair_hamco_history.py` y `smokeFirebaseTotp.mjs` se retiraron el
 05-11, decision 106: llevaban fijo el proyecto de BDB y aqui no hacian falta. Un informe se publica
@@ -111,11 +107,11 @@ BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES=YES_I_UNDERSTAND_MASTER_DB_WRITES
 
 ## Backup y Runbook de Escritura
 
-1. Crear backup maestro desde plataforma: `2-plataforma-datos`, `npm run backup:export`.
+1. Crear backup maestro: la copia de la plataforma (`backup:export`) se borro con la base vieja el 21-11-2026, y este procedimiento era de ella.
 2. Ejecutar dry-run o preview sin gates de escritura.
 3. Revisar paths previstos y alcance.
 4. Activar gate solo para la consola/ejecucion concreta.
 5. Ejecutar write.
 6. Revisar postverify/auditoria y apagar gates.
 
-La app no sustituye a `load:fondosdb`, `republish:fondosdb` ni `audit:consistency`; esos comandos viven en `2-plataforma-datos`.
+Los comandos que cargaban la maestra vieja (`load:fondosdb`, `republish:fondosdb`, `audit:consistency`) se borraron de `2-plataforma-datos` con ella el 21-11-2026; la base nueva la escribe la plataforma con `baseNueva:*`.

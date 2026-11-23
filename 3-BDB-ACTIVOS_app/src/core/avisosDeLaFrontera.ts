@@ -15,6 +15,8 @@ const AVISOS: Record<string, string> = {
   GROUP_CONSTRAINTS_INFEASIBLE: "Los límites por grupo eran incompatibles entre sí o con el universo disponible: se han ignorado y la frontera se calculó sin ellos.",
   TARGET_ABSOLUTE_VOL_CLIPPED_LOW: "La volatilidad pedida está por debajo de la mínima posible: se usa la cartera de mínima volatilidad.",
   TARGET_ABSOLUTE_VOL_CLIPPED_HIGH: "La volatilidad pedida está por encima de la máxima posible: se usa la más alta de la frontera.",
+  /* P2-03 (21-11-2026): ningún solver resuelve la volatilidad pedida, y se toma el punto de la frontera más cercano sin pasarla. */
+  TARGET_ABSOLUTE_VOL_FROM_FRONTIER: "La cartera de la volatilidad pedida se ha tomado del punto de la frontera más cercano sin superarla, porque con estos límites no se resuelve directamente: es aproximada.",
   TURNOVER_BASE_OUTSIDE_BOUNDS: "La cartera de partida ya está fuera de los límites de peso: el límite de rotación se mide desde ella.",
   RISK_FREE_RATE_PARTIAL_COVERAGE: "El tipo sin riesgo €STR solo cubre parte de la ventana: el Sharpe es aproximado.",
   RISK_FREE_RATE_STATIC_FALLBACK: "No se pudo leer el €STR de la ventana: el Sharpe usa un tipo fijo de respaldo.",

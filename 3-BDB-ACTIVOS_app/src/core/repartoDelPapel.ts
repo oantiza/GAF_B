@@ -81,6 +81,34 @@ export function fraseDeLoQueNoEntra(fuera: FueraDelRepartoEnElPapel, dondeSeDeta
 }
 
 /**
+ * «Sin reparto declarado: Fondo X, 7,0 % de la cartera; no cuenta en la composición global.» (A-203, Óscar, 21-11-2026). Un fondo que
+ * no declara su reparto de activos ya no se reparte por su clase, y las cifras de la composición global suman menos de 100: esta
+ * frase dice por qué. Null si no hay ninguno. Los pesos del análisis son de lo invertible; `parteInvertible` los lleva a la cartera.
+ */
+export function fraseDeLoQueNoTieneRepartoEnElPapel(report: Pick<BdbPortfolioReport, "xray">, parteInvertible: number): string | null {
+  const posiciones = report.xray?.pms_exposure_sin_reparto ?? [];
+  const pesoPct = (report.xray?.pms_exposure_sin_reparto_percent ?? 0) * parteInvertible;
+  if (posiciones.length === 0 || pesoPct <= 0) return null;
+  const total = `${pesoEnElPapel(pesoPct)} de la cartera`;
+  const cola = "no cuenta en la composición global.";
+  if (posiciones.length > NOMBRES_QUE_CABEN) return `Sin reparto declarado: ${posiciones.length} posiciones, ${total}; ${cola}`;
+  if (posiciones.length === 1) return `Sin reparto declarado: ${posiciones[0].display_name}, ${total}; ${cola}`;
+  const nombres = posiciones.map((posicion) => `${posicion.display_name} (${pesoEnElPapel(posicion.weight_percent * parteInvertible)})`);
+  return `Sin reparto declarado: ${nombres.slice(0, -1).join(", ")} y ${nombres[nombres.length - 1]}, ${total}; ${cola}`;
+}
+
+/**
+ * «Falta el dato: el 40,0 % de la cartera no declara su reparto de activos, y no se sabe qué parte es renta variable; no entra en este
+ * reparto.» (A-211, que llega al papel con el sí de Óscar del 21-11-2026). La frase de la pantalla (`fraseDelSinRepartoEnLaLectura`),
+ * cerrada para el papel: bajo las regiones y los sectores de la renta variable, que ya no pesan por su clase un fondo sin reparto.
+ * `pesoPct`, en % de la cartera; `deQuien`, «de la cartera» o «de A» en la comparativa. Null si no hay nada que decir.
+ */
+export function fraseDelSinRepartoEnElPapel(pesoPct: number, deQuien = "de la cartera"): string | null {
+  if (!(pesoPct >= 0.05)) return null;
+  return `Falta el dato: el ${pesoEnElPapel(pesoPct)} ${deQuien} no declara su reparto de activos, y no se sabe qué parte es renta variable; no entra en este reparto.`;
+}
+
+/**
  * La categoría de un reparto: una fila que suma todas las acciones se llama «Acciones», no «Acción» (decisión 83), traiga «accion» como la
  * base vieja o nada como la nueva. Lo que no es de eso, tal cual.
  */

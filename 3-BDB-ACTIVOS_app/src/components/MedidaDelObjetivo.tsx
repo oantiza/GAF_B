@@ -39,7 +39,9 @@ export function MedidaDelObjetivo({ model, assets = [] }: {
             rotuloB={RENTABILIDAD_OBJETIVO}
             a={actual ?? undefined}
             b={medida}
-            sharpeNoAplica={noAplica === "actual" ? "a" : noAplica === "propuesta" ? "b" : false}
+            sharpeNoAplica={noAplica === "ambas" ? "ambas" : noAplica === "actual" ? "a" : noAplica === "propuesta" ? "b" : false}
+            /* La palabra junto a la diferencia, como en Simular (Óscar, 21-11-2026): el estado no se dice solo con color. */
+            conPalabra
           />
           <p className="panel__subtitle">
             {oFalta(fecha(model.coverage.firstDate))} → {oFalta(fecha(model.coverage.lastDate))} · EUR · pesos fijos desde el primer día{model.extensions?.length ? " · con tramos estimados" : ""}.

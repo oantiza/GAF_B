@@ -71,7 +71,15 @@ export interface PagoDelBono {
   fraccion: number;
 }
 
-/** Los pagos de un bono entre dos fechas (las dos incluidas): cupones y devolución del nominal. */
+/**
+ * Los pagos de un bono entre dos fechas (las dos incluidas): cupones y devolución del nominal.
+ * En ACT/ACT y 30/360 un periodo regular paga `cupon / frecuencia`. En ACT/360 y ACT/365 paga
+ * lo que dice su convención, días del periodo entre la base (A-204): un semestre de 181 días
+ * al 4 % en ACT/360 paga 4 % × 181 / 360, no el 2 %. El primer cupón de un bono emitido dentro
+ * de un periodo (un primer cupón corto) paga solo lo devengado desde la emisión. En todos los
+ * casos es la misma cuenta que `cuponCorrido`: el corrido de la víspera nunca pasa del cupón
+ * que se cobra.
+ */
 export function calendarioDelBono(bono: CondicionesDelBono, desde: Dia, hasta: Dia): PagoDelBono[] {
   const pagos: PagoDelBono[] = [];
   const cupon = numero(bono.cupon, 0);
@@ -82,7 +90,16 @@ export function calendarioDelBono(bono: CondicionesDelBono, desde: Dia, hasta: D
     if (fecha < desde || (bono.emision !== undefined && fecha <= bono.emision)) break;
     if (fecha > hasta) continue;
     if (k === 0) pagos.push({ fecha, clase: "vencimiento", fraccion: numero(bono.amortizacion, 100) / 100 });
-    if (cupon > 0) pagos.push({ fecha, clase: "cupon", fraccion: cupon / bono.frecuencia });
+    if (cupon > 0) {
+      const anterior = sumarMeses(bono.vencimiento, -meses * (k + 1), finDeMes);
+      const emision = bono.emision;
+      const corto = emision !== undefined && emision > anterior;
+      const porDias = bono.base === "ACT/360" || bono.base === "ACT/365";
+      const fraccion = corto || porDias
+        ? cupon * fraccionDevengada(bono.base, bono.frecuencia, corto ? emision : anterior, anterior, fecha, fecha)
+        : cupon / bono.frecuencia;
+      pagos.push({ fecha, clase: "cupon", fraccion });
+    }
   }
   return pagos.sort((a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : a.clase === "cupon" ? -1 : 1));
 }

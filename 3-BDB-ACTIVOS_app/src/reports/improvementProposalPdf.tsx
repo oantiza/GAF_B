@@ -226,7 +226,7 @@ function ProposalDocument({ portfolioName, response, proposalIndex = 0, assets, 
             <TituloDeSeccion
               numero={siguiente()}
               titulo="Antes y después en la ventana de confirmación"
-              procedencia={`${windows ? `${windows.confirmation.weeks} semanas, del ${fecha(windows.confirmation.first_date) ?? ""} al ${fecha(windows.confirmation.last_date) ?? ""}, fuera de la muestra con la que se eligieron los cambios. ` : ""}Mismas fechas, misma base, euros, pesos fijos al inicio${tipoDeLaConfirmacion ? `, tipo sin riesgo ${porcentaje(tipoDeLaConfirmacion.risk_free_rate) ?? ""}${response.risk_free_by_window?.confirmation ? ", el €STR medio de estas fechas" : ""}` : ""}.`}
+              procedencia={`${windows ? `${windows.confirmation.weeks} semanas, del ${fecha(windows.confirmation.first_date) ?? ""} al ${fecha(windows.confirmation.last_date) ?? ""}: el tramo con el que se filtraron las candidatas, no una prueba fuera de la muestra. ` : ""}Mismas fechas, misma base, euros, pesos fijos al inicio${tipoDeLaConfirmacion ? `, tipo sin riesgo ${porcentaje(tipoDeLaConfirmacion.risk_free_rate) ?? ""}${response.risk_free_by_window?.confirmation ? ", el €STR medio de estas fechas" : ""}` : ""}.`}
               juntoAlTitulo={120}
             />
             <Tabla

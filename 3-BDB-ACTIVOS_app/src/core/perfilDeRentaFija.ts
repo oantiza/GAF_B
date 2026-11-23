@@ -1,5 +1,5 @@
 import type { BdbAssetDetail, BdbManualPortfolioPosition } from "../types/bdbAssets";
-import { assetPmsShares } from "./portfolio";
+import { parteParaLaLectura } from "./portfolio";
 
 /**
  * Una cifra de la renta fija de la cartera: la media ponderada de lo que declaran las posiciones.
@@ -34,7 +34,11 @@ type CampoDelPerfil = "investment_grade_pct" | "high_yield_pct" | "modified_dura
  * un monetario, que es liquidez, no cuenta. **La duración modificada y la efectiva no se mezclan:** miden cosas distintas,
  * y dos cifras solo se comparan si coinciden en el estimador (§3 del método).
  *
- * Devuelve `null` si la cartera no tiene renta fija: ahí no falta nada, no aplica.
+ * Un fondo sin reparto de activos no entra (A-211): no se sabe qué parte es renta fija. Su peso sigue en la cartera, y por
+ * eso `pesoEnLaCartera` es la renta fija medida sobre toda ella.
+ *
+ * Devuelve `null` si la cartera no tiene renta fija medida. Si no hay ningún fondo sin reparto, ahí no falta nada: no aplica;
+ * si lo hay, lo dice la pantalla (`pesoSinReparto`).
  */
 export function perfilDeRentaFija(
   positions: readonly BdbManualPortfolioPosition[],
@@ -56,7 +60,8 @@ export function perfilDeRentaFija(
     pesoDeLaCartera += peso;
     const asset = porId.get(posicion.asset_id);
     if (!asset) continue;
-    const enRentaFija = peso * assetPmsShares(asset).shares.fixed_income;
+    /* A-211: un fondo sin reparto de activos no entra: no se sabe qué parte es renta fija. Su peso sí cuenta en la cartera. */
+    const enRentaFija = peso * (parteParaLaLectura(asset, "fixed_income") ?? 0);
     if (enRentaFija <= 0) continue;
     pesoEnRentaFija += enRentaFija;
     for (const campo of Object.keys(acumulado) as CampoDelPerfil[]) {

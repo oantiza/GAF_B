@@ -7,7 +7,7 @@ import {
     BLOQUES_QUE_NO_APLICAN_A_UNA_ACCION,
     type RegistroUniversal
 } from '../src/ingestion/baseNueva/mapper';
-import { componerTarjeta, calcularCalidad, type InstrumentoLeido } from '../src/ingestion/baseNueva/calidadYTarjeta';
+import { avisosDe, componerTarjeta, calcularCalidad, type InstrumentoLeido } from '../src/ingestion/baseNueva/calidadYTarjeta';
 import { aplicaAlInstrumento } from '../src/ingestion/baseNueva/aplicabilidad';
 import { validarForma } from '../src/config/baseNueva/validadores';
 import { cargarEsquemas, rutasDe } from '../src/config/baseNueva/esquemas';
@@ -431,31 +431,90 @@ describe('la raiz y la tarjeta de una accion no son las de un fondo con huecos',
     });
 });
 
-describe('el Sharpe de una accion fuera del euro', () => {
-    it('no se publica, porque falta el tipo libre de riesgo de su divisa', () => {
-        /*
-         * No es suprimirlo: METODO_PROPIO_METRICAS dice que el Sharpe no se suprime bajo
-         * ningun concepto y nombra los dos unicos casos en que no sale, que son ingredientes
-         * que faltan. Desde V2 el motivo vigente es otro: la par. 9 del metodo, que retira el
-         * Sharpe de la accion individual. Esta barrera lo deja fuera en las que no cotizan en
-         * euros; las que si cotizan son la deuda declarada en esa misma seccion.
-         */
+describe('el Sharpe de una accion fuera del euro va con la divisa del CALCULO (P1-05)', () => {
+    /*
+     * Desde la version 2 del metodo el extractor lleva a euros la serie de toda accion antes de
+     * calcular (`fetchers/eodhd.py`, `_aplica_metricas_historicas`) y lo sella en
+     * `divisa_metricas`. Medido en la exportacion del 17-11-2026: 261 acciones no cotizan en
+     * euros, las 261 tienen `divisa_metricas: EUR` y 259 traen Sharpe. Mirar la cotizacion lo
+     * borraba en las 259 y dejaba una ausencia y un aviso falsos.
+     */
+    const universalEnDolares = (historial: Record<string, unknown>): RegistroUniversal => {
         const universal = universalDeAccion();
         (universal['identificacion'] as Record<string, unknown>)['divisa_base'] = 'USD';
         (universal['valoracion'] as Record<string, unknown>)['vl_divisa'] = 'USD';
-        const resultado = mapearInstrumento(fichaDeAccion({ currency: 'USD' }), universal, AHORA);
+        const riesgo = universal['riesgo'] as Record<string, unknown>;
+        riesgo['historial_precios'] = { ...(riesgo['historial_precios'] as Record<string, unknown>), ...historial };
+        return universal as RegistroUniversal;
+    };
+    const leidoDe = (resultado: ReturnType<typeof mapearInstrumento>): InstrumentoLeido => {
+        const bloques = porRuta(resultado);
+        return {
+            instrument_id: ISIN,
+            raiz: bloques['<raiz>'] as Record<string, unknown>,
+            bloques: {
+                'declared/equity': bloques['declared/equity'],
+                'declared/dividends': bloques['declared/dividends'],
+                'declared/quote': bloques['declared/quote']
+            },
+            calculadas: bloques['computed/metrics']
+        };
+    };
+
+    it('cotiza en dolares y se calculo en euros: el Sharpe se guarda, con la divisa declarada', () => {
+        const resultado = mapearInstrumento(
+            fichaDeAccion({ currency: 'USD' }),
+            universalEnDolares({ divisa: 'USD', divisa_metricas: 'EUR', divisa_origen: 'USD', fx_source: 'ECB_REFERENCE' }),
+            AHORA
+        );
         const metricas = porRuta(resultado)['computed/metrics'];
-        expect(metricas?.['sharpe']).toBeUndefined();
-        /* Pero la volatilidad sigue: es insumo del riesgo de la cartera. */
-        expect(metricas?.['volatility']).toBeDefined();
-        expect(
-            resultado.ausencias.some(
-                (a) => a.ruta === 'computed/metrics.sharpe' && a.razon === 'NOT_APPLICABLE'
-            )
-        ).toBe(true);
+        /* Las mismas cifras del canonico, 0,6444 y 1,503, sin tocar: solo cambian de ventana. */
+        expect(metricas?.['sharpe']).toEqual({ '1y': 0.6444, '3y': 1.503 });
+        expect(metricas?.['inputs']).toMatchObject({ currency: 'EUR', source_currency: 'USD', fx_source: 'ECB_REFERENCE' });
+        expect(validarForma('instrument-computed-metrics.v2.schema.json', metricas as Record<string, unknown>).ok).toBe(true);
+        expect(resultado.ausencias.some((a) => a.ruta === 'computed/metrics.sharpe')).toBe(false);
+        expect(resultado.ausencias.some((a) => a.ruta === 'computed/metrics')).toBe(false);
+
+        const instrumento = leidoDe(resultado);
+        const tarjeta = componerTarjeta(instrumento, calcularCalidad(instrumento, AHORA), AHORA);
+        expect(validarForma('instrument-read-card.v2.schema.json', tarjeta).ok, JSON.stringify(tarjeta)).toBe(true);
+        const avisos = (tarjeta?.['quality'] as Record<string, unknown>)['warnings'] as { code: string }[];
+        expect(avisos.map((a) => a.code)).not.toContain('SIN_SHARPE_POR_DIVISA');
+        /* Y no se ENSENA (Oscar, 04-11-2026): la tarjeta de una accion lo sigue quitando. */
+        expect((tarjeta?.['metrics'] as Record<string, unknown>)['sharpe']).toBeUndefined();
     });
 
-    it('en euros si se publica', () => {
+    it('una ficha anterior, calculada en dolares y sin sello, no publica ninguna metrica', () => {
+        const resultado = mapearInstrumento(
+            fichaDeAccion({ currency: 'USD' }),
+            universalEnDolares({ divisa: 'USD', divisa_metricas: undefined }),
+            AHORA
+        );
+        expect(porRuta(resultado)['computed/metrics']).toBeUndefined();
+        const ausencia = resultado.ausencias.find((a) => a.ruta === 'computed/metrics');
+        expect(ausencia?.motivo).toBe('NEEDS_FX');
+    });
+
+    it('el aviso solo salta si las metricas guardadas no estan en euros y no traen Sharpe', () => {
+        const resultado = mapearInstrumento(
+            fichaDeAccion({ currency: 'USD' }),
+            universalEnDolares({ divisa: 'USD', divisa_metricas: 'EUR', divisa_origen: 'USD', fx_source: 'ECB_REFERENCE' }),
+            AHORA
+        );
+        const instrumento = leidoDe(resultado);
+        const codigos = (i: InstrumentoLeido) => avisosDe(i).map((a) => a.code);
+        expect(codigos(instrumento)).not.toContain('SIN_SHARPE_POR_DIVISA');
+        /* Sin metricas no hay Sharpe que echar de menos por la divisa: lo dice su propia ausencia. */
+        expect(codigos({ ...instrumento, calculadas: undefined })).not.toContain('SIN_SHARPE_POR_DIVISA');
+        const enDolares = {
+            ...(instrumento.calculadas as Record<string, unknown>),
+            inputs: { ...((instrumento.calculadas as Record<string, unknown>)['inputs'] as object), currency: 'USD' },
+            sharpe: undefined
+        };
+        expect(codigos({ ...instrumento, calculadas: enDolares })).toContain('SIN_SHARPE_POR_DIVISA');
+    });
+
+    it('en euros se publica igual que antes', () => {
         const metricas = porRuta(mapearInstrumento(fichaDeAccion(), universalDeAccion(), AHORA))['computed/metrics'];
         expect(metricas?.['sharpe']).toEqual({ '1y': 0.6444, '3y': 1.503 });
     });

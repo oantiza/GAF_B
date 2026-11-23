@@ -2,7 +2,7 @@ import { useState, type FocusEvent, type ReactNode } from "react";
 import * as formato from "../../core/formato";
 import { leerCifraTecleada } from "../../core/cifraTecleada";
 import * as F from "../../core/jubilacion/fiscal";
-import { procedenciaFiscal } from "../../core/jubilacion/lectura";
+import { notaDeLosDosAnios, notasDelSaldoSinDesglose, procedenciaFiscal } from "../../core/jubilacion/lectura";
 import type { FormaDeCobro, RegimenDelCapital, ResultadoDeJubilacion, TipoDeRenta } from "../../core/jubilacion/motor";
 import { cambiarTerritorio, conElCasoDeLaDfb, totalDeAhorros, type DatosDeJubilacion } from "../../core/jubilacion/simulacion";
 import { Ausencia } from "../ui/Ausencia";
@@ -206,24 +206,80 @@ export function FormularioDeJubilacion({
   /** Lo que pasó al tomar los saldos de la propuesta: qué se repartió y qué no. */
   avisoDeLaCartera: ReactNode;
 }) {
-  const pon = (cambio: Partial<DatosDeJubilacion>) => alCambiar({ ...datos, ...cambio });
   const cfg = F.configuracion(datos.territorio, datos.ccaa);
   const T = F.disponible(cfg) ? F.textos(cfg) : null;
   const pv = cfg?.parametros.prevision ?? null;
   const vasco = pv?.modelo === "vasco";
+  /* Sin desglose y con la antigüedad conocida, «más de 2 años» puede no poder cumplirse con lo escrito: la casilla se
+     desmarca sola y se dice por qué. Si luego vuelve a ser posible no se remarca: que la marque el asesor (H1-03). */
+  const dosAniosImposible = (d: DatosDeJubilacion): string | null => {
+    /* Sin la edad de hoy, o la de jubilación de quien aún no se ha jubilado, no se sabe cuándo se cobra. */
+    if (d.edad === null || (!d.jubilado && d.edadJubilacion === null)) return null;
+    const hoy = Math.round(Math.min(95, Math.max(40, d.edad)));
+    const cobro = d.jubilado ? hoy : Math.round(Math.min(Math.max(hoy, 75), Math.max(hoy, d.edadJubilacion ?? hoy)));
+    return notaDeLosDosAnios({
+      sinDesglose: vasco && d.epsvDesglose === "estimacion",
+      antiguedadConocida: d.antiguedadConocida,
+      antiguedad: Math.round(Math.min(60, Math.max(1, d.antiguedad))),
+      aniosHastaCobro: cobro - hoy,
+      contingencia: d.contingencia
+    });
+  };
+  const pon = (cambio: Partial<DatosDeJubilacion>) => {
+    const nuevo = { ...datos, ...cambio };
+    alCambiar(nuevo.dosAnios && dosAniosImposible(nuevo) ? { ...nuevo, dosAnios: false } : nuevo);
+  };
+  const avisoDosAnios = dosAniosImposible(datos);
   const calculado = resultado?.disponible ? resultado : null;
   const o = calculado?.entrada ?? null;
   const edadDelPlan = o?.edadFin ?? datos.edadFin;
   const pensionAnual = datos.pension === null ? null : datos.pension * 14;
   const total = totalDeAhorros(datos);
   const saldoDeLaPrevision = (datos.epsvPre ?? 0) + (datos.epsvPost ?? 0);
-  const conReduccion = datos.primerCobro && (datos.dosAnios || (vasco && ["invalidez", "dependencia"].includes(datos.contingencia)));
+  const conReduccion = datos.primerCobro && ((datos.dosAnios && !avisoDosAnios) || (vasco && ["invalidez", "dependencia"].includes(datos.contingencia)));
   const figura = T?.Figura ?? "EPSV o plan de pensiones";
   /* La edad de hoy como la lee el motor: acotada entre 40 y 95 y entera. */
   const edadDeHoy = Math.round(Math.min(95, Math.max(40, datos.edad ?? 40)));
 
   return (
     <div className="jubilacion-datos">
+      {/* Lo primero (J1, Óscar, 21-11-2026): de ella sale la norma de todo lo demás —régimen común o foral—, y al final
+          se podía llenar el formulario entero con la residencia equivocada. Su procedencia se lee aquí. */}
+      <Panel
+        claseDelCuerpo="stack stack--tight"
+        subtitulo={F.disponible(cfg) ? procedenciaFiscal(cfg) : "Sin residencia fiscal no hay normativa que aplicar"}
+        titulo="Residencia fiscal"
+      >
+        <div className="jubilacion-campos">
+          <Campo rotulo="Territorio">
+            <select
+              onChange={(evento) => alCambiar(cambiarTerritorio(datos, evento.target.value))}
+              value={datos.territorio ?? ""}
+            >
+              {datos.territorio === null ? <option value="">Sin elegir</option> : null}
+              {F.TERRITORIOS.map((territorio) => (
+                <option key={territorio.id} value={territorio.id}>
+                  {TERRITORIOS_EN_PANTALLA[territorio.id] ?? territorio.nombre}
+                </option>
+              ))}
+            </select>
+          </Campo>
+          {datos.territorio === "estatal" ? (
+            <Campo rotulo="Comunidad autónoma">
+              <select onChange={(evento) => alCambiar(cambiarTerritorio(datos, "estatal", evento.target.value))} value={datos.ccaa}>
+                {F.CCAA.map((comunidad) => (
+                  <option key={comunidad.id} value={comunidad.id}>
+                    {comunidad.nombre}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+          ) : null}
+        </div>
+        {cfg?.ccaa ? <p className="cmp-note">{cfg.ccaa.referencia ? cfg.ccaa.descripcion : cfg.ccaa.nota}</p> : null}
+        {T ? <p className="cmp-note">{T.ambito}</p> : null}
+      </Panel>
+
       <Panel claseDelCuerpo="stack stack--tight" titulo="El cliente">
         <div className="jubilacion-campos">
           <CampoNumerico alCambiar={(edad) => pon({ edad })} etiqueta="Edad actual" max={95} min={40} obligatorio valor={datos.edad} />
@@ -411,12 +467,12 @@ export function FormularioDeJubilacion({
                     {datos.antiguedadConocida ? (
                       <CampoNumerico alCambiar={(antiguedad) => pon({ antiguedad: antiguedad ?? datos.antiguedad })} etiqueta="Años desde la primera aportación" max={60} min={1} valor={datos.antiguedad} />
                     ) : null}
-                    {pv.modelo === "vasco" ? (
-                      <p className="cmp-note">
-                        Sin desglose, {cfg?.hacienda} estima la rentabilidad{calculado ? ` en el ${pctEntero(calculado.resumen.ratioEpsv)} de lo cobrado` : ""}: un{" "}
-                        {pctEntero(pv.estimacionAnual)} por año de antigüedad, con un máximo del {pctEntero(pv.estimacionMaxima)}, o el {pctEntero(pv.estimacionSinAntiguedad)} si no se conoce la antigüedad.
+                    {/* Lo que se supone sin desglose: la estimación y el tramo. El informe lo dice con las mismas palabras (H2-17). */}
+                    {(cfg ? notasDelSaldoSinDesglose(cfg, datos.antiguedadConocida, datos.antiguedad, calculado) : []).map((nota) => (
+                      <p className="cmp-note" key={nota}>
+                        {nota}
                       </p>
-                    ) : null}
+                    ))}
                   </>
                 ) : (
                   <table className="jubilacion-saldos">
@@ -443,7 +499,7 @@ export function FormularioDeJubilacion({
                           </td>
                           <td onBlur={vasco ? alSalirVacio(datos[rentabilidad], () => pon({ [rentabilidad]: null })) : undefined}>
                             {vasco ? (
-                              <EuroAmountInput ariaLabel={`${etiqueta}: rentabilidad`} className="jubilacion-importe" min={0} onCommit={(valor) => pon({ [rentabilidad]: valor })} value={datos[rentabilidad]} />
+                              <EuroAmountInput ariaLabel={`${etiqueta}: rentabilidad`} className="jubilacion-importe" min={Number.NEGATIVE_INFINITY} onCommit={(valor) => pon({ [rentabilidad]: valor })} value={datos[rentabilidad]} />
                             ) : null}
                           </td>
                         </tr>
@@ -524,10 +580,11 @@ export function FormularioDeJubilacion({
                     <Casilla alCambiar={(primerCobro) => pon({ primerCobro })} marcada={datos.primerCobro} nota={T.condicionPrimerCobroNota} titulo={T.condicionPrimerCobro} />
                     <Casilla
                       alCambiar={(dosAnios) => pon({ dosAnios })}
-                      marcada={datos.dosAnios}
+                      marcada={datos.dosAnios && !avisoDosAnios}
                       nota={vasco ? "No se exige en invalidez o dependencia." : "Requisito de la reducción."}
                       titulo="Han pasado más de 2 años desde la primera aportación"
                     />
+                    {avisoDosAnios ? <p className="cmp-note">{avisoDosAnios}</p> : null}
                   </div>
                 ) : null}
               </>
@@ -586,42 +643,6 @@ export function FormularioDeJubilacion({
           etiqueta="Otras deducciones en la cuota"
           valor={datos.otrasDeducciones}
         />
-      </Panel>
-
-      {/* Al final: casi nunca cambia, pero de ella sale la norma de todo lo demás, y su procedencia se lee aquí. */}
-      <Panel
-        claseDelCuerpo="stack stack--tight"
-        subtitulo={F.disponible(cfg) ? procedenciaFiscal(cfg) : "Sin residencia fiscal no hay normativa que aplicar"}
-        titulo="Residencia fiscal"
-      >
-        <div className="jubilacion-campos">
-          <Campo rotulo="Territorio">
-            <select
-              onChange={(evento) => alCambiar(cambiarTerritorio(datos, evento.target.value))}
-              value={datos.territorio ?? ""}
-            >
-              {datos.territorio === null ? <option value="">Sin elegir</option> : null}
-              {F.TERRITORIOS.map((territorio) => (
-                <option key={territorio.id} value={territorio.id}>
-                  {TERRITORIOS_EN_PANTALLA[territorio.id] ?? territorio.nombre}
-                </option>
-              ))}
-            </select>
-          </Campo>
-          {datos.territorio === "estatal" ? (
-            <Campo rotulo="Comunidad autónoma">
-              <select onChange={(evento) => alCambiar(cambiarTerritorio(datos, "estatal", evento.target.value))} value={datos.ccaa}>
-                {F.CCAA.map((comunidad) => (
-                  <option key={comunidad.id} value={comunidad.id}>
-                    {comunidad.nombre}
-                  </option>
-                ))}
-              </select>
-            </Campo>
-          ) : null}
-        </div>
-        {cfg?.ccaa ? <p className="cmp-note">{cfg.ccaa.referencia ? cfg.ccaa.descripcion : cfg.ccaa.nota}</p> : null}
-        {T ? <p className="cmp-note">{T.ambito}</p> : null}
       </Panel>
     </div>
   );

@@ -17,9 +17,13 @@ from .escritura_condicionada import (
     exigir_la_fecha,
     precondicion,
 )
-from .repository import PROFILE_FIELDS, InvalidPortfolio
+from google.api_core.exceptions import Conflict, FailedPrecondition, NotFound
+
+from .repository import PROFILE_FIELDS, InvalidPortfolio, PortfolioConflict
 
 ESQUEMA = "base-nueva.portfolio.v2"
+# Veces que se lee y se escribe un guardado sin condicion si otro se cuela entre la lectura y la escritura.
+INTENTOS_SIN_CONDICION = 3
 INSTRUMENTO = re.compile(r"^([A-Z]{2}[A-Z0-9]{9}[0-9]|[A-Z]{3})$")
 
 
@@ -101,17 +105,37 @@ class AlmacenCarterasBaseNueva:
         return datos.get("advisor_id") != uid
 
     def save(self, uid: str, portfolio_id: str, doc: dict):
+        """Guarda sin condicion (una cartera nueva, o sobrescribir tras un conflicto): la raiz y sus objetivos, juntos.
+
+        Hasta el 20-11-2026 se leia la raiz y los objetivos y se escribia despues, sin nada que atara las dos cosas:
+        otro guardado entre medias dejaba objetivos de las dos versiones mezclados, y dos altas con el mismo
+        identificador podian pisarse sin ver de quien era. Ahora la escritura va atada a lo leido, como la condicionada
+        (DIS-03): `create` si no existia, que falla si alguien la ha creado entre medias, y `update` con la precondicion
+        `last_update_time` si existia. Si falla, nada se ha escrito y se vuelve a leer y a intentar: el que guarda sin
+        condicion quiere que quede lo suyo, entero. Tras `INTENTOS_SIN_CONDICION` es un conflicto.
+        """
         ref = self._ref(portfolio_id)
-        previa = ref.get()
-        anterior = previa.to_dict() or {} if previa.exists else None
-        if anterior is not None and self._de_otro(uid, anterior):
-            raise InvalidPortfolio("Ese identificador de cartera ya esta en uso.")
-        estado = (anterior or {}).get("status") or "DRAFT"
-        cartera, objetivos = documentos_de_la_base(uid, doc, estado)
-        lote = self.db.batch()
-        lote.set(ref, {k: v for k, v in cartera.items() if v is not None})
-        self._objetivos_al_lote(lote, ref, objetivos)
-        lote.commit()
+        for _ in range(INTENTOS_SIN_CONDICION):
+            previa = ref.get()
+            anterior = previa.to_dict() or {} if previa.exists else None
+            if anterior is not None and self._de_otro(uid, anterior):
+                raise InvalidPortfolio("Ese identificador de cartera ya esta en uso.")
+            estado = (anterior or {}).get("status") or "DRAFT"
+            cartera, objetivos = documentos_de_la_base(uid, doc, estado)
+            nueva = {k: v for k, v in cartera.items() if v is not None}
+            lote = self.db.batch()
+            if anterior is None:
+                lote.create(ref, nueva)
+            else:
+                lote.update(ref, cambios_que_sustituyen(anterior, nueva), option=precondicion(self.db, previa))
+            self._objetivos_al_lote(lote, ref, objetivos)
+            try:
+                lote.commit()
+                return
+            except (Conflict, FailedPrecondition, NotFound):
+                continue
+        actual = ref.get()
+        raise PortfolioConflict("changed", (actual.to_dict() or {}).get("updated_at") if actual.exists else None)
 
     def _objetivos_al_lote(self, lote, ref, objetivos: dict):
         objetivos_ref = ref.collection("targets")
@@ -146,7 +170,12 @@ class AlmacenCarterasBaseNueva:
         return self.db.collection("portfolios").where("advisor_id", "==", uid)
 
     def count(self, uid: str) -> int:
-        return sum(1 for _ in self._carteras_de(uid).stream())
+        """Cuantas carteras tiene el asesor, con la agregacion de Firestore: no baja ningun documento."""
+        resultados = self._carteras_de(uid).count().get()
+        item = resultados[0] if resultados else None
+        while isinstance(item, (list, tuple)) and item:
+            item = item[0]
+        return int(getattr(item, "value", 0) or 0)
 
     def list(self, uid: str) -> list:
         carteras = {snap.id: snap.to_dict() or {} for snap in self._carteras_de(uid).stream()}
@@ -165,14 +194,34 @@ class AlmacenCarterasBaseNueva:
             return None
         return doc_de_la_app(snap.to_dict() or {}, [o.to_dict() or {} for o in ref.collection("targets").stream()])
 
-    def delete(self, uid: str, portfolio_id: str) -> bool:
-        ref = self._ref(portfolio_id)
-        snap = ref.get()
+    def get_cabecera(self, uid: str, portfolio_id: str):
+        """Como `get`, pero solo la raiz (sin posiciones): para quien necesita saber si existe y sus campos propios."""
+        snap = self._ref(portfolio_id).get()
         if not snap.exists or self._de_otro(uid, snap.to_dict() or {}):
-            return False
-        lote = self.db.batch()
-        for objetivo in ref.collection("targets").stream():
-            lote.delete(objetivo.reference)
-        lote.delete(ref)
-        lote.commit()
-        return True
+            return None
+        return doc_de_la_app(snap.to_dict() or {}, [])
+
+    def delete(self, uid: str, portfolio_id: str) -> bool:
+        """Borra la raiz y sus objetivos en un lote atado a la raiz leida.
+
+        Sin la precondicion, un guardado entre la lectura de los objetivos y el `commit` escribia objetivos nuevos que
+        este lote no conocia: la raiz desaparecia y esos objetivos se quedaban huerfanos, y `list` los lee por grupo de
+        colecciones para siempre. Todo guardado reescribe la raiz, asi que con `last_update_time` el borrado falla si se
+        ha colado alguno; se vuelve a leer y a intentar, y tras `INTENTOS_SIN_CONDICION` es un conflicto.
+        """
+        ref = self._ref(portfolio_id)
+        for _ in range(INTENTOS_SIN_CONDICION):
+            snap = ref.get()
+            if not snap.exists or self._de_otro(uid, snap.to_dict() or {}):
+                return False
+            lote = self.db.batch()
+            for objetivo in ref.collection("targets").stream():
+                lote.delete(objetivo.reference)
+            lote.delete(ref, option=precondicion(self.db, snap))
+            try:
+                lote.commit()
+                return True
+            except (FailedPrecondition, NotFound):
+                continue
+        actual = ref.get()
+        raise PortfolioConflict("changed", (actual.to_dict() or {}).get("updated_at") if actual.exists else None)

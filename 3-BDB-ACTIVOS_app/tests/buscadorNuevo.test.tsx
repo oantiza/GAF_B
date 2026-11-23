@@ -551,7 +551,8 @@ describe("lo que el Buscador conserva y lo que enseña", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(encabezados()).toEqual(ESPERADAS);
+    /* Las mismas columnas; solo cambia el rótulo de las estrellas, que en Modo cliente no nombra al proveedor (`fuenteDeDatos`; H3-01). */
+    expect(encabezados()).toEqual(ESPERADAS.map((titulo) => (titulo === "Morningstar" ? "Estrellas" : titulo)));
   });
 
   test("marcar un favorito no cambia de página", async () => {

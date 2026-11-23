@@ -120,6 +120,72 @@ describe("EPSV", () => {
     expect(calcular({ tieneEpsv: true, epsvPost: 1000, epsvDesglose: "estimacion", antiguedadConocida: false }).resumen.ratioEpsv).toBe(0.25);
   });
 
+  describe("sin desglose, la estimación es del saldo de hoy y lo que crece hasta jubilarse es todo rentabilidad (22-11-2026)", () => {
+    // Bizkaia, cobro en capital, primer cobro: 100.000 € de saldo sin desglose, todo anterior a 2026, diez años al 5 % y sin
+    // IPC (para que los topes no se actualicen). Derechos a la jubilación: 100.000 × 1,05^10 = 162.889,46 €; de ellos,
+    // 100.000 × (1,05^10 − 1) = 62.889,46 € de tramo posterior, todo rentabilidad: no hay aportaciones desde 2026.
+    const derechos = 100000 * 1.05 ** 10;
+    const crecimiento = derechos - 100000;
+    const e = { pension: 0, ...SIN_AHORROS, edad: 55, edadJubilacion: 65, rentabilidad: 5, inflacion: 0, tieneEpsv: true, epsvPre: 100000, epsvPost: 0, epsvDesglose: "estimacion", epsvCobro: "capital" } as const;
+
+    test("sin antigüedad conocida (25 %), en los dos regímenes", () => {
+      const c = calcular({ ...e, antiguedadConocida: false }).capital!;
+      cerca(c.bruto, derechos, 0.01);
+      // Estimación del saldo de hoy: 100.000 × 25 % = 25.000 de rentabilidad y 75.000 aportados, todo antes de 2026.
+      // Régimen transitorio: cuota = aportaciones previas / totales = 75.000 / (75.000 + 0) = 1, la prestación entera al 60 %:
+      // 162.889,46 × 60 % = 97.733,68 a la base general y nada al ahorro (lo mismo que con certificado). Antes: cuota por los
+      // derechos, 100.000 × 60 % = 60.000 más 62.889,46 × 75 % = 47.167,10 de «aportación» al 70 % = 93.017 y 15.722 de ahorro.
+      cerca(c.transitorio!.bases.detalle.tramoPre, derechos, 0.01);
+      cerca(c.transitorio!.bases.detalle.tramoPost, 0, 0.01);
+      cerca(c.transitorio!.bases.general, derechos * 0.6, 0.01);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+      // Régimen 2026: rentabilidad 25.000 + 62.889,46 = 87.889,46 al ahorro; aportado 75.000 × 70 % = 52.500 a la general.
+      // Antes: 162.889,46 × 25 % = 40.722 al ahorro y 122.167 × 70 % = 85.517 a la general.
+      cerca(c.nuevo!.bases.ahorro, 25000 + crecimiento, 0.01);
+      cerca(c.nuevo!.bases.general, 75000 * 0.7, 0.01);
+      // Lo que se cobra en renta: (25.000 + 62.889,46) / 162.889,46 = 53,96 % de rentabilidad.
+      cerca(calcular({ ...e, antiguedadConocida: false }).resumen.ratioEpsv, (25000 + crecimiento) / derechos, 1e-12);
+      // Y da lo mismo que un certificado que dijera esos 25.000 de rentabilidad.
+      const cert = calcular({ ...e, epsvDesglose: "certificado", epsvPreRent: 25000 }).capital!;
+      for (const regimen of ["transitorio", "nuevo"] as const) {
+        cerca(c[regimen]!.bases.general, cert[regimen]!.bases.general, 1e-6, regimen);
+        cerca(c[regimen]!.bases.ahorro, cert[regimen]!.bases.ahorro, 1e-6, regimen);
+      }
+    });
+
+    test("con veinte años de antigüedad (20 %)", () => {
+      const c = calcular({ ...e, antiguedadConocida: true, antiguedad: 20 }).capital!;
+      // Estimación: 100.000 × 20 × 1 % = 20.000 de rentabilidad y 80.000 aportados.
+      // Transitorio: cuota 80.000 / 80.000 = 1 → 162.889,46 × 60 % = 97.733,68 y nada al ahorro.
+      cerca(c.transitorio!.bases.general, derechos * 0.6, 0.01);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+      // Régimen 2026: 20.000 + 62.889,46 = 82.889,46 al ahorro; 80.000 × 70 % = 56.000 a la general.
+      cerca(c.nuevo!.bases.ahorro, 20000 + crecimiento, 0.01);
+      cerca(c.nuevo!.bases.general, 56000, 0.01);
+    });
+
+    test("en renta, la rentabilidad de cada cobro es la de los dos tramos juntos", () => {
+      // Renta flexible (no exenta), sin pensión: la rentabilidad del primer cobro es cobro × 87.889,46 / 162.889,46.
+      const f = calcular({ ...e, antiguedadConocida: false, epsvCobro: "renta" }).base.filas[0];
+      expect(f.retiradaEpsv).toBeGreaterThan(0);
+      cerca(f.epsvRent, (f.retiradaEpsv * (25000 + crecimiento)) / derechos, 1e-6);
+      cerca(f.epsvTrabajo, (f.retiradaEpsv * 75000) / derechos, 1e-6);
+    });
+
+    test("jubilándose hoy no cambia nada: la estimación cubre el saldo entero", () => {
+      const hoy = calcular({ ...e, edad: 65, antiguedadConocida: false });
+      const c = hoy.capital!;
+      cerca(c.bruto, 100000, 1e-9);
+      // Transitorio: cuota 75.000 / 75.000 = 1 → 100.000 × 60 % = 60.000 y nada al ahorro.
+      cerca(c.transitorio!.bases.general, 60000, 1e-6);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+      // Régimen 2026: 100.000 × 25 % = 25.000 al ahorro; 75.000 × 70 % = 52.500 a la general.
+      cerca(c.nuevo!.bases.ahorro, 25000, 1e-6);
+      cerca(c.nuevo!.bases.general, 52500, 1e-6);
+      cerca(hoy.resumen.ratioEpsv, 0.25, 1e-12);
+    });
+  });
+
   test("Álava y Gipuzkoa: la exención de la rentabilidad en renta no supera el 40 % de la renta (arts. 9.44 NF 33/2013 y 9.39 NF 3/2014)", () => {
     // Pago anual de 10.000 € con 50 % de rentabilidad: 5.000 € de rentabilidad; exentos como máximo 4.000 €; 1.000 € a la base del ahorro.
     for (const t of ["alava", "gipuzkoa"]) {
@@ -141,6 +207,259 @@ describe("EPSV", () => {
     cerca(fa.irpf.ahorro, 0.2 * fa.retiradaEpsv, 0.01);
     cerca(fb.epsvRentExenta, 0.6 * fb.retiradaEpsv, 0.01);
     expect(fb.irpf.ahorro).toBe(0);
+  });
+
+  test("con rentabilidad negativa antes de jubilarse, la pérdida no crea base ni impuesto (P1-02)", () => {
+    // Art. 37.e (NF 33/2013 de Álava, NF 3/2014 de Gipuzkoa; ficha KA-01878 de la DFB para la NF 13/2013): el rendimiento es
+    // «la diferencia positiva» entre los derechos y lo aportado; el resto de la prestación es trabajo (art. 18.a), y nunca más
+    // que lo cobrado. Bizkaia, 100.000 € de derechos anteriores a 2026 (70.000 aportados y 30.000 de rentabilidad), nada
+    // posterior, diez años hasta la jubilación al −2 %: derechos 100.000 × 0,98^10 = 81.707,28 €, todos de aportaciones
+    // anteriores a 2026.
+    const derechos = 100000 * 0.98 ** 10;
+    const e = { pension: 0, ...SIN_AHORROS, edad: 57, edadJubilacion: 67, rentabilidad: -2, tieneEpsv: true, epsvPre: 100000, epsvPreRent: 30000, epsvPost: 0, epsvCobro: "capital" } as const;
+    const c = calcular(e).capital!;
+    cerca(c.bruto, derechos, 0.01);
+    // Régimen transitorio: todo lo aportado es anterior a 2026 → cuota 70.000 / 70.000 = 1, la prestación entera al 60 %:
+    // 81.707,28 × 60 % = 49.024,37 a la base general y nada al ahorro. Antes salían 18.292,72 € de aportación fantasma al 70 %
+    // (+12.804,90 de base general) y −18.292,72 de ahorro.
+    cerca(c.transitorio!.bases.detalle.tramoPre, derechos, 0.01);
+    cerca(c.transitorio!.bases.detalle.tramoPost, 0, 0.01);
+    cerca(c.transitorio!.bases.detalle.aportacion, 0, 0.01);
+    cerca(c.transitorio!.bases.general, derechos * 0.6, 0.01);
+    expect(c.transitorio!.bases.ahorro).toBe(0);
+    // Régimen 2026: rendimiento 81.707,28 − 70.000 = 11.707,28 al ahorro; 70.000 × 70 % = 49.000 al trabajo (esto ya salía bien).
+    cerca(c.nuevo!.bases.ahorro, derechos - 70000, 0.01);
+    cerca(c.nuevo!.bases.general, 49000, 0.01);
+    // Sin certificado, la cuota del transitorio se estima con los derechos: 100.000 / 81.707,28 = 1,22 se acota a 1.
+    // La base es la misma, 49.024,37, y no 100.000 × 60 % = 60.000 como antes.
+    const s = calcular({ ...e, epsvDesglose: "estimacion" }).capital!;
+    cerca(s.transitorio!.bases.general, derechos * 0.6, 0.01);
+    expect(s.transitorio!.bases.ahorro).toBe(0);
+    // Si la pérdida se come toda la rentabilidad —5.000 de rentabilidad y 95.000 aportados—, no hay diferencia positiva:
+    // en el régimen 2026, rendimiento 0 y los 81.707,28 cobrados son aportación al 70 % = 57.195,10. Antes eran 95.000 × 70 % =
+    // 66.500 de base general (más de lo cobrado) y −13.292,72 de ahorro.
+    const p = calcular({ ...e, epsvPreRent: 5000, regimen: "nuevo" }).capital!;
+    expect(p.nuevo!.bases.ahorro).toBe(0);
+    cerca(p.nuevo!.bases.general, derechos * 0.7, 0.01);
+    // Y en renta, con el certificado: (5.000 − 18.292,72) / 81.707,28 < 0 → rentabilidad 0, todo el cobro es trabajo.
+    const r = calcular({ ...e, epsvPreRent: 5000, epsvCobro: "renta" }).base.filas[0];
+    expect(r.epsvRent).toBe(0);
+    cerca(r.epsvTrabajo, r.retiradaEpsv, 1e-9);
+  });
+
+  describe("un tramo certificado con pérdida: la diferencia positiva es la de la EPSV entera (N06, 22-11-2026)", () => {
+    // Bizkaia, jubilándose hoy (sin crecimiento ni IPC), cobro en capital, primer cobro, con la reducción: el tope de
+    // 300.000 € cubre cualquiera de estos cobros, así que la aportación integra el 70 % y lo anterior a 2026, el 60 %.
+    // Aportado = saldo − rentabilidad en cada tramo.
+    const e = { pension: 0, ...SIN_AHORROS, edad: 65, edadJubilacion: 65, inflacion: 0, tieneEpsv: true, epsvCobro: "capital" } as const;
+
+    test("60.000 con +20.000 antes de 2026 y 40.000 con −20.000 después: no hay rendimiento", () => {
+      const caso = { ...e, epsvPre: 60000, epsvPreRent: 20000, epsvPost: 40000, epsvPostRent: -20000 } as const;
+      const c = calcular(caso).capital!;
+      cerca(c.bruto, 100000, 1e-9);
+      // Derechos 60.000 + 40.000 = 100.000; aportado 40.000 + 60.000 = 100.000; diferencia 0.
+      // Régimen 2026: rendimiento max(0, 20.000 − 20.000) = 0; los 100.000 son aportación → 100.000 × 70 % = 70.000 a la
+      // general y 0 al ahorro. Antes la pérdida se leía como 0 y salían 20.000 al ahorro y 80.000 × 70 % = 56.000.
+      cerca(c.nuevo!.bases.general, 70000, 1e-6);
+      expect(c.nuevo!.bases.ahorro).toBe(0);
+      // Transitorio: cuota = aportado antes / aportado total = 40.000 / 100.000 = 0,4 → 40.000 al 60 % = 24.000; el resto,
+      // 60.000, con rendimiento max(0, min(60.000, −20.000, 0)) = 0 → 60.000 al 70 % = 42.000. Total 66.000 y 0 al ahorro.
+      // Antes: cuota 40.000 / 80.000 = 0,5 → 50.000 × 60 % + 50.000 × 70 % = 65.000.
+      cerca(c.transitorio!.bases.detalle.tramoPre, 40000, 1e-6);
+      cerca(c.transitorio!.bases.detalle.tramoPost, 60000, 1e-6);
+      cerca(c.transitorio!.bases.general, 66000, 1e-6);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+      // En renta: (20.000 − 20.000) / 100.000 = 0 de rentabilidad; todo el cobro es trabajo.
+      const f = calcular({ ...caso, epsvCobro: "renta" }).base.filas[0];
+      expect(f.retiradaEpsv).toBeGreaterThan(0);
+      expect(f.epsvRent).toBe(0);
+      cerca(f.epsvTrabajo, f.retiradaEpsv, 1e-9);
+      expect(M.avisos(caso)).toEqual([]);
+    });
+
+    test("pérdida en los dos tramos: la aportación no pasa de lo cobrado", () => {
+      // 60.000 con −20.000 (aportados 80.000) y 40.000 con −10.000 (aportados 50.000): derechos 100.000, aportado 130.000.
+      const c = calcular({ ...e, epsvPre: 60000, epsvPreRent: -20000, epsvPost: 40000, epsvPostRent: -10000 }).capital!;
+      // Régimen 2026: sin rendimiento; lo cobrado, 100.000, es todo aportación → 70.000, y no 130.000 × 70 % = 91.000.
+      cerca(c.nuevo!.bases.general, 70000, 1e-6);
+      expect(c.nuevo!.bases.ahorro).toBe(0);
+      // Transitorio: cuota 80.000 / 130.000 → 100.000 × 80/130 × 60 % + 100.000 × 50/130 × 70 % = 100.000 × 83 / 130 = 63.846,15.
+      cerca(c.transitorio!.bases.general, (100000 * 83) / 130, 1e-6);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+    });
+
+    test("ganancia neta con un tramo en pérdida: el rendimiento del tramo posterior no pasa del de la EPSV entera", () => {
+      // 50.000 con −10.000 antes de 2026 (aportados 60.000) y 50.000 con +15.000 después (aportados 35.000): derechos 100.000,
+      // aportado 95.000, diferencia positiva 5.000.
+      const c = calcular({ ...e, epsvPre: 50000, epsvPreRent: -10000, epsvPost: 50000, epsvPostRent: 15000 }).capital!;
+      // Régimen 2026: 5.000 al ahorro y 95.000 × 70 % = 66.500 a la general.
+      cerca(c.nuevo!.bases.ahorro, 5000, 1e-6);
+      cerca(c.nuevo!.bases.general, 66500, 1e-6);
+      // Transitorio: cuota 60.000 / 95.000; tramo anterior 100.000 × 60/95 = 63.157,89 al 60 % = 37.894,74; tramo posterior
+      // 100.000 × 35/95 = 36.842,11, con rendimiento min(36.842,11; 15.000; 5.000) = 5.000 al ahorro y 31.842,11 al 70 % =
+      // 22.289,47. General 60.184,21. Sin acotar a la EPSV entera serían 15.000 al ahorro y 53.184,21 a la general.
+      const tramoPre = (100000 * 60) / 95;
+      cerca(c.transitorio!.bases.ahorro, 5000, 1e-6);
+      cerca(c.transitorio!.bases.general, tramoPre * 0.6 + (100000 - tramoPre - 5000) * 0.7, 1e-6);
+      cerca(c.transitorio!.bases.general, 60184.21, 0.01);
+    });
+
+    test("una pérdida mayor que el saldo del tramo es posible y se respeta; la ganancia sí se limita al saldo, y se avisa", () => {
+      // 40.000 € de derechos con −60.000 € de rentabilidad: se aportaron 100.000 € a ese tramo.
+      const caso = { ...e, epsvPre: 60000, epsvPreRent: 20000, epsvPost: 40000, epsvPostRent: -60000 } as const;
+      expect(M.normalizar(caso).epsvPostRent).toBe(-60000);
+      expect(M.avisos(caso)).not.toContain("La rentabilidad de la EPSV no puede superar su saldo: se limita al saldo.");
+      // Rendimiento de la EPSV entera max(0, 20.000 − 60.000) = 0 → régimen 2026, 100.000 × 70 % = 70.000 a la general.
+      cerca(calcular(caso).capital!.nuevo!.bases.general, 70000, 1e-6);
+      cerca(calcular(caso).capital!.nuevo!.bases.ahorro, 0, 1e-6);
+      // La ganancia no pasa del saldo: lo aportado no puede ser negativo.
+      const conGanancia = { ...caso, epsvPreRent: 90000 };
+      expect(M.normalizar(conGanancia).epsvPreRent).toBe(60000);
+      expect(M.avisos(conGanancia)).toContain("La rentabilidad de la EPSV no puede superar su saldo: se limita al saldo.");
+    });
+
+    describe("un tramo a 0 € conserva su pérdida (H1-02 de la auditoría del 22-11-2026)", () => {
+      test("la pérdida hasta la jubilación que deja el tramo posterior en 0 € resta igual que con un céntimo de saldo", () => {
+        // A los 64, jubilándose a los 65, con un −2 % ese año: 49.000 antes de 2026 (+20.000 de rentabilidad, 29.000
+        // aportados) y 1.000 después (sin rentabilidad, 1.000 aportados). La pérdida del año, 50.000 × −2 % = −1.000, va al
+        // tramo posterior: 0 € de derechos con −1.000 de rentabilidad. Derechos 49.000, aportado 30.000: la diferencia
+        // positiva de la EPSV entera es 20.000 − 1.000 = 19.000.
+        const caso = { ...e, edad: 64, edadJubilacion: 65, rentabilidad: -2, regimen: "nuevo", epsvPre: 49000, epsvPreRent: 20000, epsvPost: 1000, epsvPostRent: 0 } as const;
+        const c = calcular(caso).capital!;
+        cerca(c.bruto, 49000, 1e-6);
+        // Régimen 2026: 19.000 al ahorro y 49.000 − 19.000 = 30.000 de aportación × 70 % = 21.000 a la general. Antes salían
+        // 20.000 al ahorro y 29.000 × 70 % = 20.300: con el tramo a 0 €, la pérdida se tiraba.
+        cerca(c.nuevo!.bases.ahorro, 19000, 1e-6);
+        cerca(c.nuevo!.bases.general, 21000, 1e-6);
+        // Con un céntimo más de saldo: pérdida 50.000,01 × −2 % = −1.000,0002, tramo posterior 0,01 € → ahorro 18.999,9998 y
+        // general 30.000,01 × 70 % = 21.000,007. La cifra no salta: antes saltaba 1.000 € en la base del ahorro.
+        const conCentimo = calcular({ ...caso, epsvPost: 1000.01 }).capital!;
+        cerca(conCentimo.nuevo!.bases.ahorro, 18999.9998, 1e-6);
+        cerca(conCentimo.nuevo!.bases.general, 21000.007, 1e-6);
+        // Transitorio: cuota 29.000 / (29.000 + 1.000) → 49.000 × 29/30 = 47.366,67 al 60 % y 1.633,33 sin rendimiento
+        // (min(1.633,33; −1.000; 19.000) < 0) al 70 %: 28.420 + 1.143,33 = 29.563,33. Ya era así: no dependía de la razón.
+        cerca(c.transitorio!.bases.general, ((49000 * 29) / 30) * 0.6 + ((49000 * 1) / 30) * 0.7, 1e-6);
+        expect(c.transitorio!.bases.ahorro).toBe(0);
+      });
+
+      test("un tramo anterior a 0 € con −20.000 de rentabilidad quita la ganancia del posterior", () => {
+        // 0 € antes de 2026 con −20.000 (se aportaron 20.000 y se perdieron) y 50.000 después con +15.000 (aportados 35.000):
+        // derechos 50.000, aportado 55.000, diferencia positiva max(0, 15.000 − 20.000) = 0.
+        const caso = { ...e, epsvPre: 0, epsvPreRent: -20000, epsvPost: 50000, epsvPostRent: 15000 } as const;
+        // La pérdida no se limita al saldo del tramo (c525a845): se conserva aunque el saldo sea 0.
+        expect(M.normalizar(caso).epsvPreRent).toBe(-20000);
+        const c = calcular(caso).capital!;
+        // Régimen 2026: nada al ahorro y 50.000 × 70 % = 35.000 a la general. Antes, 15.000 al ahorro y 35.000 × 70 % = 24.500.
+        expect(c.nuevo!.bases.ahorro).toBe(0);
+        cerca(c.nuevo!.bases.general, 35000, 1e-6);
+        // Transitorio: cuota 20.000 / 55.000 = 4/11 → 50.000 × 4/11 = 18.181,82 al 60 % = 10.909,09; el resto, 31.818,18, sin
+        // rendimiento (min(31.818,18; 15.000; −5.000) < 0) al 70 % = 22.272,73. General 33.181,82 y nada al ahorro (antes,
+        // 15.000 al ahorro y 16.818,18 × 70 % de aportación).
+        cerca(c.transitorio!.bases.detalle.tramoPre, (50000 * 4) / 11, 1e-6);
+        expect(c.transitorio!.bases.ahorro).toBe(0);
+        cerca(c.transitorio!.bases.general, ((50000 * 4) / 11) * 0.6 + ((50000 * 7) / 11) * 0.7, 1e-6);
+        // Con un céntimo de saldo en el tramo anterior ya era así: ahora 0 € y 0,01 € dan lo mismo.
+        const conCentimo = calcular({ ...caso, epsvPre: 0.01 }).capital!;
+        expect(conCentimo.nuevo!.bases.ahorro).toBe(0);
+        expect(conCentimo.transitorio!.bases.ahorro).toBe(0);
+      });
+    });
+  });
+
+  describe("sin desglose y con un año de antigüedad o menos, el saldo no se da por anterior a 2026 (N05, 22-11-2026)", () => {
+    // Bizkaia, jubilándose hoy, cobro en capital, primer cobro: 100.000 € de saldo sin desglose, escritos como «Saldo total»
+    // (el formulario los guarda en el tramo anterior a 2026).
+    const e = { pension: 0, ...SIN_AHORROS, edad: 65, edadJubilacion: 65, inflacion: 0, tieneEpsv: true, epsvPre: 100000, epsvPost: 0, epsvDesglose: "estimacion", antiguedadConocida: true, epsvCobro: "capital" } as const;
+
+    test("con un año, el saldo va entero al tramo posterior y, si ya se cobra, no hay reducción por los dos años (H1-03, 23-11-2026)", () => {
+      const o = M.normalizar({ ...e, antiguedad: 1 });
+      expect(o.epsvPre).toBe(0);
+      expect(o.epsvPost).toBe(100000);
+      // Cobra hoy (65 y 65) con un año de antigüedad: 1 + 0 < 2, «más de 2 años» no puede cumplirse y la casilla, aunque llegue
+      // marcada (`dosAnios` por defecto), no aplica la reducción.
+      expect(o.dosAnios).toBe(false);
+      const c = calcular({ ...e, antiguedad: 1 }).capital!;
+      // Estimación: 1 año × 1 % = 1 % → 1.000 de rentabilidad y 99.000 aportados, todo desde 2026.
+      // Sin los dos años no hay reducción: 1.000 al ahorro y los 99.000 enteros a la general. (Con la reducción del 30 % salían
+      // 99.000 × 70 % = 69.300: unos 12.800 € de IRPF de menos.)
+      cerca(c.nuevo!.bases.ahorro, 1000, 1e-6);
+      cerca(c.nuevo!.bases.general, 99000, 1e-6);
+      // Transitorio: sin aportaciones anteriores, cuota 0 → da lo mismo que el de 2026, y se elige el de 2026.
+      cerca(c.transitorio!.bases.general, 99000, 1e-6);
+      expect(c.automatico).toBe(true);
+      expect(c.elegido).toBe("nuevo");
+      // Escribir 0 es lo mismo: el campo no baja de un año.
+      expect(M.normalizar({ ...e, antiguedad: 0 }).epsvPre).toBe(0);
+    });
+
+    test("con un año de antigüedad y cinco hasta jubilarse, los dos años sí pueden cumplirse y la reducción se aplica (H1-03)", () => {
+      // 65 → 70: 1 + 5 = 6 ≥ 2. Sin rentabilidad ni inflación el saldo no crece: 1.000 de rentabilidad (1 %) y 99.000 aportados,
+      // todo desde 2026 → 1.000 al ahorro y 99.000 × 70 % = 69.300 a la general.
+      const caso = { ...e, edadJubilacion: 70, rentabilidad: 0, antiguedad: 1 } as const;
+      expect(M.normalizar(caso).dosAnios).toBe(true);
+      const c = calcular(caso).capital!;
+      cerca(c.nuevo!.bases.ahorro, 1000, 1e-6);
+      cerca(c.nuevo!.bases.general, 69300, 1e-6);
+      // Con la casilla desmarcada por el asesor, la reducción no se aplica.
+      cerca(calcular({ ...caso, dosAnios: false }).capital!.nuevo!.bases.general, 99000, 1e-6);
+    });
+
+    test("la regla solo toca sin desglose y con antigüedad conocida, y no en invalidez o dependencia (H1-03)", () => {
+      const uno = { ...e, antiguedad: 1 } as const;
+      expect(M.normalizar({ ...uno, antiguedadConocida: false }).dosAnios).toBe(true);
+      expect(M.normalizar({ ...uno, epsvDesglose: "certificado" }).dosAnios).toBe(true);
+      expect(M.normalizar({ ...uno, contingencia: "invalidez" }).dosAnios).toBe(true);
+      // Con dos años de antigüedad, ya cobrando: 2 + 0 ≥ 2.
+      expect(M.normalizar({ ...e, antiguedad: 2 }).dosAnios).toBe(true);
+    });
+
+    test("con dos años, o sin antigüedad conocida, el saldo sigue siendo anterior a 2026", () => {
+      const c = calcular({ ...e, antiguedad: 2 }).capital!;
+      // Estimación 2 %: 2.000 de rentabilidad y 98.000 aportados antes de 2026. Transitorio: cuota 98.000 / 98.000 = 1 →
+      // 100.000 × 60 % = 60.000 y nada al ahorro; régimen 2026: 2.000 al ahorro y 98.000 × 70 % = 68.600.
+      cerca(c.transitorio!.bases.general, 60000, 1e-6);
+      expect(c.transitorio!.bases.ahorro).toBe(0);
+      cerca(c.nuevo!.bases.general, 68600, 1e-6);
+      expect(c.elegido).toBe("transitorio");
+      expect(M.normalizar({ ...e, antiguedad: 2 }).epsvPre).toBe(100000);
+      expect(M.normalizar({ ...e, antiguedadConocida: false, antiguedad: 1 }).epsvPre).toBe(100000);
+      // Con certificado la antigüedad no cuenta: el tramo es el que dice.
+      expect(M.normalizar({ ...e, epsvDesglose: "certificado", antiguedad: 1 }).epsvPre).toBe(100000);
+    });
+
+    test("un saldo que quedó en el tramo posterior al pasar a «Sin desglose» se trata como el resto (H1-03, 22-11-2026)", () => {
+      // Lo que queda al cambiar el selector desde «Con certificado»: 100.000 escritos en el tramo posterior, o el reparto del
+      // caso de la DFB, 89.000 / 11.000. La pantalla dice «Saldo total: 100.000 €» y que se trata como aportado hasta 2025.
+      for (const [epsvPre, epsvPost] of [
+        [0, 100000],
+        [89000, 11000]
+      ] as const) {
+        const caso = { ...e, antiguedad: 10, epsvPre, epsvPost } as const;
+        const o = M.normalizar(caso);
+        expect(o.epsvPre).toBe(100000);
+        expect(o.epsvPost).toBe(0);
+        const c = calcular(caso).capital!;
+        // Estimación 10 años × 1 % = 10 %: 10.000 de rentabilidad y 90.000 aportados, todo antes de 2026. Transitorio:
+        // cuota 90.000 / 90.000 = 1 → 100.000 × 60 % = 60.000 a la general y nada al ahorro; régimen 2026: 10.000 al ahorro y
+        // 90.000 × 70 % = 63.000. Se elige el transitorio. Antes, con 0 / 100.000, el saldo se quedaba en el tramo
+        // posterior: los dos regímenes daban 63.000 y 10.000, y el IRPF del cobro salía 3.149,43 € más alto (medido el
+        // 22-11-2026 con un 3 % y un IPC del 2 %).
+        cerca(c.transitorio!.bases.general, 60000, 1e-6);
+        expect(c.transitorio!.bases.ahorro).toBe(0);
+        cerca(c.nuevo!.bases.general, 63000, 1e-6);
+        cerca(c.nuevo!.bases.ahorro, 10000, 1e-6);
+        expect(c.elegido).toBe("transitorio");
+        // El mismo impuesto que escribiendo los 100.000 como «Saldo total».
+        expect(c.impuesto).toBe(calcular({ ...e, antiguedad: 10 }).capital!.impuesto);
+      }
+      // Con un año de antigüedad, el saldo entero va al tramo posterior, venga de donde venga.
+      const o = M.normalizar({ ...e, antiguedad: 1, epsvPre: 89000, epsvPost: 11000 });
+      expect(o.epsvPre).toBe(0);
+      expect(o.epsvPost).toBe(100000);
+      // Con certificado, cada tramo es el suyo.
+      const certificado = M.normalizar({ ...e, epsvDesglose: "certificado", antiguedad: 10, epsvPre: 89000, epsvPost: 11000 });
+      expect([certificado.epsvPre, certificado.epsvPost]).toEqual([89000, 11000]);
+    });
   });
 });
 
@@ -268,6 +587,142 @@ describe("El plan de retiradas", () => {
   });
 });
 
+/* P1-03 (auditoría del 20-11-2026; Óscar, 21-11-2026): lo vendido se lleva la parte de su coste que le toca (arts. 34.1.a y
+   35.1 LIRPF) y la pérdida se compensa con las ganancias de lo vendido de los cuatro años siguientes y después caduca (art.
+   49.1.b LIRPF, 54.2.b DFL 4/2008, 66.1.b de las NF 13/2013, 33/2013 y 3/2014). Sin el cruce del 25 % con los intereses
+   que permiten el territorio común y Navarra: opción prudente. */
+describe("Pérdidas de lo vendido: coste proporcional y compensación en cuatro años", () => {
+  const PLAZO = 4;
+  /* El ejemplo de la auditoría: 100.000 € de coste que caen a 88.000 €. */
+  const CAIDA: M.CarteraFiscal = { V: 88000, K: 100000, pendientes: [] };
+
+  test("las cinco normas dan cuatro años, y solo el común y Navarra cruzan con los rendimientos", () => {
+    for (const id of ["bizkaia", "alava", "gipuzkoa"]) {
+      const regla = F.reglaDeCompensacion(cfgDe(id));
+      expect(regla.plazo, id).toBe(4);
+      expect(regla.cruceConRendimientos, id).toBe(0);
+      expect(regla.articulo, id).toMatch(/^art\. 66\.1\.b de la NF /);
+    }
+    expect(F.reglaDeCompensacion(cfgDe("navarra"))).toEqual({ plazo: 4, cruceConRendimientos: 0.25, articulo: "art. 54.2.b del DFL 4/2008" });
+    expect(F.reglaDeCompensacion(cfgDe("estatal", "madrid"))).toEqual({ plazo: 4, cruceConRendimientos: 0.25, articulo: "art. 49.1.b de la Ley 35/2006" });
+  });
+
+  test("el ejemplo de la auditoría: vender la mitad en pérdidas y liquidar tras subir un 50 %", () => {
+    // Año 1, se venden 44.000 € (la mitad): se van 44.000 × 100.000 / 88.000 = 50.000 € de coste, y la pérdida es
+    // 50.000 − 44.000 = 6.000 €. Queda la otra mitad: 44.000 € que costaron 50.000 €. Antes salían solo 44.000 € de coste y
+    // quedaban 56.000.
+    const v1 = M.vender(CAIDA, 44000, 1, PLAZO);
+    cerca(v1.costeRetirado, 50000, 1e-9);
+    cerca(v1.perdida, 6000, 1e-9);
+    expect(v1.ganancia).toBe(0);
+    cerca(v1.K, 50000, 1e-9);
+    cerca(v1.V, 44000, 1e-9);
+    expect(v1.pendientes).toEqual([{ origen: 1, importe: expect.closeTo(6000, 6) }]);
+    // Año 2, sube un 50 %: 44.000 × 1,5 = 66.000 €, y se vende todo. Ganancia 66.000 − 50.000 = 16.000 €; la pérdida del
+    // año 1 le quita 6.000, y tributan 10.000 €. Con el coste de antes (56.000) también salían 10.000, pero sin plazo.
+    const v2 = M.vender({ ...v1, V: 66000 }, 66000, 2, PLAZO);
+    cerca(v2.gananciaBruta, 16000, 1e-9);
+    cerca(v2.compensado, 6000, 1e-9);
+    cerca(v2.ganancia, 10000, 1e-9);
+    cerca(v2.K, 0, 1e-9);
+    expect(v2.pendientes).toEqual([]);
+    expect(v2.perdidasPendientes).toBe(0);
+  });
+
+  test("vender todo en pérdidas se lleva todo el coste", () => {
+    // 88.000 − 100.000 = −12.000 €, y no queda coste sin valor. Antes quedaban 100.000 − 88.000 = 12.000 € de coste con V = 0.
+    const v = M.vender(CAIDA, 88000, 1, PLAZO);
+    cerca(v.costeRetirado, 100000, 1e-9);
+    cerca(v.perdida, 12000, 1e-9);
+    expect(v.V).toBe(0);
+    cerca(v.K, 0, 1e-9);
+  });
+
+  test("la pérdida vale hasta el cuarto año siguiente y después caduca sin compensar", () => {
+    const v1 = M.vender(CAIDA, 44000, 1, PLAZO);
+    // Año 5 —el cuarto siguiente al 1—: aún compensa. 16.000 − 6.000 = 10.000.
+    const enPlazo = M.vender({ ...v1, V: 66000 }, 66000, 5, PLAZO);
+    cerca(enPlazo.compensado, 6000, 1e-9);
+    cerca(enPlazo.ganancia, 10000, 1e-9);
+    // Si en los años 2 a 5 no se vende nada, al cierre del 5 la pérdida caduca entera: 6.000 €.
+    let c: M.CarteraFiscal = v1;
+    let caducada = 0;
+    for (let anio = 2; anio <= 5; anio += 1) {
+      const sinVenta = M.vender(c, 0, anio, PLAZO);
+      caducada += sinVenta.perdidaCaducada;
+      c = sinVenta;
+      cerca(sinVenta.perdidasPendientes, anio < 5 ? 6000 : 0, 1e-9, `año ${anio}`);
+    }
+    cerca(caducada, 6000, 1e-9);
+    // Año 6: la misma venta tributa entera, 66.000 − 50.000 = 16.000 €. Con el coste de antes habrían tributado 10.000.
+    const fuera = M.vender({ ...c, V: 66000 }, 66000, 6, PLAZO);
+    expect(fuera.compensado).toBe(0);
+    cerca(fuera.ganancia, 16000, 1e-9);
+  });
+
+  test("dos pérdidas se compensan la más antigua primero", () => {
+    // Pendientes 1.000 € del año 1 y 2.000 € del año 3; en el año 4 se ganan 1.500 €: 1.000 del año 1 y 500 del año 3.
+    const v = M.vender({ V: 15000, K: 13500, pendientes: [{ origen: 1, importe: 1000 }, { origen: 3, importe: 2000 }] }, 15000, 4, PLAZO);
+    cerca(v.gananciaBruta, 1500, 1e-9);
+    cerca(v.compensado, 1500, 1e-9);
+    expect(v.ganancia).toBe(0);
+    expect(v.pendientes).toEqual([{ origen: 3, importe: expect.closeTo(1500, 6) }]);
+  });
+
+  test("«Mal comienzo» en Bizkaia: las pérdidas de los dos primeros años rebajan las ganancias de los cuatro siguientes", () => {
+    /* Pensión de 2.000 € × 14, sin liquidez, 100.000 € en fondos que costaron 100.000, un 10 % y sin IPC, conservando el
+       capital: se retira 100.000 × (10 % − 0 %) = 10.000 € al año. El mal comienzo es −12 % y −5 %, y después un 10 %. */
+    const r = calcular({ territorio: "bizkaia", pension: 2000, liquidez: 0, depositos: 0, fondos: 100000, fondosCoste: 100000, acciones: 0, accionesCoste: 0, rentabilidad: 10, inflacion: 0, estrategia: "conservar", edadFin: 75, estres: true });
+    const f = r.escenarios.find((e) => e.clave === "estres")!.filas;
+    cerca(r.plan.W1, 10000, 1e-6);
+    // Año 1: V = 88.000; se venden 10.000 con 10.000 × 100.000 / 88.000 = 11.363,64 de coste → pérdida 1.363,64.
+    //   Quedan V = 78.000 y K = 88.636,36.
+    cerca(f[0].perdida, 1363.64, 0.01);
+    // Año 2: V = 78.000 × 0,95 = 74.100; coste 10.000 × 88.636,36 / 74.100 = 11.961,72 → pérdida 1.961,72. V = 64.100, K = 76.674,64.
+    cerca(f[1].perdida, 1961.72, 0.01);
+    // Año 3: V = 64.100 × 1,1 = 70.510; coste 10.000 × 76.674,64 / 70.510 = 10.874,29 → pérdida 874,29. V = 60.510, K = 65.800,35.
+    cerca(f[2].perdida, 874.29, 0.01);
+    cerca(f[2].perdidasPendientes, 1363.64 + 1961.72 + 874.29, 0.02);
+    // Año 4: V = 66.561; coste 10.000 × 65.800,35 / 66.561 = 9.885,72 → ganancia 114,28, compensada con la del año 1.
+    cerca(f[3].gananciaBruta, 114.28, 0.01);
+    cerca(f[3].compensado, 114.28, 0.01);
+    expect(f[3].ganancia).toBe(0);
+    // Año 5: V = 56.561 × 1,1 = 62.217,10; K = 55.914,63; coste 8.987,02 → ganancia 1.012,98, compensada. A la del año 1 le
+    //   quedan 1.363,64 − 114,28 − 1.012,98 = 236,38, y su plazo acaba este año: caducan.
+    cerca(f[4].compensado, 1012.98, 0.01);
+    cerca(f[4].perdidaCaducada, 236.38, 0.01);
+    // Año 6: ganancia 1.829,98, compensada con la del año 2, a la que le quedan 1.961,72 − 1.829,98 = 131,74 y caducan.
+    cerca(f[5].compensado, 1829.98, 0.01);
+    cerca(f[5].perdidaCaducada, 131.74, 0.01);
+    // Año 7: ganancia 2.572,71; la del año 3 (874,29) cabe entera y tributan 2.572,71 − 874,29 = 1.698,42.
+    cerca(f[6].gananciaBruta, 2572.71, 0.01);
+    cerca(f[6].compensado, 874.29, 0.01);
+    cerca(f[6].ganancia, 1698.42, 0.01);
+    expect(f[6].perdidasPendientes).toBe(0);
+    // Su IRPF, con la pensión a los 71: base general 28.000 − 3.000 = 25.000 → 4.481 tras la minoración; el ahorro, al 19 %:
+    //   1.698,42 × 0,19 = 322,70; la deducción por edad, 393 × (30.000 − 25.000 − 1.698,42) / 10.000 = 129,75.
+    //   4.481 + 322,70 − 129,75 = 4.673,95. Con el coste de antes, ese año tributaban 2.030,04 → 4.749,99.
+    cerca(f[6].impuesto, 4673.95, 0.01);
+    // Año 1, sin ahorro que tribute: 4.481 − 393 × 5.000 / 10.000 = 4.284,50.
+    cerca(f[0].impuesto, 4284.5, 0.01);
+    // Las ganancias que tributan en los diez años: 1.698,42 + 3.247,92 + 3.861,74 + 4.419,77 = 13.227,85 (antes 13.799,32).
+    cerca(f.reduce((s, x) => s + x.ganancia, 0), 13227.85, 0.02);
+  });
+
+  test("el caso por defecto no cambia: nunca vende en pérdidas", () => {
+    /* 150.000 € que costaron 115.000: K / V = 0,7667. Con el mal comienzo, 0,7667 / 0,88 = 0,8712 y 0,8712 / 0,95 = 0,9171;
+       vender a prorrata no mueve esa proporción, y después la rentabilidad la baja. Nunca llega a 1: no hay pérdidas, y el
+       coste que sale es el de antes. Las cifras del motor de origen las fija «Regresión exacta del motor de origen». */
+    for (const e of calcular().escenarios) {
+      for (const fila of e.filas) {
+        expect(fila.perdida, `${e.clave}, año ${fila.anio}`).toBe(0);
+        expect(fila.compensado, `${e.clave}, año ${fila.anio}`).toBe(0);
+        expect(fila.ganancia).toBe(fila.gananciaBruta);
+      }
+    }
+  });
+});
+
 /* JUB-8: estas son las únicas cifras del fichero que NO salen de una cuenta a mano. Son lo que daba el motor de NUVIA el
    día que se trajo: si una se mueve, este motor ha dejado de calcular lo que calculaba aquel. No dicen que la regla esté
    bien; eso lo dicen los demás bloques, cada uno con su cuenta sobre la norma. */
@@ -387,11 +842,15 @@ describe("Territorio común", () => {
     // Desde los 75: mínimo 8.100 → escala(8.100) = 769,50 → 2 × (2.982,75 − 769,50) = 4.426,50.
     cerca(M.irpf({ trabajo: 28000, edad: 75, territorio: "estatal" }).total, 4426.5);
     cerca(M.irpf({ trabajo: 28000, edad: 74, territorio: "estatal" }).total, 4692.5);
-    // 15.000 de trabajo a los 64: neto 13.000 → reducción 7.302 → base 5.698; estatal 541,31 − 527,25 = 14,06; total 28,12. A los 65 el mínimo (6.700) cubre toda la base: 0.
+    // 15.000 de trabajo a los 64. La reducción se mide sobre el rendimiento antes de los 2.000 € de la letra f)
+    // (art. 20, párrafo que sigue a los tramos: solo restan los gastos de las letras a) a e) del art. 19.2; P1-01, 21-11-2026):
+    // 15.000 está en el tramo b) → 7.302 − 1,75 × (15.000 − 14.852) = 7.302 − 259 = 7.043.
+    // Base = 15.000 − 2.000 − 7.043 = 5.957; estatal 5.957 × 9,5 % − 527,25 = 565,915 − 527,25 = 38,665; con la autonómica de referencia, idéntica, 77,33.
+    // A los 65 el mínimo (6.700) cubre toda la base: 0.
     const b = M.irpf({ trabajo: 15000, edad: 64, territorio: "estatal" });
-    expect(b.reduccionTrabajo).toBe(7302);
-    cerca(b.baseGeneral, 5698);
-    cerca(b.total, 28.12);
+    cerca(b.reduccionTrabajo, 7043, 1e-9);
+    cerca(b.baseGeneral, 5957, 1e-9);
+    cerca(b.total, 77.33, 1e-9);
     cerca(M.irpf({ trabajo: 15000, edad: 65, territorio: "estatal" }).total, 0);
     // Tramos b) y c) del art. 20: 16.000 → 7.302 − 1,75 × 1.148 = 5.293; 19.000 → 2.364,34 − 1,14 × 1.326,48 = 852,15.
     const cfg = cfgDe("estatal");
@@ -403,6 +862,33 @@ describe("Territorio común", () => {
     // Solo ahorro, 10.000 €: 6.000 × 19 % + 4.000 × 21 % = 1.980; el mínimo (5.550) se aplica al ahorro: 1.054,50 → 925,50.
     cerca(M.irpf({ trabajo: 0, ahorro: 10000, edad: 60, territorio: "estatal" }).total, 925.5);
     expect(F.escalaGeneralVisible(cfg)).toEqual([[0, 0.19], [12450, 0.24], [20200, 0.3], [35200, 0.37], [60000, 0.45], [300000, 0.47]]);
+  });
+
+  test("la reducción del art. 20 se mide antes de los 2.000 € de gastos de la letra f) (P1-01)", () => {
+    // Art. 20 LIRPF (redacción del RDL 4/2024): «el rendimiento neto del trabajo será el resultante de minorar el
+    // rendimiento íntegro en los gastos previstos en las letras a), b), c), d) y e) del artículo 19.2». Una pensión no
+    // tiene gastos de a) a e): la reducción se mide sobre la pensión íntegra; los 2.000 € se restan aparte, y la
+    // reducción no puede dejar el saldo en negativo. Cada caso, a los 64 años y sin otras rentas:
+    const caso = (trabajo: number) => M.irpf({ trabajo, edad: 64, territorio: "estatal" });
+    // 14.852 (límite del tramo a): reducción 7.302; base 14.852 − 2.000 − 7.302 = 5.550.
+    cerca(caso(14852).reduccionTrabajo, 7302, 1e-9);
+    cerca(caso(14852).baseGeneral, 5550, 1e-9);
+    // 16.000 (tramo b): 7.302 − 1,75 × 1.148 = 5.293; base 16.000 − 2.000 − 5.293 = 8.707. Con la regla de antes, sobre 14.000, eran 7.302 y 6.698.
+    cerca(caso(16000).reduccionTrabajo, 5293, 1e-9);
+    cerca(caso(16000).baseGeneral, 8707, 1e-9);
+    // 18.000 (tramo c): 2.364,34 − 1,14 × (18.000 − 17.673,52) = 2.364,34 − 372,1872 = 1.992,1528; base 18.000 − 2.000 − 1.992,1528 = 14.007,8472.
+    // Con la regla de antes, sobre 16.000, eran 5.293 y 10.707: 3.300,85 € menos de base.
+    cerca(caso(18000).reduccionTrabajo, 1992.1528, 1e-9);
+    cerca(caso(18000).baseGeneral, 14007.8472, 1e-9);
+    // 19.747,50: el art. 20 solo reduce rendimientos «inferiores a 19.747,5 euros» → 0; base 17.747,50.
+    expect(caso(19747.5).reduccionTrabajo).toBe(0);
+    cerca(caso(19747.5).baseGeneral, 17747.5, 1e-9);
+    // 20.500: 0 (con la regla de antes, sobre 18.500, eran 2.364,34 − 1,14 × 826,48 = 1.422,15); base 18.500.
+    expect(caso(20500).reduccionTrabajo).toBe(0);
+    cerca(caso(20500).baseGeneral, 18500, 1e-9);
+    // 8.000: la reducción sería 7.302, pero el saldo tras los gastos es 6.000 y no puede quedar negativo → 6.000; base 0.
+    cerca(caso(8000).reduccionTrabajo, 6000, 1e-9);
+    expect(caso(8000).baseGeneral).toBe(0);
   });
 
   test("plan de pensiones en capital: el 40 % de la DT 12.ª solo sobre aportaciones anteriores a 2007", () => {
@@ -595,16 +1081,17 @@ describe("Las 15 comunidades de régimen común", () => {
     // Madrid, solo ahorro, 10.000 € a los 60: escala conjunta 6.000 × 19 % + 4.000 × 21 % = 1.980 (990 estatal + 990 autonómica).
     // Estatal: 990 − 5.550 × 9,5 % (527,25) = 462,75. Autonómica: 990 − 5.956,65 × 9,5 % (565,88175) = 424,11825. Total 886,86825.
     cerca(M.irpf({ trabajo: 0, ahorro: 10000, edad: 60, territorio: "estatal", ccaa: "madrid" }).total, 886.86825, 1e-6);
-    // Base general 5.700 € (trabajo 15.002: 13.002 − 7.302) y 2.000 € de ahorro, Madrid a los 60.
-    // Estatal: el mínimo 5.550 cabe en la general → 5.700 × 9,5 % − 527,25 = 14,25; ahorro 2.000 × 9,5 % = 190.
-    // Autonómica: 5.700 del mínimo propio absorben toda la general (0) y 256,65 pasan al ahorro: 190 − 256,65 × 9,5 % = 165,61825.
-    const x = M.irpf({ trabajo: 15002, ahorro: 2000, edad: 60, territorio: "estatal", ccaa: "madrid" });
-    cerca(x.baseGeneral, 5700, 1e-9);
-    cerca(x.cuotaGeneral, 14.25, 1e-6);
-    cerca(x.cuotaAhorro, 190 + 165.61825, 1e-6);
-    cerca(x.total, 369.86825, 1e-6);
-    // Con la escala de referencia el mismo caso da 14,25 × 2 + 2.000 × 19 % = 408,50.
-    cerca(M.irpf({ trabajo: 15002, ahorro: 2000, edad: 60, territorio: "estatal" }).total, 408.5, 1e-9);
+    // Base general 5.682 € y 2.000 € de ahorro, Madrid a los 60. Trabajo 14.900: reducción sobre los 14.900 (art. 20,
+    // antes de los 2.000 € de la letra f) = 7.302 − 1,75 × 48 = 7.218 → base 14.900 − 2.000 − 7.218 = 5.682.
+    // Estatal: el mínimo 5.550 cabe en la general → 5.682 × 9,5 % − 527,25 = 539,79 − 527,25 = 12,54; ahorro 2.000 × 9,5 % = 190.
+    // Autonómica: 5.682 del mínimo propio absorben toda la general (0) y 274,65 pasan al ahorro: 190 − 274,65 × 9,5 % = 163,90825.
+    const x = M.irpf({ trabajo: 14900, ahorro: 2000, edad: 60, territorio: "estatal", ccaa: "madrid" });
+    cerca(x.baseGeneral, 5682, 1e-9);
+    cerca(x.cuotaGeneral, 12.54, 1e-6);
+    cerca(x.cuotaAhorro, 190 + 163.90825, 1e-6);
+    cerca(x.total, 366.44825, 1e-6);
+    // Con la escala de referencia el mismo caso da 12,54 × 2 + 2.000 × 19 % = 405,08.
+    cerca(M.irpf({ trabajo: 14900, ahorro: 2000, edad: 60, territorio: "estatal" }).total, 405.08, 1e-9);
     cerca(M.irpf({ trabajo: 0, ahorro: 10000, edad: 60, territorio: "estatal" }).total, 925.5, 1e-9);
   });
 });

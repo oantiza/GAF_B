@@ -53,3 +53,15 @@ test("en modo cliente exporta solo las columnas visibles sin datos comerciales",
   expect(sheet.E2).toBeUndefined();
   expect(JSON.stringify(data)).not.toMatch(/Retrocesión|Cesión|Ingreso/);
 });
+
+/* 20-11-2026: tres estados. Una posición que la base no pudo leer no es una que no esté en el catálogo, y la hoja lo dice. */
+test("la columna Estado distingue reconocida, no reconocida y no se pudo leer", async () => {
+  const tres: GlobalPositionExportRow[] = [
+    ...rows,
+    { id: "LU0000000001", name: "LU0000000001", amount: 100, retroPct: null, cessionPct: null, incomeEur: null, status: "unread" }
+  ];
+  const sheet = read(await buildGlobalPositionsXlsx(tres), { type: "array" }).Sheets["Posiciones globales"];
+  expect([sheet.G2.v, sheet.G3.v, sheet.G4.v]).toEqual(["Reconocida", "No reconocida", "No se pudo leer"]);
+  const cliente = read(await buildGlobalPositionsXlsx(tres, true), { type: "array" }).Sheets["Posiciones globales"];
+  expect(cliente.D4.v).toBe("No se pudo leer");
+});

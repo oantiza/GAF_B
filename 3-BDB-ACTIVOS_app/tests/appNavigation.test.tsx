@@ -96,10 +96,12 @@ describe("application navigation", () => {
 });
 
 describe("ActivePortfolioChip", () => {
-  it("stays hidden while the active portfolio is empty", () => {
+  it("sin propuesta lo dice y ofrece empezar, en vez de desaparecer (M4, Óscar, 21-11-2026)", () => {
     const html = renderToStaticMarkup(<ActivePortfolioChip positions={[]} onOpen={() => undefined} />);
 
-    expect(html).toBe("");
+    expect(plainText(html)).toMatch(/^Sin propuesta\s*Empezar\s*\. Abrir en Diseño de la propuesta$/);
+    expect(html).toContain('type="button"');
+    expect(html).not.toContain("aria-label");
   });
 
   it("shows the active position count and total weight", () => {

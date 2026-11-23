@@ -3,7 +3,7 @@ import { useAdminClaim } from "./useIsAdmin";
 
 /**
  * B4 / R-07 (auditoría 29-09): `commercial_retro` solo es legible por admin
- * (firestore.rules). Con una cuenta sin claim, cada consulta terminaba en
+ * (`4-base-nueva/firestore.rules`). Con una cuenta sin claim, cada consulta terminaba en
  * «Missing or insufficient permissions» en Constructor, Cambio de fondo,
  * Comparador y Posiciones (y bloqueaba las exportaciones). Este gate decide
  * si se puede consultar la base comercial:

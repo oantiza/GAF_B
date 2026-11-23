@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """Decision 6.3 de Oscar (17-10-2026): un solo Sharpe ex post, (CAGR - rf) / sigma.
 
-La misma serie en la misma ventana, con la misma tasa sin riesgo, da el mismo Sharpe en
-la simulacion historica diaria (backtest_portfolio) y en metrics/latest de la maestra
-(build_metrics_latest). El Sharpe del optimizador es otro (el «Sharpe del modelo», sobre la
+La misma serie en la misma ventana, con la misma tasa sin riesgo, da en la simulacion historica
+diaria (backtest_portfolio) el Sharpe que sale de la cuenta a mano: CAGR por fechas, volatilidad
+muestral de los retornos semanales (ultima observacion de cada semana ISO) x raiz(52), y
+`ex_post_sharpe`. La otra pata era metrics/latest de la maestra vieja (`ingest_asset.build_metrics_latest`,
+el estimador `GEOMETRIC_CAGR` / `WEEKLY`), borrada el 21-11-2026 con ella (decision 37 del censo
+CENSO_BASE_VIEJA_2026-11-21.md; etiqueta referencia-base-vieja-2026-11-21). El Sharpe del optimizador es otro (el «Sharpe del modelo», sobre la
 media aritmetica esperada) y no entra aqui. La tercera pata era la cartera real del motor
 `portfolio_real/`, borrado el 17-11-2026 (decision A-188); su paridad, y la del respaldo con
 el €STR capitalizado (B-70), estan en la etiqueta de Git `referencia-portfolio-real-2026-11-17`.
@@ -20,14 +23,13 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import ingest_asset  # noqa: E402
 from optimization.repository import _clear_price_series_cache, backtest_portfolio  # noqa: E402
 from weekly_sampling import DAYS_PER_YEAR, ex_post_sharpe, sample_volatility  # noqa: E402
 
 AID = "LU0000000PAR"
 NAME = "FONDO PARIDAD"
 LAST = date(2026, 10, 15)          # jueves
-FIRST = LAST - timedelta(days=365 * 3)  # 2023-10-16, lunes: la ventana 3y exacta de la maestra
+FIRST = LAST - timedelta(days=365 * 3)  # 2023-10-16, lunes: la ventana 3y exacta
 RF = 0.021
 
 
@@ -53,12 +55,15 @@ def _series(seed, drift=0.0003, vol=0.008):
     return points
 
 
-def _master_sharpe(points):
-    metrics = ingest_asset.build_metrics_latest(
-        AID, "FUND", [{"date": d.isoformat(), "value": v} for d, v in points], "2026-10-16T08:00:00+00:00",
-        risk_free_resolver=resolver,
-    )
-    return metrics["windows"]["3y"]
+def _volatilidad_semanal(points):
+    """A mano: ultima observacion de cada semana ISO, retornos consecutivos, muestral x raiz(52)."""
+    weekly = {}
+    for day, value in points:
+        iso = day.isocalendar()
+        weekly[(iso.year, iso.week)] = value
+    levels = list(weekly.values())
+    returns = [b / a - 1.0 for a, b in zip(levels, levels[1:])]
+    return sample_volatility(returns, 52)
 
 
 class _Reader:
@@ -88,20 +93,18 @@ def _backtest(points):
 
 
 @pytest.mark.parametrize("seed", [1, 2, 3])
-def test_mismo_sharpe_ex_post_en_backtest_y_maestra(seed):
+def test_el_sharpe_ex_post_del_backtest_es_el_de_la_cuenta_a_mano(seed):
     points = _series(seed)
-    master = _master_sharpe(points)
     backtest = _backtest(points)
-    assert master["risk_free_rate"] == RF and backtest["rf_rate"] == RF
+    assert backtest["rf_rate"] == RF
 
-    # Misma rentabilidad anualizada por fechas (365,2425) y misma volatilidad semanal.
+    # Rentabilidad anualizada por fechas (365,2425) y volatilidad semanal.
     cagr = (points[-1][1] / points[0][1]) ** (DAYS_PER_YEAR / (LAST - FIRST).days) - 1.0
-    assert master["annualized_return"] == pytest.approx(cagr, abs=1e-8)
+    volatilidad = _volatilidad_semanal(points)
     assert backtest["cagr"] == pytest.approx(cagr, abs=1e-6)
-    assert backtest["volatility"] == pytest.approx(master["annualized_volatility"], abs=1e-6)
+    assert backtest["volatility"] == pytest.approx(volatilidad, abs=1e-6)
 
-    expected = ex_post_sharpe(cagr, RF, master["annualized_volatility"])
-    assert master["sharpe_ratio"] == pytest.approx(expected, abs=1e-6)
+    expected = ex_post_sharpe(cagr, RF, volatilidad)
     assert backtest["sharpe"] == pytest.approx(expected, abs=1e-4)
 
 
@@ -114,13 +117,8 @@ def test_ex_post_sharpe_y_sus_bordes():
         assert ex_post_sharpe(*missing, default=0.0) == 0.0
 
 
-def test_la_volatilidad_de_la_paridad_es_la_muestral_semanal():
+def test_la_volatilidad_del_backtest_es_la_muestral_semanal():
     points = _series(5)
-    weekly = {}
-    for day, value in points:
-        iso = day.isocalendar()
-        weekly[(iso.year, iso.week)] = value
-    levels = list(weekly.values())
-    returns = [b / a - 1.0 for a, b in zip(levels, levels[1:])]
-    assert _master_sharpe(points)["annualized_volatility"] == pytest.approx(sample_volatility(returns, 52), abs=1e-8)
-    assert math.isfinite(_backtest(points)["sharpe"])
+    backtest = _backtest(points)
+    assert backtest["volatility"] == pytest.approx(_volatilidad_semanal(points), abs=1e-6)
+    assert math.isfinite(backtest["sharpe"])

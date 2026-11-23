@@ -752,8 +752,8 @@
         },
         "relative_absence": {
           "type": "string",
-          "enum": ["NO_REFERENCE_FOR_MARKET", "NO_REFERENCE_DECIDED_FOR_MARKET", "KID_DECLARES_COMPOSITE", "KID_DECLARES_NO_BENCHMARK", "HEDGED_SHARE_CLASS"],
-          "description": "Copia de `computed/metrics.relative_absence`: por que no hay `relative`, cuando lo hemos decidido. Con un motivo del KID (decision 20 del 07-11-2026) la tarjeta tampoco cae a la cifra del proveedor contra su categoria: para BNP Clean Energy esa categoria tiene la volatilidad de un indice mundial amplio (13,9 % a un anio frente al 38 % del fondo), asi que seria publicar por otra puerta el alfa que la decision retira. Con `HEDGED_SHARE_CLASS` (decision 30) pasa lo mismo: el indice de la categoria del proveedor tampoco esta cubierto, y su alfa contra la clase cubierta mediria la misma cobertura que la nuestra no quiere medir.",
+          "enum": ["NO_REFERENCE_FOR_MARKET", "NO_REFERENCE_DECIDED_FOR_MARKET", "KID_DECLARES_COMPOSITE", "KID_DECLARES_NO_BENCHMARK", "HEDGED_SHARE_CLASS", "SAME_FUND_REFERENCE"],
+          "description": "Copia de `computed/metrics.relative_absence`: por que no hay `relative`, cuando lo hemos decidido. Con un motivo del KID (decision 20 del 07-11-2026) la tarjeta tampoco cae a la cifra del proveedor contra su categoria: para BNP Clean Energy esa categoria tiene la volatilidad de un indice mundial amplio (13,9 % a un anio frente al 38 % del fondo), asi que seria publicar por otra puerta el alfa que la decision retira. Con `HEDGED_SHARE_CLASS` (decision 30) pasa lo mismo: el indice de la categoria del proveedor tampoco esta cubierto, y su alfa contra la clase cubierta mediria la misma cobertura que la nuestra no quiere medir. Con `SAME_FUND_REFERENCE` (decision C-28 del 21-11-2026) si cae: el motivo es que la unica serie de su indice es otra clase del mismo fondo, no que el indice de la categoria del proveedor mida otra cosa, y el fondo queda como cualquiera sin proxy.",
           "x-unit": "code",
           "x-layer": "projection",
           "x-owner": "batch",
@@ -1227,9 +1227,9 @@
     },
     "peso_de_clase": {
       "type": "number",
-      "minimum": -0.01,
-      "maximum": 1.01,
-      "description": "El peso de una clase en el reparto, neto: una clase puede salirse de 0-1 hasta un punto, de -0,01 a 1,01 (decision A-63 de Oscar, 05-11-2026). Es el mismo rango de declared/exposure, porque esto es una copia de aquello; el porque esta alli. Quien sume o dibuje esto tiene que aceptar un negativo pequeno.",
+      "minimum": -5,
+      "maximum": 6,
+      "description": "El peso de una clase en el reparto NETO, tal como lo da el proveedor: de -5 a 6 (decision C-29 de Oscar, 21-11-2026; hasta ese dia, de -0,01 a 1,01 por la A-63). Una clase negativa es un corto o liquidez prestada, una por encima de 1 es apalancamiento, y entre todas suman 1. Es el mismo rango de declared/exposure, porque esto es una copia de aquello; el porque esta alli. Quien sume o dibuje esto tiene que aceptar un negativo y una clase por encima del 100 %: una barra o una porcion de aro no pueden ser negativas, y la clase negativa se escribe con su signo.",
       "x-unit": "fraction",
       "x-layer": "projection",
       "x-owner": "batch",

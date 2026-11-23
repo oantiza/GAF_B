@@ -191,8 +191,34 @@ describe("paso 3: la comprobación contra los extractos", () => {
     expect(construirLibro(despues.cartera).avisos).toEqual([]);
   });
 
-  it("una posición en otra divisa no se propone: su valor viene en euros y no da el precio", async () => {
+  it("una posición en otra divisa se propone con el precio que el extracto da en su divisa (A-205)", async () => {
+    /* La acción heredada: 10 títulos a 50 $ (10 × 50 = 500 $ de valor de mercado). Antes no se proponía, porque solo se
+       miraba su contravalor de 450 €, y en euros no se sabe a cuántos dólares cotiza. */
     const resultados = resultadosDe(await leerTodos([fichero("mov.xls", MOVIMIENTOS_COMPLETOS), fichero("pos.xls", POSICIONES_CON_UNA_ACCION_EN_DOLARES), fichero("ops.xls", OPERACIONES_COMPLETAS)]), "EUR");
+    const revision = revisar(resultados, vacia(), CATALOGO);
+    const marcadas = elegidas(revision, new Map());
+    const antes = comprobar(vacia(), resultados, revision, marcadas, new Map(), [], AHORA);
+    const { propuestas, sinProponer } = proponerPosicionesIniciales(antes, revision, marcadas, new Map());
+    expect(sinProponer).toEqual([]);
+    expect(propuestas.map((propuesta) => [propuesta.activo.isin, propuesta.activo.divisa, propuesta.movimiento.titulos, propuesta.movimiento.precio])).toEqual([[ISIN_DOLARES, "USD", "10", "50"]]);
+    const despues = comprobar(vacia(), resultados, revision, marcadas, new Map(), propuestas, AHORA);
+    expect(despues.cuadra).toBe(true);
+  });
+
+  it("sin el precio en su divisa —un extracto que no lo dice—, una posición en otra divisa sigue sin proponerse", async () => {
+    const leidos = resultadosDe(await leerTodos([fichero("mov.xls", MOVIMIENTOS_COMPLETOS), fichero("pos.xls", POSICIONES_CON_UNA_ACCION_EN_DOLARES), fichero("ops.xls", OPERACIONES_COMPLETAS)]), "EUR");
+    const resultados = leidos.map((resultado) => ({
+      ...resultado,
+      extractos: resultado.extractos.map((extracto) => ({
+        ...extracto,
+        posiciones: extracto.posiciones.map((posicion) => {
+          const sinPrecio = { ...posicion };
+          delete sinPrecio.precio;
+          delete sinPrecio.divisa;
+          return sinPrecio;
+        })
+      }))
+    }));
     const revision = revisar(resultados, vacia(), CATALOGO);
     const marcadas = elegidas(revision, new Map());
     const antes = comprobar(vacia(), resultados, revision, marcadas, new Map(), [], AHORA);

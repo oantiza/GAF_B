@@ -23,6 +23,7 @@ const backend = vi.hoisted(() => ({
 vi.mock("../src/adapters/optimizePortfolioBackend", () => backend);
 
 import { FrontierHistoricalView } from "../src/components/FrontierHistoricalView";
+import { MedidaDelObjetivo } from "../src/components/MedidaDelObjetivo";
 import { OptimizerPanel } from "../src/components/OptimizerPanel";
 import { toAppError } from "../src/core/appError";
 import { olvidarTrabajoDeCartera } from "../src/core/disenoEnSesion";
@@ -70,7 +71,7 @@ describe("la nota de la propuesta", () => {
     ["QP", 0.2, "tope del 20,0\u00a0% por posición"]
   ])("con %s y un tope de %f dice «%s», el que ha aplicado el motor", (optimizer, tope, escrito) => {
     expect(notaDeLaPropuesta(modelo({ optimizer, weight_bounds: [0, tope] }))).toBe(
-      `Máximo Sharpe del modelo: rentabilidades y covarianza regularizadas, ${escrito}. Medida luego con la serie real puede quedar por debajo de la cartera actual.`
+      `Máximo Sharpe del modelo: covarianza regularizada (con tres activos o menos, las rentabilidades no se regularizan), ${escrito}. Medida luego con la serie real puede quedar por debajo de la cartera actual.`
     );
   });
 
@@ -260,6 +261,28 @@ describe("lo que se dice de «Rentabilidad objetivo»", () => {
     expect(sharpeQueNoAplica(model, [])).toBeNull();
   });
 
+  test("si las dos son una sola acción, no se lee el Sharpe de ninguna: ni en la frase ni en la tabla (P2-06)", () => {
+    const model = modelo({ optimizer: "CLA", weight_bounds: [0, 1], target_return: 0.08 }, {
+      current_portfolio: { ...PUNTO, weights: { A: 1, B: 0 } },
+      target_return_portfolio: { ...PUNTO, expected_return: 0.08, weights: { A: 0, B: 1 } },
+      target_return_measured: { portfolio: MEDIDA_3A, current: ACTUAL_3A }
+    });
+    const assets = [{ asset_id: "A", instrument_type: "STOCK" }, { asset_id: "B", instrument_type: "STOCK" }] as never;
+    expect(sharpeQueNoAplica(model, assets)).toBe("ambas");
+    const nota = notaDeLaRentabilidadObjetivo(model, assets)!;
+    expect(nota).toContain("con una volatilidad del 5,75 %.");
+    expect(nota).toContain("con una volatilidad del 8,44 %.");
+    expect(nota).not.toContain("Sharpe");
+    /* La tabla: la fila del Sharpe lleva «No aplica» en las dos carteras y en la diferencia, sin 1,06 ni 1,27. */
+    const html = renderToStaticMarkup(createElement(MedidaDelObjetivo, { model, assets }));
+    const fila = /<tr><td>Sharpe<\/td>(.*?)<\/tr>/.exec(html)?.[1] ?? "";
+    expect(fila.match(/No aplica/g)).toHaveLength(3);
+    expect(fila).not.toMatch(/1,06|1,27/);
+    /* Solo la propuesta de una acción: la tabla quita la suya y deja la actual. */
+    const soloLaPropuesta = [{ asset_id: "A", instrument_type: "FUND" }, { asset_id: "B", instrument_type: "STOCK" }] as never;
+    expect(sharpeQueNoAplica(model, soloLaPropuesta)).toBe("propuesta");
+  });
+
   test("sin el motor no dice que esté regularizado, y sin lo pedido no afirma nada", () => {
     const demo = conObjetivo(0.08, 0.08, null, null, { optimizer: "DEMO_MEAN_VARIANCE_QP" });
     expect(notaDeLaRentabilidadObjetivo(demo)).toBe("El +8,00\u00a0% que pides es la media de la serie. La medida con la serie no está: falta el dato.");
@@ -352,7 +375,7 @@ describe("la nota de las otras dos carteras del modelo", () => {
 describe("lo que enseña la frontera", () => {
   test("con el motor regularizado, la nota al lado de las cifras, y cada cifra dice que es del modelo", () => {
     const html = vista(resultado({ optimizer: "CLA", weight_bounds: [0, 0.35] }));
-    expect(html).toContain("Máximo Sharpe del modelo: rentabilidades y covarianza regularizadas, tope del 35,0\u00a0% por posición.");
+    expect(html).toContain("Máximo Sharpe del modelo: covarianza regularizada (con tres activos o menos, las rentabilidades no se regularizan), tope del 35,0\u00a0% por posición.");
     for (const rotulo of ["Rent. del modelo", "Vol. del modelo", "Sharpe del modelo"]) expect(html).toContain(`<dt>${rotulo}</dt>`);
     expect(html).not.toContain("<dt>Rent.</dt>");
     expect(html).toContain("Máx. Sharpe");

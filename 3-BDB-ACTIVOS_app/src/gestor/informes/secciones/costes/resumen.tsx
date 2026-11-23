@@ -18,11 +18,26 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
   const ic = analisis.ingresosYCostes;
   const conocidos = ic.gastosCorrientes !== null;
   const completa = gastosCorrientesCompletos(datos);
+  /* La cobertura es la del análisis: sobre lo invertido en fondos y ETF, sin las acciones ni los bonos (P2-07). Redondeada a
+     un 100 % o a un 0 % diría lo contrario de lo que pasa: falta algo, y algo se conoce. */
+  const cobertura = ic.coberturaDeGastosCorrientes;
+  const parte = cobertura >= 0.995 ? "más de un 99 %" : cobertura < 0.005 ? "menos de un 1 %" : `un ${porcentaje(cobertura, { decimales: 0 }) ?? ""}`;
+  const faltanSinDato = ic.productosSinGastosCorrientes.length > 0;
+  const faltanSinPrecio = ic.sinPrecioFueraDeLosGastosCorrientes.length > 0;
+  const faltanDias = ic.valoradosSoloParteDelPeriodo.length > 0;
   const apunteDeProductos = !conocidos
     ? "Coste corriente de los fondos y ETF. No se conoce el de ninguno de sus fondos, así que no se incluye."
     : completa
       ? "Coste corriente de los fondos y ETF, estimado con su porcentaje anual sobre lo invertido. No se cobra aparte: ya va descontado en el valor de cada fondo."
-      : `Coste corriente de los fondos y ETF, estimado. Se conoce el de la parte de la cartera que supone un ${porcentaje(ic.coberturaDeGastosCorrientes, { decimales: 0 }) ?? ""} de lo invertido; el del resto no se incluye. Ya va descontado en el valor de cada fondo.`;
+      : [
+          "Coste corriente de los fondos y ETF, estimado.",
+          faltanSinDato ? `Se conoce el de los que suponen ${parte} de lo invertido en fondos y ETF; el del resto no se incluye.` : null,
+          faltanSinPrecio ? `${faltanSinDato ? "Tampoco se incluye" : "No se incluye"} el de los que no tienen precio.` : null,
+          faltanDias ? `${faltanSinDato || faltanSinPrecio ? "Tampoco" : "No se incluye"} el de los días en que algún fondo no tuvo precio o tipo de cambio.` : null,
+          "Ya va descontado en el valor de cada fondo."
+        ]
+          .filter(Boolean)
+          .join(" ");
   /* La tabla de la plantilla tiene un solo total, al final: el subtotal de lo pagado directamente es una fila más, con
      su porcentaje, y el total de costes es el total de la tabla. */
   const filas: FilaDeTabla[] = [
@@ -31,7 +46,7 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
     { celdas: ["Costes pagados directamente", euros(ic.costesExplicitos), porcentaje(ic.costesExplicitosPct)] },
     { celdas: [{ texto: "Costes de los productos", apunte: apunteDeProductos }, conocidos ? euros(ic.gastosCorrientes) : null, ""] }
   ];
-  const hayDetalle = ic.cargosDelServicio.length > 0 || ic.costesPorOperacion.length > 0 || ic.porProducto.length > 0 || ic.productosSinGastosCorrientes.length > 0;
+  const hayDetalle = ic.cargosDelServicio.length > 0 || ic.costesPorOperacion.length > 0 || ic.porProducto.length > 0 || faltanSinDato || faltanSinPrecio;
   const impacto = completa && ic.costesTotalesPct !== null && ic.costesTotalesPct > 0;
   return (
     <>

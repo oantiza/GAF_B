@@ -395,11 +395,16 @@ describe("dirección A · ninguna letra del marco baja de 12 px (Óscar, 19-11-2
       "0.9em": { veces: 1, razon: "el código dentro de la prosa de un informe (`.prose code`), que va a 14 px" },
       "min(1em, var(--texto-md))": { veces: 1, razon: "una ausencia hereda el tamaño con tope, para que en una cifra de 32 px no grite" },
       "21cqi": { veces: 1, razon: "la cifra de un indicador mengua con su columna cuando no cabe (`KpiStrip`)" },
-      "19cqi": { veces: 1, razon: "la de una tira de importes mengua antes, para que quepan siete cifras" }
+      "min(var(--cifra-indicador), calc(200cqi / var(--kpi-caracteres, 11)))": {
+        veces: 1,
+        razon: "la de una tira de importes mengua según lo larga que sea la más larga, para que quepan ocho cifras con signo"
+      }
     };
     const limpias = HOJAS.map((nombre) => ({ nombre, css: sinComentarios(hoja(nombre)) }));
     const tamanos = limpias.flatMap(({ nombre, css }) => [...css.matchAll(/font-size\s*:\s*([^;}]+)/g)].map((c) => ({ nombre, valor: normal(c[1]) })));
-    expect(tamanos.length).toBeGreaterThan(400);
+    /* Un suelo, para que una lectura que no ve nada no pase. Medido el 21-11-2026: 384, después de borrar las pantallas
+       de la base vieja en Sistema (eran más de 400). */
+    expect(tamanos.length).toBeGreaterThan(350);
     const veces = (valor: string) => tamanos.filter((t) => t.valor === valor).length;
     const variableDe = (valor: string) => valor.match(/^var\((--[a-z0-9-]+)\)$/)?.[1];
     const sueltos = tamanos.filter((t) => !variableDe(t.valor) && !HEREDAN.includes(t.valor) && !(t.valor in MENGUAN));
@@ -716,10 +721,11 @@ describe("19-11-2026 · Crisis pasadas: las tres tarjetas a la misma altura y la
   test("la rejilla reparte las filas y cada tarjeta las toma (`subgrid`), sin hueco entre filas", () => {
     /* Sin hueco entre filas: una que ninguna tarjeta ocupa (el motivo, si el episodio se calcula; el activo que más
        restó, en Modo cliente) no abre sitio. Con `gap`, cada fila vacía sumaría el suyo. */
-    expect(regla(".f5-stress-grid")).toEqual({ display: "grid", "grid-template-columns": "repeat(3, minmax(0, 1fr))", "column-gap": "var(--s-5)", "row-gap": "0" });
-    /* Seis filas, las de la rejilla, y una columna que no crece con lo que lleva dentro: sin declararla sería `auto`,
+    /* 24 px entre tarjetas desde el 20-11-2026 (Óscar; apartado 14.14, medido con la sonda en los seis anchos, en 1.380 y en 1.440). */
+    expect(regla(".f5-stress-grid")).toEqual({ display: "grid", "grid-template-columns": "repeat(3, minmax(0, 1fr))", "column-gap": "var(--s-8)", "row-gap": "0" });
+    /* Siete filas desde el 20-11-2026 —la séptima, la frase de las mismas fechas de la historia común—, las de la rejilla, y una columna que no crece con lo que lleva dentro: sin declararla sería `auto`,
        y una palabra larga sin espacios la ensancharía, con todas las piezas, hacia la tarjeta vecina. */
-    expect(regla(".f5-stress-card")).toEqual({ display: "grid", "grid-template-columns": "minmax(0, 1fr)", "grid-template-rows": "subgrid", "grid-row": "span 6", "min-width": "0" });
+    expect(regla(".f5-stress-card")).toEqual({ display: "grid", "grid-template-columns": "minmax(0, 1fr)", "grid-template-rows": "subgrid", "grid-row": "span 7", "min-width": "0" });
     /* El aire entre las piezas de una tarjeta lo pone cada una con su margen, que pesa más que el `margin: 0` de la
        lista de cifras (una clase y un elemento contra una clase). */
     expect(regla(".f5-stress-card > :not(header)")).toEqual({ "margin-top": "var(--s-4)" });
@@ -737,8 +743,11 @@ describe("19-11-2026 · Crisis pasadas: las tres tarjetas a la misma altura y la
     expect(componente).toContain('className="f5-stress-no-data f5-stress-sin-cifra"');
     expect(regla(".f5-stress-card > .f5-stress-metrics")).toEqual({ "grid-row": "3 / span 2" });
     expect(regla(".f5-stress-card > .f5-stress-detail")).toEqual({ "grid-row": "5" });
-    /* Los excluidos son lo último de la tarjeta: su regla pesa más que la del detalle. */
-    expect(regla(".f5-stress-card > .f5-stress-detail:last-child")).toEqual({ "grid-row": "6" });
+    /* Los excluidos son el último detalle de la tarjeta: su regla pesa más que la del detalle. `last-of-type`, porque en la
+       historia común detrás va la frase de las mismas fechas, que es un párrafo y va a la séptima fila (20-11-2026). */
+    expect(regla(".f5-stress-card > .f5-stress-detail:last-of-type")).toEqual({ "grid-row": "6" });
+    expect(regla(".f5-stress-card > .f5-stress-mismas-fechas")).toEqual({ "grid-row": "7", color: "var(--tinta-2)", "font-size": "var(--texto-xs)", "line-height": "var(--lh-snug)" });
+    expect(componente).toContain('<p className="f5-stress-mismas-fechas">');
   });
 
   test("las dos filas de las cifras son también de la rejilla, y el aire entre ellas es un margen", () => {
@@ -760,7 +769,7 @@ describe("19-11-2026 · Crisis pasadas: las tres tarjetas a la misma altura y la
 
   test("una bajo otra, por debajo de 1.380 px, cada tarjeta vuelve a ser una columna y no comparte filas", () => {
     const estrecho = bloqueCon("(max-width: 1379.98px)", ".f5-stress-grid");
-    expect(declaraciones(cuerpoDe(estrecho, ".f5-stress-grid"))).toEqual({ "grid-template-columns": "minmax(0, 1fr)", "row-gap": "var(--s-5)" });
+    expect(declaraciones(cuerpoDe(estrecho, ".f5-stress-grid"))).toEqual({ "grid-template-columns": "minmax(0, 1fr)", "row-gap": "var(--s-8)" });
     /* Sin `gap`: el aire entre piezas ya lo pone el margen de cada una, y con los dos saldría doble. */
     expect(declaraciones(cuerpoDe(estrecho, ".f5-stress-card"))).toEqual({ display: "flex", "flex-direction": "column", "grid-row": "auto" });
     /* Pesan lo mismo que las reglas de arriba y ganan por ir después: si el bloque sube, a 768 px habría tres columnas. */
@@ -791,7 +800,7 @@ describe("19-11-2026 · Crisis pasadas: las tres tarjetas a la misma altura y la
       ".f5-stress-no-data",
       ".f5-stress-card > :not(header)", ".f5-stress-card > header", ".f5-stress-card > .f5-stress-no-data",
       ".f5-stress-card > .f5-stress-no-data.f5-stress-sin-cifra", ".f5-stress-card > .f5-stress-metrics",
-      ".f5-stress-card > .f5-stress-detail", ".f5-stress-card > .f5-stress-detail:last-child", ".f5-stress-card > header h3",
+      ".f5-stress-card > .f5-stress-detail", ".f5-stress-card > .f5-stress-detail:last-of-type", ".f5-stress-card > .f5-stress-mismas-fechas", ".f5-stress-card > header h3",
       ".f5-stress-metrics", ".f5-stress-metrics > div", ".f5-stress-metrics > div:nth-child(n + 4)", ".f5-stress-drop",
       ".f5-stress-detail > h4", ".f5-stress-detail > p", ".f5-stress-detail > p > strong", ".f5-stress-detail > p > span",
       ".f5-stress-detail > ul", ".f5-stress-detail > ul > li", ".f5-stress-detail > ul > li > span", ".f5-stress-detail > ul > li > small"

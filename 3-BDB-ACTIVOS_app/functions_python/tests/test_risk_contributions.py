@@ -86,3 +86,26 @@ def test_degenerate_portfolio_returns_none(weights, covariance) -> None:
 def test_invalid_dimensions_or_non_finite_values_raise(weights, covariance) -> None:
     with pytest.raises(ValueError):
         risk_contributions(weights, covariance)
+
+
+def test_hand_computed_three_assets_add_up_by_class() -> None:
+    """La cartera de tres activos de `tests/riesgoPorClase.test.ts` (AN1, 21-11-2026), con su cuenta a mano.
+
+    w = (0,5; 0,3; 0,2); Σw = (0,021475; −0,000125; 0,007); wᵀΣw = 0,0121, σ = 0,11.
+    RC_i / σ: 0,0107375 / 0,0121 = 88,7397 %; −0,0000375 / 0,0121 = −0,3099 %; 0,0014 / 0,0121 = 11,5702 %.
+    A y C son renta variable: juntas, 0,0121375 / 0,0121 = 100,3099 %; B, renta fija, −0,3099 %. Las dos clases suman 100.
+    """
+    weights = [0.5, 0.3, 0.2]
+    covariance = [
+        [0.04, -0.00175, 0.01],
+        [-0.00175, 0.0025, 0.0],
+        [0.01, 0.0, 0.01],
+    ]
+
+    result = risk_contributions(weights, covariance)
+
+    assert result == pytest.approx([88.73966942, -0.30991736, 11.57024793], abs=1e-6)
+    assert result[0] + result[2] == pytest.approx(100.30991736, abs=1e-6)
+    assert sum(result) == pytest.approx(100.0)
+    # Llevadas a volatilidad, las contribuciones suman σ = 0,11 (Euler).
+    assert sum(value / 100.0 * 0.11 for value in result) == pytest.approx(0.11)

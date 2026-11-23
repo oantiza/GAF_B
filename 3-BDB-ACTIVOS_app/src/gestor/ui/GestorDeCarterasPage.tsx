@@ -25,6 +25,7 @@ import { abrirFichero } from "../almacen/descarga";
 import { demostracion } from "../demo/carteraDemo";
 import { hoy as diaDeHoy } from "../motor/fechas";
 import { carteraVacia, type Cartera } from "../motor/modelo";
+import { CarterasRetiradas } from "./CarterasRetiradas";
 import { useAlmacen } from "./estado/useAlmacen";
 import { diaDeUnInstante } from "./formato";
 import { escrito } from "./textos";
@@ -201,6 +202,8 @@ export function GestorDeCarterasPage({ onSendToBuilder }: { onSendToBuilder?: (c
   const [abierta, setAbierta] = useState<Abierta | null>(null);
   const [dialogo, setDialogo] = useState<null | "nueva" | "importar">(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  /* Cambia al recuperar una cartera retirada: la lista se vuelve a leer y la enseña. */
+  const [lecturaDeLaLista, setLecturaDeLaLista] = useState(0);
   const selectorDeFichero = useRef<HTMLInputElement>(null);
   const almacen = control.estado.fase === "lista" ? control.estado.almacen : null;
 
@@ -340,8 +343,10 @@ export function GestorDeCarterasPage({ onSendToBuilder }: { onSendToBuilder?: (c
           alCrear={() => setDialogo("nueva")}
           alImportar={() => setDialogo("importar")}
           almacen={control.estado.almacen}
+          key={lecturaDeLaLista}
         />
       ) : null}
+      {fase === "lista" ? <CarterasRetiradas alRecuperar={() => setLecturaDeLaLista((n) => n + 1)} almacen={control.estado.almacen} /> : null}
 
       {dialogo === "nueva" ? <DialogoDeNuevaCartera alCerrar={() => setDialogo(null)} alCrear={(cartera) => void crear(cartera)} titulo="Nueva cartera" /> : null}
       {dialogo === "importar" ? <DialogoDeNuevaCartera alCerrar={() => setDialogo(null)} alCrear={(cartera) => void crear(cartera, "importar")} titulo="Nueva cartera a partir de los extractos" /> : null}

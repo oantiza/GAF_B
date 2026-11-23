@@ -7,6 +7,7 @@
  * nombre) va de 100 a 300, y la de la derecha (las acciones) de 600 a 700. La zona libre es, pues, de 300 a 600, y el
  * margen, el de la pieza: 8.
  */
+import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { desplazamientoParaElFoco, MARGEN_DEL_FOCO, type Tramo } from "../src/components/tabla/focoBajoColumnaFija";
 
@@ -90,5 +91,15 @@ describe("desplazamientoParaElFoco", () => {
         enCeldaFija: false
       })
     ).toBe(28);
+  });
+});
+
+/* Las tablas a mano con columna de acciones fija (modules.css, por debajo de 1.440 px) no pasan por TablaDeDatos:
+   su marco tiene que traer a la vista lo que el teclado enfoca bajo esa columna. */
+describe("las tablas a mano con columna fija usan la misma corrección", () => {
+  test.each(["src/components/AdminRetrocessions.tsx"])("%s", (ruta) => {
+    const fuente = readFileSync(ruta, "utf8");
+    expect(fuente).toContain('from "./tabla/focoBajoColumnaFija"');
+    expect(fuente).toMatch(/onFocus=\{\(evento\) => \{ if \(evento\.target !== evento\.currentTarget\) descubrirElFoco\(evento\.target\); \}\}/);
   });
 });

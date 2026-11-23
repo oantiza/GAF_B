@@ -36,6 +36,7 @@ from __future__ import annotations
 import dataclasses
 import hashlib
 import logging
+import math
 import re
 import time
 import unicodedata
@@ -434,11 +435,14 @@ def _descarga(fuente: Fuente, url: str, destino: Path, http, force: bool) -> Pat
 
 
 def _edad_dias(fecha_iso: str) -> float:
+    """Días desde la fecha del documento. Una fecha que no es una fecha (el lector arma «2024-02-31» con un día y un mes
+    sueltos) es de edad infinita: no prueba que el KID esté vigente. Hasta el 21-11-2026 daba 0, el KID pasaba por
+    recién publicado y se escribía esa fecha imposible en la ficha (P3-01 de la auditoría del 20-11-2026)."""
     import datetime as _dt
     try:
         f = _dt.date.fromisoformat(fecha_iso)
-    except ValueError:
-        return 0.0
+    except (TypeError, ValueError):
+        return math.inf
     return (_dt.date.today() - f).days
 
 
@@ -448,8 +452,15 @@ def _lee(fuente: Fuente, isin: str, url: str, pdf: Path) -> dict:
     except Exception as e:  # noqa: BLE001
         log.warning("KID %s (%s): no parseable (%s)", isin, fuente.id, e)
         return {}
-    if datos.get("isin") and datos["isin"] != isin:
-        log.warning("KID %s (%s): el PDF habla de %s; no lo uso", isin, fuente.id, datos["isin"])
+    # El ISIN dentro del PDF es la garantía de que el documento es el de esta clase (cabecera del módulo), así que tiene
+    # que estar y ser este. Hasta el 21-11-2026 bastaba con que no hablara de otro: un PDF sin ISIN legible pasaba como
+    # el KID de cualquier clase que lo pidiera (P3-01 de la auditoría del 20-11-2026). Medido ese día sobre los 633 PDF
+    # de la caché: tres no tienen ISIN legible y ninguno de los tres pasaba ya por las otras reglas.
+    if datos.get("isin") != isin:
+        if datos.get("isin"):
+            log.warning("KID %s (%s): el PDF habla de %s; no lo uso", isin, fuente.id, datos["isin"])
+        else:
+            log.warning("KID %s (%s): el PDF no tiene un ISIN legible; no lo uso", isin, fuente.id)
         return {}
     if datos.get("priips") is False:
         log.warning("KID %s (%s): no es un KID PRIIPs (¿KIID UCITS antiguo?); no lo uso", isin, fuente.id)

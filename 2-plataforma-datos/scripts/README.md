@@ -8,15 +8,14 @@ Los one-shot historicos con escrituras reales y gate antiguo `FIRESTORE_REAL_WRI
 solo quedan los documentos `BLOQUE_7B0`/`7B1A` (`_legacy/docs/`), que son registro. La puerta real de escritura de la
 plataforma es `BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES`. La suite no recoge `_legacy/**` (`vitest.config.ts`).
 
-## Reparaciones con escritura, vigentes
+## Las reparaciones de la base vieja, borradas
 
-Un script de aqui puede escribir si pasa por `BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES`, por la
-allowlist de `src/config/projectAllowlist.ts` y por un postverify real, y si es **repetible**: no
-un one-shot que se agote con su propia ejecucion.
+Hasta el 21-11-2026 vivian aqui las reparaciones con escritura sobre la maestra vieja
+(`restoreSriKidEvidence.ts`, `reconcileSearchIndexLive.ts`, `runCompactPriceSeries.ts`), la copia diaria
+(`runBackupExport.ts`, `maintainLocalBackups.ts`, `backup_export_daily.bat`) y la pasada en seco de carteras que
+leia la vieja (`runCarterasDryRun.ts`). Se borraron con la base vieja (decisiones 30 a 39, censo
+`CENSO_BASE_VIEJA_2026-11-21.md`); quedan en la etiqueta de Git `referencia-base-vieja-2026-11-21`.
 
-- `restoreSriKidEvidence.ts` (`npm run repair:sri-evidence`): devuelve `risk.sri_kid_evidence` a un
-  activo que publica un SRI sin la evidencia del KID que lo sostiene, tomandola de la copia mas
-  nueva que todavia la tenga. Solo escribe si la evidencia dice el mismo SRI que esta publicado, no
-  sobrescribe una evidencia presente y deja rastro en `_sri_evidence_repair_audit`. En seco por
-  defecto; con `--write` detras del gate. Nacio el 31-10-2026 porque `--accept-canonical` del
-  republish silencia tambien la conservacion de datos de la app y retiro dos evidencias.
+Se conserva `restoreBackupToEmulator.ts` (`npm run backup:restore-drill`, decision 33): siembra una copia de la
+maestra de `data/backups/` en el emulador de la base de siempre (8082) y se niega a sembrar en el de la base nueva.
+Es la unica via para abrir esas copias en un Firestore. Todo lo demas de esta carpeta es de la base nueva.

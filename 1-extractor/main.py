@@ -360,6 +360,7 @@ def cmd_calidad(_args) -> int:
     reports = BASE / "reports"
     reports.mkdir(exist_ok=True)
     filas, problematicos, buckets = [], [], {}
+    kid_sin_fecha = []
     for ruta in sorted(funds_dir.glob("*.json")):
         try:
             d = json.loads(ruta.read_text(encoding="utf-8"))
@@ -380,6 +381,9 @@ def cmd_calidad(_args) -> int:
             "flags": ";".join(c.get("flags") or []),
         }
         filas.append(fila)
+        sin_fecha = calidad.kid_en_uso_sin_fecha(d)
+        if sin_fecha:
+            kid_sin_fecha.append({"isin": fila["isin"], "nombre": fila["nombre"], **sin_fecha})
         alertas = [f for f in (c.get("flags") or [])
                    if not f.startswith("info_")]
         if bucket in ("BAJO", "BLOQUEADO") or len(alertas) >= 2:
@@ -398,11 +402,19 @@ def cmd_calidad(_args) -> int:
     for f_ in sorted(problematicos, key=lambda x: (x["score"] or 0)):
         lineas.append(f"- **{f_['isin']}** {f_['nombre'][:55]} — "
                       f"{f_['bucket']} ({f_['score']}) · {f_['flags'] or 'pocos esenciales'}")
+    # Aviso, no bloqueo (C-30): sin fecha de elaboración no hay caducidad que aplicar.
+    lineas += ["", f"## KID en uso sin fecha de elaboración legible: {len(kid_sin_fecha)}", ""]
+    for k in kid_sin_fecha:
+        lineas.append(f"- **{k['isin']}** {k['nombre'][:55]} — fuente {k['fuente']}")
     ruta_md.write_text("\n".join(lineas), encoding="utf-8")
 
     print(f"Analizados {len(filas)} fondos: " +
           " | ".join(f"{k} {v}" for k, v in sorted(buckets.items())))
     print(f"Problemáticos: {len(problematicos)} -> {ruta_md}")
+    print(f"KID en uso sin fecha de elaboración legible: {len(kid_sin_fecha)}"
+          + ("" if not kid_sin_fecha else " (aviso, no bloquea)"))
+    for k in kid_sin_fecha:
+        print(f"   {k['isin']}  {k['nombre'][:50]}  [{k['fuente']}]")
     print(f"Resumen CSV   -> {ruta_csv}")
     return 0
 
@@ -525,7 +537,7 @@ def cmd_visor(_args) -> int:
 
 # ---------------------------------------------------------------------- ops
 def cmd_ops(args) -> int:
-    """Servicio local que la app usa para operar el extractor y la plataforma."""
+    """Servicio local que la app usa para operar el extractor."""
     import ops_server
     return ops_server.main(["--puerto", str(args.puerto)])
 
@@ -1056,7 +1068,7 @@ def main() -> int:
     pco.set_defaults(fn=cmd_corrige)
 
     pops = sub.add_parser("ops", help="servicio local de operaciones para la app "
-                          "BDB-ACTIVOS (alta, extracción, canónico, plataforma)")
+                          "BDB-ACTIVOS (alta, extracción, canónico, correcciones)")
     pops.add_argument("--puerto", type=int, default=8766)
     pops.set_defaults(fn=cmd_ops)
 

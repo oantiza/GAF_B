@@ -30,6 +30,11 @@ export interface ActivoCitado {
   nombre: string;
   divisa?: string;
   tipo?: TipoDeActivo;
+  /**
+   * `true` si `tipo` no lo dice el documento: es la «acción» que se supone de una compra o una venta sin más. Si el activo
+   * es nuevo, la revisión pregunta qué es antes de darlo de alta: en un bono el precio va en % del nominal (22-11-2026).
+   */
+  tipoSupuesto?: true;
 }
 
 export interface MovimientoPropuesto {
@@ -56,8 +61,14 @@ export interface MovimientoPropuesto {
 export interface ExtractoPropuesto {
   fecha: Dia;
   documento: string;
-  /** `fecha`: la de la cotización con que se valoró la posición, si el documento la dice (GES-10). */
-  posiciones: Array<{ activo: ActivoCitado; titulos: Dec; valor?: Dec; fecha?: Dia }>;
+  /**
+   * `fecha`: la de la cotización con que se valoró la posición, si el documento la dice (GES-10). `precio` y `divisa`: el
+   * precio de mercado en la divisa del activo, si el documento lo dice (A-205); van los dos o ninguno. `precio` es por
+   * título, como lo da Andbank (títulos × precio = valor de mercado en esa divisa). `cotizacion`, en lugar de `precio`, es
+   * el precio tal como cotiza el activo —en un bono, en % del nominal—, como lo escribe la plantilla (A-210): al aplicar la
+   * importación se lleva a precio por título con el multiplicador del activo, que el importador no conoce.
+   */
+  posiciones: Array<{ activo: ActivoCitado; titulos: Dec; valor?: Dec; fecha?: Dia; precio?: Dec; cotizacion?: Dec; divisa?: string }>;
   efectivo: Array<{ divisa: string; saldo: Dec }>;
 }
 

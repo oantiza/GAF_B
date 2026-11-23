@@ -114,8 +114,8 @@ intérprete por defecto de la máquina es el 3.14.
    y no apunta a los de BDB (`fondosdb`, `BBDD-ACTIVOS-FINANCIEROS`,
    `BDB-ACTIVOS`): ningún `push` desde aquí puede alcanzar a BDB.
 2. `.firebaserc` apunta a `gestor-activos-local`; el proyecto de BDB ya no figura.
-3. `runBackupExport.ts` tiene `gestor-activos-local` en allowlist y rechaza
-   explícitamente `bbdd-activos-financieros`.
+3. `restoreBackupToEmulator.ts` rechaza explícitamente `bbdd-activos-financieros`. La copia
+   diaria, `runBackupExport.ts`, que hacía lo mismo, se borró con la base vieja el 21-11-2026.
 4. `2-plataforma-datos/.env.local` fija `FIRESTORE_EMULATOR_HOST`, mantiene
    `FIRESTORE_LIVE_READONLY=true` y añade `FIRESTORE_REAL_WRITE_ENABLED=false`.
    La ruta al service account de BDB queda comentada.
@@ -174,8 +174,8 @@ intérprete por defecto de la máquina es el 3.14.
    `tests/projectAllowlist.test.ts`, que falla si alguien vuelve a escribir el literal de
    BDB en cualquier `.ts` de `src/` o `scripts/`.
 
-   La prueba exceptúa seis rutas, y ninguna lo trata como proyecto autorizado:
-   `restoreBackupToEmulator.ts`, `runBackupExport.ts`, `subirALaNube.ts` y
+   La prueba exceptúa cinco rutas, y ninguna lo trata como proyecto autorizado:
+   `restoreBackupToEmulator.ts`, `subirALaNube.ts` y
    `verReglasDesplegadas.ts` lo **prohíben**; `projectAllowlist.ts` y `asesores.ts` lo nombran
    en un comentario. `runBdbDeployedFunctionsStockSmoke.ts` estuvo en esa lista hasta el
    05-11-2026, porque llamaba a las Functions desplegadas de BDB: ahora mira las de este

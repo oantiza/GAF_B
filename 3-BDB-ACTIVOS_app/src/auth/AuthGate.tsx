@@ -40,19 +40,17 @@ import "../styles/modules.css";
 
 /**
  * Claves de sesión sin función de borrado alcanzable desde aquí: la selección
- * del comparador (`src/core/comparisonSelection.ts`) y la última tarea de
- * Operaciones (`src/adapters/opsLocalBackend.ts`, módulo de administración que
- * no debe entrar en la carga inicial). Los favoritos se quedan: son
- * preferencias. `tests/authGateSessionCleanup.test.tsx` comprueba que estas
- * claves son las que leen esos módulos.
+ * del comparador (`src/core/comparisonSelection.ts`). Los favoritos se quedan:
+ * son preferencias. `tests/authGateSessionCleanup.test.tsx` comprueba que esta
+ * clave es la que lee ese módulo.
  */
-const SESSION_STORAGE_KEYS = ["bdb-activos.comparison-selection.v1", "bdb.ops.last-task"] as const;
+const SESSION_STORAGE_KEYS = ["bdb-activos.comparison-selection.v1"] as const;
 
 /**
  * Lo que la sesión deja en el almacenamiento del navegador y sobrevive a una
  * recarga: la cartera activa, las guardadas en el navegador, el último
- * resultado de «Mejorar cartera» (ALTA-21, auditoría 14-10-2026), la selección
- * del comparador y la última tarea de Operaciones. Se borra al cerrar sesión o
+ * resultado de «Mejorar cartera» (ALTA-21, auditoría 14-10-2026) y la selección
+ * del comparador. Se borra al cerrar sesión o
  * al cambiar de usuario, nunca en la primera resolución de la sesión: recargar
  * la página no debe perder el borrador. Por eso no va en `clearSessionCaches`,
  * que también corre al arrancar.

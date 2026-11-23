@@ -131,14 +131,14 @@ def test_sin_raw_request_ni_user_agent(capsys):
 
 
 def test_operation_derivada_de_k_service(monkeypatch):
-    monkeypatch.setenv("K_SERVICE", "admin-db-status")
+    monkeypatch.setenv("K_SERVICE", "admin-publish-report")
     req = FakeReq(auth=FakeAuth(), app=None)
-    assert main._observe_app_check(req, "u", None)["operation"] == "admin_db_status"
+    assert main._observe_app_check(req, "u", None)["operation"] == "admin_publish_report"
 
 
 def test_operation_derivada_del_path(monkeypatch):
-    req = FakeReq(auth=FakeAuth(), app=None, raw_request=FakeRaw(path="/get-system-status"))
-    assert main._observe_app_check(req, "u", None)["operation"] == "get_system_status"
+    req = FakeReq(auth=FakeAuth(), app=None, raw_request=FakeRaw(path="/get-weekly-report"))
+    assert main._observe_app_check(req, "u", None)["operation"] == "get_weekly_report"
 
 
 def test_require_admin_tambien_observa(capsys):
@@ -181,7 +181,7 @@ def test_aggregate_activable_cuando_produccion_100_con_token():
         _entry("present", "get_asset_detail", PROD, "browser", "2026-09-28T10:00:00Z"),
         _entry("present", "list_portfolios", PROD, "browser", "2026-09-29T10:00:00Z"),
         _entry("missing", "get_asset_detail", "http://localhost:5173", "browser"),
-        _entry("missing", "get_system_status", "-", "script"),
+        _entry("missing", "get_weekly_report", "-", "script"),
         {"textPayload": "ruido que no es observación"},
         _entry("present", "list_portfolios", PROD, "browser"),
     ]
@@ -198,7 +198,7 @@ def test_aggregate_activable_cuando_produccion_100_con_token():
     assert s["by_operation"][0]["key"] in ("get_asset_detail", "list_portfolios")  # orden por total desc
     assert {c["key"]: c["missing"] for c in s["by_client"]} == {"browser": 1, "script": 1}
     assert s["missing_combos"] == [
-        {"origin": "-", "operation": "get_system_status", "client": "script", "count": 1},
+        {"origin": "-", "operation": "get_weekly_report", "client": "script", "count": 1},
         {"origin": "http://localhost:5173", "operation": "get_asset_detail", "client": "browser", "count": 1},
     ]
     assert s["would_break"] == [

@@ -1,6 +1,6 @@
 import { cifraDeLaTarjeta, clasificacionDeTarjeta } from "./componerLista";
 import { backtestWindowCoverage } from "../core/backtestCoverage";
-import { estrellasDeMorningstar, textoDeEstrellas } from "../core/estrellasDeMorningstar";
+import { estrellasDeMorningstar, rotuloDeEstrellas, textoDeEstrellas } from "../core/estrellasDeMorningstar";
 import { categoriaLegible } from "../core/etiquetasDeReparto";
 import * as formato from "../core/formato";
 import type { Documento } from "./baseNuevaLectura";
@@ -506,18 +506,48 @@ export function notasDeLaComparativa(fuentes: readonly FuenteDeColumna[]): strin
  */
 export const MARGEN_DE_FECHA_DE_CORTE_DIAS = 7;
 
+/**
+ * Días que pueden separar la fecha de corte de una columna de método mensual de la de una de método diario antes de que la tabla avise
+ * (Óscar, 21-11-2026). No es un desfase de refresco sino de calendario: un fondo cierra sus cifras a fin de mes y las publica a mitad del
+ * siguiente, y una acción las cierra cada día; con el refresco a mano, entre las dos caben de 0 a 31 días, y 35 dejan holgura. Medido el
+ * 16-11-2026 (`mediciones-21-11/mediciones.md`, apartado 4), con 7 días avisaba el 99,8 % de las parejas fondo-acción y con 35 avisa el 3 %:
+ * las de los fondos con un cierre de verdad atrasado (30-09 o antes). Va en un solo sentido: una cifra diaria anterior al cierre mensual
+ * no la explica ningún calendario, y ahí vale el margen de siempre.
+ *
+ * Las cifras del proveedor (frecuencia `PROVIDER`) cuentan como de fin de mes cuando su fecha lo es: lo son todas las de la base nueva
+ * (44 tarjetas el 21-11-2026: 18 a 31-10, 21 a 30-09 y 3 a 30-11-2025, más una sin fecha), porque el proveedor publica sus
+ * rentabilidades a cierre de mes. Con otra fecha, su calendario no consta y vale el margen de siempre.
+ */
+export const MARGEN_ENTRE_CALENDARIOS_DIAS = 35;
+
+/** El calendario con el que se cierran las cifras de una columna, por su frecuencia y su fecha; si no consta, ninguno. */
+type Calendario = "mensual" | "diario";
+function calendarioDe(frecuencia: unknown, corte: unknown): Calendario | undefined {
+  if (frecuencia === "MONTHLY") return "mensual";
+  if (frecuencia === "DAILY") return "diario";
+  if (frecuencia === "PROVIDER" && typeof corte === "string" && esFinDeMes(corte)) return "mensual";
+  return undefined;
+}
+/** Si «aaaa-mm-dd» es el último día de su mes. */
+function esFinDeMes(fecha: string): boolean {
+  const dia = Date.parse(`${fecha.slice(0, 10)}T00:00:00Z`);
+  return Number.isFinite(dia) && new Date(dia + 86_400_000).getUTCDate() === 1;
+}
+
 const BASE_EN_PALABRAS: Record<string, string> = {
   TOTAL_RETURN: "rentabilidad total, con dividendos",
   PRICE_RETURN: "rentabilidad de precio, sin dividendos"
 };
 
 /** La fecha de corte y la base de una columna, de la misma fuente que sus cifras: la tarjeta si la hay, y si no el activo de siempre. */
-function corteYBaseDe({ activo, tarjeta }: FuenteDeColumna): { corte?: string; base?: string; conCifras: boolean } {
+function corteYBaseDe({ activo, tarjeta }: FuenteDeColumna): { corte?: string; base?: string; calendario?: Calendario; conCifras: boolean } {
   if (tarjeta) {
     const metricas = valorEn(tarjeta, "metrics") as Documento | undefined;
+    const corte = valorEn(tarjeta, "metrics.as_of") as string | undefined;
     return {
-      corte: valorEn(tarjeta, "metrics.as_of") as string | undefined,
+      corte,
       base: valorEn(tarjeta, "metrics.return_basis") as string | undefined,
+      calendario: calendarioDe(valorEn(tarjeta, "metrics.frequency"), corte),
       conCifras: metricas !== undefined
     };
   }
@@ -525,8 +555,16 @@ function corteYBaseDe({ activo, tarjeta }: FuenteDeColumna): { corte?: string; b
   return {
     corte: metricas.as_of,
     base: metricas.return_basis,
+    calendario: calendarioDe(metricas.metrics_frequency, metricas.as_of),
     conCifras: Object.entries(metricas).some(([clave, valor]) => typeof valor === "number" && clave !== "risk_score")
   };
+}
+
+/** «Fondo B, a 30/09/2026; Fondo A y Acción C, a 31/10/2026»: las columnas agrupadas por su fecha, de la más antigua a la más reciente. */
+function porFechaDeCorte(columnas: ReadonlyArray<{ corte: string; nombre: string }>): string {
+  const porFecha = new Map<string, string[]>();
+  for (const { corte, nombre } of [...columnas].sort((a, b) => a.corte.localeCompare(b.corte))) porFecha.set(corte, [...(porFecha.get(corte) ?? []), nombre]);
+  return [...porFecha].map(([corte, nombres]) => `${enumeracion(nombres)}, a ${dia(corte)}`).join("; ");
 }
 
 const diaJuliano = (fecha: string) => Date.parse(`${fecha.slice(0, 10)}T00:00:00Z`) / 86_400_000;
@@ -540,7 +578,11 @@ function enumeracion(nombres: readonly string[]): string {
  * Lo que la tabla dice cuando sus columnas no comparten fecha de corte o base de rentabilidad (hallazgo 16). Avisa y nombra a cada uno;
  * no esconde ni recalcula nada. Sigue la forma del aviso de métodos distintos: una frase bajo la tabla, en `notas`.
  *
- * - Fecha: si las de las columnas se separan más de `MARGEN_DE_FECHA_DE_CORTE_DIAS`, se dicen todas, agrupadas.
+ * - Fecha, entre columnas del mismo calendario (o de uno que no consta): si dos se separan más de `MARGEN_DE_FECHA_DE_CORTE_DIAS`, se
+ *   dicen las que lo hacen, agrupadas por fecha.
+ * - Fecha, entre una de cierre a fin de mes y una de cierre diario (Óscar, 21-11-2026): una frase propia, que explica que se cierran con
+ *   calendarios distintos y que solo sale si la diaria va más de `MARGEN_ENTRE_CALENDARIOS_DIAS` por delante de la mensual, o más de
+ *   `MARGEN_DE_FECHA_DE_CORTE_DIAS` por detrás: lo que ese calendario no explica.
  * - Base: si hay más de una, cada columna con la suya.
  * - Una columna con cifras que no declara fecha o base, cuando otras sí, se nombra aparte: no se puede afirmar que coincida.
  */
@@ -551,16 +593,29 @@ export function notasDeCorteYBase(fuentes: readonly FuenteDeColumna[]): string[]
   const notas: string[] = [];
 
   const conCorte = columnas.filter((columna): columna is typeof columna & { corte: string } => typeof columna.corte === "string" && Number.isFinite(diaJuliano(columna.corte)));
-  if (conCorte.length > 1) {
-    const dias = conCorte.map(({ corte }) => diaJuliano(corte));
-    if (Math.max(...dias) - Math.min(...dias) > MARGEN_DE_FECHA_DE_CORTE_DIAS) {
-      const porFecha = new Map<string, string[]>();
-      for (const { corte, nombre } of [...conCorte].sort((a, b) => a.corte.localeCompare(b.corte))) {
-        porFecha.set(corte, [...(porFecha.get(corte) ?? []), nombre]);
-      }
-      const grupos = [...porFecha].map(([corte, nombres]) => `${enumeracion(nombres)}, a ${dia(corte)}`);
-      notas.push(`Las cifras no tienen la misma fecha de corte: ${grupos.join("; ")}. Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta.`);
+  /* Pareja a pareja: cada una con el margen que le toca. */
+  const mismoCalendario = new Set<(typeof conCorte)[number]>();
+  const entreCalendarios = new Set<(typeof conCorte)[number]>();
+  conCorte.forEach((a, i) => {
+    for (const b of conCorte.slice(i + 1)) {
+      const mensual = a.calendario === "mensual" && b.calendario === "diario" ? a : b.calendario === "mensual" && a.calendario === "diario" ? b : undefined;
+      if (mensual) {
+        const diaria = mensual === a ? b : a;
+        const delante = diaJuliano(diaria.corte) - diaJuliano(mensual.corte);
+        if (delante > MARGEN_ENTRE_CALENDARIOS_DIAS || delante < -MARGEN_DE_FECHA_DE_CORTE_DIAS) entreCalendarios.add(a).add(b);
+      } else if (Math.abs(diaJuliano(a.corte) - diaJuliano(b.corte)) > MARGEN_DE_FECHA_DE_CORTE_DIAS) mismoCalendario.add(a).add(b);
     }
+  });
+  if (mismoCalendario.size > 0) {
+    notas.push(`Las cifras no tienen la misma fecha de corte: ${porFechaDeCorte([...mismoCalendario])}. Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta.`);
+  }
+  if (entreCalendarios.size > 0) {
+    const de = (calendario: Calendario) => enumeracion([...entreCalendarios].filter((columna) => columna.calendario === calendario).map(({ nombre }) => nombre));
+    notas.push(
+      `Las cifras se cierran con calendarios distintos: las de ${de("mensual")}, a fin de mes, y las de ${de("diario")}, cada día. ` +
+        `Eso explica hasta ${MARGEN_ENTRE_CALENDARIOS_DIAS} días entre sus fechas de corte, y aquí la distancia es otra: ${porFechaDeCorte([...entreCalendarios])}. ` +
+        "Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta."
+    );
   }
   const sinCorte = columnas.filter((columna) => !conCorte.includes(columna as (typeof conCorte)[number]));
   if (conCorte.length > 0 && sinCorte.length > 0) {
@@ -654,7 +709,13 @@ export function filasDeActivos(
       comparable: true,
       valor: leer,
       metodoDe: metodoSiEsSuya(campo, ventana),
-      celda: (c) => ({ ...celda(leer(c), escribir), ...dichoDelProveedor(c, campo, ventana) })
+      /* Una rentabilidad va en verde o rojo según su signo, que ya lleva escrito (Óscar, 20-11-2026); la volatilidad, sin color.
+         El signo se decide con la cifra tal como se escribe (dos decimales del %): un «+0,00 %» no se pinta. */
+      celda: (c) => {
+        const valor = leer(c);
+        const signo = campo === "annualized_return" ? formato.signoDe(valor, 4) : null;
+        return { ...celda(valor, escribir), ...(signo ? { signo } : {}), ...dichoDelProveedor(c, campo, ventana) };
+      }
     };
   };
 
@@ -717,7 +778,7 @@ export function filasDeActivos(
       ? [
           {
             id: "estrellas",
-            titulo: "Morningstar",
+            titulo: rotuloDeEstrellas(!modoCliente),
             celda: (c: ColumnaComparada) => {
               if (!aplica("morningstar", c)) return NO_APLICA;
               /* Del activo que devuelve el servidor, en cualquiera de las dos bases. */
@@ -759,7 +820,20 @@ export function filasDeActivos(
       titulo: "Caída máxima 3 años",
       comparable: true,
       valor: caida,
-      celda: (c) => celda(caida(c), pct)
+      /* La tarjeta puede traer la caída del proveedor donde no hay la nuestra (`metrics.provider.max_drawdown`), como la
+         rentabilidad o el Sharpe. Hasta el 20-11-2026 esta fila no lo miraba: una caída del proveedor se habría puesto junto
+         a las nuestras sin la marca «No comparable entre sí» ni el «Del proveedor» de la celda (§3 del método: misma
+         identidad, `(method, window)`). Medido ese día en 8092: ninguna de las 1.334 tarjetas lo trae, así que no cambia
+         ninguna tabla de hoy; cierra el hueco antes de que llegue. */
+      metodoDe: metodoSiEsSuya("max_drawdown", "3y"),
+      /* Una caída es siempre una pérdida, y lleva su signo escrito («−12,00 %»): en rojo, como la rentabilidad que baja (propuesta C3
+         de las láminas, aprobada por Óscar el 21-11-2026). Se decide con la cifra tal como se escribe, a dos decimales del %: la caída
+         se guarda negativa, y solo la que se escribe con su menos va en rojo. Una de 0,00 % (un monetario que nunca cae) no es una
+         pérdida; y una que llegara positiva sería un error del dato: ninguna de las dos lleva color, y nunca el verde. */
+      celda: (c) => {
+        const valor = caida(c);
+        return { ...celda(valor, pct), ...(formato.signoDe(valor, 4) === "baja" ? { signo: "baja" as const } : {}), ...dichoDelProveedor(c, "max_drawdown", "3y") };
+      }
     },
     /* ACT-09: el coste corriente, que pesa tanto como la rentabilidad al comparar fondos. De la tarjeta
        si la hay, y si no del activo de siempre; en una acción no aplica. */

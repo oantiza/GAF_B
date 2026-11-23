@@ -88,9 +88,14 @@ describe('108. Lo que se negocia', () => {
 
 /* -------------------------------------------------------------------------- 109 */
 
+/*
+ * El proveedor da bolsa 101,6 y liquidez −1,6. Hasta el 21-11-2026 la clase se salía más de un punto y el fondo se quedaba
+ * sin reparto; desde la C-29 suma 1 y lo tiene. La regla de la 109 sigue para lo que no suma 1, y por eso aquí la liquidez
+ * no viene: el reparto suma 1,016.
+ */
+const JPMORGAN_INDIA_NETO = { equity: 1.016, bond: 0, cash: -0.016, other: 0 };
 const JPMORGAN_INDIA = {
-    /* El proveedor da bolsa 101,6 y liquidez −1,6: la clase se sale más de un punto. */
-    asset_mix: { equity: 1.016, bond: 0, cash: -0.016, other: 0 },
+    asset_mix: { equity: 1.016, bond: 0, cash: 0, other: 0 },
     equity_regions: { asia_emerging: 1 },
     sectors: { technology: 0.3, financial_services: 0.7 },
     equity_styles: { value: 0.5, blend: 0.3, growth: 0.2 },
@@ -117,8 +122,17 @@ describe('109. Regiones y sectores, aunque el reparto no pase', () => {
     });
 
     it('sin nada de la renta variable no hay documento: un mapa a ceros no dice nada', () => {
-        const sinNada = { asset_mix: { equity: 0, bond: 1.39, cash: -0.45, other: 0.06 }, equity_regions: { eurozone: 0 }, sectors: {}, bond_types: { government: 1 } };
+        /* Suma 1,45: sin reparto. Con la liquidez a −0,45 sumaría 1 y, desde la C-29, sería un reparto neto que se escribe. */
+        const sinNada = { asset_mix: { equity: 0, bond: 1.39, cash: 0, other: 0.06 }, equity_regions: { eurozone: 0 }, sectors: {}, bond_types: { government: 1 } };
         expect(doc(mapearInstrumento(ficha(sinNada), universal(), AHORA), '/declared/exposure')).toBeUndefined();
+    });
+
+    it('C-29: con la liquidez a −1,6 el reparto de JPMorgan India suma 1 y se escribe con su signo, con sus regiones y sectores', () => {
+        const bloque = doc(mapearInstrumento(ficha({ ...JPMORGAN_INDIA, asset_mix: JPMORGAN_INDIA_NETO }), universal(), AHORA), '/declared/exposure')!;
+        expect(bloque.documento['asset_mix']).toEqual({ equity: 1.016, fixed_income: 0, cash: -0.016, other: 0 });
+        expect(bloque.documento['asset_mix_completion']).toBe('REPORTED');
+        expect(bloque.documento['equity_regions']).toEqual({ asia_emerging: 1 });
+        expect(validarEscritura(bloque.tipo, bloque.documento, 'platform').ok).toBe(true);
     });
 
     it('una suma de regiones que no cuadra no se empeora: con una zona que no es un peso, no se conserva un trozo', () => {
@@ -144,7 +158,8 @@ describe('109. Regiones y sectores, aunque el reparto no pase', () => {
     });
 
     it('con el reparto que cuadra no cambia nada', () => {
-        const normal = { asset_mix: { equity: 0.95, bond: 0, cash: 0.05, other: 0 }, sectors: { tecnologia: 0.3 }, bond_types: { government: 1 } };
+        /* Con algo de renta fija: sin ella, desde el 21-11-2026 los tipos de bono no se escriben (reglasDeDatos21-11). */
+        const normal = { asset_mix: { equity: 0.9, bond: 0.05, cash: 0.05, other: 0 }, sectors: { tecnologia: 0.3 }, bond_types: { government: 1 } };
         const bloque = doc(mapearInstrumento(ficha(normal), universal(), AHORA), '/declared/exposure')!;
         expect(bloque.documento['asset_mix_completion']).toBe('REPORTED');
         expect(bloque.documento['bond_types']).toEqual({ government: 1 });

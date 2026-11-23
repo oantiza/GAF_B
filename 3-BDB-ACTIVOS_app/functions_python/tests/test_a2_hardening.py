@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from readmodel.firestore_client import FirestoreReader, _unique_ids, _valid_asset_id  # noqa: E402
+from readmodel.firestore_client import _valid_asset_id  # noqa: E402
 from portfolios.repository import (  # noqa: E402
     InvalidPortfolio,
     MAX_PORTFOLIOS_PER_USER,
@@ -18,35 +18,9 @@ from portfolios.repository import (  # noqa: E402
 )
 
 
-class ExplodingDb:
-    """Si el lector toca Firestore con un id invalido, el test explota."""
-
-    def collection(self, *args, **kwargs):
-        raise AssertionError("no debe construirse ninguna ruta de Firestore")
-
-
+# Las pruebas del lector antiguo (`FirestoreReader`) ante ids con barras se fueron con el el 21-11-2026; las del lector
+# de la base nueva estan en test_lector_base_nueva.py y test_lectura_y_entradas.py.
 class TestAssetIdValidation:
-    def test_path_traversal_ids_are_treated_as_missing(self):
-        reader = FirestoreReader(db=ExplodingDb())
-        # Ids con separador de ruta: jamas deben tocar Firestore.
-        assert reader.get_asset("X/holdings/latest") is None
-        assert reader.get_asset("../assets") is None
-        assert reader.get_asset("a/b") is None
-        assert reader.get_metrics_latest("X/metrics/latest") is None
-        assert reader.get_holdings("X/holdings/latest") is None
-
-    def test_valid_ids_pass_through_to_firestore(self):
-        reader = FirestoreReader(db=ExplodingDb())
-        # Un id legitimo SI llega a Firestore (aqui, el stub explota: correcto).
-        with pytest.raises(AssertionError):
-            reader.get_asset("IE00B4L5Y983")
-
-    def test_unique_ids_filters_invalid_entries(self):
-        assert _unique_ids(["IE00B4L5Y983", "X/holdings/latest", "GSPC", "GSPC"]) == [
-            "IE00B4L5Y983",
-            "GSPC",
-        ]
-
     def test_alphabet_matches_master_ids(self):
         for good in ("IE00B4L5Y983", "GSPC", "MOCK-FUND_1", "a.b"):
             assert _valid_asset_id(good), good

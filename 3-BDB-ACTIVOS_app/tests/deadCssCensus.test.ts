@@ -18,7 +18,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 /* «Esta lista solo baja», y hasta aquí no lo hacía cumplir nada: una entrada nueva pasaba. Al quitar una, baja el número;
    para añadir una hay que venir a subirlo, con su motivo, y eso se ve. */
-const EXCEPCIONES_COMO_MUCHO = 56;
+const EXCEPCIONES_COMO_MUCHO = 40;
 
 describe("censo de CSS muerto (deadCssD3)", () => {
   test("la lista de excepciones solo baja", () => {

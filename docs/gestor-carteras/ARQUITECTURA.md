@@ -203,7 +203,12 @@ No hay que tocar el formulario, la tabla de movimientos, la valoración ni los i
      citado, sus avisos y si requiere revisión), `extractos` (posiciones y saldo que el documento declara,
      para conciliar), `avisos` y `errores`. **No lanza**: un documento que no cuadra es un error en la lista.
    - Los importes, con `leerCifra` y decimales exactos, nunca `parseFloat`. El `importe` de un movimiento
-     lleva el signo que exige su tipo.
+     lleva el signo que exige su tipo. `leerCifra` sigue la convención española: «1.085» son mil ochenta y
+     cinco. Si el documento puede venir escrito en inglés, decide su separador decimal una vez por documento,
+     como la plantilla genérica (`separadorDeLasCifras` en `plantilla/leer.ts`, con `pistaDelSeparador` y
+     `leerCifraCon` del motor; H1-07, decisión 4 de la auditoría consolidada del 22-11-2026): coma decimal
+     en alguna cifra, español; punto decimal inequívoco y ninguna coma, inglés; ningún indicio, como siempre
+     y la línea con una cifra ambigua, por revisar.
 2. **Dalo de alta en `importacion/registro.ts`**, en `IMPORTADORES`, antes de la plantilla genérica.
 3. **Pruebas con extractos sintéticos** (ningún dato de un cliente entra en el repositorio): copia la forma
    de `tests/gestor/andbankDeMuestra.ts`. Comprueba como mínimo que todo movimiento propuesto sin revisión

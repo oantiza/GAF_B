@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 DIS-03 contra un emulador de Firestore de verdad: la precondicion `last_update_time` rechaza la escritura
-cuando otro cliente ha escrito entre la lectura y la escritura, en los dos almacenes.
+cuando otro cliente ha escrito entre la lectura y la escritura, en el almacen de la base nueva. La del almacen de la base
+vieja (`FirestorePortfolioStore`) se fue con el el 21-11-2026 (decision 31 del censo CENSO_BASE_VIEJA_2026-11-21.md).
 
 Se salta sola salvo que se cumpla todo esto:
   - FIRESTORE_EMULATOR_HOST esta puesta (el cliente habla con el emulador, nunca con la nube);
@@ -11,8 +12,10 @@ El cliente se crea con ese proyecto y con credenciales anonimas: sin una clave r
 ninguna base de la nube. Todo se escribe bajo identificadores unicos `prueba-dis03-<aleatorio>` y se borra
 al acabar, tambien si la prueba falla.
 
-Se lanza, con el emulador de la base de siempre arrancado (Firestore en 8082, `firebase.json`), desde 3-BDB-ACTIVOS_app:
-  FIRESTORE_EMULATOR_HOST=127.0.0.1:8082 PRUEBA_DIS03_PROYECTO=gestor-activos-local \
+El proyecto sigue siendo `gestor-activos-local` a proposito: no existe en la nube, y en un emulador es un espacio aparte
+del de la base nueva, asi que la prueba no toca sus datos. Se lanza con un emulador de Firestore arrancado (el de la base
+nueva, 8092, sirve), desde 3-BDB-ACTIVOS_app:
+  FIRESTORE_EMULATOR_HOST=127.0.0.1:8092 PRUEBA_DIS03_PROYECTO=gestor-activos-local \
     python -m pytest functions_python/tests/test_guardado_condicionado_emulador.py -q -p no:cacheprovider
 """
 import os
@@ -82,47 +85,17 @@ def _payload(pid, nombre, esperada=None, posiciones=None):
 def _otra_escritura_en_medio(monkeypatch, modulo, escribir):
     """Escribe con otro cliente justo despues de la lectura y antes de la escritura condicionada."""
     original = modulo.precondicion
+    pendiente = [escribir]
 
     def con_otra_en_medio(db, snap):
         opcion = original(db, snap)
-        escribir()
+        # Una sola vez: desde el 20-11-2026 el guardado sin condicion de la base nueva tambien lleva precondicion, y la
+        # escritura del otro equipo volveria a pasar por aqui.
+        if pendiente:
+            pendiente.pop()()
         return opcion
 
     monkeypatch.setattr(modulo, "precondicion", con_otra_en_medio)
-
-
-def test_store_de_carteras_la_precondicion_real_rechaza_la_escritura_si_otro_ha_escrito(escritos, monkeypatch):
-    from app_owned_store import clear_owner_cache
-    from portfolios import repository as repo
-    from portfolios import store as modulo
-    from portfolios.store import FirestorePortfolioStore
-
-    db, raices = escritos
-    uid, pid = _identificador(), _identificador()
-    raices.append(f"bdb_activos/{uid}")
-    clear_owner_cache()
-    almacen = FirestorePortfolioStore(db)
-    repo.save_portfolio(almacen, uid, _payload(pid, "Abierta"), now=ABIERTA_A_LAS)
-
-    # Con la fecha correcta y sin nadie en medio, guarda.
-    repo.save_portfolio(almacen, uid, _payload(pid, "Revisada", ABIERTA_A_LAS), now="2026-11-14T10:00:00+00:00")
-    assert almacen.get(uid, pid)["name"] == "Revisada"
-
-    # Con otra fecha, conflicto y nada escrito.
-    with pytest.raises(repo.PortfolioConflict) as cambiada:
-        repo.save_portfolio(almacen, uid, _payload(pid, "Pisaria", ABIERTA_A_LAS))
-    assert cambiada.value.reason == "changed"
-    assert almacen.get(uid, pid)["name"] == "Revisada"
-
-    # Otro equipo guarda entre la lectura y la escritura, con la misma fecha: solo la precondicion lo ve.
-    otro = FirestorePortfolioStore(_cliente())
-    _otra_escritura_en_medio(monkeypatch, modulo, lambda: repo.save_portfolio(
-        otro, uid, _payload(pid, "Del otro equipo"), now="2026-11-14T10:00:00+00:00"))
-    with pytest.raises(repo.PortfolioConflict) as carrera:
-        repo.save_portfolio(almacen, uid, _payload(pid, "De este", "2026-11-14T10:00:00+00:00"))
-    assert carrera.value.reason == "changed"
-    assert almacen.get(uid, pid)["name"] == "Del otro equipo"
-    clear_owner_cache()
 
 
 def test_base_nueva_la_precondicion_real_rechaza_el_lote_entero_si_otro_ha_escrito(escritos, monkeypatch):
@@ -161,3 +134,27 @@ def test_base_nueva_la_precondicion_real_rechaza_el_lote_entero_si_otro_ha_escri
     assert guardada["name"] == "Del otro equipo"
     # Ni la raiz ni un objetivo de este: queda solo el del otro equipo.
     assert [p["asset_id"] for p in guardada["positions"]] == [ISIN_B]
+
+
+def test_base_nueva_sin_condicion_otro_guardado_en_medio_no_deja_objetivos_mezclados(escritos, monkeypatch):
+    """20-11-2026: el guardado sin condicion (nueva, o sobrescribir tras un conflicto) tambien va atado a lo leido. El otro
+    equipo guarda {A, B} entre la lectura y la escritura de este, que guarda {A}: la precondicion real lo rechaza, se vuelve a
+    leer, y queda lo de este entero, sin el objetivo B del otro."""
+    from portfolios import almacen_base_nueva as modulo
+    from portfolios import repository as repo
+    from portfolios.almacen_base_nueva import AlmacenCarterasBaseNueva
+
+    db, raices = escritos
+    uid, pid = _identificador(), _identificador()
+    raices.append(f"portfolios/{pid}")
+    almacen = AlmacenCarterasBaseNueva(db)
+    repo.save_portfolio(almacen, uid, _payload(pid, "Abierta"), now=ABIERTA_A_LAS)
+    otro = AlmacenCarterasBaseNueva(_cliente())
+    _otra_escritura_en_medio(monkeypatch, modulo, lambda: repo.save_portfolio(
+        otro, uid, _payload(pid, "Del otro equipo", posiciones=[
+            {"asset_id": ISIN_A, "weight_percent": 60}, {"asset_id": ISIN_B, "weight_percent": 40}]),
+        now="2026-11-14T10:00:00+00:00"))
+    repo.save_portfolio(almacen, uid, _payload(pid, "De este"), now="2026-11-14T11:00:00+00:00")
+    guardada = almacen.get(uid, pid)
+    assert guardada["name"] == "De este"
+    assert [(p["asset_id"], p["weight_percent"]) for p in guardada["positions"]] == [(ISIN_A, 100.0)]

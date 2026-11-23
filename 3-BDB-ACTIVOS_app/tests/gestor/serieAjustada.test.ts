@@ -83,6 +83,50 @@ describe("una posición ya vendida", () => {
   });
 });
 
+describe("una posición vendida y reabierta por un canje (P2-05)", () => {
+  /*
+   * Precios reales de ACC: 100 el 01-01 y 110 el 02-01 (se venden los 10 títulos). El 15-01 paga 5 € (el libro no lo sabe: ya no
+   * los tenía) y cae de 105 a 100. El 01-02 vuelven 10 títulos por un canje desde OTRO, sin precio. El 01-03 paga 2 € (anotado)
+   * y cae de 100 a 98.
+   *
+   * La serie del proveedor rebaja lo anterior a cada dividendo: por 100 / 105 antes del 15-01 y por 98 / 100 antes del 01-03.
+   *   01-01: 100 × 100/105 × 0,98 = 93,3333    02-01: 110 × 100/105 × 0,98 = 102,6667
+   *   01-02 a 29-02: 100 × 0,98 = 98            desde 01-03: 98
+   *
+   * Primer periodo, cerrado: se ancla en la venta, k = 110 / 102,6667 = 1,071429; 93,3333 × 1,071429 = 100. Bien.
+   * Segundo periodo, abierto: k = 1 desde el 01-03 y, antes, 1 + 2 / 98 = 1,020408; 98 × 1,020408 = 100, el precio real.
+   * Antes del arreglo el segundo periodo empezaba en su primer suceso (el dividendo del 01-03), y del 01-02 al 29-02 regía el
+   * factor del primero: 98 × 1,071429 = 105, y los 10 títulos valían 1.050 € en vez de 1.000 €.
+   */
+  const c = cartera([activo("ACC"), activo("OTRO")], [
+    mov("aportacion", "2024-01-01", { importe: "1000" }),
+    mov("compra", "2024-01-01", { activoId: "ACC", titulos: "10", precio: "100", importe: "-1000" }),
+    mov("venta", "2024-01-02", { activoId: "ACC", titulos: "10", precio: "110", importe: "1100" }),
+    mov("compra", "2024-01-20", { activoId: "OTRO", titulos: "10", precio: "100", importe: "-1000" }),
+    mov("canje", "2024-02-01", { activoId: "OTRO", destino: { activoId: "ACC", titulos: "10" } }),
+    mov("dividendo", "2024-03-01", { activoId: "ACC", importe: "20" })
+  ]);
+  const serieDeAcc: Array<[string, number]> = [
+    ["2024-01-01", 100 * (100 / 105) * 0.98],
+    ["2024-01-02", 110 * (100 / 105) * 0.98],
+    ["2024-02-01", 98],
+    ["2024-02-15", 98],
+    ["2024-03-01", 98],
+    ["2024-03-02", 98]
+  ];
+
+  it("el segundo periodo se valora con su propio factor desde el día que reabre, no con el del primero", () => {
+    const v = valorar(c, mercado({ ACC: serieDeAcc, OTRO: [["2024-01-20", 100]] }, ["ACC"]), { hasta: "2024-03-02" });
+    const precio = (dia: string) => v.porActivo.get("ACC")!.precio[v.indice.get(dia)!];
+    expect(precio("2024-01-01")).toBeCloseTo(100, 9);
+    expect(precio("2024-01-02")).toBeCloseTo(110, 9);
+    expect(precio("2024-02-01")).toBeCloseTo(100, 9);
+    expect(precio("2024-02-29")).toBeCloseTo(100, 9);
+    expect(precio("2024-03-01")).toBeCloseTo(98, 9);
+    expect(v.porActivo.get("ACC")!.valor[v.indice.get("2024-02-15")!]).toBeCloseTo(1000, 9);
+  });
+});
+
 describe("un dividendo en acciones", () => {
   it("no produce un salto: la serie lo trata como un dividendo y los títulos nuevos lo compensan", () => {
     /*

@@ -8,10 +8,10 @@
  * Las pantallas que ya tienen un arnés con sus dobles hacen la misma comprobación en su propia prueba, con la misma
  * función (`tests/support/saltosDeNivel.ts`): Análisis en `analisisRediseno`, Diseño en `disenoRedisenoPasos`, Informes
  * en `informesRediseno` y la cartera de un cliente (Resumen y Análisis) en `gestor/carterasDeClientes`. Aquí van las que
- * no lo tenían: Mercado, Jubilación y Sistema.
+ * no lo tenían: Mercado y Jubilación. (Sistema llevaba aquí su semáforo de integridad, que se borró con la base vieja
+ * el 21-11-2026.)
  */
-import { act, createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { encabezadosVisibles, saltosDeNivel } from "./support/saltosDeNivel";
@@ -34,13 +34,10 @@ vi.mock("../src/adapters/weeklyReportBackend", () => ({ fetchWeeklyReportResult:
 vi.mock("../src/adapters/assetDataSource", () => ({ getAssetDataSource: () => dobles.fuente }));
 vi.mock("../src/reports/jubilacionPdf", () => ({ downloadJubilacionPdf: vi.fn() }));
 
-import type { SystemStatusResponse } from "../src/adapters/systemStatusBackend";
-import { PageHeader } from "../src/components/ui/PageHeader";
 import { clearSessionCaches } from "../src/core/sessionCaches";
 import { WEEKLY_REPORT_MOCK } from "../src/data/weeklyReportMock";
 import { JubilacionPage } from "../src/pages/JubilacionPage";
 import { MercadoPage } from "../src/pages/MercadoPage";
-import { SystemStatusContent } from "../src/pages/SystemStatusPage";
 
 let root: Root | undefined;
 let host: HTMLDivElement;
@@ -184,34 +181,5 @@ describe("Jubilación", () => {
     await act(async () => boton("El método y las fuentes").click());
     sinSaltos(document.body, "Jubilación con el método abierto");
     expect([...document.querySelectorAll(".jubilacion-carriles h4")].length).toBeGreaterThan(0);
-  });
-});
-
-describe("Sistema · Estado del sistema", () => {
-  const ESTADO = {
-    integrity: {
-      checked_at: "2026-07-12T08:45:00Z",
-      status: "WARN",
-      freshness: { price_refresh: "OK", metrics_refresh: "WARN", backup: "FAIL" },
-      counts: { assets_total: 753, portfolios: 7 },
-      problems: [{ severity: "WARN", check: "search_index_missing", detail: "Dos activos están fuera del buscador." }]
-    },
-    backup: { completed_at: "2026-07-07T03:00:00Z", verification: "SHA256_OK", firestore_records: 12345 },
-    prices: { last_run: "2026-07-12T07:30:00Z", read_budget_used: 1200, read_budget_max: 2000 },
-    metrics: { last_run: "2026-07-10T08:00:00Z", cycle_completed: false, stopped_by_budget: true, read_budget_used: 6000, read_budget_max: 6000 }
-  } as unknown as SystemStatusResponse;
-
-  /* La pestaña la monta Sistema bajo su cabecera de pantalla (`AdminPage`): aquí, la misma cabecera y el mismo contenido. */
-  test("con datos y sin ellos", () => {
-    for (const [nombre, estado] of [
-      ["con datos", ESTADO],
-      ["sin datos", { integrity: null, backup: null, prices: null, metrics: null } as SystemStatusResponse]
-    ] as const) {
-      const div = document.createElement("div");
-      div.innerHTML = renderToStaticMarkup(
-        createElement("div", null, createElement(PageHeader, { title: "Sistema" }), createElement(SystemStatusContent, { now: new Date("2026-07-12T12:00:00Z"), snapshot: estado }))
-      );
-      sinSaltos(div, `Sistema ${nombre}`);
-    }
   });
 });

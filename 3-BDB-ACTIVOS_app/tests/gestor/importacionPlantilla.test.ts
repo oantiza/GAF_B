@@ -3,6 +3,7 @@
  * plantilla descargable. Cada cifra esperada sale de una cuenta a mano escrita junto a ella.
  */
 import { describe, expect, it } from "vitest";
+import { xlsxCellToText } from "../../src/core/importFileReader";
 import { d, leerCifra } from "../../src/gestor/motor/decimal";
 import { construirLibro, titulosDe } from "../../src/gestor/motor/libro";
 import { carteraVacia, type Activo } from "../../src/gestor/motor/modelo";
@@ -10,6 +11,7 @@ import { TIPOS, definicionDe } from "../../src/gestor/motor/movimientos/registro
 import { COLUMNAS_DE_MOVIMIENTOS, SINONIMOS_DE_TIPOS } from "../../src/gestor/importacion/plantilla/columnas";
 import { importadorDePlantilla, hojasDeLaPlantilla, plantillaCsv } from "../../src/gestor/importacion/plantilla";
 import { leerFecha } from "../../src/gestor/importacion/plantilla/leer";
+import { activosCitados, resolverActivo } from "../../src/gestor/importacion/revision";
 import type { DocumentoLeido, MovimientoPropuesto, ResultadoDeImportacion } from "../../src/gestor/importacion/tipos";
 
 const CABECERA = ["Fecha", "Tipo", "ISIN", "Nombre", "Títulos", "Precio", "Importe", "Divisa", "Comisión", "Retención", "Nota"];
@@ -32,10 +34,14 @@ function unaFila(valores: Record<string, string>): MovimientoPropuesto {
   return resultado.movimientos[0];
 }
 
-/** Las hojas de la plantilla como las dejaría un lector de Excel: cada celda, a texto tal cual. */
+/**
+ * Las hojas de la plantilla como las deja el lector de Excel (`xlsxCellToText`): el texto tal cual y cada número con coma
+ * decimal. Antes se escribían con `String`, con el punto de JavaScript, que el lector real no produce; desde H1-07 (23-11-2026)
+ * un fichero con solo puntos decimales se lee en inglés y lo avisa.
+ */
 function documentoDeLasHojas(soloMovimientos: boolean): DocumentoLeido {
   const hojas = hojasDeLaPlantilla().filter((hoja) => !soloMovimientos || hoja.nombre === "Movimientos");
-  const tablas = hojas.map((hoja) => hoja.filas.map((fila) => fila.map((celda) => String(celda))));
+  const tablas = hojas.map((hoja) => hoja.filas.map((fila) => fila.map((celda) => xlsxCellToText(celda))));
   return { nombre: "plantilla.xlsx", texto: "", tablas };
 }
 
@@ -89,9 +95,12 @@ describe("Plantilla descargable: ida y vuelta", () => {
     expect(resultado.extractos).toHaveLength(1);
     const [extracto] = resultado.extractos;
     expect(extracto.fecha).toBe("2026-12-31");
-    expect(extracto.posiciones.map((posicion) => [posicion.activo.clave, posicion.titulos, posicion.valor])).toEqual([
-      ["ZZ0000000045", "1000", "11200"],
-      ["ZZ0000000037", "400", "10720"]
+    /* El precio es opcional (A-210): lo dan el fondo de bolsa (11,20 €) y Ejemplo Corp. en su divisa (60 × 105 = 6.300 USD,
+       declarados como 6.000 EUR); el de renta fija, no. */
+    expect(extracto.posiciones.map((posicion) => [posicion.activo.clave, posicion.titulos, posicion.valor, posicion.cotizacion, posicion.divisa])).toEqual([
+      ["ZZ0000000045", "1000", "11200", "11.2", "EUR"],
+      ["ZZ0000000037", "400", "10720", undefined, undefined],
+      ["ZZ0000000029", "60", "6000", "105", "USD"]
     ]);
     expect(extracto.efectivo).toEqual([{ divisa: "EUR", saldo: "56677.7" }, { divisa: "USD", saldo: "4725" }]);
   });
@@ -314,7 +323,8 @@ describe("Activos citados", () => {
       ["06/01/2026", "Dividendo", "", "accion antigua", "", "", "5"]
     ]);
     const [compra, dividendo] = importar(doc).movimientos;
-    expect(compra.activo).toEqual({ clave: "ACCION ANTIGUA", nombre: "Acción Antigua", tipo: "ACCION" });
+    /* «Compra» a secas: la acción se supone, y lo dice la cita para que la revisión pregunte si el activo es nuevo. */
+    expect(compra.activo).toEqual({ clave: "ACCION ANTIGUA", nombre: "Acción Antigua", tipo: "ACCION", tipoSupuesto: true });
     expect(dividendo.activo).toEqual({ clave: "ACCION ANTIGUA", nombre: "Acción Antigua" });
     expect(dividendo.movimiento.activoId).toBe("ACCION ANTIGUA");
     expect(dividendo.requiereRevision).toBe(false);
@@ -331,6 +341,32 @@ describe("Activos citados", () => {
     const propuesto = unaFila({ Fecha: "07/01/2026", Tipo: "Compra", Títulos: "1", Importe: "10" });
     expect(propuesto.requiereRevision).toBe(true);
     expect(propuesto.avisos).toContain("Falta el activo.");
+  });
+
+  it("un bono comprado antes de su primer cupón es un bono, no una acción (P2-05)", () => {
+    /* La compra va primero y solo deduce «acción»; el cupón de junio dice «bono», y manda en las dos filas. */
+    const cabecera = ["Fecha", "Tipo", "ISIN", "Nombre", "Títulos", "Precio", "Importe"];
+    const doc = documento([
+      cabecera,
+      ["12/01/2026", "Compra", "ZZ0000000052", "Bono Ejemplo 2030", "10000", "98,5", "-9850"],
+      ["15/06/2026", "Cupón", "ZZ0000000052", "Bono Ejemplo 2030", "", "", "350"]
+    ]);
+    const resultado = importar(doc);
+    const [compra, cupon] = resultado.movimientos;
+    expect(compra.activo?.tipo).toBe("BONO");
+    expect(cupon.activo?.tipo).toBe("BONO");
+    /* Y como bono nuevo se propone en % del nominal: 10.000 × 98,5 × 0,01 = 9.850 €, lo pagado. Con multiplicador 1, 985.000 €. */
+    const [citado] = activosCitados([resultado]);
+    const propuesto = resolverActivo(citado.citado, citado.apariciones, carteraVacia({ nombre: "x", ahora: "2026-01-01T00:00:00.000Z", id: "x" }), []).propuesto;
+    expect(propuesto).toMatchObject({ tipo: "BONO", multiplicador: "0.01" });
+  });
+
+  it("una compra con cupón corrido es de un bono aunque no haya cupones en el documento", () => {
+    const cabecera = ["Fecha", "Tipo", "ISIN", "Nombre", "Títulos", "Precio", "Importe", "Cupón corrido"];
+    const doc = documento([cabecera, ["12/01/2026", "Compra", "ZZ0000000052", "Bono Ejemplo 2030", "10000", "98,5", "-9900", "50"]]);
+    expect(importar(doc).movimientos[0].activo?.tipo).toBe("BONO");
+    /* Una compra sin más sigue deduciendo «acción», como antes. */
+    expect(unaFila({ Fecha: "07/01/2026", Tipo: "Compra", ISIN: "ZZ0000000060", Nombre: "Acción X", Títulos: "1", Importe: "10" }).activo?.tipo).toBe("ACCION");
   });
 
   it("el destino de un traspaso es un fondo, con su fecha de llegada", () => {

@@ -1,20 +1,25 @@
 """
 Firebase Functions (Python) — backend de BDB-ACTIVOS.
 
-46 funciones: 35 callables (https_fn.on_call) y 11 programadas (scheduler_fn).
+26 funciones: 23 callables (https_fn.on_call) y 3 programadas (scheduler_fn), las de informes.
 Todas las callables exigen sesion de Firebase Auth y correo verificado (_require_auth);
 el alta de usuarios se gobierna en la consola de Firebase, no aqui. Las de lectura y calculo
-leen la maestra como proyecto cruzado (master_project.py, sin valor por defecto) y, con la
-base nueva, pasan por readmodel/lector_base_nueva.py. Escriben las que declaran la cuenta
-escritora (WRITER_SERVICE_ACCOUNT): carteras por UID (save_portfolio y delete_portfolio, en
-portfolios/), informes y las tareas programadas y de administracion que tocan la maestra.
+leen la maestra como proyecto cruzado (master_project.py, sin valor por defecto), y solo la
+base nueva, por readmodel/lector_base_nueva.py: con otro proyecto declarado paran nombrandolo
+(master_project.exigir_base_nueva). Escriben las que declaran la cuenta escritora
+(WRITER_SERVICE_ACCOUNT): carteras por UID (save_portfolio y delete_portfolio, en portfolios/)
+e informes.
 
-Despliegue: solo 23 de las 46 suben, con `node scripts/desplegarFunciones.mjs --despliega`
+Las 20 que trabajaban con la forma de la base vieja (`assets`, `metrics/latest`, `meta/*`) -el
+estado del sistema, once `admin_*` y ocho programadas de precios, metricas, integridad, indice y
+VL revisados- se borraron el 21-11-2026 con sus modulos (decision 31 del censo
+CENSO_BASE_VIEJA_2026-11-21.md; etiqueta referencia-base-vieja-2026-11-21).
+
+Despliegue: solo 23 de las 26 suben (no las tres programadas de informes), con `node scripts/desplegarFunciones.mjs --despliega`
 desde la carpeta de la app (lista FUNCIONES; su puerta, scripts/puertaFunciones.mjs, rechaza
 cualquier otro `firebase deploy` con firebase.funciones.json). Region europe-west1.
 """
 import hashlib
-import json
 import os
 import logging
 
@@ -24,11 +29,14 @@ from firebase_functions import https_fn, options, scheduler_fn
 # (Cloud Run lo indexa como jsonPayload); `logging` estándar acaba en textPayload.
 from firebase_functions import logger as fb_logger
 
-from master_project import exigir_arranque_sin_bdb
+from master_project import exigir_arranque_sin_bdb, exigir_emulador_en_local
 
 # Antes de inicializar nada: la app de abajo sale del proyecto del runtime, no de
 # MASTER_PROJECT_ID, y con el proyecto de BDB escribiria alli carteras e informes.
 exigir_arranque_sin_bdb()
+# Y en local el proyecto es el real de la base nueva (21-11-2026): sin el emulador de
+# Firestore declarado, el cliente por defecto iria a la nube.
+exigir_emulador_en_local()
 
 # App del PROYECTO PROPIO (para contexto de Auth y, en B2, carteras app-owned).
 initialize_app()
@@ -84,6 +92,7 @@ from portfolios.store import almacen_de_carteras
 from optimization.repository import (
     InvalidOptimizationRequest,
     OptimizationError,
+    OptimizationInternalError,
     optimize_portfolio as optimize_portfolio_service,
     build_rebased_series,
     backtest_portfolio as backtest_portfolio_service,
@@ -94,28 +103,48 @@ from ecb_rates import (
     get_ecb_rates as ecb_rates_service,
     get_euro_yield_curve as euro_yield_curve_service,
 )
-from weekly_report import (
-    REPORT_CONFIG as STRATEGY_REPORT_CONFIG,
-    get_weekly_report as weekly_report_service,
-    publish_strategy_report as publish_strategy_report_service,
-)
+
+
+class _ModuloPerezoso:
+    """Un modulo que se importa la primera vez que se usa, no al arrancar.
+
+    Firebase importa `main.py` entero en cada instancia (512 MB) para descubrir las funciones. El informe semanal solo lo
+    usan las funciones de informes, y trae consigo `curl_cffi`: arrastrarlos al arranque era memoria y tiempo de arranque que la mayoria de las instancias no usan
+    (P2-10, auditoria 20-11-2026). Se comporta como el modulo (los atributos van al modulo, y las pruebas pueden
+    sustituirlos con `monkeypatch`), y no cambia que funciones descubre Firebase: eso lo deciden los decoradores.
+    """
+
+    def __init__(self, nombre: str):
+        object.__setattr__(self, "_nombre", nombre)
+
+    def _modulo(self):
+        import importlib
+        return importlib.import_module(object.__getattribute__(self, "_nombre"))
+
+    def __getattr__(self, atributo):
+        return getattr(self._modulo(), atributo)
+
+
+weekly_report = _ModuloPerezoso("weekly_report")
+
+
+def _config_de_informes():
+    return weekly_report.REPORT_CONFIG
+
+
+def weekly_report_service(*args, **kwargs):
+    return weekly_report.get_weekly_report(*args, **kwargs)
+
+
+def publish_strategy_report_service(*args, **kwargs):
+    return weekly_report.publish_strategy_report(*args, **kwargs)
+
+
 from analyze_portfolio import analyze_portfolio as analyze_portfolio_service
 from economic_calendar import get_economic_calendar as economic_calendar_service
 from spanish_calendar import get_dividends_calendar as dividends_calendar_service, get_earnings_calendar as earnings_calendar_service
-import admin_panel
-import history_backfill
-import ingest_asset
-import system_status
-from quietlog import swallowed, swallowed_quiet
+from quietlog import swallowed
 from rate_limit import RateLimitExceeded, UserRateLimiter
-from write_governance import (
-    MASTER_WRITE_ENV,
-    MasterWritesDisabledError,
-    master_writes_disabled_result,
-    master_writes_enabled,
-    master_writes_mode,
-    require_master_writes_enabled,
-)
 
 RATE_LIMITER = UserRateLimiter()
 
@@ -201,7 +230,7 @@ def _require_admin(
     operation: str | None = None,
     limit_per_minute: int | None = None,
 ):
-    """Gate de admin: solo el custom claim `admin` == True (scripts/set_admin.py).
+    """Gate de admin: solo el custom claim `admin` == True (lo pone `npm run nube:administrador` de la plataforma).
 
     S-08 (auditoría 29-09): se retira la allowlist ADMIN_UIDS (env); era un
     segundo camino de administrador fuera de Auth.
@@ -209,7 +238,8 @@ def _require_admin(
     ALTA-04 (auditoría 16-10-2026): cada callable de administración nombra su
     `operation` y su `limit_per_minute`, que pasan a `_require_auth`. Antes no se
     pasaban y el limitador se saltaba en las 13 (recorridos de la maestra, EODHD y
-    Gemini). tests/test_auth_gates.py comprueba el inventario.
+    Gemini). Desde el 21-11-2026 queda una, `admin_publish_report`: las otras doce eran de la
+    base vieja. tests/test_auth_gates.py comprueba el inventario.
     """
     uid = _require_auth(req, operation=operation, limit_per_minute=limit_per_minute)
     token = getattr(req.auth, "token", None) or {}
@@ -256,18 +286,6 @@ def _cap_int(data, field, default, cap, *, minimum=0, label=None):
     except (TypeError, ValueError):
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
                                   "%s debe ser un numero entero." % (label or field))
-    return min(max(value, minimum), cap)
-
-
-def _cap_float(data, field, default, cap, *, minimum=0.0, label=None):
-    raw = (data or {}).get(field, default)
-    if raw is None or (isinstance(raw, str) and not raw.strip()):
-        raw = default
-    try:
-        value = float(raw)
-    except (TypeError, ValueError):
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
-                                  "%s debe ser un numero." % (label or field))
     return min(max(value, minimum), cap)
 
 
@@ -461,24 +479,27 @@ def resolve_portfolio(req: https_fn.CallableRequest):
 @https_fn.on_call(memory=options.MemoryOption.GB_1, max_instances=5, timeout_sec=300)
 def optimize_portfolio(req: https_fn.CallableRequest):
     _require_auth(req, operation="optimize_portfolio", limit_per_minute=12)
-    _cap_list(req.data, "asset_ids", CAP_OPTIMIZE_ASSETS, "activos")
+    _cap_list(_datos(req), "asset_ids", CAP_OPTIMIZE_ASSETS, "activos")
     try:
         return optimize_portfolio_service(
-            lector_de_optimizacion(), req.data or {},
+            lector_de_optimizacion(), _datos(req),
             risk_free_resolver=resolver_tipo_libre(),
         )
     except InvalidOptimizationRequest as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc))
     except OptimizationError as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc))
+    except OptimizationInternalError as exc:
+        # Un fallo del programa, no «sin solucion»: INTERNAL, con su texto y su referencia, sin la traza (va al registro).
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(exc))
 
 
 @https_fn.on_call()
 def get_price_series(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_price_series", limit_per_minute=30)
-    _cap_list(req.data, "asset_ids", CAP_SERIES_ASSETS, "activos")
+    _cap_list(_datos(req), "asset_ids", CAP_SERIES_ASSETS, "activos")
     try:
-        return build_rebased_series(lector_de_optimizacion(), req.data or {})
+        return build_rebased_series(lector_de_optimizacion(), _datos(req))
     except InvalidOptimizationRequest as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc))
     except OptimizationError as exc:
@@ -488,17 +509,17 @@ def get_price_series(req: https_fn.CallableRequest):
 @https_fn.on_call(min_instances=0, max_instances=5, memory=options.MemoryOption.GB_1, timeout_sec=300)
 def backtest_portfolio(req: https_fn.CallableRequest):
     _require_auth(req, operation="backtest_portfolio", limit_per_minute=20)
-    bundle = (req.data or {}).get("analysis_bundle") is True
-    _cap_list(req.data, "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")
+    bundle = _datos(req).get("analysis_bundle") is True
+    _cap_list(_datos(req), "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")
     try:
         if bundle:
             from portfolio_horizon import analyze_horizon
             return analyze_horizon(
-                lector_de_optimizacion(), req.data,
+                lector_de_optimizacion(), _datos(req),
                 risk_free_resolver=resolver_tipo_libre(),
             )
         return backtest_portfolio_service(
-            lector_de_optimizacion(), req.data or {},
+            lector_de_optimizacion(), _datos(req),
             risk_free_resolver=resolver_tipo_libre(),
         )
     except InvalidOptimizationRequest as exc:
@@ -518,7 +539,7 @@ def improve_portfolio(req: https_fn.CallableRequest):
     _require_auth(req, operation="improve_portfolio", limit_per_minute=6)
     try:
         return improve_portfolio_service(
-            lector_de_optimizacion(), req.data or {},
+            lector_de_optimizacion(), _datos(req),
             risk_free_resolver=resolver_tipo_libre(),
         )
     except InvalidOptimizationRequest as exc:
@@ -532,20 +553,22 @@ def generate_portfolio_draft(req: https_fn.CallableRequest):
     """Borrador de cartera por nivel de riesgo (decision 122, `generador_de_carteras.py`).
 
     Solo lectura. Lee una vez las tarjetas de los fondos y la serie de los que pasan los filtros, y lo guarda 15 minutos: el
-    segundo borrador no vuelve a leer. Solo con la base nueva: la vieja no guarda el patrimonio de los fondos.
+    segundo borrador no vuelve a leer. Solo con la base nueva, como todas: con otro proyecto declarado lo dice.
     """
     _require_auth(req, operation="generate_portfolio_draft", limit_per_minute=10)
     datos = _datos(req)
-    from master_project import PROYECTO_BASE_NUEVA, master_project_id
+    from master_project import BaseNuevaRequerida, exigir_base_nueva
     from generador_de_carteras import GeneradorNoDisponible, generar_borrador
     from readmodel.firestore_client import get_master_db
-    from readmodel.lector_base_nueva import LectorBaseNueva, LectorOptimizacionBaseNueva, _estr_guardada
-    if master_project_id() != PROYECTO_BASE_NUEVA:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-                                  "El generador necesita la base nueva: la base de siempre no guarda el patrimonio de los fondos.")
+    from readmodel.lector_base_nueva import LectorBaseNueva, LectorOptimizacionBaseNueva
+    try:
+        exigir_base_nueva()
+    except BaseNuevaRequerida as exc:
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
     try:
         db = get_master_db()
-        return generar_borrador(LectorBaseNueva(db), LectorOptimizacionBaseNueva(db), _estr_guardada(db), datos)
+        # El Sharpe y el Sortino son los de la ficha (20-11-2026): el generador ya no mide con el €STR por su cuenta.
+        return generar_borrador(LectorBaseNueva(db), LectorOptimizacionBaseNueva(db), datos)
     except GeneradorNoDisponible as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc))
 
@@ -554,19 +577,19 @@ def generate_portfolio_draft(req: https_fn.CallableRequest):
 def get_macro_reference(req: https_fn.CallableRequest):
     # Auditoría 11-08 (D13): mismo rate limit que sus hermanas de datos macro.
     _require_auth(req, operation="get_macro_reference", limit_per_minute=30)
-    return macro_reference_service(req.data or {})
+    return macro_reference_service(_datos(req))
 
 
 @https_fn.on_call(max_instances=5)
 def get_ecb_rates(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_ecb_rates", limit_per_minute=30)
-    return ecb_rates_service(req.data or {})
+    return ecb_rates_service(_datos(req))
 
 
 @https_fn.on_call(max_instances=5)
 def get_euro_yield_curve(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_euro_yield_curve", limit_per_minute=30)
-    return euro_yield_curve_service(req.data or {})
+    return euro_yield_curve_service(_datos(req))
 
 
 @https_fn.on_call()
@@ -575,9 +598,9 @@ def get_weekly_report(req: https_fn.CallableRequest):
     data = _datos(req)
     # Un tipo no permitido llegaba como error interno (WeeklyReportValidationError del servicio).
     report_type = data.get("type")
-    if report_type not in (None, "") and (not isinstance(report_type, str) or report_type not in STRATEGY_REPORT_CONFIG):
+    if report_type not in (None, "") and (not isinstance(report_type, str) or report_type not in _config_de_informes()):
         raise _invalido("type no es un tipo de informe valido; los validos son: %s."
-                        % ", ".join(sorted(STRATEGY_REPORT_CONFIG)))
+                        % ", ".join(sorted(_config_de_informes())))
     return weekly_report_service(data)
 
 
@@ -593,7 +616,7 @@ def analyze_portfolio(req: https_fn.CallableRequest):
 @https_fn.on_call()
 def get_economic_calendar(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_economic_calendar", limit_per_minute=30)
-    return economic_calendar_service(req.data or {})
+    return economic_calendar_service(_datos(req))
 
 
 # Sin secreto a proposito. spanish_calendar usaria EODHD_API_KEY si estuviera, pero el plan
@@ -602,13 +625,13 @@ def get_economic_calendar(req: https_fn.CallableRequest):
 @https_fn.on_call(timeout_sec=120)
 def get_dividends_calendar(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_dividends_calendar", limit_per_minute=30)
-    return dividends_calendar_service(req.data or {})
+    return dividends_calendar_service(_datos(req))
 
 
 @https_fn.on_call(timeout_sec=120)
 def get_earnings_calendar(req: https_fn.CallableRequest):
     _require_auth(req, operation="get_earnings_calendar", limit_per_minute=30)
-    return earnings_calendar_service(req.data or {})
+    return earnings_calendar_service(_datos(req))
 
 
 # ---------- Carteras app-owned (B2): CRUD por UID, escritura en el proyecto propio ----------
@@ -617,7 +640,7 @@ def get_earnings_calendar(req: https_fn.CallableRequest):
 def save_portfolio(req: https_fn.CallableRequest):
     uid = _require_auth(req, operation="save_portfolio", limit_per_minute=30)
     try:
-        return portfolios.save_portfolio(almacen_de_carteras(), uid, req.data or {})
+        return portfolios.save_portfolio(almacen_de_carteras(), uid, _datos(req))
     except portfolios.InvalidPortfolio as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc))
     except portfolios.PortfolioConflict as exc:
@@ -646,162 +669,18 @@ def list_portfolios(req: https_fn.CallableRequest):
 @https_fn.on_call(service_account=WRITER_SERVICE_ACCOUNT)
 def delete_portfolio(req: https_fn.CallableRequest):
     uid = _require_auth(req, operation="delete_portfolio", limit_per_minute=30)
-    pid = (req.data or {}).get("portfolio_id")
+    pid = _datos(req).get("portfolio_id")
     try:
         return portfolios.delete_portfolio(almacen_de_carteras(), uid, pid)
     except portfolios.InvalidPortfolio as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc))
-
-
-def _refresh_max_reads(env_name: str, default_value: int) -> int:
-    try:
-        return int(os.environ.get(env_name) or os.environ.get("BDB_REFRESH_MAX_READS") or default_value)
-    except Exception:
-        swallowed_quiet("main.py:453")
-        return default_value
-
-
-@scheduler_fn.on_schedule(
-    # S4 (auditoría 27-07): martes-sábado. El refresco de las 7:30 recoge el
-    # cierre del día ANTERIOR; domingo y lunes no hay cierre nuevo (sáb/dom),
-    # así que esas dos ejecuciones solo quemaban lecturas y llamadas EODHD.
-    schedule="30 7 * * 2-6",
-    timezone="Europe/Madrid",
-    timeout_sec=1800,
-    memory=options.MemoryOption.MB_512,
-    max_instances=1,
-    secrets=["EODHD_API_KEY"],
-    service_account=WRITER_SERVICE_ACCOUNT,
-)
-def scheduled_refresh_prices(event: scheduler_fn.ScheduledEvent) -> None:
-    from price_refresh import refresh_stale_prices
-    try:
-        result = refresh_stale_prices(
-            write=True,
-            # 3600 ≈ ciclo completo (~1150 activos × 3 lecturas peor caso) en
-            # una sola ejecución; con 2000 el ciclo quedaba partido en dos días.
-            max_reads=_refresh_max_reads("PRICE_REFRESH_MAX_READS", 3600),
-            scheduler_price_gate=True,
-            resume_from_watermark=True,
+    except portfolios.PortfolioConflict:
+        # Se guardaba la misma cartera mientras se borraba y, tras varios intentos, no hubo manera de atar el borrado a lo
+        # leido: no se ha borrado nada y se puede volver a intentar.
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.ABORTED,
+            "No se ha borrado: la cartera se estaba guardando en ese momento. Vuelve a intentarlo.",
         )
-        print("scheduled_refresh_prices_ok:", result)
-    except Exception as exc:  # visible en Cloud Logging
-        print("ERROR scheduled_refresh_prices_failed:", str(exc))
-        raise
-
-
-def _run_scheduled_metrics(last_of_day: bool) -> None:
-    """Una de las cuatro ejecuciones diarias del refresco de metricas.
-
-    Cada una sigue el cursor de la anterior con el mismo tope de lecturas; si la
-    vuelta del dia ya esta completa, termina sin recorrer las raices
-    (`once_per_day`). Una ejecucion parcial intermedia es lo normal (INFO); solo
-    la ultima del dia avisa si la vuelta queda sin completar.
-    """
-    from metrics_refresh import metrics_writes_enabled, refresh_max_drawdown
-    try:
-        result = refresh_max_drawdown(
-            limit=int(os.environ.get("METRICS_REFRESH_BATCH_SIZE") or 800),
-            write=metrics_writes_enabled(),
-            max_reads=_refresh_max_reads("METRICS_REFRESH_MAX_READS", 6000),
-            once_per_day=True,
-        )
-        if result.get("skipped_reason"):
-            print("INFO scheduled_refresh_metrics_skipped:", result)
-        elif result.get("cycle_completed"):
-            print("scheduled_refresh_metrics_ok:", result)
-        elif last_of_day:
-            # Marcador distinguible para alertas log-based: la ULTIMA ejecucion
-            # del dia no completa la vuelta (continua manana desde el cursor).
-            print("WARNING scheduled_refresh_metrics_partial:", result)
-        else:
-            # Parcial intermedia: la siguiente ejecucion del dia continua. El
-            # marcador no contiene el de la alerta (_partial) a proposito.
-            print("INFO scheduled_refresh_metrics_in_progress:", result)
-    except Exception as exc:  # visible en Cloud Logging
-        print("ERROR scheduled_refresh_metrics_failed:", str(exc))
-        raise
-
-
-# CUATRO EJECUCIONES DIARIAS con el mismo tope (decision de Oscar del 14-10-2026):
-# desde que el refresco recalcula las ventanas, una vuelta lee la serie entera de
-# cada activo de calculo propio (~22.000 lecturas) y con METRICS_REFRESH_MAX_READS
-# = 6.000 necesita cuatro ejecuciones. 08:30 deja una hora completa tras precios
-# (07:30) para que nunca lea una fotografia a medias. timeout_sec=1500 (25 min)
-# para que una ejecucion no se solape nunca con la siguiente, que va 30 min despues.
-METRICS_SCHEDULE_OPTIONS = dict(
-    timezone="Europe/Madrid",
-    timeout_sec=1500,
-    memory=options.MemoryOption.MB_512,
-    max_instances=1,
-    service_account=WRITER_SERVICE_ACCOUNT,
-)
-
-
-@scheduler_fn.on_schedule(schedule="30 8 * * *", **METRICS_SCHEDULE_OPTIONS)
-def scheduled_refresh_metrics(event: scheduler_fn.ScheduledEvent) -> None:
-    _run_scheduled_metrics(last_of_day=False)
-
-
-@scheduler_fn.on_schedule(schedule="0 9 * * *", **METRICS_SCHEDULE_OPTIONS)
-def scheduled_refresh_metrics_0900(event: scheduler_fn.ScheduledEvent) -> None:
-    _run_scheduled_metrics(last_of_day=False)
-
-
-@scheduler_fn.on_schedule(schedule="30 9 * * *", **METRICS_SCHEDULE_OPTIONS)
-def scheduled_refresh_metrics_0930(event: scheduler_fn.ScheduledEvent) -> None:
-    _run_scheduled_metrics(last_of_day=False)
-
-
-@scheduler_fn.on_schedule(schedule="0 10 * * *", **METRICS_SCHEDULE_OPTIONS)
-def scheduled_refresh_metrics_1000(event: scheduler_fn.ScheduledEvent) -> None:
-    _run_scheduled_metrics(last_of_day=True)
-
-
-@scheduler_fn.on_schedule(
-    # Tras el refresco de metricas: reconcilia invariantes y publica el
-    # semaforo meta/integrity_status (auditoria 2026-07-11, job de integridad).
-    # Se ejecuta despues de la ventana maxima de la ultima ejecucion de metricas
-    # (10:00 + 25 min), asi que no ve un ciclo intermedio a medias.
-    schedule="30 10 * * *",
-    timezone="Europe/Madrid",
-    timeout_sec=540,
-    memory=options.MemoryOption.MB_512,
-    max_instances=1,
-    service_account=WRITER_SERVICE_ACCOUNT,
-)
-def scheduled_integrity_check(event: scheduler_fn.ScheduledEvent) -> None:
-    from integrity_check import integrity_writes_enabled, run_integrity_check
-    try:
-        result = run_integrity_check(write=integrity_writes_enabled())
-        status = result.get("status")
-        if status == "OK":
-            print("scheduled_integrity_check_ok:", status)
-        else:
-            # Marcador distinguible para alertas log-based.
-            print(f"WARNING scheduled_integrity_check_{str(status).lower()}:",
-                  json.dumps(result.get("problems", []), ensure_ascii=True, default=str))
-    except Exception as exc:  # visible en Cloud Logging
-        print("ERROR scheduled_integrity_check_failed:", str(exc))
-        raise
-
-
-@scheduler_fn.on_schedule(
-    schedule="45 3 * * *",
-    timezone="Europe/Madrid",
-    timeout_sec=540,
-    memory=options.MemoryOption.MB_512,
-    max_instances=1,
-    service_account=WRITER_SERVICE_ACCOUNT,
-)
-def scheduled_reconcile_search_index(event: scheduler_fn.ScheduledEvent) -> None:
-    from search_index import reconcile_search_index, search_index_writes_enabled
-    try:
-        result = reconcile_search_index(write=search_index_writes_enabled())
-        print("scheduled_reconcile_search_index_ok:", result)
-    except Exception as exc:
-        print("ERROR scheduled_reconcile_search_index_failed:", str(exc))
-        raise
 
 
 @scheduler_fn.on_schedule(
@@ -863,11 +742,11 @@ def admin_publish_report(req: https_fn.CallableRequest):
     cambio de prompt obligaba a esperar al dia siguiente.
     """
     uid = _require_admin(req, operation="admin_publish_report", limit_per_minute=2)
-    data = req.data or {}
+    data = _datos(req)
     report_type = str(data.get("type") or "DAILY_REPORT")
     # Solo un booleano verdadero fuerza: "true" o 1 no cuentan (15-11-2026).
     force = data.get("force") is True
-    if report_type not in STRATEGY_REPORT_CONFIG:
+    if report_type not in _config_de_informes():
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
                                   "Tipo de informe no permitido.")
     try:
@@ -882,197 +761,6 @@ def admin_publish_report(req: https_fn.CallableRequest):
             "No se pudo generar o guardar el informe. El detalle queda en el registro del servidor.",
             details={"error_type": type(exc).__name__},
         ) from exc
-
-
-def _run_admin_refresh_all_stale(uid: str, data: dict | None) -> dict:
-    d = data or {}
-    write = bool(d.get("write"))
-    limit = _cap_int(d, "limit", 0, 5000)
-    offset = _cap_int(d, "offset", 0, 100000)
-    start_after_asset_id = str(d.get("start_after_asset_id") or "").strip() or None
-    # sleep acotado: sin tope, un valor grande secuestraba la funcion (timeout 1800 s).
-    sleep = _cap_float(d, "sleep", 0.0, 30.0)
-    if write:
-        require_master_writes_enabled("admin_refresh_all_stale", actor_uid=uid)
-    from price_refresh import refresh_stale_prices
-    # offset queda aceptado solo para clientes antiguos; el cliente actual usa cursor.
-    return refresh_stale_prices(
-        limit=limit, offset=offset, sleep=sleep, write=write,
-        max_reads=_refresh_max_reads("PRICE_REFRESH_MAX_READS", 3600),
-        start_after_asset_id=start_after_asset_id,
-    )
-
-
-# --- Panel Admin (lecturas; gated por admin). Las lecturas solo necesitan datastore.viewer.
-@https_fn.on_call()
-def get_system_status(req: https_fn.CallableRequest):
-    _require_admin(req, operation="get_system_status", limit_per_minute=30)  # Incluye el gate de autenticacion mediante _require_auth.
-    return system_status.read_system_status()
-
-
-@https_fn.on_call(timeout_sec=60)
-def admin_fund_quality(req: https_fn.CallableRequest):
-    _require_admin(req, operation="admin_fund_quality", limit_per_minute=60)
-    try:
-        return admin_panel.fund_quality((req.data or {}).get("isin"))
-    except ValueError as exc:
-        # MEDIA-6 (14-10-2026): un ISIN mal formado es un error del que llama, no un 500.
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc)) from exc
-
-
-@https_fn.on_call(timeout_sec=300)
-def admin_db_status(req: https_fn.CallableRequest):
-    # 30/min (segunda pasada, 17-10-2026): lee el inventario guardado (1-2 documentos) y lo
-    # piden al montarse Estado, Historicos e Ingesta, y cada «Cargar» fila a fila.
-    _require_admin(req, operation="admin_db_status", limit_per_minute=30)
-    sample = _cap_int(req.data, "sample", 0, 2000)
-    status = admin_panel.db_status(sample=sample)
-    status.update({
-        "app_check_enforced": APPCHECK_ENFORCED,
-        # C1 (auditoría 29-09): la observación (una línea por llamada) está siempre activa.
-        "app_check_observation": True,
-        "app_check_mode": "enforce" if APPCHECK_ENFORCED else "observation",
-        "master_writes_enabled": master_writes_enabled(),
-        "master_writes_env": MASTER_WRITE_ENV,
-        "master_writes_mode": master_writes_mode(),
-    })
-    return status
-
-
-@https_fn.on_call(timeout_sec=300)
-def admin_list_assets(req: https_fn.CallableRequest):
-    _require_admin(req, operation="admin_list_assets", limit_per_minute=30)
-    d = req.data or {}
-    return admin_panel.list_assets(
-        type_filter=d.get("type_filter"),
-        only_flagged=bool(d.get("only_flagged")),
-        limit=_cap_int(d, "limit", 100, 500, minimum=1),
-        offset=_cap_int(d, "offset", 0, 100000),
-        sort_by=d.get("sort_by"),
-        sort_dir=str(d.get("sort_dir") or "asc"),
-    )
-
-
-@https_fn.on_call()
-def admin_asset_detail(req: https_fn.CallableRequest):
-    _require_admin(req, operation="admin_asset_detail", limit_per_minute=60)
-    aid = (req.data or {}).get("asset_id")
-    if not aid:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Falta asset_id.")
-    res = admin_panel.asset_detail(str(aid))
-    if res is None:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.NOT_FOUND, "Activo no encontrado.")
-    return res
-
-
-@https_fn.on_call(timeout_sec=1800, memory=options.MemoryOption.MB_512, secrets=["EODHD_API_KEY"], service_account=WRITER_SERVICE_ACCOUNT)
-def admin_refresh_all_stale(req: https_fn.CallableRequest):
-    uid = _require_admin(req, operation="admin_refresh_all_stale", limit_per_minute=60)
-    try:
-        return _run_admin_refresh_all_stale(uid, req.data or {})
-    except MasterWritesDisabledError as exc:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-
-
-# --- Backfill de historicos (activos sin price_series). Inventario read-only; carga gated. ---
-@https_fn.on_call(timeout_sec=540, memory=options.MemoryOption.MB_512)
-def admin_backfill_candidates(req: https_fn.CallableRequest):
-    # 30/min (segunda pasada): AdminBackfill recarga el inventario tras cada «Cargar».
-    _require_admin(req, operation="admin_backfill_candidates", limit_per_minute=30)
-    return history_backfill.list_candidates()
-
-
-@https_fn.on_call(timeout_sec=1800, memory=options.MemoryOption.MB_512, secrets=["EODHD_API_KEY"], service_account=WRITER_SERVICE_ACCOUNT)
-def admin_backfill_history(req: https_fn.CallableRequest):
-    uid = _require_admin(req, operation="admin_backfill_history", limit_per_minute=30)
-    d = req.data or {}
-    ids = d.get("ids") or []
-    if not isinstance(ids, list) or not ids:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
-                                  "Falta ids (lista de ISINs; el cliente trocea los lotes).")
-    try:
-        return history_backfill.backfill_batch(ids, write=bool(d.get("write")), actor_uid=uid)
-    except MasterWritesDisabledError as exc:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-
-
-@https_fn.on_call(timeout_sec=540, secrets=["EODHD_API_KEY", "FINNHUB_API_KEY", "MORNINGSTAR_API_KEY"], service_account=WRITER_SERVICE_ACCOUNT)
-def admin_ingest_asset(req: https_fn.CallableRequest):
-    _require_admin(req, operation="admin_ingest_asset", limit_per_minute=10)
-    d = req.data or {}
-    try:
-        return ingest_asset.ingest_one(
-            str(d.get("isin") or ""),
-            with_history=bool(d.get("with_history")),
-            write=bool(d.get("write")),
-            preferred_symbol=str(d.get("preferred_symbol") or "").strip() or None,
-        )
-    except MasterWritesDisabledError as exc:
-        # Con el gate cerrado: FAILED_PRECONDITION con mensaje util, no 500 INTERNAL
-        # (mismo criterio que admin_backfill_history / admin_recompute_metric).
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-
-
-@https_fn.on_call(timeout_sec=540, max_instances=1, service_account=WRITER_SERVICE_ACCOUNT)
-def admin_reconcile_search_index(req: https_fn.CallableRequest):
-    _require_admin(req, operation="admin_reconcile_search_index", limit_per_minute=2)
-    from search_index import SearchIndexWritesDisabledError, reconcile_search_index
-    try:
-        return reconcile_search_index(write=bool((req.data or {}).get("write")))
-    except (MasterWritesDisabledError, SearchIndexWritesDisabledError) as exc:
-        # MEDIA-6 (14-10-2026): el gate del indice cerrado salia como 500 INTERNAL.
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-
-
-# --- Panel Admin (rellenos targeted; dry-run salvo write=True). La ESCRITURA requiere
-#     roles/datastore.user del SA sobre la maestra (la previsualizacion solo lee).
-@https_fn.on_call(timeout_sec=120, service_account=WRITER_SERVICE_ACCOUNT)
-def admin_recompute_metric(req: https_fn.CallableRequest):
-    uid = _require_admin(req, operation="admin_recompute_metric", limit_per_minute=20)
-    d = req.data or {}
-    aid = d.get("asset_id")
-    if not aid:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Falta asset_id.")
-    write = bool(d.get("write"))
-    if write:
-        try:
-            require_master_writes_enabled("admin_recompute_metric", actor_uid=uid)
-        except MasterWritesDisabledError as exc:
-            raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-    from metrics_refresh import recompute_one
-    return recompute_one(str(aid), write=write)
-
-
-# B-02 (auditoría 29-09-2026): refresh_one resuelve símbolo y descarga EOD, así que
-# necesita el secreto incluso en pasada en seco; una reparación completa refetchea
-# todo el histórico, de ahí el mismo margen que admin_ingest_asset.
-@https_fn.on_call(timeout_sec=540, secrets=["EODHD_API_KEY"], service_account=WRITER_SERVICE_ACCOUNT)
-def admin_refresh_prices(req: https_fn.CallableRequest):
-    uid = _require_admin(req, operation="admin_refresh_prices", limit_per_minute=20)
-    d = req.data or {}
-    aid = d.get("asset_id")
-    if not aid:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Falta asset_id.")
-    write = bool(d.get("write"))
-    if write:
-        try:
-            require_master_writes_enabled("admin_refresh_prices", actor_uid=uid)
-        except MasterWritesDisabledError as exc:
-            raise https_fn.HttpsError(https_fn.FunctionsErrorCode.FAILED_PRECONDITION, str(exc)) from exc
-    from price_refresh import refresh_one
-    return refresh_one(str(aid), write=write)
-
-@scheduler_fn.on_schedule(
-    schedule="50 7 * * 2-6", timezone="Europe/Madrid", timeout_sec=540,
-    memory=options.MemoryOption.MB_512, max_instances=1, service_account=WRITER_SERVICE_ACCOUNT,
-    secrets=["EODHD_API_KEY"],
-)
-def scheduled_refresh_reviewed_navs(event: scheduler_fn.ScheduledEvent) -> None:
-    from reviewed_nav_refresh import refresh_reviewed_navs
-    result = refresh_reviewed_navs(write=True)
-    print("scheduled_refresh_reviewed_navs:", json.dumps(result, ensure_ascii=True))
-    if result["errors"]:
-        raise RuntimeError("Reviewed NAV sources require attention; see structured results")
 
 
 @scheduler_fn.on_schedule(

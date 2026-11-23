@@ -24,7 +24,20 @@ export function LlevarADiseno({ analisis, onSendToBuilder }: { analisis: Analisi
   const propias = analisis.posiciones.filter((posicion) => !(posicion.activo.origen === "catalogo" && posicion.activo.isin));
   /* Las del catálogo que se quedan fuera por no tener precio: antes se descartaban sin decirlo. */
   const sinPrecio = analisis.sinPrecio.filter((posicion) => posicion.activo.origen === "catalogo" && posicion.activo.isin);
-  if (!onSendToBuilder || delCatalogo.length === 0) return null;
+  if (!onSendToBuilder) return null;
+  /* Sin ninguna que pueda pasar porque las del catálogo no tienen precio, el bloque no se esconde: dice por qué no hay nada que llevar. Si no hay del catálogo, no hay nada que explicar. */
+  if (delCatalogo.length === 0) {
+    if (sinPrecio.length === 0) return null;
+    return (
+      <Panel claseDelCuerpo="stack stack--tight" subtitulo={`Las posiciones a ${escrito.fecha(analisis.fecha)}, con su valor de mercado`} titulo="Llevar a una propuesta">
+        <p className="cmp-note">
+          No hay nada que llevar a Diseño: ninguna posición del catálogo tiene precio a {escrito.fecha(analisis.fecha)}, y a Diseño solo pasan las que tienen valor de mercado.
+          {sinPrecio.length > 0 ? ` ${sinPrecio.length === 1 ? "No pasa, porque no tiene precio" : "No pasan, porque no tienen precio"}: ${sinPrecio.map((posicion) => posicion.activo.nombre).join(", ")}.` : ""}
+          {propias.length > 0 ? ` No pasan, porque no son del catálogo: ${propias.map((posicion) => posicion.activo.nombre).join(", ")}.` : ""}
+        </p>
+      </Panel>
+    );
+  }
 
   async function llevar() {
     if (!onSendToBuilder || enviando) return;

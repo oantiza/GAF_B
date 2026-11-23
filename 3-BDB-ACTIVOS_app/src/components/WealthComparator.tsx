@@ -283,6 +283,12 @@ export function WealthComparator() {
           La aportación del {oFalta(fecha(result.posterior))} es posterior a la fecha final ({oFalta(fecha(finalDate))}). Con esas
           fechas no hay TIR ni comparación: corrige una de las dos.
         </Aviso>
+      ) : result.sinPlazo ? (
+        <Aviso anunciar titulo="Fechas que no cuadran.">
+          {aportacionesValidas(flows).length === 1 ? "La aportación es" : "Las aportaciones son"} del mismo día que la fecha
+          final ({oFalta(fecha(finalDate))}). Sin tiempo entre lo aportado y el final no hay TIR ni comparación: corrige una de
+          las fechas.
+        </Aviso>
       ) : (
         <EmptyState
           description="Con ellos se calcula la TIR (tasa interna de rentabilidad) de la cartera y se puede comparar con Letras del Tesoro y un depósito."
@@ -384,8 +390,9 @@ export function WealthComparator() {
               <AsyncErrorBanner error={macro.error} onRetry={loadMacro} />
             ) : vigente ? (
               <KpiStrip
-                /* Tres de las seis cifras son importes: con un patrimonio de siete cifras no cabían a 1.920. Con ocho, o
-                   con siete y signo —la ventaja lo lleva—, siguen sin caber: lo dice la regla, en `components.css`. */
+                /* Tres de las seis cifras son importes, y la ventaja lleva signo: con `importes` la tira mengua todas sus
+                   cifras a lo que pide la más larga, de modo que caben las de ocho y las de siete con signo (20-11-2026;
+                   la regla y su cuenta, en `components.css`). */
                 importes
                 items={[
                   { label: "Inflación anual (IPC)", value: <Cifra tipo="porcentaje" valor={typeof inflation === "number" ? inflation / 100 : null} />, note: rotulo },

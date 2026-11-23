@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as excelExport from "../src/core/globalPositionsXlsx";
 
 /* B4 / R-07 (auditoría 29-09): `commercial_retro` solo es legible por admin
-   (firestore.rules), pero el hook y los analizadores consultaban Firestore
+   (`4-base-nueva/firestore.rules`), pero el hook y los analizadores consultaban Firestore
    con cualquier cuenta: «Missing or insufficient permissions» en cada pantalla
    y, en Posiciones globales, exportaciones deshabilitadas. Sin claim no se
    consulta y se devuelve «sin dato» en silencio. */

@@ -130,7 +130,7 @@ describe("Análisis · con 0 % medido (decisión 105)", () => {
   test("lo dice dentro del diálogo, con el motivo del servidor, sin «Reintentar» y sin dejar pulsar otra vez", async () => {
     pdf.simular.mockRejectedValue(sinDatos());
     await montarEn(false);
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     const dialogo = document.querySelector('[role="dialog"]')!;
@@ -147,7 +147,7 @@ describe("Análisis · con 0 % medido (decisión 105)", () => {
   test("en Modo cliente, la misma frase sin el motivo", async () => {
     pdf.simular.mockRejectedValue(sinDatos());
     await montarEn(true);
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     const dialogo = document.querySelector('[role="dialog"]')!;
@@ -162,7 +162,7 @@ describe("Análisis · con 0 % medido (decisión 105)", () => {
     await flush();
     pdf.simular.mockReset().mockRejectedValueOnce(new AppError("BACKEND", "El servicio ha fallado internamente. Reinténtalo en unos segundos.", { cause: { code: "functions/internal" } })).mockResolvedValue({});
     pdf.cliente.mockResolvedValue(undefined);
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     const dialogo = document.querySelector('[role="dialog"]')!;
@@ -178,7 +178,7 @@ describe("Análisis · con 0 % medido (decisión 105)", () => {
   test("el diálogo deja cambiar el periodo: lo que no se puede a 3 años puede poderse a 5, y el aviso se va", async () => {
     pdf.simular.mockRejectedValue(sinDatos());
     await montarEn(false);
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     expect(document.querySelector('[role="dialog"]')?.textContent).toContain(FRASE);
@@ -192,11 +192,11 @@ describe("Análisis · con 0 % medido (decisión 105)", () => {
   test("cerrar el diálogo se lleva el aviso: al volver a abrirlo no sigue ahí", async () => {
     pdf.simular.mockRejectedValue(sinDatos());
     await montarEn(false);
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     await click(button("Cancelar"));
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain(FRASE);
   });
 });
@@ -206,7 +206,7 @@ describe("Análisis · Reintentar repite la misma descarga", () => {
     pdf.cliente.mockRejectedValueOnce(new Error("Fallo de red")).mockResolvedValue(undefined);
     await mount();
 
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     await click(button("Descargar el informe"));
     await flush();
     expect(pdf.cliente).toHaveBeenCalledTimes(1);
@@ -225,7 +225,7 @@ describe("Análisis · Reintentar repite la misma descarga", () => {
   test("Análisis queda con un solo botón de documento, y sin la Radiografía (decisión 31)", async () => {
     await mount();
     const botones = [...document.querySelectorAll("button")].map((b) => (b.textContent || "").trim());
-    expect(botones).toContain("Informe para el cliente");
+    expect(botones).toContain("Informe de la propuesta");
     expect(botones).not.toContain("Análisis completo");
     expect(botones).not.toContain("Informe de cartera");
   });
@@ -236,11 +236,11 @@ describe("Análisis · Reintentar repite la misma descarga", () => {
     guardarIdentidad({ nombre: "Marta Ruiz", contacto: "responsable@ejemplo.test" });
     pdf.cliente.mockResolvedValue(undefined);
     await mount();
-    await click(button("Informe para el cliente"));
+    await click(button("Informe de la propuesta"));
     const dialogo = document.querySelector('[role="dialog"]')!;
     expect(dialogo.textContent).toContain("Periodo");
     expect(dialogo.textContent).toContain("3 años");
-    expect(dialogo.querySelector("h2")?.textContent ?? dialogo.textContent).toContain("Informe para el cliente");
+    expect(dialogo.querySelector("h2")?.textContent ?? dialogo.textContent).toContain("Informe de la propuesta");
     expect(dialogo.querySelector('input[type="email"]')).toBeNull();
     expect(dialogo.querySelector(".informes-firma")?.textContent).toContain("Marta Ruiz · responsable@ejemplo.test");
     await click(button("Descargar el informe"));

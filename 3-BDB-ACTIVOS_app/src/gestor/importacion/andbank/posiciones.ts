@@ -9,7 +9,7 @@
 import { CERO, redondear, type Decimal } from "../../motor/decimal";
 import type { Dia } from "../../motor/fechas";
 import type { TipoDeActivo } from "../../motor/modelo";
-import { ErrorDeFormato, ISIN, columnaObligatoria, importeEnTexto, leerFecha, leerNumero, limpiar, marcoDeTabla, plegar } from "./comun";
+import { ErrorDeFormato, ISIN, columnaObligatoria, divisaComoLlega, importeEnTexto, leerFecha, leerNumero, limpiar, marcoDeTabla, plegar } from "./comun";
 
 export type ClaseDePosicion =
   | "ACCION_NAC_NUEVA"
@@ -166,7 +166,8 @@ export function leerPosiciones(documento: { nombre: string; tablas: string[][][]
     }
     if (!ISIN.test(isin)) continue;
 
-    const divisa = limpiar(celdas[colDivisa]).toUpperCase() || undefined;
+    /* «GBp» son peniques: en mayúsculas sería la libra, y el precio, cien veces mayor. */
+    const divisa = divisaComoLlega(celdas[colDivisa]);
     let titulos = leerNumero(celdas[colTitulos]);
     const precio = leerNumero(celdas[colPrecio]);
     const valorEnDivisa = leerNumero(celdas[colValor]);

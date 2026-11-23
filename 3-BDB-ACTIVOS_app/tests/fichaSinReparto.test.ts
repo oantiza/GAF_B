@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { InstrumentoDeLaBase } from "../src/adapters/baseNuevaLectura";
 import { componerFicha } from "../src/adapters/componerFicha";
+import { NOTA_DEL_REPARTO_NETO } from "../src/core/repartoNeto";
 
 /**
  * El fondo cuyo reparto no cuadra no enseña uno anterior, y lo dice (decisión 52 de Óscar, 05-11-2026). Son los fondos sin
@@ -32,7 +33,7 @@ describe("una ficha sin reparto lo dice", () => {
     expect(seccion?.filas).toHaveLength(1);
     expect(seccion?.filas[0]).toMatchObject({ rotulo: "Reparto por clase de activo", valor: "Falta el dato", ausencia: "falta" });
     expect(seccion?.procedencia.map((trozo) => trozo.texto).join("")).toBe("Sin reparto que cuadre");
-    expect(seccion?.nota).toBe("El proveedor no lo publica, o trae alguna clase fuera de 0-100 % por más de un punto. No se completa con ceros ni se enseña uno anterior.");
+    expect(seccion?.nota).toBe("El proveedor no lo publica, o lo que declara no suma el 100 %. No se completa con ceros ni se enseña uno anterior.");
   });
 
   test("y «Entrar en una radiografía» dice lo mismo", () => {
@@ -83,7 +84,7 @@ describe("un reparto neto se enseña tal cual (decisión A-63)", () => {
       ["Renta variable", "100,0\u00a0%"],
       ["Renta fija", "−0,1\u00a0%"]
     ]);
-    expect(seccion?.nota).toBe("Reparto neto de cortos: por eso una clase puede salir en negativo y otra pasar del 100 %.");
+    expect(seccion?.nota).toBe(NOTA_DEL_REPARTO_NETO);
   });
 
   test("lo que a dos decimales es cero no se pinta, sea del signo que sea, y la nota no habla de una fila que no sale (decisión 113)", () => {
@@ -104,7 +105,7 @@ describe("un reparto neto se enseña tal cual (decisión A-63)", () => {
       ["Renta variable", "100,0\u00a0%"],
       ["Otros", "−0,1\u00a0%"]
     ]);
-    expect(seccion?.nota).toContain("neto de cortos");
+    expect(seccion?.nota).toBe(NOTA_DEL_REPARTO_NETO);
   });
 
   test("un 100,00 % que por décimas de milésima pasa de 1 no sale de 0-100 en lo que se lee: sin nota", () => {
@@ -121,7 +122,19 @@ describe("un reparto neto se enseña tal cual (decisión A-63)", () => {
       ["Liquidez", "0,6\u00a0%"],
       ["Otros", "−0,4\u00a0%"]
     ]);
-    expect(seccion?.nota).toContain("neto de cortos");
+    expect(seccion?.nota).toBe(NOTA_DEL_REPARTO_NETO);
+  });
+
+  test("C-29: el más apalancado del canónico sale tal cual, con su signo y la nota del reparto neto", () => {
+    /* ES0137396000, canónico del 17-11-2026: 3,198089 + 0,115421 − 2,425742 + 0,112232 = 1. */
+    const seccion = conMezcla({ equity: 3.198089, fixed_income: 0.115421, cash: -2.425742, other: 0.112232 });
+    expect(seccion?.filas.map((fila) => [fila.rotulo, fila.valor])).toEqual([
+      ["Renta variable", "319,8 %"],
+      ["Renta fija", "11,5 %"],
+      ["Liquidez", "−242,6 %"],
+      ["Otros", "11,2 %"]
+    ]);
+    expect(seccion?.nota).toBe(NOTA_DEL_REPARTO_NETO);
   });
 
   test("una clase a cero no se pinta, y sin nada fuera de 0-100 no hay nota", () => {

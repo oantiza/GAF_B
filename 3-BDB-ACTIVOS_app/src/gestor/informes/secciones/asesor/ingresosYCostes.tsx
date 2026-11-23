@@ -8,7 +8,7 @@ import { View } from "@react-pdf/renderer";
 import { importe, porcentaje } from "../../../../core/formato";
 import { Tabla, type FilaDeTabla } from "../../../../reports/plantilla";
 import type { LineaDeIngreso } from "../../../motor/analisis";
-import { notaDeLoContadoComoCero } from "../../../motor/sinPrecio";
+import { notaDelCosteCorrienteSinPrecio, notaDeLoContadoComoCero } from "../../../motor/sinPrecio";
 import type { DatosDelInforme, SeccionDeInforme } from "../../tipos";
 import { hayCifras } from "../comun";
 import { Pequena, Subtitulo } from "../piezas";
@@ -18,6 +18,7 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
   const divisa = analisis.cartera.divisaBase;
   const euros = (valor: number | null) => importe(valor, { divisa });
   const ic = analisis.ingresosYCostes;
+  const sinPrecioEnGastos = notaDelCosteCorrienteSinPrecio(analisis);
   const comoCero = notaDeLoContadoComoCero(analisis, { quien: "El patrimonio medio" });
   const linea = (rotulo: string, l: LineaDeIngreso): FilaDeTabla => ({ celdas: [rotulo, euros(l.bruto), euros(l.retencion), euros(l.neto)] });
   const costes: FilaDeTabla[] = [
@@ -28,7 +29,7 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
       celdas: [
         {
           texto: "Coste corriente de los fondos (estimado; ya descontado del valor liquidativo)",
-          apunte: `Cobertura: ${porcentaje(ic.coberturaDeGastosCorrientes, { decimales: 1 }) ?? ""} del valor invertido medio tiene coste corriente conocido (las acciones y los bonos cuentan como cero).`
+          apunte: `Cobertura: ${porcentaje(ic.coberturaDeGastosCorrientes, { decimales: 1 }) ?? ""} del valor medio invertido en fondos y ETF tiene coste corriente conocido (las acciones y los bonos no tienen y no entran en la cuenta).${sinPrecioEnGastos ? ` ${sinPrecioEnGastos}` : ""}`
         },
         euros(ic.gastosCorrientes),
         ""

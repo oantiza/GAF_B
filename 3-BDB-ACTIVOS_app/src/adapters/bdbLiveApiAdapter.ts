@@ -509,6 +509,13 @@ function mapDetail(c: RawAssetDetail): BdbAssetDetail {
     isin: id.isin || undefined,
     ticker: id.ticker || undefined,
     provider: c.product?.provider,
+    /* El «EUR» de relleno, medido el 20-11-2026 y dejado a propósito. La base nueva (la de producción) no tiene ningún
+       instrumento sin divisa (0 de 1.334, raíz y tarjeta); la vieja, que lee el desarrollo local, uno, ES0132526031
+       (Oportunidad Bursátil SICAV), que en la nueva es EUR. Quitarlo dejaría sin divisa a lectores que no saben decir
+       «Falta el dato»: la ficha antigua (`AssetDetail`, una casilla en blanco), el cambio de fondo (`FundSwapModal`,
+       «undefined → USD») y tres informes en PDF —el interno escribe «· » sin divisa, el comparador de carteras la llama
+       «Sin clasificar» y el de cliente la deja vacía—, que no se tocan sin decisión de Óscar. Vale para los tres
+       rellenos de este fichero (búsqueda, ficha y cartera resuelta). */
     currency: id.currency || "EUR",
     region: id.region || c.classification?.region_primary || c.classification?.region || undefined,
     category: c.category || c.classification?.category || undefined,
@@ -582,7 +589,7 @@ function mapSearch(c: RawSearchItem): BdbAssetSearchResult {
     isin: c.isin || undefined,
     ticker: c.ticker || undefined,
     provider: c.provider || c.product?.provider,
-    currency: c.currency || "EUR",
+    currency: c.currency || "EUR", // Relleno dejado a propósito: ver `mapDetail`.
     region: c.region || undefined,
     category: c.category || undefined,
     sector: c.sector || undefined,
@@ -827,7 +834,7 @@ function mapResolvedRow(row: RawResolvedPortfolioRow): BdbAssetDetail {
     display_name: row.display_name || row.asset_id,
     instrument_type: instrumentType,
     economic_asset_class: mapEconClass(row.economic_asset_class),
-    currency: row.currency || "EUR",
+    currency: row.currency || "EUR", // Relleno dejado a propósito: ver `mapDetail`.
     region: row.region,
     category: row.category,
     sector: row.sector,

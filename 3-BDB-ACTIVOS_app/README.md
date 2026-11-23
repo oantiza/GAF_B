@@ -270,7 +270,7 @@ Ver `scripts/README.md` para el inventario operativo. Resumen:
 - Escritura local de artefactos versionables o ignorados: `npm run sync:contracts`, `npm run write:static-export-sample`, `npm run promote:static-export-sample`.
 - Escrituras live app-owned: un informe se publica con el boton de la pantalla de Estrategia (`admin_publish_report`).
 - Operaciones live sensibles sobre maestra o Auth: scripts Python de reparacion/refresco historico, `delete_asset.py` y `set_admin.py`; dry-run primero y aprobacion explicita.
-- Backup maestro: no hay comando en este repo; se ejecuta desde el repo de la plataforma (`cd ../2-plataforma-datos` y alli `npm run backup:export`) antes de escrituras relevantes.
+- Backup maestro: la copia diaria de la maestra vieja (`npm run backup:export` de la plataforma) se borro con la base vieja el 21-11-2026; las copias de la base nueva en la nube estan en `4-base-nueva/README.md`.
 
 Jobs desplegados (9 tareas, hora de Madrid). Los que escriben en la MAESTRA exigen `BDB_ACTIVOS_ENABLE_MASTER_WRITES` MAS su gate propio; los dos informes escriben solo en datos app-owned (`bdb_activos`):
 

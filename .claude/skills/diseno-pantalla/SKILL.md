@@ -51,10 +51,10 @@ de una lámina: eso es tomar en silencio una decisión de producto.
   Comparador › Patrimonial, el importe de ocho cifras, o de
   siete con signo, que se parte; en el Comparador, el número y el color de cada activo, y
   si las rentabilidades de
-  la tabla comparada van en verde y rojo; en Diseño › Simular, la palabra junto a la
-  «Diferencia»; «YTD» frente a «En el año»; el ancho de lectura a 2.560 px; paginar o no
-  las retrocesiones de Sistema; y lo que la migración dejó a propósito distinto de la vista
-  previa. Es solo una parte de lo que la revisión dejó fuera por depender de una decisión:
+  la tabla comparada van en verde y rojo; el ancho de lectura a 2.560 px; y lo que la
+  migración dejó a propósito distinto de la vista previa. (La palabra junto a la «Diferencia»
+  de Simular, «YTD» en el Resumen y paginar las retrocesiones los decidió Óscar el
+  20-11-2026: apartado 14.14.) Es solo una parte de lo que la revisión dejó fuera por depender de una decisión:
   lo demás no consta en el repositorio.
 - **Un color nuevo** de clase, de serie o de zona, y **llevar `abierta` a otra pantalla**
   (ver «Las piezas»).

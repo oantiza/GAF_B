@@ -137,9 +137,19 @@ export interface Movimiento {
   razon?: Dec;
   /** Split: si la serie de precios de la plataforma ya viene ajustada por él. Por defecto, sí. */
   serieAjustada?: boolean;
+  /**
+   * Cómo se llama el cargo en el papel del cliente («Custodia del segundo semestre»), en una comisión o un gasto. Opcional
+   * y corto (`LARGO_DEL_CONCEPTO`). Lo escribe el asesor para el cliente, a diferencia de la `nota`, que es suya y no sale
+   * en ningún papel del cliente (P1-11, aprobado por Óscar el 21-11-2026). El informe de costes nombra y agrupa los cargos
+   * del servicio con él; sin él, con el nombre del tipo («Comisión o gasto»).
+   */
+  conceptoCliente?: string;
   nota?: string;
   origen?: OrigenDelMovimiento;
 }
+
+/** Lo más largo que puede ser el concepto para el cliente de un cargo: cabe en una línea de la tabla del informe de costes. */
+export const LARGO_DEL_CONCEPTO = 60;
 
 export interface PrecioManual {
   activoId: string;
@@ -155,6 +165,16 @@ export interface PosicionDeclarada {
   titulos: Dec;
   /** Valor de mercado declarado, en la divisa base. */
   valor?: Dec;
+  /**
+   * El precio de mercado que declara el extracto, en la divisa del activo, y esa divisa (A-205, decisión de Óscar del
+   * 21-11-2026). Van juntos: un precio sin su divisa no se usa. Con ellos la posición se valora a ese precio; sin ellos
+   * —los ficheros de antes y los extractos que no lo dicen—, el precio se deduce del `valor` en la divisa base con el
+   * cambio del día del extracto, como hasta ahora. Opcionales: no cambian la versión del formato. El precio es por título
+   * (títulos × precio = valor en esa divisa): en un bono, por unidad de nominal. Lo dan así Andbank y, ya convertido al
+   * aplicar la importación, la plantilla (A-210).
+   */
+  precio?: Dec;
+  divisa?: string;
   /**
    * La fecha de la cotización con la que el banco valoró esta posición, si la dice (GES-10, auditoría del 16-11-2026). Un
    * extracto mezcla cotizaciones de días distintos —un fondo publica su valor días después que una acción—, y el precio

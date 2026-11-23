@@ -198,29 +198,6 @@ export const HISTORY_FLAG_LABELS: Record<string, string> = {
   POCOS_PUNTOS: "Pocos puntos"
 };
 
-/**
- * Códigos de la carga de históricos (Sistema › Históricos, history_backfill.py):
- * resolución del símbolo, motivos para saltar un activo y motivos para no
- * cargarlo. readableBackendLabel solo les cambiaba las mayúsculas («Search
- * exact», «HINT»): revisión del 16-10.
- */
-export const BACKFILL_CODE_LABELS: Record<string, string> = {
-  HINT: "Pista de la ficha",
-  SEARCH_EXACT: "Búsqueda exacta por ISIN",
-  SEARCH_FALLBACK: "Búsqueda aproximada",
-  UNRESOLVED: "Sin resolver",
-  NOT_FOUND: "No está en la maestra",
-  NOT_CANONICAL: "No canónico",
-  HAS_SERIES: "Ya tiene serie",
-  NO_SYMBOL: "Sin símbolo",
-  NO_CURRENCY: "Sin divisa del listado",
-  NO_DATA: "Sin precios del proveedor"
-};
-
-export function backfillCodeLabel(code: string): string {
-  return BACKFILL_CODE_LABELS[code] ?? readableBackendLabel(code);
-}
-
 export function readableBackendLabel(value: string): string {
   const known =
     QUALITY_FLAG_LABELS[value] ?? WARNING_CODE_LABELS[value] ?? COVERAGE_LABELS[value] ?? HISTORY_FLAG_LABELS[value];

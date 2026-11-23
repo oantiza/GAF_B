@@ -28,7 +28,7 @@
  * Así que los dos id están aquí, pero **separados por papel**: cada escritor conoce el suyo
  * y rechaza el otro. Ampliar la barrera no es ensancharla.
  *
- * Lo que NO va aquí: `restoreBackupToEmulator.ts`, `runBackupExport.ts`, `subirALaNube.ts` y
+ * Lo que NO va aquí: `restoreBackupToEmulator.ts`, `subirALaNube.ts` y
  * `verReglasDesplegadas.ts` nombran el proyecto de BDB **para prohibirlo**. Esos literales
  * dicen otra cosa y se quedan donde están, declarados uno a uno en la prueba que barre los
  * repositorios: `3-BDB-ACTIVOS_app/tests/barreraDeBdb.test.ts`. Para Python, esta misma pareja
@@ -38,12 +38,22 @@
 
 /**
  * El proyecto de la base **de siempre**: el clon sembrado de la copia de la maestra de BDB.
- * Es el que autoriza todo el camino de escritura heredado (`load:fondosdb`,
+ * Era el que autorizaba todo el camino de escritura heredado (`load:fondosdb`,
  * `republish:fondosdb`, `audit:consistency` y los scripts de mantenimiento).
  *
- * Se llama `ALLOWED_PROJECT_ID` y no `PROYECTO_BASE_VIEJA` porque así lo nombran las
- * dieciséis comprobaciones que lo importan, y renombrarlo las tocaría todas sin cambiar
- * nada de lo que hacen.
+ * **Desde el 21-11-2026 no lo importa ningún programa.** Ese camino se borró con la base vieja
+ * (decisiones 30 a 39 de Óscar, sobre `CENSO_BASE_VIEJA_2026-11-21.md`; el estado anterior está en
+ * la etiqueta de Git `referencia-base-vieja-2026-11-21`). Se queda a propósito, por tres razones:
+ * es la pareja de `PROYECTO_BASE_DE_SIEMPRE` de `functions_python/master_project.py`, que se
+ * conserva como defecto seguro (un id que no existe en la nube) y que
+ * `3-BDB-ACTIVOS_app/tests/barreraDeBdb.test.ts` compara con este; sin el conjunto, la prueba que
+ * impide meter el id real en él (`tests/projectAllowlist.test.ts`) no tendría qué vigilar; y si
+ * algún día vuelve una comprobación contra la base de siempre, tiene que encontrar aquí la
+ * separación por papel y no reinventarla.
+ *
+ * Se llama `ALLOWED_PROJECT_ID` y no `PROYECTO_BASE_VIEJA` porque así lo nombraban las
+ * dieciséis comprobaciones que lo importaban, y la prueba que barre los repositorios lo busca
+ * con ese nombre.
  */
 export const ALLOWED_PROJECT_ID = 'gestor-activos-local';
 
@@ -71,9 +81,12 @@ export function isAllowedProjectId(projectId: string | undefined | null): boolea
  * (`HOST_EMULADOR_BASE_NUEVA`, puesta por `obtenerDb`), y no una variable de entorno.
  *
  * Consecuencia que no se puede relajar: **este id no entra en `ALLOWED_PROJECT_IDS`**. Ese
- * conjunto lo consultan catorce comprobaciones que luego llaman a `initializeApp` **sin
- * exigir emulador**; meter aquí un proyecto real las dejaría escribiendo en la nube en cuanto
- * exista una clave. `tests/projectAllowlist.test.ts` falla si alguien los junta.
+ * conjunto lo consultaban seis comprobaciones (contadas el 20-11-2026: `auditConsistency`,
+ * `reclassifyStock`, `republish`, `writer`, `runCarterasDryRun` y `runCompactPriceSeries`, borradas
+ * el 21-11-2026 con la base vieja) que luego llamaban a `initializeApp` **sin exigir emulador**.
+ * Hoy no lo consulta ninguna, pero la regla sigue: cualquiera que lo use para autorizar una
+ * conexión hereda esa forma, y meter aquí un proyecto real la dejaría escribiendo en la nube en
+ * cuanto exista una clave. `tests/projectAllowlist.test.ts` falla si alguien los junta.
  */
 export const PROYECTO_BASE_NUEVA = 'bdb-gestor-de-activos';
 
@@ -95,9 +108,10 @@ export const HOST_EMULADOR_BASE_NUEVA = '127.0.0.1:8092';
  * id de proyecto —los dos emuladores arrancan en `singleProjectMode` y sirven con cualquier
  * id—, así que el puerto merece un nombre y no quedarse suelto en un script.
  *
- * Y una advertencia sobre su uso: esto es para **leer**. Lo usa la re-originación de las
- * carteras del paso C, que saca de la base vieja el trabajo del asesor y lo deja en un fichero.
- * Nada que escriba debe apuntar aquí: el escritor de la base nueva impone su propio host, y esa
+ * Y una advertencia sobre su uso: esto es para **leer** una copia de la maestra. Desde el 21-11-2026
+ * lo usa solo `scripts/restoreBackupToEmulator.ts` (decisión 33: la única vía para abrir esas copias
+ * en un Firestore), que siembra aquí y se niega a sembrar en el puerto de la base nueva.
+ * Nada que escriba la base nueva debe apuntar aquí: el escritor de la base nueva impone su propio host, y esa
  * imposición es la que hace que una equivocación de entorno no acabe en la base equivocada.
  */
 export const HOST_EMULADOR_BASE_DE_SIEMPRE = '127.0.0.1:8082';

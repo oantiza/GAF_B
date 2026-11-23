@@ -82,6 +82,11 @@ export type Dueno = (typeof DUENOS)[number];
  * salido con la cobertura por el suelo y una lista de ausencias que no eran lagunas sino
  * campos que no le tocan. Es la misma lección del 30-10 que obligó a `CON_RENTA_FIJA`: el
  * denominador es la población a la que el campo aplica.
+ *
+ * `CON_RENTA_FIJA_NO_RESIDUAL` entra el 21-11-2026 con la regla de Óscar de ese día para los tres mapas de la renta
+ * fija de `declared/exposure` (`bond_types`, `duration_buckets` y `credit_buckets`): la renta fija, contando los
+ * convertibles, pesa al menos un 0,5 % del reparto. No sustituye a `CON_RENTA_FIJA`, que sigue siendo `> 0` y sigue
+ * gobernando `declared/fixed_income`. Su cuenta vive en `aplicabilidad.ts`, y el mapper decide con la misma función.
  */
 export const PREDICADOS_DE_APLICABILIDAD = [
     'FONDO_O_ETF',
@@ -90,6 +95,7 @@ export const PREDICADOS_DE_APLICABILIDAD = [
     'NUNCA',
     'CON_RENTA_VARIABLE',
     'CON_RENTA_FIJA',
+    'CON_RENTA_FIJA_NO_RESIDUAL',
     'EMISOR_DE_ACCIONES',
     'CARTERA_REAL',
     'CARTERA_MODELO',

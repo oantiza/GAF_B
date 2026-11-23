@@ -29,6 +29,16 @@ export function assetRateForAverage(asset: BdbAssetDetail | undefined | null): n
 /** Lo que acompaña a una media de coste que lleva acciones a cero. La leen pantalla y papel. */
 export const NOTA_DE_LAS_ACCIONES = "No incluye custodia ni corretaje.";
 
+/**
+ * De qué es la media del coste corriente de Posiciones cuando hay acciones (Óscar, 21-11-2026): de toda la cartera, con las acciones a cero
+ * —una acción no tiene coste corriente—, o, si a algún fondo le falta el dato, de la parte que lo tiene. Sin decirlo, un 0,70 % de una cartera
+ * con un 30 % en acciones se lee como el coste de sus fondos, que es el 1,00 %. `cobertura` es la fracción del importe con dato (de 0 a 1).
+ */
+export function apunteDeLaMediaConAcciones(cobertura: number): string {
+  const sobre = cobertura >= 1 ? "Sobre toda la cartera" : `Sobre el ${oFalta(peso(cobertura))} de la cartera con dato`;
+  return `${sobre}, con las acciones a cero. ${NOTA_DE_LAS_ACCIONES}`;
+}
+
 /*
  * Lo que dice el papel bajo el coste corriente: la línea que dictó Óscar, con las comisiones de entrada y salida (decisión A-65), porque en la
  * muestra hay entradas máximas del 3 al 5,5 %. Para una acción ya cubre custodia y corretaje. Una sola redacción para el mismo hecho: la leen

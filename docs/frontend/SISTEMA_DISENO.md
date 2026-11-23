@@ -404,7 +404,7 @@ tabla completa, con los recuentos, está en `anexos/FORMATO_Y_VOCABULARIO.md`.
 | Proporción en la cartera | Peso | asignación, ponderación |
 | Lo que se gana en porcentaje | Rentabilidad | retorno, rendimiento, *performance* |
 | Media anual de varios años | Rentabilidad anualizada | rentabilidad anual, CAGR, TAE |
-| Desde el 1 de enero | En lo que va de año | YTD, año en curso |
+| Desde el 1 de enero | YTD (el nombre entero, «Rentabilidad en lo que va de año», en el título completo de la columna y en un rótulo largo; Óscar, 17 y 20-11-2026) | En el año, año en curso |
 | Lo que se gana en euros | Resultado (realizado o latente) | plusvalía, beneficio, ganancia |
 | Cuánto se mueve | Volatilidad | riesgo, desviación |
 | La peor caída desde un máximo | Caída máxima | máxima caída, mayor caída, *drawdown* |
@@ -1058,11 +1058,13 @@ aparecía en «Posiciones globales».
   tabla comparada van en verde y rojo.
 - En Diseño › Simular, la columna «Diferencia» de la comparativa dice mejora y empeora con verde y rojo —el color
   volvió por decisión de Óscar el 14-11-2026— y una nota que da la clave: llevar además una palabra junto a la cifra
-  es suya. Y en Componer, a 1.280, seis de los ocho nombres de la tabla de posiciones se cortan a tres líneas, como
+  es suya. **Decidido el 20-11-2026: la palabra va (apartado 14.14).** Y en Componer, a 1.280, seis de los ocho nombres de la tabla de posiciones se cortan a tres líneas, como
   ya pasaba. Arreglado el 19-11-2026 (`673d1371`, opción «Lateral debajo», apartado 14.7): por debajo de 1.440 px la
   columna lateral baja debajo de la tabla, el nombre llega a cuatro líneas con ratón y a 1.280 px no se corta ninguno.
-- En Sistema, la caja con desplazamiento propio de la tabla de retrocesiones (376 filas) frente a paginarla.
-- El nombre de la rentabilidad del año: la tabla de métricas la llama «YTD» y el Resumen, «En el año».
+- En Sistema, la caja con desplazamiento propio de la tabla de retrocesiones (376 filas) frente a paginarla. **Decidido el
+  20-11-2026: se pagina de 25 en 25 (apartado 14.14).**
+- El nombre de la rentabilidad del año: la tabla de métricas la llama «YTD» y el Resumen, «En el año». **Decidido el
+  20-11-2026: «YTD» también en el Resumen (apartado 14.14).**
 - El rótulo de un campo, en tinta 3 en la pieza y más oscuro en las láminas: cambiarlo cambia toda la aplicación.
 - El ancho a 2.560 px: el tope de lectura de las tablas de Salud y de Sistema deja media tarjeta vacía a la derecha, y
   la nota del lienzo propone limitar todo el contenido a 1.720 px o repartirlo en más columnas.
@@ -1468,7 +1470,8 @@ cambio del Comparador. La compilación anterior a ese despliegue, `94b0edda`, si
 **Lo que no decidió Óscar, sino quien lo construyó.** Son cinco cosas. Se le dicen en la página que se le entrega con
 este cambio, y quedan así salvo que diga lo contrario; al cerrar este apartado no las ha visto:
 
-- **Debajo de la tabla de Diseño, las tarjetas de la lateral van en dos columnas**, y no una bajo otra.
+- **Debajo de la tabla de Diseño, las tarjetas de la lateral van en dos columnas**, y no una bajo otra. **Óscar lo
+  confirmó el 20-11-2026: se quedan así, de 1.025 a 1.439 px (apartado 14.14). Ya es suya.**
 - **La ficha de un plan lleva una regla más amplia que la propuesta**: además de bajar el valor, el rótulo se lee entero
   y el valor puede partir. Hizo falta al medirla con nombres largos del catálogo.
 - **Bajo el ratón, las celdas fijas de una tabla repiten el azul de su fila.** En la rama principal las del Buscador
@@ -1508,7 +1511,8 @@ le dio como coste el tramo de 1.240 a 1.439; del de 1.180 a 1.239 se le dijo que
 y no como coste. Y sigue sin margen el nombre más largo: a 1.440 px el de 77 caracteres de la muestra pide justo las
 cuatro líneas, así que uno más largo volvería a cortarse.
 
-**Las tarjetas de la lateral, debajo de la tabla, van en dos columnas. Es decisión de quien lo construyó, no de Óscar.**
+**Las tarjetas de la lateral, debajo de la tabla, van en dos columnas. Fue decisión de quien lo construyó; Óscar la confirmó
+el 20-11-2026 (apartado 14.14).**
 En la propuesta la lateral bajaba debajo de la tabla tal como ya bajaba por debajo de 1.180 px, con una tarjeta bajo
 otra a todo el ancho; la foto que vio Óscar solo enseñaba el arranque de la primera. Ahora, de 1.025 a 1.439 px, se
 reparten solas por altura en dos columnas, en su orden de lectura (`columns: 2`, y ninguna tarjeta se parte): con las
@@ -2286,3 +2290,136 @@ compilación anterior, para volver atrás, en
 
 Las medidas, las fotos y los PDF, en la copia:
 `C:\Users\oanti\Proyectos\Gestor-Activos-Financieros-copias\cuatro-decisiones-2026-11-20`.
+
+### 14.14 Las once decisiones del 20-11-2026: textos, papel y dos pantallas
+
+Óscar aprobó el 20-11-2026 once cambios, cada uno como se le propuso. Lo que se ve, con lo medido; el detalle, en los
+commits de la rama `claude/decisiones-20-11`.
+
+| Decisión | Qué se ve |
+|---|---|
+| Crisis pasadas, la historia común | Si «Historia común» va del mismo máximo al mismo mínimo que una crisis, con las mismas posiciones y otra cifra, lleva debajo: «Las mismas fechas que COVID-19, con otra cifra: allí la cartera parte ese día con los pesos de hoy; aquí los lleva puestos desde el <inicio>, sin reequilibrar». El nombre y la fecha salen del dato (`start_date` de la historia común, `mismasFechasQueUnaCrisis`) |
+| Crisis pasadas, el aire | El hueco entre las tres tarjetas pasa de `--s-5` (12 px) a `--s-8` (24 px), también una bajo otra |
+| «YTD» en el Resumen de la ficha | La columna del año se titula «YTD», y la nota dice «"YTD", la de lo que va de año, no lo está». El glosario (apartado 6) da «YTD» por la palabra que se usa |
+| Simular, la diferencia | Junto a cada cifra, «mejora» o «empeora», con el sentido de cada medida; lo que se escribe como cero no lleva palabra. Si no cabe, la palabra baja bajo la cifra. La tabla de «Rentabilidad objetivo» de Optimizar es la misma pieza y sigue sin ella |
+| Mejorar, la confirmación | La pantalla y el PDF de la propuesta de mejora dicen que el último tercio filtra las candidatas y no es una prueba fuera de la muestra |
+| Optimizar, las notas | Ver abajo |
+| Retrocesiones de Sistema | De 25 en 25, con las páginas de `TablaDeDatos` (`PaginasDeLaTabla`); la búsqueda y el filtro miran todas las filas |
+| Diseño, la lateral | Sin cambio: las tarjetas siguen en dos columnas de 1.025 a 1.439 px, ahora por decisión de Óscar (14.7) |
+
+**El papel, con sí expreso para estos cambios.** En el informe interno, el ocre de «Contribución al riesgo frente al peso»
+se decide con las dos cifras tal como se imprimen, y «Región declarada» dice «Falta el dato» donde imprimía «N/D». Las
+notas de Optimizar, en pantalla y en el interno: «rentabilidades y covarianza regularizadas» solo con más de tres activos
+(con tres o menos, `estimate_returns` no las encoge, y la nota lo dice); el tope por posición añade «que una posición con
+candado puede superar» cuando una lo supera; la de mínima volatilidad, con rotación máxima, dice que depende también de la
+cartera de partida; y sobre las tarjetas va la nota del objetivo calculado, no siempre la de Máximo Sharpe. Y los
+documentos dejan de llamarse igual: «Informe de la propuesta» y «Costes de la propuesta» (Diseño › Informes y Análisis),
+«Informe de la cartera» y «Costes de la cartera» (Carteras de clientes), en el título de cada hoja, el fichero y los botones.
+
+**Medido**, con la cartera de muestra de la base local, en Análisis › Frente a la referencia y en Diseño › Simular, antes
+(la rama de integración) y después:
+
+| Ancho | Hueco | Ancho de cada tarjeta | Líneas de la duración de la historia común |
+|---|---|---|---|
+| 2.560 | 12 → 24 px | 599,3 → 591,3 px | 2 → 2 |
+| 1.920 | 12 → 24 px | 505,3 → 497,3 px | 2 → 2 |
+| 1.440 | 12 → 24 px | 350,7 → 342,7 px | 4 → 4 |
+| 1.380 | 12 → 24 px | 330,7 → 322,7 px | 5 → 5 |
+| 1.280, 1.024, 768 | una bajo otra, 12 → 24 px entre ellas | todo el ancho | sin cambio |
+
+Las tres tarjetas siguen a la misma altura (416 px a 1.440, 437 a 1.380) y ninguna página desborda. La frase de la
+historia común no sale con la muestra local, cuya historia común va del 16-11-2021 al 12-10-2022 y no coincide con
+ninguna crisis; se miró con una sonda que cambia en la respuesta de las Functions el máximo, el mínimo y las posiciones
+de la historia común por los de la COVID: dos líneas a 2.560, 1.920, 1.280, 1.024 y 768, y tres a 1.440 y 1.380, donde
+la fila de la frase alarga las tres tarjetas de 416 a 475 px y de 437 a 496. La comparativa de Simular, con la palabra:
+en la misma línea que la cifra, a 1.024 px la tabla pedía 397 px en una caja de 386; ahora la celda puede partir y la
+palabra baja bajo la cifra, y la tabla cabe entera a 2.560, 1.920, 1.440, 1.280, 1.024 (386 de 386) y 768. Retrocesiones: 25 de
+376 filas, «1 de 16», sin barra propia (antes, una caja de 560 px con las 376), y la columna de acciones fija y a la vista
+a 1.280, 1.024 y 768.
+
+Sin medir: el papel con una frontera de verdad (la muestra de las pruebas no la trae, así que el ocre y las notas del
+interno se comprueban con pruebas y no en una hoja generada) y la frase de la historia común con un dato real.
+
+Las fotos, las medidas y los PDF, en la copia:
+`C:\Users\oanti\Proyectos\Gestor-Activos-Financieros-copias\decisiones-20-11`.
+
+### 14.15 La tanda de pantalla de lo pendiente, y el Comparador marcado (20 y 21-11-2026)
+
+Óscar pidió el 20-11-2026 «arregla todo lo pendiente». Esto es lo que entró en pantalla sin decisión suya nueva —defectos
+con arreglo claro y una decisión que ya era suya—, y dos cosas del Comparador que aprobó el 20 y el 21-11.
+
+- **Tira de importes.** Con `importes`, `KpiStrip` hace menguar todas sus cifras a lo que pide la más larga:
+  `min(32px, 200cqi/N)`, con N los caracteres de esa cifra (medido: entre 0,46 y 0,48 em por carácter). Caben las de ocho
+  cifras y las de siete con signo; antes, en Comparador › Patrimonial, se salían de su casilla a 1.920, 1.440, 1.024 y
+  768 px. Las pruebas `piezasComunes` y `hojasDelMarco`, adaptadas a la fórmula sin quitarles nada.
+- **Cabecera de la propuesta en Diseño.** La banda mide su ancho (`container: diseno-datos`), las columnas van en
+  proporción a lo que pide cada campo (1,5 : 1 : 2 : 0,9) y por debajo de 1.072 px de banda los campos pasan encima de
+  las cifras, en una fila; en tableta, dos y dos. Ya no corta el texto de ejemplo de ningún campo (antes, de 1.025 a
+  1.300 px, y «6 · Equilibrado dinámico» hasta 1.440). Cambia la disposición entre unos 1.025 y 1.390 px, 1.280 incluido:
+  la banda pasa de una fila a dos. Óscar lo aceptó el 21-11-2026.
+- **Cajas que se desplazan en vertical.** Las tres de Sistema (el registro de una tarea, la respuesta del inspector y el
+  resultado de la ingesta) y la lista del selector de activos salen de «visto de paso» (14.7): se enfocan, con un nombre
+  que termina en «(texto desplazable)» o «(lista desplazable)». La prueba de las cajas tiene una quinta lista,
+  `SE_ENFOCAN_EN_VERTICAL`.
+- **Procedencia de la Cartera en la ficha.** Vuelve a decir cuántas posiciones tiene el fondo (decisión de Óscar), con
+  `declared/holdings.securities_count`, acciones más bonos según el proveedor: «· 243 posiciones, diez mayores 15,6 %».
+  Si falta o la desmienten sus líneas, «posiciones: Falta el dato» con la pieza (`Trozo.ausencia`). En la base nueva,
+  742 de las 768 carteras escriben la cuenta y 26 dicen que falta, casi todas fondos de fondos.
+- **Posiciones.** Tercer estado, «No se pudo leer», en la tabla, el filtro, el CSV y el Excel.
+- **Comparar, el mismo estimador.** La fila de la caída a 3 años marca la cifra del proveedor como las demás; hoy no la
+  trae ninguna tarjeta. El §3 del método dice dónde se cumple la regla.
+- **El «EUR» de relleno** cuando un activo no trae divisa se queda: en producción no salta (la base nueva exige la
+  divisa) y quitarlo cambiaría tres informes en PDF. Óscar lo dio por cerrado el 21-11-2026.
+- **Cada activo, con su número y su color** (Óscar, 20-11-2026): la pieza `MarcaDeActivo` (punto del color de su serie y
+  el número en tinta) va delante del nombre en los chips de «Qué se compara» y en la cabecera de cada columna de la tabla
+  comparada, con el mismo puesto que en el gráfico, el mapa y la matriz. `TablaComparativa` admite la marca por columna.
+- **Verde y rojo en las rentabilidades de la tabla comparada** (Óscar, 21-11-2026): las cuatro filas de rentabilidad
+  anualizada pintan su cifra con el color del signo, que ya va escrito; el signo se decide con la cifra tal como se
+  escribe. `CeldaDeTabla` admite `signo`. La volatilidad y las demás filas, sin color. El informe en PDF no cambia.
+
+Medido: la tanda de pantalla, en los seis anchos, la pasada estrecha y de 1.280 a 1.440 de 20 en 20 para la cabecera de
+Diseño (78 rutas sin incidencias; en la estrecha, seis «429» de sesiones fotografiando a la vez, sin desbordes); el
+Comparador, en los seis anchos con tres activos. Las fotos, en la copia:
+`C:\Users\oanti\Proyectos\Gestor-Activos-Financieros-copias\pantalla-pendientes-2026-11-20` y
+`…\decisiones-20-11\marcas` y `…\signo`.
+
+### 14.16 La caída en rojo, el estado de cada informe y el riesgo por clase (decidido el 21-11-2026)
+
+Tres decisiones de Óscar del 21-11-2026 que tocan la pantalla. Ninguna cambia un informe en PDF.
+
+- **La caída máxima de la tabla comparada va en rojo** (propuesta C3 de las láminas). Es una **excepción a la regla 3**,
+  que dice que una caída suelta no lleva color: una caída es siempre una pérdida y va en rojo, como la rentabilidad que
+  baja, con el menos que ya lleva escrito. Se decide con la cifra tal como se escribe: solo la que lleva su menos va en
+  rojo; una de 0,00 % (tres monetarios de la base nueva) va sin color, y una positiva —sería un error del dato— también,
+  nunca en verde. La excepción es de esa fila del Comparador: en el resto de la aplicación la regla 3 sigue igual.
+- **Cada documento de Informes dice su estado** (I1 a I3): «Listo» (marca), «Falta algo» (aviso) o «Bloqueado»
+  (desfavorable, cuando su botón no se puede pulsar con los datos de hoy), en un `Distintivo` junto al nombre. Lo que
+  falta sigue en su `Aviso`, y lo que se arregla en otra pantalla lleva su acción («Fijar en Diseño», «Ajustar en
+  Diseño», «Guardar en Diseño», «Ir a Optimizar»); son instrucciones al asesor y en Modo cliente no salen. Los
+  documentos van en dos tarjetas, «Para el cliente» e «Internos», y la segunda no existe en Modo cliente. Los seis
+  dicen «Preparar».
+- **Riesgo por clase de activo en Análisis › Resumen** (AN1), junto a «En qué está invertida»: cuánto aporta cada clase
+  a la volatilidad de la cartera, con la contribución de Euler (RC_i = w_i (Σw)_i / σ_p, que suma la volatilidad
+  entera), en tanto por ciento, y bajo el nombre lo que pesa la clase en la misma parte medida. La barra va en el color
+  de la clase; una aportación negativa dice «reduce el riesgo». Sin volatilidad, con un solo activo medido o sin
+  aportaciones, lo dice y no dibuja reparto. Las cifras salen de `risk_contributions` del servidor, sin cambios en él.
+
+### 14.17 Lo que Óscar aprobó de las láminas el 21-11-2026: tope por bloque, aspecto y siete propuestas
+
+- **Tope de lectura por bloque**, no uno general de página: la Estructura de la cartera, con `--filas-max-w`; las
+  listas de Producto, Categoría y Exposición agregada, con `--reparto-max-w` (22rem); las Cifras de mercado, con
+  `--cifras-mercado-max-w` (24rem); la variación de la ficha, con las 28em de las filas anchas; y las tarjetas de Salud
+  del catálogo y las de una tabla de rótulo y cifra en Sistema se ajustan a su tabla. También se nota por debajo de
+  1.440 px: la Estructura queda en 532 px, la variación en 476 y las tarjetas de Sistema en 574.
+- **Aspecto:** el rótulo de un campo va en `--tinta-2` (#57524a, 7,75:1), a 13 px y en peso 500; «Visión de
+  asignación» y su matriz, cada una a todo el ancho; la línea de referencia sigue en gris.
+- **Siete propuestas construidas:** M3, con el Modo cliente puesto la barra dice «Vista para el cliente» y su filete
+  pasa a latón de 2 px (el interruptor sigue llamándose «Modo cliente»); M4, sin propuesta el recuadro dice «Sin
+  propuesta · Empezar» y lleva a Diseño; F3, la columna de 10 años de la ficha sale siempre, con «No aplica» y «La serie
+  no llega a 10 años» o con «Falta el dato» si no hay tabla nuestra con que saberlo; B4, el aviso «Cifras de métodos
+  distintos.» encima de la tabla del Buscador; PL4, «No son parte de la cartera.» bajo el título de Planes; J1, la
+  residencia fiscal, primer bloque del formulario de Jubilación; y D1, fila «Total» al pie de las posiciones de Diseño,
+  con «Normalizar al 100 %» siempre a la vista (desactivado, y diciendo por qué, cuando la cartera ya suma el 100 %).
+
+Medido en los seis anchos (78 rutas) y la pasada estrecha (52), sin incidencias; antes y después, en la copia
+`C:\Users\oanti\Proyectos\Gestor-Activos-Financieros-copias\diseno-aprobado-21-11`.

@@ -20,7 +20,8 @@ vi.mock("../src/reports/internalPortfolioReportPdf", () => ({ downloadInternalPo
 import { buildManualPortfolioReport, getComparableAssets } from "../src/adapters/bdbAssetsAdapter";
 import * as historia from "../src/adapters/portfolioComparisonHistory";
 import * as horizonte from "../src/adapters/portfolioHorizon";
-import { ClientModeProvider } from "../src/app/ClientModeContext";
+import { CLIENT_MODE_STORAGE_KEY, ClientModeProvider } from "../src/app/ClientModeContext";
+import { leerLosMensajes, vaciarLosMensajes } from "../src/components/ui/useMensaje";
 import { DialogoDeComparativa } from "../src/components/DialogoDeComparativa";
 import { PortfolioReport } from "../src/components/PortfolioReport";
 import { AppError } from "../src/core/appError";
@@ -192,6 +193,56 @@ describe("Informes · el diálogo del informe interno", () => {
     expect(texto).not.toContain("no mide ninguna posición");
     expect(boton(dialogo(), "Reintentar")).toBeUndefined();
     expect(boton(dialogo(), "Descargar el informe")?.disabled).toBe(true);
+  });
+
+  /* Lo que hace otra pestaña al activar el Modo cliente: el navegador avisa a esta por el almacenamiento. */
+  const activarModoClienteDesdeOtraPestana = () => act(async () => {
+    window.dispatchEvent(new StorageEvent("storage", { key: CLIENT_MODE_STORAGE_KEY, newValue: "true" }));
+  });
+  const montarInterno = async () => {
+    const report = await buildManualPortfolioReport(POSICIONES, "Cartera prueba");
+    const assets = await getComparableAssets(POSICIONES.map((p) => p.asset_id));
+    const feasibility = checkPortfolioFeasibility({ positions: POSICIONES, assets });
+    await act(async () => {
+      root.render(createElement(ClientModeProvider, { initialValue: false, children: createElement(PortfolioReport, { report, originalPositions: POSICIONES, assets, feasibility }) }));
+    });
+  };
+
+  test("H2-05: si se activa el Modo cliente mientras se prepara, se deja de esperar, no se descarga y se avisa", async () => {
+    vaciarLosMensajes();
+    const senales: AbortSignal[] = [];
+    vi.spyOn(horizonte, "fetchPortfolioHorizon").mockImplementation((_posiciones, _ventana, signal) => {
+      senales.push(signal as AbortSignal);
+      return new Promise((_ok, falla) => signal?.addEventListener("abort", () => falla(new DOMException("La solicitud ya no es necesaria.", "AbortError"))));
+    });
+    await montarInterno();
+    await preparar("Informe interno del asesor");
+    await pulsar(dialogo(), "Descargar el informe");
+    expect(senales).toHaveLength(2);
+    await activarModoClienteDesdeOtraPestana();
+    await act(async () => { await new Promise((hecho) => setTimeout(hecho, 0)); });
+    expect(senales.every((s) => s.aborted)).toBe(true);
+    expect(interno.descargar).not.toHaveBeenCalled();
+    expect(dialogo()).toBeNull();
+    expect(leerLosMensajes().map((m) => m.texto)).toEqual(["Informe interno descartado: se activó el Modo cliente y lleva retrocesiones."]);
+    vaciarLosMensajes();
+  });
+
+  test("H2-05: el generador pregunta si puede descargar con el documento ya dibujado, y la respuesta cambia con el Modo cliente", async () => {
+    let puede: (() => boolean) | undefined;
+    interno.descargar.mockImplementation(async (_entrada: unknown, pregunta?: () => boolean) => {
+      puede = pregunta;
+      expect(pregunta?.()).toBe(true);
+      return true;
+    });
+    vi.spyOn(horizonte, "fetchPortfolioHorizon").mockRejectedValue(new Error("sin análisis en la prueba"));
+    await montarInterno();
+    await preparar("Informe interno del asesor");
+    await pulsar(dialogo(), "Descargar el informe");
+    await act(async () => { await new Promise((hecho) => setTimeout(hecho, 0)); });
+    expect(interno.descargar).toHaveBeenCalledTimes(1);
+    await activarModoClienteDesdeOtraPestana();
+    expect(puede?.()).toBe(false);
   });
 
   test("mientras se prepara se puede cancelar: no se descarga nada, y el siguiente intento empieza limpio (INF-4)", async () => {

@@ -18,7 +18,7 @@ import { notaCortaDeLasSinPrecio, notaCortaDeLoContadoComoCero } from "../motor/
 import { escrito } from "./textos";
 import type { DatosDeVista } from "./tipos";
 
-const CUAL_SE_ENSENA = "El informe del cliente enseña las dos, y explica en qué se diferencian.";
+const CUAL_SE_ENSENA = "El informe de la cartera enseña las dos, y explica en qué se diferencian.";
 
 export function RespuestaDeLaCartera({ datos }: { datos: DatosDeVista }) {
   const { analisis } = datos;

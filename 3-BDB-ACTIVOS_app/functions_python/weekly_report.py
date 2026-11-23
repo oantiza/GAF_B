@@ -143,6 +143,12 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _madrid_day(value: datetime) -> str:
+    """El dia (ISO) en Madrid de un instante. Es el dia del informe: `report_publication` lo usa para su id y para el
+    cerrojo, y con el dia UTC el informe generado entre las 00:00 y las 02:00 de Madrid salia con el dia anterior."""
+    return value.astimezone(ZoneInfo("Europe/Madrid")).date().isoformat()
+
+
 def _as_utc(value: datetime | None) -> datetime:
     if value is None:
         return _utc_now()
@@ -765,7 +771,7 @@ def _daily_research_prompt(now: datetime) -> str:
     """Base factual del brief diario: ventana de 24 h, no de siete dias."""
     return f"""Actua como analista de mercados. Esta base factual alimentara una sintesis automatica que leera un asesor
 de banca privada en Espana.
-Fecha de referencia UTC: {now.date().isoformat()}.
+Fecha de referencia (Madrid): {_madrid_day(now)}.
 Prepara la base factual del informe diario de inversiones. Usa Google Search de forma
 obligatoria y prioriza fuentes primarias: bancos centrales, organismos estadisticos, bolsas,
 emisores de indices y comunicados corporativos. Contrasta cualquier cifra de mercado.
@@ -785,7 +791,7 @@ Devuelve un memo de investigacion en espanol; no redactes aun el JSON final."""
 def _daily_report_prompt(now: datetime, research: str) -> str:
     """Contrato del brief diario: sin assetAllocation (ver REPORT_CONFIG)."""
     return f"""{_WHAT_THIS_TEXT_IS}
-Redacta el informe diario con fecha {now.date().isoformat()} usando EXCLUSIVAMENTE la base factual
+Redacta el informe diario con fecha {_madrid_day(now)} usando EXCLUSIVAMENTE la base factual
 incluida al final. No agregues cifras o acontecimientos que no esten en esa base. Tono profesional
 y directo, para un asesor que lo lee antes de la apertura. Devuelve UNICAMENTE JSON valido, sin
 bloque Markdown exterior.
@@ -826,7 +832,7 @@ def _research_prompt(report_type: str, now: datetime) -> str:
     period = REPORT_CONFIG[report_type]["label"]
     return f"""Actua como investigador macroeconomico. Esta base factual alimentara una sintesis automatica que leera
 un asesor de banca privada en Espana.
-Fecha de referencia UTC: {now.date().isoformat()}.
+Fecha de referencia (Madrid): {_madrid_day(now)}.
 Prepara una base factual para el informe {period} de inversiones. Usa Google Search de forma
 obligatoria y prioriza fuentes primarias: bancos centrales, organismos publicos, bolsas,
 emisores de indices y comunicados corporativos. Contrasta cualquier cifra de mercado.
@@ -847,7 +853,7 @@ def _report_prompt(report_type: str, now: datetime, research: str) -> str:
         return _daily_report_prompt(now, research)
     period = REPORT_CONFIG[report_type]["label"]
     return f"""{_WHAT_THIS_TEXT_IS}
-Redacta el informe {period} con fecha {now.date().isoformat()} usando EXCLUSIVAMENTE la base factual
+Redacta el informe {period} con fecha {_madrid_day(now)} usando EXCLUSIVAMENTE la base factual
 incluida al final. No agregues cifras o acontecimientos que no esten en esa base. Tono profesional,
 claro, prudente y util para un asesor. Devuelve UNICAMENTE JSON valido, sin bloque Markdown exterior.
 
@@ -975,7 +981,7 @@ def generate_strategy_report(
                 {
                     "schema_version": REPORT_SCHEMA_VERSION,
                     "type": report_type,
-                    "id": f"{config['prefix']}-{generated_at.date().isoformat()}",
+                    "id": f"{config['prefix']}-{_madrid_day(generated_at)}",
                     "date": date_text,
                     "author": config["author"],
                     "provider": "Gemini con Google Search",

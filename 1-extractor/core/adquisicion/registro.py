@@ -560,10 +560,18 @@ CONTRASTE: tuple[dict, ...] = (
      "desplaza": ("morningstar_lt", "morningstar"),
      # La fecha por ventana (decisión B-74) acompaña a su cifra: si la cifra sale desplazada, su
      # fecha va con ella a `meta.contraste`, y la serie no la escribe (`vl_fondos` aún no la da).
+     #
+     # La caída por ventana va con la de 3 años, que sale de la misma función en la misma pasada
+     # (`_escribe_metricas`). Faltaba, como el Sortino en EXT-14: `riesgo.max_drawdown.*` no casa con
+     # `riesgo.max_drawdown_pct.1a.fondo`, y una ficha que la guarda conservaba (`update.parche_serie`)
+     # se quedaba con las caídas por ventana de la pasada anterior junto a todo lo demás nuevo (P2-02
+     # de la auditoría del 20-11-2026). Ningún adaptador desplazado escribe esa ruta: en la fusión no
+     # cambia nada.
      "rutas": ("rentabilidad.fecha_dato", "rentabilidad.trailing_pct.*.fondo",
                "rentabilidad.fecha_dato_por_ventana.*",
                "rentabilidad.por_año_natural.*.fondo", "riesgo.fecha_dato",
-               "riesgo.volatilidad_pct.*.fondo", "riesgo.max_drawdown.*")},
+               "riesgo.volatilidad_pct.*.fondo", "riesgo.max_drawdown.*",
+               "riesgo.max_drawdown_pct.*.fondo")},
     {"manda": "vl_eodhd", "bloque": "sharpe",
      "si_trae": "riesgo.historial_precios.rf_referencia",
      "desplaza": ("morningstar_lt", "morningstar"),

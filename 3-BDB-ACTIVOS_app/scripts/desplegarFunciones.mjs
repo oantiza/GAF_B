@@ -7,19 +7,18 @@
  * Usa `firebase.funciones.json`, que solo declara Functions: así este despliegue no puede pisar
  * las reglas ni el sitio, que salen de `4-base-nueva`. `firebase.json` sigue cerrado con su puerta.
  *
- * Por qué una lista y no todas: de las 51 funciones de `main.py`, las programadas y los `admin_*` que
- * escriben trabajan con la forma de la base vieja (`assets`, `metrics`) y crearían esas colecciones
- * en la base nueva. Las que piden claves de Secret Manager no se pueden desplegar sin crearlas antes,
- * y por eso solo entran las de `SECRETOS`, que ya existen en este proyecto.
+ * Por qué una lista y no todas: de las 26 funciones de `main.py`, las tres programadas de informes
+ * (`scheduled_publish_weekly_report`, `scheduled_publish_daily_report`, `scheduled_recover_strategy_reports`)
+ * no entran: la automatización de informes está apagada por decisión de Óscar (03-11-2026). Las que piden
+ * claves de Secret Manager no se pueden desplegar sin crearlas antes, y por eso solo entran las de `SECRETOS`,
+ * que ya existen en este proyecto.
  *
- * Desde el 15-11-2026 (auditoría del backend, decisión de Óscar) tampoco entran once que la web publicada
- * no llama. Siguen en `main.py` y en el emulador local, que carga todas:
- *   - `get_system_status`, `admin_db_status`, `admin_list_assets`, `admin_asset_detail`, `admin_fund_quality` y
- *     `admin_backfill_candidates` leen `assets` y `meta`, que en la base nueva no existen: contestaban «0 activos»
- *     o «no encontrado», y sus pestañas ya estaban ocultas en la web publicada (`SECCIONES_DE_LA_NUBE`).
- *   - `analyze_real_portfolio`, `save_real_analysis`, `list_real_analyses` y `delete_real_analysis` eran de
- *     «Análisis rápido de extractos», pantalla retirada el 14-11-2026.
- *   - `get_portfolio`: la pantalla recibe las carteras enteras con `list_portfolios`.
+ * Hasta el 21-11-2026 `main.py` declaraba 46. Las 20 que trabajaban con la forma de la base vieja (`assets`,
+ * `metrics/latest`, `meta/*`) —`get_system_status`, once `admin_*` y ocho programadas de precios, métricas,
+ * integridad, índice y VL revisados— no estaban en esta lista y se borraron del código ese día (decisión 31 del
+ * censo `CENSO_BASE_VIEJA_2026-11-21.md`). Seis de ellas (`get_system_status` y cinco `admin_*` de lectura)
+ * habían estado desplegadas y se borraron de la nube el 15-11-2026 (A-146, `67906a6d`, comprobado entonces),
+ * junto con las cuatro de «Análisis rápido de extractos» y `get_portfolio`, que la web publicada no llamaba.
  * Quitar una función de esta lista no la borra de la nube: eso es `firebase functions:delete`, y lo lanza Óscar.
  *
  * El emulador de Functions, si está en marcha, vigila esta misma carpeta. Al ver un cambio vuelve a
@@ -47,18 +46,44 @@ export const FUNCIONES = [
 export const SECRETOS = ["GEMINI_API_KEY"];
 
 /**
- * Los ISIN de `isins` que el contenido de un fichero de entorno no libera en `variable`. Lee como la CLI de Firebase: gana la
- * última línea, una línea comentada no cuenta, y el valor puede llevar comillas o un comentario detrás.
+ * El valor de `variable` en el contenido de un fichero de entorno, o `undefined` si no la declara. Lee como la CLI de Firebase:
+ * gana la última línea, una línea comentada no cuenta, admite `export` y espacios alrededor del `=`, y el valor puede llevar
+ * comillas o un comentario detrás.
  */
-export function liberacionesQueFaltan(contenido, variable, isins) {
-  let valor = "";
+export function valorEnElEntorno(contenido, variable) {
+  let valor;
   for (const linea of contenido.split(/\r?\n/)) {
     const encontrada = new RegExp(`^\\s*(?:export\\s+)?${variable}\\s*=\\s*(.*)$`).exec(linea);
     if (encontrada) valor = encontrada[1].replace(/\s+#.*$/, "").trim().replace(/^(["'])(.*)\1$/, "$2");
   }
-  const liberados = new Set(valor.split(",").map((isin) => isin.trim()));
+  return valor;
+}
+
+/**
+ * El valor que verá la función desplegada (P2-09, 21-11-2026). Al desplegar, la CLI carga `.env` y después `.env.<proyecto>`,
+ * que manda donde declaran lo mismo: hay que leer los dos, en ese orden, y no solo el del proyecto. `contenidos` va en ese orden;
+ * un fichero que no existe se pasa como `undefined`.
+ */
+export function valorEfectivo(contenidos, variable) {
+  let valor;
+  for (const contenido of contenidos) {
+    const suyo = contenido === undefined ? undefined : valorEnElEntorno(contenido, variable);
+    if (suyo !== undefined) valor = suyo;
+  }
+  return valor;
+}
+
+/** Los ISIN de `isins` que el contenido de un fichero de entorno no libera en `variable`. */
+export function liberacionesQueFaltan(contenido, variable, isins) {
+  const liberados = new Set((valorEnElEntorno(contenido, variable) ?? "").split(",").map((isin) => isin.trim()));
   return isins.filter((isin) => !liberados.has(isin));
 }
+
+/**
+ * La variable que abría las escrituras de la forma vieja (`write_governance.py`, borrado el 21-11-2026 con la base vieja).
+ * Ya no la lee nadie, y se sigue rechazando con valor: un entorno que la declare viene de antes, o de una copia equivocada.
+ */
+export const ESCRITURAS_VIEJAS = "BDB_ACTIVOS_ENABLE_MASTER_WRITES";
 
 /** Los fallos que impiden desplegar. Vacío: se puede. */
 export function motivosParaNoDesplegar(app) {
@@ -82,25 +107,31 @@ export function motivosParaNoDesplegar(app) {
   const delProyecto = join(app, "functions_python", `.env.${PROYECTO}`);
   /* Se sube como variable de entorno. El cliente de Firestore comprueba `is not None`, así que
      en la nube buscaría un emulador, incluso con el valor vacío. */
-  for (const fichero of [dotenv, delProyecto]) {
-    if (existsSync(fichero) && /^\s*FIRESTORE_EMULATOR_HOST\s*=/m.test(readFileSync(fichero, "utf8"))) {
+  const leer = (fichero) => (existsSync(fichero) ? readFileSync(fichero, "utf8") : undefined);
+  /* Los dos que carga la CLI al desplegar, en su orden: el del proyecto manda sobre el común. */
+  const entornos = [leer(dotenv), leer(delProyecto)];
+  for (const [i, fichero] of [dotenv, delProyecto].entries()) {
+    if (entornos[i] !== undefined && valorEnElEntorno(entornos[i], "FIRESTORE_EMULATOR_HOST") !== undefined) {
       motivos.push(`${fichero} declara FIRESTORE_EMULATOR_HOST: en la nube buscaría un emulador`);
     }
   }
-  if (!existsSync(delProyecto)) {
+  if (entornos[1] === undefined) {
     motivos.push(`falta ${delProyecto}`);
   } else {
-    const contenido = readFileSync(delProyecto, "utf8");
-    if (!new RegExp(`^MASTER_PROJECT_ID=${PROYECTO}\\s*$`, "m").test(contenido)) {
+    if (valorEfectivo(entornos, "MASTER_PROJECT_ID") !== PROYECTO) {
       motivos.push(`.env.${PROYECTO} no declara MASTER_PROJECT_ID=${PROYECTO}`);
     }
-    if (/^(BDB_ACTIVOS_ENABLE_MASTER_WRITES)=YES/m.test(contenido)) {
-      motivos.push(`.env.${PROYECTO} abre las escrituras viejas`);
+    /* Con cualquier valor, y mirando también `.env`: la función solo las abre con la frase entera, pero un valor aquí es o
+       esa frase o una equivocación, y antes solo se veía `=YES` al principio de línea y en el fichero del proyecto. */
+    const escrituras = valorEfectivo(entornos, ESCRITURAS_VIEJAS);
+    if (escrituras !== undefined && escrituras !== "") {
+      motivos.push(`el entorno del despliegue declara ${ESCRITURAS_VIEJAS} con valor: abriría las escrituras viejas`);
     }
     /* Ese fichero no está en Git, y la línea ya se perdió una vez sin que nadie se enterara: nueve instrumentos reparados se
        quedaron fuera de toda simulación. Sin ella nada se rompe, y por eso se mira aquí. La lista está versionada. */
     const { variable, isins } = JSON.parse(readFileSync(join(app, "functions_python", "verified_price_repair_releases.json"), "utf8"));
-    const faltan = liberacionesQueFaltan(contenido, variable, isins);
+    const liberados = new Set((valorEfectivo(entornos, variable) ?? "").split(",").map((isin) => isin.trim()));
+    const faltan = isins.filter((isin) => !liberados.has(isin));
     if (faltan.length > 0) {
       motivos.push(`.env.${PROYECTO} no libera en ${variable}: ${faltan.join(", ")}. Sin ellos siguen en cuarentena, fuera de simulación y frontera`);
     }
@@ -125,6 +156,19 @@ function escucha(puerto) {
 
 async function main() {
   const app = join(dirname(fileURLToPath(import.meta.url)), "..");
+  /* H3-04 (22-11-2026): los contratos se sincronizan ANTES de comprobar que Git está limpio. Sincronizar escribe en
+     `functions_python/contracts_cache`, que se despliega: hecho después de la comprobación, subía contratos que ningún commit
+     apuntaba. Así, si la sincronización cambia algo, la comprobación lo ve y exige el commit. Solo con `--despliega`: sin él
+     el guion no escribe nada. */
+  if (process.argv.includes("--despliega")) {
+    const contratos = spawnSync("node", ["scripts/syncContractsCache.mjs", "--check"], { cwd: app, encoding: "utf8" });
+    if (contratos.status !== 0) {
+      console.log("Sincronizando contratos y esperando 30 s a que el emulador termine de releer...");
+      const sync = spawnSync("node", ["scripts/syncContractsCache.mjs"], { cwd: app, stdio: "inherit" });
+      if (sync.status !== 0) process.exit(2);
+      await new Promise((resuelve) => setTimeout(resuelve, 30000));
+    }
+  }
   const motivos = motivosParaNoDesplegar(app);
   console.log(`destino   : ${PROYECTO}`);
   console.log(`funciones : ${FUNCIONES.length}`);
@@ -140,13 +184,6 @@ async function main() {
     console.log("\nNADA desplegado. Con --despliega se ejecutaría:");
     console.log(`  npx ${argumentos.join(" ")}`);
     return;
-  }
-  const contratos = spawnSync("node", ["scripts/syncContractsCache.mjs", "--check"], { cwd: app, encoding: "utf8" });
-  if (contratos.status !== 0) {
-    console.log("Sincronizando contratos y esperando 30 s a que el emulador termine de releer...");
-    const sync = spawnSync("node", ["scripts/syncContractsCache.mjs"], { cwd: app, stdio: "inherit" });
-    if (sync.status !== 0) process.exit(2);
-    await new Promise((resuelve) => setTimeout(resuelve, 30000));
   }
   if (await escucha(8081)) {
     console.error("\nNo se despliega: algo escucha en el puerto 8081, y el despliegue podría leer sus funciones.");
@@ -165,7 +202,10 @@ async function main() {
     registrarDespliegue({ que: "funciones", proyecto: PROYECTO, ...commit, funciones: FUNCIONES.length });
     console.log(`\nApuntado en ${REGISTRO_DE_DESPLIEGUES}: funciones desde ${commit.corto}.`);
   } else {
-    console.error(`\nEl despliegue ha terminado con ${r.status}: no se apunta. Si se cortó, repítelo.`);
+    /* `status` es null cuando el proceso no llegó a arrancar (`error`) o lo mataron (`signal`): antes eso salía como «terminado
+       con null» y sin causa, y es la forma en que un despliegue se corta «sin error». */
+    const causa = r.error ? `no se pudo lanzar: ${r.error.message}` : r.signal ? `lo cortó la señal ${r.signal}` : `terminó con el código ${r.status}`;
+    console.error(`\nEl despliegue no se completó (${causa}): no se apunta. Si se cortó, repítelo.`);
   }
   process.exit(r.status ?? 2);
 }

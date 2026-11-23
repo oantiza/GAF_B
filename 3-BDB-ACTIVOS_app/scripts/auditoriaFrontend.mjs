@@ -266,17 +266,8 @@ const PANTALLAS = [
   },
   { id: "salud-catalogo", ruta: "/salud-catalogo" },
   { id: "sistema", ruta: "/sistema" },
-  /* Las demás pestañas de Sistema, que solo ve un administrador. */
-  { id: "sistema-estado", ruta: "/sistema#pestana=estado" },
-  { id: "sistema-calidad", ruta: "/sistema#pestana=calidad" },
-  { id: "sistema-historicos", ruta: "/sistema#pestana=historicos" },
-  { id: "sistema-inspeccion", ruta: "/sistema#pestana=inspeccion" },
+  /* La otra pestaña de Sistema, que solo ve un administrador. Las siete de la base vieja se borraron el 21-11-2026. */
   { id: "sistema-retrocesiones", ruta: "/sistema#pestana=retrocesiones" },
-  { id: "sistema-ingesta", ruta: "/sistema#pestana=ingesta" },
-  /* Operaciones habla con un servicio local del extractor (127.0.0.1:8766). Sin él, la pantalla lo dice y ofrece
-     reintentar; el navegador anota por su cuenta la conexión rechazada, y eso no es un fallo de la aplicación. */
-  { id: "sistema-operaciones", ruta: "/sistema#pestana=operaciones", esperado: [/127.0.0.1:8766/, /ERR_CONNECTION_REFUSED/] },
-  { id: "sistema-referencia", ruta: "/sistema#pestana=referencia" },
   { id: "direccion-desconocida", ruta: "/esta-direccion-no-existe" },
   /* Lo que el asesor enseña con el Modo cliente puesto, medido con él y con sus paneles abiertos: Informes y Optimizar,
      que son las que miraba `audit:ui` (auditoría del 16-10-2026), y las dos pestañas de Análisis donde vive algo
@@ -285,7 +276,7 @@ const PANTALLAS = [
      datos. Si no se lee, la pantalla no llegó a pintarse y no se ha medido nada (en Modo cliente la pestaña «Datos»
      no existe, y la dirección lleva al resumen). Van al final, para no cambiar el número de orden de las fotos de
      las demás. */
-  { id: "informes-modo-cliente", ruta: "/cartera/informes", modoCliente: { debeLeerse: "Informe para el cliente" }, preparar: abrirLoPlegado },
+  { id: "informes-modo-cliente", ruta: "/cartera/informes", modoCliente: { debeLeerse: "Informe de la propuesta" }, preparar: abrirLoPlegado },
   { id: "diseno-optimizar-modo-cliente", ruta: "/cartera/optimizacion", modoCliente: { debeLeerse: "Comprobación previa" }, preparar: abrirLoPlegado },
   { id: "analisis-exposicion-modo-cliente", ruta: "/analisis#pestana=exposicion", modoCliente: { debeLeerse: "Divisa de la clase" }, preparar: abrirLoPlegado },
   { id: "analisis-datos-modo-cliente", ruta: "/analisis#pestana=datos", modoCliente: { debeLeerse: "Qué conviene mirar" }, preparar: abrirLoPlegado }

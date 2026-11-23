@@ -14,6 +14,7 @@ import math
 from firebase_functions import logger as LOGGER
 from pathlib import Path
 import random
+import re
 import time
 
 from asset_aliases import alias_conflict_message, alias_conflicts, canonical_noting, with_alias_resolutions
@@ -257,7 +258,13 @@ def _periodo_comun(loaded, excluded, window, bundle, today):
     queda sin cifra y dice por que.
     """
     import numpy as np
-    latest=max(max(v) for v in loaded.values())
+    # P1-04 (auditoria del 20-11-2026): un activo de precio congelado (`frozen_price`, NH Hotel) se prolonga plano hasta
+    # hoy al leerlo (`extend_frozen_price`), asi que su ultimo dato es siempre hoy y no dice hasta donde llegan los datos.
+    # Si fijaba el fin, en cuanto el refresco a mano pasaba de 14 dias apartaba a todo lo demas con MOTIVO_SERIE_PARADA y la
+    # cartera se media solo con el congelado. El fin lo ponen los demas; solo si la cartera es entera de congelados, ellos.
+    from fund_history_quality import tiene_precio_congelado
+    reales=[v for aid,v in loaded.items() if not tiene_precio_congelado(aid)] or list(loaded.values())
+    latest=max(max(v) for v in reales)
     end=min(date.fromisoformat(latest),today or date.today())
     end-=timedelta(days=(end.weekday()-4)%7) # Last completed market week.
     years=SUPPORTED_WINDOWS[window]; start=_years_before(end,years)
@@ -369,6 +376,11 @@ def _correlaciones(asset_returns):
     return [[1.0 if i==j else (float(crudo[i,j]) if np.isfinite(crudo[i,j]) else None) for j in range(k)] for i in range(k)]
 
 
+def _anos_de_la_ventana(window):
+    """Los anos de una ventana ("1Y", "5Y", "10Y"): todos los digitos, no solo el primero ("10Y" no es 1)."""
+    return int(re.match(r'\d+', str(window)).group())
+
+
 def _backtest(ids, weights, matrix, dates, week_indices, window, excluded, requested, rf_context):
     import numpy as np
     levels=np.asarray(matrix, dtype=float)
@@ -392,7 +404,7 @@ def _backtest(ids, weights, matrix, dates, week_indices, window, excluded, reque
       'asset_ids':ids,'weights_normalized':weights,'correlation_matrix':corr,
       'benchmark_series':{},'synthetics':[],
       'coverage':{'requested_assets':requested,'included_assets':len(ids),'common_observations':len(dates),
-                  'measured_observations':len(weekly),'required_observations':int(window[0])*52+1,
+                  'measured_observations':len(weekly),'required_observations':_anos_de_la_ventana(window)*52+1,
                   'measurement_frequency':'WEEKLY','first_date':dates[0],'last_date':dates[-1]},
       'excluded_assets':excluded,'warnings':[],
     }, asset_returns
@@ -480,7 +492,6 @@ def analyze_horizon(reader, payload, *, risk_free_resolver=None, reference_bundl
         {a:[{'date':d,'value':v} for d,v in values.items()] for a,values in loaded.items()},
         weights, exclusion_reasons={p['asset_id']:p['reason'] for p in excluded if p['asset_id'] not in loaded},
     )
-    equal,_=_backtest(ids,{a:1/len(ids) for a in ids},matrix,dates,week_indices,window,excluded,len(weights),rf_context)
     frontier=None; frontier_error=None; optimal=None; aportaciones_sin_frontera=None
     # Lo medido que no se puede comprar: entra en las cifras de la cartera y se queda fuera de la frontera. Con la lista
     # vacia todo lo de abajo es lo de antes, linea a linea: `comprables` es `ids`.
@@ -491,6 +502,14 @@ def analyze_horizon(reader, payload, *, risk_free_resolver=None, reference_bundl
             fuera_de_la_frontera.append({'asset_id':a,'reason':motivo,'weight':norm[a]})
     apartados={item['asset_id'] for item in fuera_de_la_frontera}
     comprables=[a for a in ids if a not in apartados]
+    # La equiponderada tambien propone pesos, asi que sigue la misma regla que la frontera (pendiente del 19-11-2026: el
+    # 15-11 contaba siete valores que no se pueden comprar, y una serie plana la favorece). Pesos iguales entre lo que se
+    # puede comprar y cero en lo apartado, sobre las mismas columnas que la cartera, como la del Maximo Sharpe. Sin nada
+    # que se pueda comprar no hay equiponderada que proponer: va vacia, y `frontier_excluded_assets` dice por que.
+    equal=None
+    if comprables:
+        equal,_=_backtest(ids,{a:(1/len(comprables) if a not in apartados else 0.0) for a in ids},matrix,dates,week_indices,
+                          window,excluded,len(weights),rf_context)
     if len(comprables)>MAX_ACTIVOS_FRONTERA:
         # Sin frontera, pero con la aportacion al riesgo: es una medida con los pesos, no una optimizacion. Sale de la
         # misma covarianza que daria `solve` con estos retornos (estimate_covariance, la que usa por dentro), y viaja

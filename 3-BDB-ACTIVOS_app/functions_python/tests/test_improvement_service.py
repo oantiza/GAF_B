@@ -273,6 +273,21 @@ def test_una_posicion_con_referencia_se_completa_como_en_simular_y_un_candidato_
     assert set(out["original"]["weights"]) == {"A", "C"}
 
 
+def test_a_una_posicion_completada_con_su_referencia_no_se_le_buscan_sustitutos():
+    """Pendiente del 19-11-2026 (lo que dejo abierto la A-153): C se mide con su tramo estimado, como en Simular, pero no
+    recibe sustitutos; A, con historia propia, si. A2 es candidato de las dos."""
+    joven = serie("C", 4, 0.0010, 2, inicio_tardio=FIN - timedelta(days=400))
+    bundle = _referencia("C", joven[0]["points"][0]["date"])
+    out = _con_posicion(joven, candidatos={"A": ["A2"], "C": ["A2"]}, bundle=bundle)
+    assert [e["asset_id"] for e in out["extensions"]] == ["C"]
+    de_c = out["rejected_candidates"]["C"]
+    assert [(r["asset_id"], r["reason"], r["not_evaluable"]) for r in de_c] == [("A2", "POSITION_HISTORY_EXTENDED", True)]
+    assert "completado con su referencia" in de_c[0]["detail"]
+    assert all(s["from_asset_id"] != "C" for p in out["proposals"] for s in p["substitutions"])
+    # A sigue buscando: su candidato no aparece rechazado por ese motivo.
+    assert all(r["reason"] != "POSITION_HISTORY_EXTENDED" for r in out["rejected_candidates"].get("A", []))
+
+
 def test_c_un_candidato_sin_historia_completa_queda_no_evaluable_con_su_motivo():
     """JOVEN, de 400 dias, como candidato de A: no se completa ni teniendo referencia, no tumba el calculo y queda no evaluable."""
     lect = lector()
@@ -462,3 +477,15 @@ def test_solo_rechaza_si_la_cartera_sola_no_cabe():
     roots = {"P%02d" % i: raiz("P%02d" % i, "Fondo %d" % i) for i in range(MAX_IMPROVEMENT_ASSETS + 1)}
     with pytest.raises(InvalidOptimizationRequest, match="la cartera tiene 81 posiciones"):
         improve_portfolio(LectorFalso(roots, {}), {"positions": [{"asset_id": aid, "weight": 1} for aid in roots], "candidates": {}, "window": "3Y"})
+
+
+@pytest.mark.parametrize("extra, campo", [
+    ({"max_substitutions": float("inf")}, "max_substitutions"),
+    ({"max_substitutions": 0}, "max_substitutions"),
+    ({"thresholds": {"exhaustive_limit": 10 ** 9}}, "exhaustive_limit"),
+    ({"thresholds": {"rolling_weeks": 0}}, "rolling_weeks"),
+])
+def test_p1_09_umbrales_fuera_de_rango_son_entrada_invalida_y_no_un_error_interno(extra, campo):
+    """P1-09 (20-11-2026): antes `int(inf)` era un OverflowError (INTERNAL) y lo demas pasaba sin cota."""
+    with pytest.raises(InvalidOptimizationRequest, match=campo):
+        improve_portfolio(lector(), peticion(**extra))

@@ -15,6 +15,7 @@ export const otroEfectivo: DefinicionDeMovimiento = {
   descripcion: "Un apunte de efectivo que no es ninguno de los demás: una regularización, una bonificación. Cuenta como resultado, no como aportación.",
   orden: 62,
   signoDelEfectivo: "libre",
+  conConceptoParaElCliente: true,
   campos: [
     { campo: "importe", obligatorio: true, rotulo: "Importe" },
     { campo: "fechaValor", obligatorio: false },

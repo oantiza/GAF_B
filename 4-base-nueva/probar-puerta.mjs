@@ -100,6 +100,14 @@ const cspDe = (cfg) => cfg.hosting.headers.find((r) => r.source === "**").header
 const sinCabeceras = conFirebaseJson((c) => { delete c.hosting.headers; });
 caso("sin cabeceras -> rechaza", sinCabeceras.codigo === 2 && /cabeceras/.test(sinCabeceras.salida), `codigo ${sinCabeceras.codigo}: ${sinCabeceras.salida}`);
 
+/* P2-08 (21-11-2026): HSTS entra en la lista de la puerta. Hosting ya lo sirve por su cuenta; esto
+   asegura que la intención está escrita y no depende de un valor por defecto de otro. */
+const sinHsts = conFirebaseJson((c) => {
+  const global = c.hosting.headers.find((r) => r.source === "**");
+  global.headers = global.headers.filter((h) => h.key !== "Strict-Transport-Security");
+});
+caso("sin Strict-Transport-Security -> rechaza", sinHsts.codigo === 2 && /Strict-Transport-Security/.test(sinHsts.salida), `codigo ${sinHsts.codigo}: ${sinHsts.salida}`);
+
 const cspDeBdb = conFirebaseJson((c) => { cspDe(c).value = cspDe(c).value.replace(`${PERMITIDO}.firebaseapp.com`, "bbdd-activos-financieros.firebaseapp.com"); });
 caso("con el dominio de acceso de BDB en la CSP -> rechaza", cspDeBdb.codigo === 2 && /CSP/.test(cspDeBdb.salida), `codigo ${cspDeBdb.codigo}: ${cspDeBdb.salida}`);
 

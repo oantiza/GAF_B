@@ -27,8 +27,8 @@ function hojasEnOrden(paginas: string[]) {
     expect(pagina, `página ${i + 1}`).toContain(`Página ${i + 1} de ${paginas.length}`);
     expect(pagina, `página ${i + 1}`).not.toMatch(/undefined|NaN|\[object|Infinity/);
     /* La cabecera de la plantilla dice qué documento es, y el sello sale en la cabecera y en el pie (antes, el pie decía
-       «Informe de costes · Confidencial»). */
-    expect(pagina, `página ${i + 1}`).toContain("Informe de costes");
+       «Costes de la cartera · Confidencial»). */
+    expect(pagina, `página ${i + 1}`).toContain("Costes de la cartera");
     expect(pagina.match(/CONFIDENCIAL/g)?.length ?? 0, `página ${i + 1}`).toBeGreaterThanOrEqual(2);
   });
 }
@@ -97,7 +97,7 @@ describe("el informe de costes", () => {
       const texto = paginas.join("\n");
       const ic = datos.analisis.ingresosYCostes;
       console.log(`[${nombre}] ${paginas.length} páginas`, { servicio: ic.cargosDelServicio.length, operaciones: ic.costesPorOperacion.length, productos: ic.porProducto.length, sinDato: ic.productosSinGastosCorrientes });
-      expect(paginas[0]).toContain("Informe de costes");
+      expect(paginas[0]).toContain("Costes de la cartera");
       expect(paginas[0]).toContain("Cartera de demostración");
       expect(texto).not.toContain("Independent Private Bankers");
       secciones(datos, texto);
@@ -140,9 +140,12 @@ describe("el informe de costes", () => {
     const texto = paginas.join("\n");
     secciones(datos, texto);
     expect(texto).toContain("18 cargos, agrupados por concepto");
-    expect(texto).toContain("Comisión de administración");
-    expect(texto).toContain(plano(importe(6 * 4.25)));
-    expect(texto).toContain(plano(importe(12 * 4.25)));
+    /* El concepto es el tipo del cargo, no la nota del asesor (P1-11, 21-11-2026): los dieciocho van en un solo grupo, y
+       la nota «Comisión de administración» no sale. Antes se agrupaban por la nota, en 6 y 12 cargos. («Custodia», la otra
+       nota, no se busca: el texto del método la nombra como clase de cargo.) */
+    expect(texto).toContain("Comisión o gasto");
+    expect(texto).not.toContain("Comisión de administración");
+    expect(texto).toMatch(/Comisión o gasto\s+18\b/);
     expect(texto).toContain(plano(importe(76.5)));
     expect(texto).toContain(plano(importe(21.5)));
     expect(texto).toContain("Retenciones sobre dividendos");
@@ -150,6 +153,8 @@ describe("el informe de costes", () => {
     expect(texto).toContain(plano(importe(56.5)));
     expect(texto).toMatch(/No se conoce el coste corriente de este producto, así que no está incluido en el total: Fondo Sin Ficha de Prueba\./);
     expect(texto).toContain("Total de costes conocidos");
+    /* La cobertura del resumen es la de los fondos: la acción no entra (P2-07). */
+    expect(plano(texto).replace(/\s+/g, " ")).toMatch(/Se conoce el de los que suponen un \d+ % de lo invertido en fondos y ETF; el del resto no se incluye\./);
   });
 
   test("con una cartera sencilla, sin costes de servicio ni operaciones, solo dice lo que hay", async () => {
@@ -163,6 +168,95 @@ describe("el informe de costes", () => {
     secciones(datos, texto);
     expect(texto).not.toContain("Impuestos retenidos");
     expect(texto).toContain("Lo que ha costado su cartera");
+  });
+
+  /*
+   * P2-07 (22-11-2026): un fondo que falta, por pequeño que sea o porque no tiene precio, deja los costes como conocidos y no
+   * como totales, y el papel lo nombra. Antes las acciones contaban como coste conocido en la cobertura y bastaba un 99,9 %.
+   */
+  describe("con un fondo que falta, el total es de los costes conocidos y lo nombra", () => {
+    /** Una cartera con una acción A y un fondo B, sin TER, a precios planos desde el 2-1-2026; el periodo, del 31-12-2025 a HOY. */
+    function accionYFondo(titulosDeA: number, titulosDeB: number, fichas = new Map<string, FichaDeActivo>()): DatosDelInforme {
+      const desde = "2026-01-02";
+      const dias: string[] = [];
+      for (let dia = sumarDias(desde, -5); dia <= HOY; dia = sumarDias(dia, 1)) dias.push(dia);
+      const plana = (valor: number) => dias.map((fecha) => ({ fecha, valor }));
+      const activos = [activo("A", "ACCION", "EUR", { nombre: "Acción Grande" }), activo("B", "FONDO", "EUR", { nombre: "Fondo Pequeño" })];
+      const movimientos = [
+        mov("aportacion", desde, { importe: String(titulosDeA * 100 + titulosDeB * 10) }),
+        mov("compra", desde, { activoId: "A", titulos: String(titulosDeA), precio: "100", importe: `-${titulosDeA * 100}` }),
+        mov("suscripcion", desde, { activoId: "B", titulos: String(titulosDeB), precio: "10", importe: `-${titulosDeB * 10}` })
+      ];
+      const c = cartera(activos, movimientos, { nombre: "Acción y fondo" });
+      const preparado = preparar(c, { precios: new Map([["A", plana(100)], ["B", plana(10)]]), cambios: new Map() }, fichas, HOY);
+      return { analisis: analizar(preparado, { desde: "2025-12-31", hasta: HOY }), cartera: c, generado: HOY };
+    }
+
+    test("999.500 € en una acción y 500 € en el único fondo, sin TER: cobertura 0 %, sin cifra del fondo y «conocidos»", async () => {
+      const datos = accionYFondo(9995, 50);
+      const ic = datos.analisis.ingresosYCostes;
+      /* La acción no entra en la cobertura: 0 € de fondo con TER conocido sobre 500 € de fondo = 0 %. Antes, 999.500 / 1.000.000
+         = 99,95 %, por encima del 99,9 %, y el papel decía «Total de costes 0,00 €». Lo que falta: 500 × TER × 316 / 365,2425 (el tramo medido son 316 días: la cartera empieza el 2-1). */
+      expect(ic.coberturaDeGastosCorrientes).toBe(0);
+      expect(ic.productosSinGastosCorrientes).toEqual(["Fondo Pequeño"]);
+      expect(ic.gastosCorrientes).toBeNull();
+      expect(ic.gastosCorrientesCompletos).toBe(false);
+      expect(ic.costesTotales).toBe(0); // conocidos: ni servicio, ni operaciones, ni producto con TER
+      const { paginas } = await paginasDe(await crearInformePdf("costes", datos), "costes-fondo-pequeno-sin-ter");
+      hojasEnOrden(paginas);
+      const texto = plano(paginas.join("\n")).replace(/\s+/g, " ");
+      expect(texto).toContain("Total de costes conocidos 0,00 €");
+      expect(texto).not.toMatch(/Total de costes 0,00/);
+      expect(texto).toContain("No se conoce el de ninguno de sus fondos, así que no se incluye.");
+      expect(texto).toContain("No se conoce el coste corriente de ninguno de los fondos y ETF de la cartera, así que no hay cifra que dar. No se conoce el porcentaje anual de este producto: Fondo Pequeño.");
+      expect(texto).not.toContain("Se conoce el coste corriente de todos los fondos");
+      expect(texto).not.toContain("Sin estos costes, la rentabilidad");
+    });
+
+    test("un fondo sin precio no deja el coste en cero ni completo: lo nombra con su razón", async () => {
+      /* El mercado de `restosSinPrecio.test.tsx`: A, acción en euros con precio; B, fondo en dólares comprado el 03-01 y sin
+         cambio, así que vale cero todo el periodo. Ningún fondo con valor: cobertura sin nada que medir (1), y sin cifra del
+         coste corriente, porque de su único fondo no se sabe el valor. */
+      const FIN = "2025-01-31";
+      const activos = [activo("A"), activo("B", "FONDO", "USD", { origen: "catalogo", isin: "XB0000000002" })];
+      const movimientos = [
+        mov("aportacion", "2025-01-02", { importe: "3000" }),
+        mov("compra", "2025-01-02", { activoId: "A", titulos: "10", precio: "100", importe: "-1000" }),
+        mov("compra", "2025-01-03", { activoId: "B", titulos: "10", importe: "-1000" })
+      ];
+      const c = cartera(activos, movimientos, { nombre: "Con un fondo sin precio" });
+      const mercado = { precios: new Map([["A", [{ fecha: "2025-01-02", valor: 100 }, { fecha: FIN, valor: 120 }]]]), cambios: new Map([["USD", [{ fecha: "2025-01-04", valor: 1.25 }]]]) };
+      const datos: DatosDelInforme = { analisis: analizar(preparar(c, mercado, new Map(), FIN), { desde: "2025-01-01", hasta: FIN }), cartera: c, generado: FIN };
+      const ic = datos.analisis.ingresosYCostes;
+      expect(ic.sinPrecioFueraDeLosGastosCorrientes).toEqual(["Activo B"]);
+      expect(ic.productosSinGastosCorrientes).toEqual([]);
+      expect(ic.gastosCorrientes).toBeNull();
+      expect(ic.gastosCorrientesCompletos).toBe(false);
+      const { paginas } = await paginasDe(await crearInformePdf("costes", datos), "costes-fondo-sin-precio");
+      hojasEnOrden(paginas);
+      const texto = plano(paginas.join("\n")).replace(/\s+/g, " ");
+      expect(texto).toContain("Costes de los productos");
+      expect(texto).toContain("Total de costes conocidos");
+      expect(texto).not.toMatch(/Total de costes \d/);
+      expect(texto).toContain("No se conoce el coste corriente de ninguno de los fondos y ETF de la cartera, así que no hay cifra que dar. Este producto no tiene precio, así que no se conoce su valor: Activo B.");
+    });
+
+    test("con el TER del fondo conocido, el total es «Total de costes» y la cobertura, del 100 %", async () => {
+      /* El mismo caso con un TER del 1 %. La cartera empieza el 2-1-2026, así que el tramo medido son los 316 días del 3-1 al
+         13-11, todos con el fondo a 500 €: valor medio 500 €, y coste 500 × 1 % × 316 / 365,2425 = 4,3259 €. La acción sigue
+         fuera de la cobertura. */
+      const datos = accionYFondo(9995, 50, new Map<string, FichaDeActivo>([["B", { gastosCorrientes: 0.01 }]]));
+      const ic = datos.analisis.ingresosYCostes;
+      expect(ic.coberturaDeGastosCorrientes).toBe(1);
+      expect(ic.gastosCorrientesCompletos).toBe(true);
+      expect(ic.porProducto[0].valorMedio).toBeCloseTo(500, 9);
+      expect(ic.gastosCorrientes).toBeCloseTo((500 * 0.01 * 316) / 365.2425, 9);
+      const { paginas } = await paginasDe(await crearInformePdf("costes", datos), "costes-fondo-con-ter");
+      const texto = plano(paginas.join("\n")).replace(/\s+/g, " ");
+      expect(texto).toContain(`Total de costes ${plano(importe(ic.costesTotales))}`);
+      expect(texto).not.toContain("Total de costes conocidos");
+      expect(texto).toContain("Se conoce el coste corriente de todos los fondos y ETF de la cartera.");
+    });
   });
 
   test("una cartera vacía no lanza y dice que no hay datos", async () => {

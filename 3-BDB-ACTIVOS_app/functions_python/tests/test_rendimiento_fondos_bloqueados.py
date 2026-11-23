@@ -2,7 +2,7 @@
 """Decision 96 (05-11-2026): los fondos bloqueados por `fund_history_policies.json`.
 
 Los nueve revisados (`draw_after_review`) se dibujaban solo en Rendimiento, con su valor liquidativo y los dividendos del
-extracto; el resto del programa (simulacion, frontera y `metrics_refresh`) no los lee. El motor de Rendimiento
+extracto; el resto del programa (simulacion y frontera; y `metrics_refresh`, borrado el 21-11-2026 con la base vieja) no los lee. El motor de Rendimiento
 (`portfolio_real/`) se borro el 17-11-2026 (decision A-188): sus pruebas de valoracion estan en la etiqueta de Git
 `referencia-portfolio-real-2026-11-17`. Aqui queda lo que sigue vivo: la lista de los nueve y que nadie mas los lee.
 """
@@ -63,7 +63,7 @@ def test_son_nueve_y_polar_no_esta():
 
 
 def test_nadie_mas_lo_lee():
-    """Decision 96: simulacion, frontera y `metrics_refresh` no se tocan. Los tres preguntan por estas dos puertas."""
+    """Decision 96: simulacion y frontera no se tocan: preguntan por estas dos puertas."""
     lector = Lector()
     assert asset_id_in_quarantine(SCHRODER) is True
     assert cached_price_series(lector, SCHRODER) == []

@@ -119,7 +119,7 @@ async function descargarDesdeAnalisis(modoCliente: boolean): Promise<InformeDeCl
     }));
   });
   await esperar();
-  await pulsar(boton("Informe para el cliente"));
+  await pulsar(boton("Informe de la propuesta"));
   await pulsar(boton("Descargar el informe", document.querySelector('[role="dialog"]')!));
   await esperar();
   expect(pdf.cliente).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ async function descargarDesdeInformes(modoCliente: boolean): Promise<InformeDeCl
   });
   await esperar();
   /* Rediseño: en la lista de Informes el botón de un documento con diálogo dice «Preparar». */
-  await pulsar(document.querySelector('button[aria-label="Preparar: Informe para el cliente"]') as HTMLButtonElement);
+  await pulsar(document.querySelector('button[aria-label="Preparar: Informe de la propuesta"]') as HTMLButtonElement);
   await pulsar(boton("Descargar el informe", document.querySelector('[role="dialog"]')!));
   await esperar();
   expect(pdf.cliente).toHaveBeenCalledTimes(1);
@@ -213,7 +213,7 @@ describe("informe de cliente: las dos puertas entregan la misma entrada (ANA-01)
       root.render(createElement(XrayPage, { positions: POSICIONES, sourceKind: "LOCAL_MOCK", onBack: () => undefined, onPortfolioNameChange: alCambiarElNombre }));
     });
     await esperar();
-    await pulsar(boton("Informe para el cliente"));
+    await pulsar(boton("Informe de la propuesta"));
     const enAnalisis = rotulos();
     expect(enAnalisis).toEqual(["Nombre de la propuesta", "Preparado para (opcional)", "Periodo"]);
     expect(document.querySelector('[role="dialog"] .informes-firma')?.textContent).toContain("Firma de los informes");
@@ -237,9 +237,9 @@ describe("informe de cliente: las dos puertas entregan la misma entrada (ANA-01)
       }));
     });
     await esperar();
-    await pulsar(document.querySelector('button[aria-label="Preparar: Informe para el cliente"]') as HTMLButtonElement);
+    await pulsar(document.querySelector('button[aria-label="Preparar: Informe de la propuesta"]') as HTMLButtonElement);
     expect(rotulos()).toEqual(enAnalisis);
-    expect(document.querySelector('[role="dialog"] h2')?.textContent).toBe("Informe para el cliente");
+    expect(document.querySelector('[role="dialog"] h2')?.textContent).toBe("Informe de la propuesta");
     expect(document.body.textContent).not.toContain("Responsable comercial");
     /* La firma ya no se escribe en la página de Informes: «Elaborado por» y el correo desaparecen de los datos. */
     expect([...document.querySelectorAll(".informes-datos .field__label")].map((nodo) => nodo.textContent)).not.toContain("Elaborado por");
@@ -252,7 +252,7 @@ describe("informe de cliente: las dos puertas entregan la misma entrada (ANA-01)
       root.render(createElement(XrayPage, { positions: POSICIONES, sourceKind: "LOCAL_MOCK", portfolioName: "Cartera de prueba", onBack: () => undefined }));
     });
     await esperar();
-    await pulsar(boton("Informe para el cliente"));
+    await pulsar(boton("Informe de la propuesta"));
     await pulsar(boton("Descargar el informe", document.querySelector('[role="dialog"]')!));
     await esperar();
     const dialogo = document.querySelector('[role="dialog"]')!;

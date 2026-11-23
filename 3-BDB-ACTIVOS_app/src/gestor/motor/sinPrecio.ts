@@ -35,7 +35,10 @@ export function nombresDeLasSinPrecio(analisis: ConSinPrecio): string[] {
  * «A, B, C y otras 2». Con `ni`, la misma lista para una frase en negativo: «A ni B».
  */
 export function listaDeLasSinPrecio(analisis: ConSinPrecio, nexo: "y" | "ni" = "y"): string {
-  const nombres = nombresDeLasSinPrecio(analisis);
+  return unirNombres(nombresDeLasSinPrecio(analisis), nexo);
+}
+
+function unirNombres(nombres: string[], nexo: "y" | "ni"): string {
   if (nombres.length <= 1) return nombres[0] ?? "";
   if (nombres.length <= NOMBRES_ANTES_DE_CONTAR + 1) return `${nombres.slice(0, -1).join(", ")} ${nexo} ${nombres[nombres.length - 1]}`;
   return `${nombres.slice(0, NOMBRES_ANTES_DE_CONTAR).join(", ")} ${nexo} otras ${nombres.length - NOMBRES_ANTES_DE_CONTAR}`;
@@ -111,4 +114,31 @@ export function salvedadParaVariasCifras(salvedad: string, analisis: ConSinPreci
   const cuantas = analisis.sinPrecio.length;
   if (cuantas > 0 && salvedad === notaDeLasSinPrecio(analisis)) return `ninguna incluye ${listaDeLasSinPrecio(analisis, "ni")}, que no ${tienen(cuantas)} precio.`;
   return `cada una ${salvedad.charAt(0).toLowerCase()}${salvedad.slice(1)}`;
+}
+
+/* ------------------------------------------------------------------------------------- el coste corriente de los fondos */
+
+/**
+ * Junto a la cobertura del coste corriente estimado: los fondos sin precio no valieron nada en el periodo, no entran en la
+ * estimación ni en su cobertura, y esa cobertura no los cuenta como cero —no sabe lo que valen—: «No entra el coste corriente de
+ * Fondo B, que no tiene precio: no se conoce su valor, y la cobertura no lo cuenta.». `null` si no falta ninguno.
+ */
+export function notaDelCosteCorrienteSinPrecio(analisis: Pick<Analisis, "ingresosYCostes">): string | null {
+  const nombres = analisis.ingresosYCostes.sinPrecioFueraDeLosGastosCorrientes;
+  const parte = notaDelCosteCorrienteDeParteDelPeriodo(analisis);
+  if (nombres.length === 0) return parte;
+  const uno = nombres.length === 1;
+  const sinPrecio = `No entra el coste corriente de ${unirNombres(nombres, "ni")}, que no ${uno ? "tiene" : "tienen"} precio: no se conoce su valor, y la cobertura no ${uno ? "lo" : "los"} cuenta.`;
+  return parte ? `${sinPrecio} ${parte}` : sinPrecio;
+}
+
+/**
+ * Los fondos que tuvieron títulos sin valor —sin precio o sin cambio— solo una parte del periodo (H2-02, 22-11-2026): su coste
+ * corriente se estima con los días en que valieron, y la cifra es parcial: «El coste corriente de Fondo B solo cuenta los días
+ * en que tuvo valor: los días sin precio o sin tipo de cambio no entran.». `null` si no hay ninguno.
+ */
+export function notaDelCosteCorrienteDeParteDelPeriodo(analisis: Pick<Analisis, "ingresosYCostes">): string | null {
+  const nombres = analisis.ingresosYCostes.valoradosSoloParteDelPeriodo;
+  if (nombres.length === 0) return null;
+  return `El coste corriente de ${unirNombres(nombres, "y")} solo cuenta los días en que ${nombres.length === 1 ? "tuvo" : "tuvieron"} valor: los días sin precio o sin tipo de cambio no entran.`;
 }

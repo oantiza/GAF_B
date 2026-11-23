@@ -160,6 +160,20 @@ def test_map_asset_with_a_small_negative_class_validates_and_keeps_it():
     assert mapped["pms_exposure"]["fixed_income"] == -0.000844
 
 
+def test_map_asset_with_a_net_mix_with_leverage_validates_and_keeps_its_sign():
+    # C-29 (Oscar, 21-11-2026): el reparto neto del proveedor, que suma 1, con cortos y apalancamiento. ES0137396000 en el
+    # canonico del 17-11: 3,198089 + 0,115421 - 2,425742 + 0,112232 = 1. Ni se recorta a 0-1 ni se normaliza.
+    root = _rf_root(portfolio_exposure={"asset_mix": {"equity": 3.198089, "bond": 0.115421, "cash": -2.425742, "other": 0.112232}})
+    mapped = map_asset_detail(root, None, None)
+
+    _validator().validate(mapped)
+    reparto = mapped["pms_exposure"]
+    assert (reparto["equity"], reparto["fixed_income"], reparto["cash"], reparto["other"]) == (3.198089, 0.115421, -2.425742, 0.112232)
+    assert reparto["source"] == "PORTFOLIO_EXPOSURE"
+    assert abs(sum(reparto[k] for k in ("equity", "fixed_income", "cash", "alternative", "real_asset", "other")) - 1) < 1e-9
+    assert mapped["data_quality_summary"]["has_pms_exposure"] is True
+
+
 def test_map_asset_equity_fund_zero_bond_types_validates_with_null_profile():
     root = _rf_root(
         fixed_income_profile={"bond_sectors": {}},

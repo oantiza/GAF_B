@@ -1,6 +1,11 @@
+"""Politicas de historico de fondos y la identidad de sus posiciones.
+
+Las pruebas del inventario de calidad de la base vieja (`inventory_row`, `summary`, `refresh_inventory_if_due`) y de la
+ficha de ingesta (`build_profile`, `sanitized`) se fueron el 21-11-2026 con ese codigo (censo de la base vieja, decision 31).
+"""
 from copy import deepcopy
 import pytest
-from fund_data_quality import build_profile, normalize_holdings, sanitized
+from fund_data_quality import normalize_holdings
 from fund_history_quality import usable_documents, policy_for
 
 
@@ -93,14 +98,6 @@ def test_cash_currencies_and_identical_rows_keep_unique_stable_ids():
     assert normalize_holdings('LU0171304552',changed)[0]['holding_id']==actual[0]['holding_id']
 
 
-def test_enrichment_identity_and_sensitive_provenance():
-    with pytest.raises(ValueError):
-        build_profile('AAA',{'isin':'BBB'},{'_id':'AAA'},'2026-09-28')
-    assert sanitized({'api_token':'sensitive','kid':{'url':'https://issuer.test/kid.pdf'},
-                      'endpoint':'https://example.test/?api_token=secret'}) == {
-                          'kid':{'url':'https://issuer.test/kid.pdf'},'endpoint':None}
-
-
 def test_read_mapper_does_not_show_metrics_from_wrong_history():
     from readmodel.mappers import map_quant_metrics, quality_flags
     root={'asset_id':'LU0048293368','performance':{'returns':{'trailing_pct':{'3a_anualizada':{'fondo':10.75}}}}}
@@ -110,158 +107,3 @@ def test_read_mapper_does_not_show_metrics_from_wrong_history():
     assert mapped['annualized_return_3y']==.1075
     assert 'max_drawdown_hist' not in mapped
     assert 'HISTORY_RESTRICTED_AFTER_REVIEW' in quality_flags(root,mapped,{},'PARTIAL')
-
-
-def test_complete_small_portfolio_and_old_kid_are_classified_independently():
-    from datetime import date
-    from fund_data_quality import inventory_row
-    root={'asset_id':'TESTFUND','holdings_summary':{'full_holdings_loaded':True,'as_of_date':'2026-08-31'}}
-    profile={'regulatory':{'kid':{'url':'https://issuer.test/kid.pdf','date':'2025-08-31'}}}
-    row=inventory_row(root,profile,[],[{'name':'A'}],today=date(2026,9,28))
-    assert 'SOLO_POSICIONES_PRINCIPALES' not in row['flags']
-    assert 'KID_ANTIGUO' in row['flags']
-    root['holdings_summary']['full_holdings_loaded']=False
-    assert 'SOLO_POSICIONES_PRINCIPALES' in inventory_row(root,profile,[],[{}],today=date(2026,9,28))['flags']
-
-
-def test_portfolio_review_and_merger_survive_inventory_refresh():
-    from fund_data_quality import inventory_row
-    profile = {'holdings_review': {'review_flags': ['RECUENTO_POSICIONES_PENDIENTE',
-               'RECUENTO_POSICIONES_PENDIENTE', 'UNREVIEWED_VALUE']},
-               'corporate_action_review': {'status': 'DEREGISTERED_MERGER_VERIFIED'}}
-    row = inventory_row({'asset_id': 'TESTFUND'}, profile, [], [])
-    assert row['flags'].count('RECUENTO_POSICIONES_PENDIENTE') == 1
-    assert 'BAJA_CNMV_VERIFICADA' in row['flags']
-    assert 'UNREVIEWED_VALUE' not in row['flags']
-
-
-@pytest.mark.parametrize('isin', ['TESTFUND', 'IE00BYYPF581'])
-def test_monthly_reference_never_clears_daily_history_restrictions(isin):
-    from fund_data_quality import inventory_row, summary
-    profile = {'monthly_history_reference': {'status': 'VERIFIED_MONTHLY_REFERENCE',
-               'observations_count': 36, 'first_date': '2023-09-30', 'last_date': '2026-08-31'}}
-    row = inventory_row({'asset_id': isin}, profile, [], [])
-    assert row['reference_history_observations'] == 36
-    assert row['reference_history_last_date'] == '2026-08-31'
-    assert row['history_observations'] == 0
-    assert 'SIN_HISTORICO_UTILIZABLE' in row['flags']
-    report = summary([row], '2026-09-28')
-    assert report['with_monthly_reference'] == 1
-    assert report['with_history'] == 0
-    assert report['history_blocked'] == int(isin == 'IE00BYYPF581')
-    profile['monthly_history_reference']['status'] = 'PENDING_REVIEW'
-    unverified = inventory_row({'asset_id': isin}, profile, [], [])
-    assert unverified['reference_history_observations'] == 0
-    assert unverified['reference_history_first_date'] is None
-    assert summary([unverified], '2026-09-28')['with_monthly_reference'] == 0
-
-
-# ---------------------------------------------------------------------------
-# B-07 (auditoria 29-09): el inventario semanal recorria TODAS las price_series
-# de todos los FUND con documentos completos (puntos incluidos). Ahora lee solo
-# los campos resumen que usa, salvo para los fondos con politica de historico,
-# que necesitan los puntos para aplicar `usable_documents`.
-# ---------------------------------------------------------------------------
-
-class _Snap:
-    def __init__(self, id_, data, reference=None):
-        self.id = id_; self._data = data; self.exists = data is not None; self.reference = reference
-        self.update_time = 1
-    def to_dict(self):
-        return None if self._data is None else deepcopy(self._data)
-
-
-class _Query:
-    def __init__(self, coll, fields):
-        self.coll = coll; self.fields = fields
-    def stream(self):
-        self.coll.db.selects.append((self.coll.path, list(self.fields)))
-        return [_Snap(i, {k: v for k, v in d.items() if k in self.fields})
-                for i, d in self.coll.db.docs_in(self.coll.path)]
-
-
-class _Doc:
-    def __init__(self, db, path):
-        self.db = db; self.path = path
-    def get(self, field_paths=None):
-        data = self.db.data.get(self.path)
-        return _Snap(self.path.split('/')[-1], data, reference=self)
-    def collection(self, name):
-        return _Coll(self.db, self.path + '/' + name)
-    def update(self, payload, option=None):
-        self.db.updates.append((self.path, payload))
-
-
-class _Coll:
-    def __init__(self, db, path):
-        self.db = db; self.path = path
-    def document(self, name):
-        return _Doc(self.db, self.path + '/' + name)
-    def select(self, fields):
-        return _Query(self, fields)
-    def stream(self):
-        self.db.full_streams.append(self.path)
-        return [_Snap(i, d, reference=_Doc(self.db, self.path + '/' + i)) for i, d in self.db.docs_in(self.path)]
-
-
-class _Db:
-    def __init__(self, data):
-        self.data = data; self.selects = []; self.full_streams = []; self.updates = []
-    def collection(self, name):
-        return _Coll(self, name)
-    def docs_in(self, path):
-        return [(p.split('/')[-1], d) for p, d in self.data.items()
-                if p.startswith(path + '/') and p.count('/') == path.count('/') + 1]
-
-
-def _series(first, last, n, points=None):
-    doc = {'asset_id': 'X', 'first_date': first, 'last_date': last, 'observations_count': n,
-           'points': points or [{'date': first, 'value': 1}, {'date': last, 'value': 2}],
-           'interval': '1d', 'source': 'EODHD', 'metadata': {'big': 'x' * 10}}
-    return doc
-
-
-def test_weekly_inventory_projects_price_series_and_keeps_policy_points():
-    from datetime import datetime, timezone
-    from fund_data_quality import refresh_inventory_if_due
-    now = datetime(2026, 9, 28, 9, 0, tzinfo=timezone.utc)
-    con_politica = 'LU1299311164'  # usable_from 2015-11-19
-    db = _Db({
-        'meta/fund_data_quality': {'generated_at': '2026-09-01T00:00:00+00:00'},
-        'assets/TESTFUND': {'asset_id': 'TESTFUND', 'asset_type': 'FUND'},
-        'assets/TESTFUND/price_series/A_2024': _series('2024-01-02', '2024-12-31', 250),
-        'assets/TESTFUND/price_series/A_2025': _series('2025-01-02', '2026-09-25', 430),
-        'assets/' + con_politica: {'asset_id': con_politica, 'asset_type': 'FUND'},
-        'assets/%s/price_series/B_2013' % con_politica: _series(
-            '2013-01-10', '2015-11-19', 2,
-            points=[{'date': '2013-01-10', 'value': 905.22}, {'date': '2015-11-19', 'value': 100}]),
-        'assets/ES0000000001': {'asset_id': 'ES0000000001', 'asset_type': 'STOCK'},
-    })
-    assert refresh_inventory_if_due(db, now) is True
-    # Ninguna lectura de price_series con documentos completos.
-    assert not [p for p in db.full_streams if p.endswith('/price_series')]
-    fields = dict(db.selects)
-    assert 'points' not in fields['assets/TESTFUND/price_series']
-    assert {'first_date', 'last_date', 'observations_count'} <= set(fields['assets/TESTFUND/price_series'])
-    assert 'points' in fields['assets/%s/price_series' % con_politica]
-    (_path, payload), = db.updates
-    rows = {r['isin']: r for r in payload['rows']}
-    assert rows['TESTFUND']['history_first_date'] == '2024-01-02'
-    assert rows['TESTFUND']['history_last_date'] == '2026-09-25'
-    assert rows['TESTFUND']['history_observations'] == 680
-    assert 'HISTORICO_ANTIGUO' not in rows['TESTFUND']['flags']
-    # La politica sigue aplicandose sobre los puntos: el tramo pre-clase no cuenta.
-    assert rows[con_politica]['history_first_date'] == '2015-11-19'
-    assert rows[con_politica]['history_observations'] == 1
-    assert 'ES0000000001' not in rows
-
-
-def test_inventory_row_uses_summary_fields_when_points_are_not_loaded():
-    from datetime import date
-    from fund_data_quality import inventory_row
-    docs = [{'first_date': '2024-01-02', 'last_date': '2024-12-31', 'observations_count': 250},
-            {'first_date': '2025-01-02', 'last_date': '2026-09-25', 'observations_count': 430}]
-    row = inventory_row({'asset_id': 'TESTFUND'}, None, docs, [], today=date(2026, 9, 28))
-    assert (row['history_first_date'], row['history_last_date'], row['history_observations']) == (
-        '2024-01-02', '2026-09-25', 680)
-    assert 'SIN_HISTORICO_UTILIZABLE' not in row['flags']

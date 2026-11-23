@@ -14,8 +14,8 @@ import type { DatosDelInforme, SeccionDeInforme, TipoDeInforme } from "./tipos";
 
 /** Cada informe: su nombre en la cabecera de cada hoja, de qué trata y su tema. */
 const DOCUMENTOS: Record<TipoDeInforme, { nombre: string; asunto: string; tema: TemaDeInforme }> = {
-  cliente: { nombre: "Informe de cartera", asunto: "Informe de la cartera para el cliente", tema: "cliente" },
-  costes: { nombre: "Informe de costes", asunto: "Costes de la cartera en el periodo, para el cliente", tema: "cliente" },
+  cliente: { nombre: "Informe de la cartera", asunto: "Informe de la cartera para el cliente", tema: "cliente" },
+  costes: { nombre: "Costes de la cartera", asunto: "Costes de la cartera en el periodo, para el cliente", tema: "cliente" },
   asesor: { nombre: "Informe del asesor", asunto: "Informe de trabajo del asesor", tema: "interno" }
 };
 

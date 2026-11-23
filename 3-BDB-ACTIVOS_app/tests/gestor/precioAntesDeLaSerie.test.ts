@@ -157,6 +157,6 @@ describe("GES-1 · un hueco sin precio en el pasado es un error que se ve", () =
   test("si sigue sin precio en la fecha pedida, un solo error: el de siempre", () => {
     const antes = valorar(c, mercado, { hasta: "2020-01-05" });
     const sinPrecio = comprobarIntegridad(c, antes, "2020-01-05", mercado).avisos.filter((aviso) => aviso.codigo === "SIN_PRECIO");
-    expect(sinPrecio.map((aviso) => aviso.mensaje)).toEqual(["Activo B no tiene precio: cuenta como cero. Ponle un precio a mano."]);
+    expect(sinPrecio.map((aviso) => aviso.mensaje)).toEqual(["Activo B no tiene precio: cuenta como cero, y la rentabilidad de cualquier periodo que incluya esta fecha no vale. Ponle un precio a mano."]);
   });
 });

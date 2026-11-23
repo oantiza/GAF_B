@@ -109,7 +109,7 @@ describe("Análisis · serie parada (decisión B-78)", () => {
 
   test("el informe de cliente de aquí recibe las mismas posiciones paradas", async () => {
     await montar(true);
-    await pulsar("Informe para el cliente");
+    await pulsar("Informe de la propuesta");
     await pulsar("Descargar el informe");
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));

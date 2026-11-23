@@ -266,11 +266,48 @@ def test_desviacion_de_exposicion_por_region_bloquea_la_propuesta():
 
 
 def test_umbrales_desconocidos_se_ignoran_y_los_conocidos_se_aplican():
-    t = merge_thresholds({"max_substitutions": 2, "min_correlation": {"EQUITY": 0.99}, "selection_fraction": 5, "foo": 1})
+    t = merge_thresholds({"max_substitutions": 2, "min_correlation": {"EQUITY": 0.99}, "foo": 1})
     assert t["max_substitutions"] == 2
     assert t["min_correlation"]["EQUITY"] == 0.99 and t["min_correlation"]["DEFAULT"] == 0.65
     assert t["selection_fraction"] == pytest.approx(2 / 3)
     assert "foo" not in t
+    # P1-09: una fraccion de seleccion fuera de 0,3-0,9 ya no se cambia en silencio por la de defecto: se rechaza.
+    with pytest.raises(ImprovementInputError, match="selection_fraction"):
+        merge_thresholds({"selection_fraction": 5})
+
+
+@pytest.mark.parametrize("umbrales, campo", [
+    ({"exhaustive_limit": 1_000_000_000}, "exhaustive_limit"),    # tope 5.000: por encima, la busqueda es voraz
+    ({"rolling_weeks": 0}, "rolling_weeks"),                      # 0 compara cada semana consigo misma: 100 % siempre
+    ({"max_substitutions": float("inf")}, "max_substitutions"),   # antes, int(inf) era un error interno
+    ({"max_substitutions": float("nan")}, "max_substitutions"),
+    ({"max_substitutions": True}, "max_substitutions"),           # un booleano no es un numero
+    ({"max_substitutions": 6}, "max_substitutions"),              # la pantalla admite de 1 a 5
+    ({"max_substitutions": 2.5}, "max_substitutions"),            # entero
+    ({"max_proposals": 0}, "max_proposals"),
+    ({"rolling_step_weeks": 0}, "rolling_step_weeks"),
+    ({"min_consistency": 0.4}, "min_consistency"),                # por debajo de la mitad no es «la mayoria»
+    ({"max_volatility_increase": 0.06}, "max_volatility_increase"),  # 6 pp; la pantalla llega a 5
+    ({"max_volatility_increase": -0.01}, "max_volatility_increase"),
+    ({"max_volatility_increase": "0.01"}, "max_volatility_increase"),
+    ({"min_correlation": {"EQUITY": 1.5}}, "min_correlation.EQUITY"),
+    ({"min_correlation": ["EQUITY"]}, "min_correlation"),
+])
+def test_p1_09_umbrales_fuera_de_rango_se_rechazan_nombrando_el_campo(umbrales, campo):
+    with pytest.raises(ImprovementInputError, match=campo.replace(".", r"\.")):
+        merge_thresholds(umbrales)
+
+
+def test_p1_09_los_extremos_de_cada_rango_y_lo_que_manda_la_pantalla_se_aceptan():
+    # Lo que envia PortfolioImprovementPanel en sus extremos: 5 pp de volatilidad, 10 pp de caida y 10 pp de mejora.
+    t = merge_thresholds({"max_volatility_increase": 0.05, "max_drawdown_worsening": 0.10, "min_return_improvement": 0.10,
+                          "exhaustive_limit": 5000, "rolling_weeks": 26, "max_substitutions": 5.0, "min_consistency": 0.5})
+    assert t["max_volatility_increase"] == 0.05 and t["max_drawdown_worsening"] == 0.10
+    assert t["exhaustive_limit"] == 5000 and t["rolling_weeks"] == 26
+    assert t["max_substitutions"] == 5 and isinstance(t["max_substitutions"], int)
+    with pytest.raises(ImprovementInputError, match="objeto"):
+        merge_thresholds("todo")
+    assert merge_thresholds(None)["max_substitutions"] == 3
 
 
 def test_series_desalineadas_o_sin_pesos_son_entrada_invalida():
@@ -309,3 +346,91 @@ def test_una_ventana_de_menos_de_tres_semanas_falla_con_su_motivo_y_no_da_ceros(
             _wm(niveles, inicio, fin, 0.02)
     # Con tres semanas ya mide: de 100 a 121 en dos semanas son un 21 % acumulado.
     assert _wm([100.0, 110.0, 121.0], 0, 2, 0.0).cumulative == _pytest.approx(0.21)
+
+
+def _serie_semanal(retorno, n=WEEKS + 1):
+    out = [100.0]
+    for i in range(1, n):
+        out.append(out[-1] * (1 + retorno(i)))
+    return out
+
+
+def test_un_original_casi_monetario_no_deja_pasar_sin_correlacion_a_un_candidato_con_riesgo():
+    """Pendiente del 19-11-2026. Con el original por debajo del 2 % de volatilidad no se exigia correlacion a NINGUN candidato.
+
+    Cuenta a mano: una senal de amplitud a semanal (seno) tiene desviacion a/raiz(2), y anualizada a/raiz(2)*raiz(52):
+    M (a = 0,1 %) da un 0,51 %; N (0,1 %, otro ritmo) tambien, y R (0,6 %) un 3,06 %. Las tres son casi independientes
+    entre si (senos de frecuencias distintas), asi que el tracking error es la raiz de la suma de varianzas: M-N 0,72 %
+    (por debajo del 1,5 % de monetarios y del 4 % de renta fija) y M-R 3,10 % (por debajo del 4 %). Antes pasaban los dos;
+    ahora R, que tiene riesgo y no se mueve con M, se descarta por correlacion, y N, casi monetario como M, sigue pasando."""
+    m = _serie_semanal(lambda i: 0.0002 + 0.001 * math.sin(0.9 * i))
+    n = _serie_semanal(lambda i: 0.0002 + 0.001 * math.sin(2.1 * i + 1.0))
+    r = _serie_semanal(lambda i: 0.0004 + 0.006 * math.sin(1.7 * i + 2.0))
+    ordinales = day_ordinals(dates())
+    vol = {k: window_metrics(v, 0, WEEKS, 0.0, ordinales).volatility for k, v in {"M": m, "N": n, "R": r}.items()}
+    assert vol["M"] == pytest.approx(0.001 / math.sqrt(2) * math.sqrt(52), rel=0.1)
+    assert vol["R"] == pytest.approx(0.006 / math.sqrt(2) * math.sqrt(52), rel=0.1)
+    assert vol["M"] < 0.02 and vol["N"] < 0.02 and vol["R"] > 0.02
+    corr_mr, te_mr = pair_statistics(m, r, ordinales)
+    assert abs(corr_mr) < 0.2 and te_mr < 0.04
+    etiquetas = {k: {"asset_class": "FIXED_INCOME", "region": "Europa", "currency": "EUR"} for k in ("M", "N", "R")}
+    out = improve_portfolio(build({"M": m, "N": n, "R": r}, {"M": 1.0}, {"M": ["N", "R"]}, labels=etiquetas))
+    rechazados = {x["asset_id"]: x for x in out["rejected_candidates"].get("M", [])}
+    assert rechazados["R"]["reason"] == "LOW_CORRELATION"
+    assert "mínimo 0.60" in rechazados["R"]["detail"] and "casi monetario" in rechazados["R"]["detail"]
+    assert "N" not in rechazados
+
+
+# ---------------------------------------------------------------- P0-02 (auditoria del 20-11-2026)
+# FundA y FundB tienen la MISMA serie (semilla 1) y CandX es su equivalente mejor (misma semilla, mas deriva): CandX es
+# candidato valido de las dos posiciones a la vez, que es el caso que rompia `trial_weights`.
+P002_SERIES = {"FundA": levels(0.0010, 1), "FundB": levels(0.0010, 1), "FundC": levels(0.0008, 2), "CandX": levels(0.0022, 1)}
+P002_CANDIDATOS = {"FundA": ["CandX"], "FundB": ["CandX"]}
+P002_ETIQUETAS = {k: {"asset_class": "EQUITY", "region": "Global", "currency": "EUR"} for k in P002_SERIES}
+
+
+def _sumas(out):
+    return [math.fsum(p["weights"].values()) for p in out["proposals"]]
+
+
+def test_p0_02_caso_a_un_mismo_fondo_no_sustituye_a_dos_posiciones():
+    """Caso A: {FundA 2,5 %, FundB 47,5 %, FundC 50 %}, etiquetas completas.
+
+    Antes salia la combinacion {FundA->CandX, FundB->CandX} con pesos {FundC 0,50; CandX 0,475}: 0,50 + 0,475 = 0,975, el
+    2,5 % de FundA perdido. Ahora esa combinacion no se evalua y queda la de FundB->CandX:
+    FundA 0,025 + FundC 0,50 + CandX 0,475 = 1,000."""
+    out = improve_portfolio(build(P002_SERIES, {"FundA": 0.025, "FundB": 0.475, "FundC": 0.5}, P002_CANDIDATOS,
+                                  labels=P002_ETIQUETAS))
+    assert out["status"] == STATUS_PROPOSAL
+    for p in out["proposals"]:
+        destinos = [s["to_asset_id"] for s in p["substitutions"]]
+        assert len(destinos) == len(set(destinos))
+    assert all(abs(s - 1.0) <= 1e-9 for s in _sumas(out))
+    pesos = {tuple((s["from_asset_id"], s["to_asset_id"]) for s in p["substitutions"]): p["weights"] for p in out["proposals"]}
+    assert pesos[(("FundB", "CandX"),)] == {"FundA": pytest.approx(0.025), "FundC": pytest.approx(0.5), "CandX": pytest.approx(0.475)}
+    # Opciones por posicion: [nada, CandX] x [nada, CandX] = 4 combinaciones. (nada, nada) no cambia nada y (CandX, CandX)
+    # repite fondo: se evaluan 2. Antes eran 3.
+    assert out["evaluated_combinations"] == 2
+
+
+def test_p0_02_caso_b_sin_etiquetas_tampoco_desaparece_el_30_por_ciento():
+    """Caso B: {FundA 30 %, FundB 25 %, FundC 45 %}, sin etiquetas (los criterios de exposicion quedan NOT_EVALUABLE, que no
+    es FAIL). Antes salia {FundC 0,45; CandX 0,25}: 0,45 + 0,25 = 0,70, el 30 % de FundA perdido. Ahora quedan las dos
+    sustituciones de una en una:
+    FundA->CandX: FundB 0,25 + FundC 0,45 + CandX 0,30 = 1,00;  FundB->CandX: FundA 0,30 + FundC 0,45 + CandX 0,25 = 1,00."""
+    out = improve_portfolio(build(P002_SERIES, {"FundA": 0.30, "FundB": 0.25, "FundC": 0.45}, P002_CANDIDATOS))
+    assert out["status"] == STATUS_PROPOSAL
+    pesos = {tuple((s["from_asset_id"], s["to_asset_id"]) for s in p["substitutions"]): p["weights"] for p in out["proposals"]}
+    assert set(pesos) == {(("FundA", "CandX"),), (("FundB", "CandX"),)}
+    assert pesos[(("FundA", "CandX"),)] == {"FundB": pytest.approx(0.25), "FundC": pytest.approx(0.45), "CandX": pytest.approx(0.30)}
+    assert pesos[(("FundB", "CandX"),)] == {"FundA": pytest.approx(0.30), "FundC": pytest.approx(0.45), "CandX": pytest.approx(0.25)}
+    assert all(abs(s - 1.0) <= 1e-9 for s in _sumas(out))
+    assert out["evaluated_combinations"] == 2
+
+
+def test_p0_02_la_comprobacion_dura_no_deja_salir_pesos_que_no_suman_uno():
+    """0,50 + 0,475 = 0,975: falla. 0,5 + 0,5 + 5e-10 = 1,0000000005: dentro de la tolerancia de 1e-9."""
+    from optimization.improvement_engine import _check_weights_sum_to_one
+    with pytest.raises(RuntimeError, match="no 1"):
+        _check_weights_sum_to_one({"FundC": 0.5, "CandX": 0.475})
+    _check_weights_sum_to_one({"a": 0.5, "b": 0.5 + 5e-10})

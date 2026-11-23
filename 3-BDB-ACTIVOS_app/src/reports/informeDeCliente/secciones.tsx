@@ -171,6 +171,8 @@ const reparto: Seccion = {
             cifras={datos.composicionGlobal.map((fila) => ({ rotulo: fila.label, cifra: peso(fila.value / 100), color: COLOR_DE_LA_CLASE[fila.label] ?? SIN_CLASIFICAR }))}
           />
           {datos.loQueNoEntra ? <Texto style={s.pequeno}>{datos.loQueNoEntra}</Texto> : null}
+          {/* A-203: sin esta frase, las cuatro cifras sumarían menos de 100 sin decir por qué. */}
+          {datos.sinReparto ? <Texto style={s.pequeno}>{datos.sinReparto}</Texto> : null}
         </View>
         <View style={{ width: ANCHO_DE_CATEGORIAS, paddingLeft: 15, borderLeftWidth: 0.65, borderLeftColor: PAPEL.filete }}>
           <Texto style={[s.subtitulo, { marginTop: 4 }]}>Composición por categoría</Texto>
@@ -209,8 +211,9 @@ const cifras: Seccion = {
       {datos.fraseDelRespaldo ? <Texto style={s.pequeno}>{datos.fraseDelRespaldo}</Texto> : null}
       {/* Sin cifras, por qué: es lo que explica el «Falta el dato» de las cifras, y la guía manda aquí a leerlo. */}
       {datos.sinCifra ? <Nota>{datos.sinCifra}</Nota> : null}
-      {/* Bajo las cifras, solo el tipo sin riesgo (A-143). Una muestra lo sigue diciendo: no son cifras reales. */}
-      <Nota>{`${datos.notaDelTipoSinRiesgo}${datos.ilustrativas ? " Cifras ilustrativas, no operativas." : ""}`}</Nota>
+      {/* Bajo las cifras ya no va el tipo sin riesgo (Óscar, 22-11-2026: al cliente no le dice nada). Una muestra sigue diciendo que
+          no son cifras reales. */}
+      {datos.ilustrativas ? <Nota>Cifras ilustrativas, no operativas.</Nota> : null}
     </>
   )
 };
@@ -238,7 +241,13 @@ const geografia: Seccion = {
       .sort((a, b) => b.value - a.value);
     /* En % de la renta variable, lo que no entra no es de esa cuenta. Sin renta variable, las filas son de toda la cartera y lleva la suya (decisión 85). */
     const cifras = cifrasDelMapa(zonas, noDeclarado, sinSituar, datos.equityLookThrough ? 0 : datos.fueraDelReparto);
-    return <MapaDelMundo totales={totals} cifras={cifras} />;
+    return (
+      <>
+        <MapaDelMundo totales={totals} cifras={cifras} />
+        {/* A-211: el fondo que no declara su reparto de activos no entra en las regiones, y se dice. */}
+        {datos.sinRepartoEnLaGeografia ? <Texto style={s.pequeno}>{datos.sinRepartoEnLaGeografia}</Texto> : null}
+      </>
+    );
   }
 };
 
@@ -462,7 +471,9 @@ const solapamiento: Seccion = {
 const guia: Seccion = {
   id: "guia",
   titulo: "Guía de interpretación",
-  /* Seguida también (15-11-2026): abriendo hoja, el solapamiento se quedaba solo en la suya con media hoja en blanco. */
+  /* Abre siempre hoja (Óscar, 22-11-2026: «siempre un salto de página»). Del 15-11 al 22-11 iba seguida, para que el solapamiento no
+     se quedara solo en su hoja con media en blanco; ahora manda que la guía sea la hoja final, aparte. */
+  comienzo: "nueva",
   procede: () => true,
   juntoAlTitulo: 140,
   Contenido: ({ datos }) => {

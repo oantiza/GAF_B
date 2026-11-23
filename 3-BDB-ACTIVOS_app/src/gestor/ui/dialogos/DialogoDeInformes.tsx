@@ -29,8 +29,8 @@ import { SelectorDeReferencia } from "./SelectorDeReferencia";
 type Documento = "cliente" | "costes" | "asesor" | "excel";
 
 const DOCUMENTOS: Array<{ id: Documento; nombre: string; para: string; boton: string }> = [
-  { id: "cliente", nombre: "Informe del cliente", para: "Para entregar o enseñar en una reunión: breve y explicado, sin jerga.", boton: "Descargar el PDF" },
-  { id: "costes", nombre: "Informe de costes", para: "Para entregar al cliente: lo que ha costado la cartera, con el detalle de cada coste.", boton: "Descargar el PDF" },
+  { id: "cliente", nombre: "Informe de la cartera", para: "Para entregar o enseñar en una reunión: breve y explicado, sin jerga.", boton: "Descargar el PDF" },
+  { id: "costes", nombre: "Costes de la cartera", para: "Para entregar al cliente: lo que ha costado la cartera, con el detalle de cada coste.", boton: "Descargar el PDF" },
   { id: "asesor", nombre: "Informe del asesor", para: "Tu herramienta de trabajo: todo el detalle, la conciliación y los avisos.", boton: "Descargar el PDF" },
   { id: "excel", nombre: "Datos en Excel", para: "Una hoja por tema (resumen, posiciones, movimientos, rentabilidad mensual…) para trabajar las cifras en una hoja de cálculo.", boton: "Descargar el Excel" }
 ];

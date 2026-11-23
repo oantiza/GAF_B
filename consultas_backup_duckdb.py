@@ -24,7 +24,7 @@ BASE = Path(__file__).resolve().parent / "2-plataforma-datos" / "data" / "backup
 def es_copia_completa(carpeta: Path) -> bool:
     """Copia v2 terminada y verificada: manifiesto con el formato, assets.ndjson.gz
     y summary.json con verification PASS (el mismo criterio que la plataforma en
-    maintainLocalBackups.ts).
+    maintainLocalBackups.ts, borrado el 21-11-2026 con la base vieja).
 
     Una exportación interrumpida deja la carpeta sin manifest.json; el exportador
     escribe el manifiesto antes de verificar, así que sin PASS tampoco vale.

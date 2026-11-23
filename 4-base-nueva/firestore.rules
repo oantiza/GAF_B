@@ -21,7 +21,7 @@
 //   1. la ficha          -> `instruments/{isin}` y sus subcolecciones, documento a documento
 //   2. el buscador       -> consulta de grupo sobre `read` (las tarjetas)
 //   3. la salud          -> consulta de grupo sobre `quality`
-//   4. las carteras      -> `portfolios` y consulta de grupo sobre `targets`
+//   4. las carteras      -> `portfolios` y sus objetivos, por su ruta (sin consulta de grupo desde A-207)
 //
 // Desde el 13-11-2026 hay una quinta, del Gestor de carteras (`src/gestor/mercado/plataforma.ts`):
 //
@@ -85,9 +85,18 @@ service cloud.firestore {
     // Lo cazó la prueba del 02-11-2026, no la lectura del fichero.
     //
     // El comodín concede sobre CUALQUIER colección que se llame así, a cualquier
-    // profundidad. Aquí es inofensivo porque las tres solo existen bajo un instrumento o una
-    // cartera; si algún día nace otra con el mismo nombre, hereda este permiso sin que nadie
-    // lo decida, y por eso van nombradas una a una y no con un comodín de colección.
+    // profundidad, y como las reglas se combinan con O, gana a un `if false` más específico:
+    // una `portfolios/x/declared/y` se leería aunque el bloque de carteras diga que no. Por
+    // eso hay solo las que el navegador consulta de verdad, nombradas una a una.
+    //
+    // Hasta el 21-11-2026 había cinco: estas dos y `declared`, `computed` y `holdings_chunks`
+    // (P1-10 de la auditoría integral del 20-11). Medido ese día, el navegador solo lanza dos
+    // consultas de grupo, sobre `read` y sobre `quality` (`src/adapters/baseNuevaLecturaSdk.ts`);
+    // los bloques y los trozos de cartera los lee por su ruta, que cubre el comodín de
+    // `instruments`. Las Functions consultan `targets` en grupo, pero con la cuenta de servicio,
+    // que no pasa por estas reglas. Las tres sobraban, y abrían esos nombres en las carteras y
+    // los clientes. Si el navegador empieza otra consulta de grupo, su regla se añade aquí, con
+    // su nombre, y `probar-reglas.mjs` lo pide: sin ella la consulta da 403.
     match /{ruta=**}/read/{tarjeta} {
       allow read: if esAsesor();
       allow write: if false;
@@ -96,25 +105,12 @@ service cloud.firestore {
       allow read: if esAsesor();
       allow write: if false;
     }
-    match /{ruta=**}/declared/{bloque} {
-      allow read: if esAsesor();
-      allow write: if false;
-    }
-    match /{ruta=**}/computed/{bloque} {
-      allow read: if esAsesor();
-      allow write: if false;
-    }
-    match /{ruta=**}/holdings_chunks/{trozo} {
-      allow read: if esAsesor();
-      allow write: if false;
-    }
-    // Y los objetivos de cartera, que es donde esto se rompía de verdad. Concede por
-    // `advisor_id` —de quién es la cartera—, no por `set_by` —quién puso el peso—. Ver el
-    // bloque de carteras más abajo: el porqué está ahí, con la medición.
-    match /{ruta=**}/targets/{instrumento} {
-      allow read: if esAsesor() && resource.data.advisor_id == request.auth.uid;
-      allow write: if false;
-    }
+    // Y los objetivos de cartera ya NO tienen regla de grupo (A-207, 21-11-2026, decisión de Óscar).
+    // El navegador no lanza esa consulta desde el 04-11 (las carteras le llegan por la Function
+    // `list_portfolios`) y las Functions la hacen con la cuenta de servicio, que no pasa por
+    // reglas. Los objetivos se leen por su ruta, dentro de `portfolios/{cartera}/targets`, con
+    // el `advisor_id` del dueño (bloque de carteras, más abajo, con la medición de por qué).
+
 
     // El índice de búsqueda: tres documentos con las 1.077 entradas. Mismo criterio que el
     // catálogo, porque es una proyección suya.
@@ -251,8 +247,18 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/instruments/$(isin));
     }
 
+    // Firma de la sesión: el cliente guarda `user.email ?? user.uid`.
+    function signedBySession(value) {
+      return value == request.auth.uid
+        || ('email' in request.auth.token && value == request.auth.token.email);
+    }
+
+    // P1-10 (auditoría integral del 20-11-2026): `updated_by` va firmado por la sesión, como
+    // `created_by` y `undone_by` en las fotos de importación. Antes bastaba que fuera un texto,
+    // y un administrador podía dejar escrita la autoría de otro.
     function isValidCommercialRetro(isin) {
       return isValidIsin(isin)
+        && signedBySession(request.resource.data.updated_by)
         && request.resource.data.keys().hasOnly([
           'isin',
           'retro_pct',
@@ -318,10 +324,47 @@ service cloud.firestore {
           && request.resource.data.status in ['applied', 'undone']);
     }
 
-    // Firma de la sesión: el cliente guarda `user.email ?? user.uid`.
-    function signedBySession(value) {
-      return value == request.auth.uid
-        || ('email' in request.auth.token && value == request.auth.token.email);
+    // P1-10 (auditoría integral del 20-11-2026): el tipo y el tope de cada campo de la foto, al
+    // crearla y en cada cambio. Hasta entonces se validaban las claves, no lo que llevaban. Los
+    // topes salen de lo que escribe `commercialRetroStore.ts`:
+    //  - `previous` y `applied` son mapas con las MISMAS claves, una por fila de la importación,
+    //    y como mucho 5.000 (el catálogo tiene 1.334 instrumentos, y una retrocesión solo se
+    //    escribe sobre uno que exista); `applied_isins`, `undone_isins`, `applied_versions` y
+    //    `applied_batches` no pasan de ese número de filas.
+    //  - `file_name` es el nombre de un fichero (255, el tope de los sistemas de ficheros);
+    //    `error` es un mensaje, que el cliente corta a 2.000, como una nota.
+    //  - `counts` lleva solo las cinco acciones de la vista previa.
+    // Lo que no se puede mirar aquí es cada valor de los mapas: el documento entero lo acota
+    // Firestore en 1 MiB.
+    function isValidImportShape() {
+      let d = request.resource.data;
+      return d.import_id is string && d.import_id.size() <= 100
+        && d.created_by is string && d.created_by.size() <= 320
+        && (!d.keys().hasAny(['as_of_date'])
+          || (d.as_of_date is string && d.as_of_date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')))
+        && (!d.keys().hasAny(['file_name']) || d.file_name == null
+          || (d.file_name is string && d.file_name.size() <= 255))
+        && (!d.keys().hasAny(['scale']) || d.scale in ['porcentaje', 'fraccion'])
+        && (!d.keys().hasAny(['replace_all']) || d.replace_all is bool)
+        && (!d.keys().hasAny(['counts'])
+          || (d.counts is map
+            && d.counts.keys().hasOnly(['CREATE', 'UPDATE', 'UNCHANGED', 'DELETE', 'OUT_OF_MASTER'])))
+        && d.previous is map
+        && d.applied is map
+        && d.previous.size() <= 5000
+        && d.applied.size() == d.previous.size()
+        && d.applied.keys().hasOnly(d.previous.keys())
+        && (!d.keys().hasAny(['schema_version']) || d.schema_version == 2)
+        && (!d.keys().hasAny(['applied_isins'])
+          || (d.applied_isins is list && d.applied_isins.size() <= d.applied.size()))
+        && (!d.keys().hasAny(['undone_isins'])
+          || (d.undone_isins is list && d.undone_isins.size() <= d.applied.size()))
+        && (!d.keys().hasAny(['applied_versions'])
+          || (d.applied_versions is map && d.applied_versions.size() <= d.applied.size()))
+        && (!d.keys().hasAny(['applied_batches'])
+          || (d.applied_batches is int && d.applied_batches >= 0 && d.applied_batches <= d.applied.size()))
+        && (!d.keys().hasAny(['error']) || (d.error is string && d.error.size() <= 2000))
+        && (!d.keys().hasAny(['undone_by']) || (d.undone_by is string && d.undone_by.size() <= 320));
     }
 
     // ALTA-06 (auditoría 16-10-2026): la foto nace solo con las claves que escribe
@@ -390,9 +433,11 @@ service cloud.firestore {
       allow create: if isAdmin()
         && isValidImportReceipt(importId)
         && isValidImportCreation()
+        && isValidImportShape()
         && request.resource.data.status == 'partial';
       allow update: if isAdmin()
         && isValidImportReceipt(importId)
+        && isValidImportShape()
         && isValidImportUpdateKeys()
         && isValidImportUndoStamp()
         && isValidImportTransition();

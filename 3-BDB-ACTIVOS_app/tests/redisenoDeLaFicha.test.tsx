@@ -4,6 +4,7 @@ import { FichaInstrumento } from "../src/components/ficha/FichaInstrumento";
 import {
   pestanaDeLaSeccion,
   respuestaDeLaFicha,
+  MOTIVO_SIN_DIEZ_ANOS,
   rentabilidadesDelResumen,
   tipoEnFrase
 } from "../src/components/ficha/mapaDeLaFicha";
@@ -108,12 +109,12 @@ describe("las pestañas", () => {
 describe("el Resumen", () => {
   test("la tabla de rentabilidades por periodo lleva las mismas cifras que la sección", () => {
     const tabla = rentabilidadesDelResumen(FONDO_DE_MUESTRA)!;
-    expect(tabla.columnas).toEqual(["En el año", "1 año", "3 años", "5 años", "10 años"]);
+    expect(tabla.columnas).toEqual(["YTD", "1 año", "3 años", "5 años", "10 años"]);
     const delProveedor = seccion(FONDO_DE_MUESTRA, "rentabilidad").filas;
     expect(tabla.celdas[1]).toBe(delProveedor.find((fila) => fila.rotulo === "1 año")!.valor);
   });
 
-  test("la rentabilidad del año de nuestra tabla entra en el Resumen, se llame «YTD» o «En el año», con el rótulo del Resumen", () => {
+  test("la rentabilidad del año de nuestra tabla entra en el Resumen, se llame «YTD» o «En el año», con el rótulo del Resumen, «YTD»", () => {
     /* Nuestra tabla con la columna del año, como la compone `conColumnaDelAnio`: desde el 17-11-2026 se llama «YTD». */
     const conElAnio = (nombre: string): ModeloDeFicha => ({
       ...ACCION_DE_MUESTRA,
@@ -132,11 +133,31 @@ describe("el Resumen", () => {
     });
     for (const nombre of ["YTD", "En el año"]) {
       const tabla = rentabilidadesDelResumen(conElAnio(nombre))!;
-      expect(tabla.columnas).toEqual(["En el año", "1 año", "3 años", "5 años"]);
+      expect(tabla.columnas).toEqual(["YTD", "1 año", "3 años", "5 años", "10 años"]);
       expect(tabla.celdas[0]).toBe("+4,12 %");
     }
-    /* Sin la columna del año, el Resumen no se la inventa. */
-    expect(rentabilidadesDelResumen(ACCION_DE_MUESTRA)!.columnas).toEqual(["1 año", "3 años", "5 años"]);
+    /* Sin la columna del año, el Resumen no se la inventa. La de 10 años sí sale siempre (F3, 21-11-2026). */
+    expect(rentabilidadesDelResumen(ACCION_DE_MUESTRA)!.columnas).toEqual(["1 año", "3 años", "5 años", "10 años"]);
+  });
+
+  test("la columna de 10 años sale siempre: «No aplica» y su motivo si nuestra serie no llega, «Falta el dato» si no hay con qué saberlo (F3)", () => {
+    /* La acción de muestra trae nuestra tabla, sin columna de 10 años, y el proveedor no da esa ventana: la serie no llega. */
+    const conTabla = rentabilidadesDelResumen(ACCION_DE_MUESTRA)!;
+    expect(conTabla.celdas[3]).toEqual({ texto: "No aplica", ausencia: "no-aplica" });
+    expect(conTabla.motivos[3]).toBe(MOTIVO_SIN_DIEZ_ANOS);
+    expect(conTabla.motivos.slice(0, 3)).toEqual([undefined, undefined, undefined]);
+    /* Sin nuestra tabla no se sabe si la serie llega: falta el dato, sin motivo inventado. */
+    const sinTabla: ModeloDeFicha = {
+      ...ACCION_DE_MUESTRA,
+      secciones: ACCION_DE_MUESTRA.secciones.map((s) => (s.id === "metricas" ? { ...s, tabla: undefined, filas: [{ rotulo: "1 año", valor: "+1,00 %" }] } : s))
+    };
+    const resumen = rentabilidadesDelResumen(sinTabla);
+    if (resumen) {
+      expect(resumen.celdas.at(-1)).toEqual({ texto: "Falta el dato", ausencia: "falta" });
+      expect(resumen.motivos.at(-1)).toBeUndefined();
+    }
+    /* Y lo pinta la ficha: el motivo bajo su «No aplica». */
+    expect(pinta(ACCION_DE_MUESTRA)).toContain(`<span class="ficha__celda-motivo">${MOTIVO_SIN_DIEZ_ANOS}</span>`);
   });
 
   test("abre con la evolución y los bloques cortos, cada uno con su enlace a la pestaña del detalle", () => {

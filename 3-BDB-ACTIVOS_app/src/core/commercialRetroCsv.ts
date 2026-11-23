@@ -15,6 +15,7 @@ import type {
   CommercialRetroSheetColumns
 } from "../types/commercialRetro";
 
+import { celdaCsv } from "./celdaCsv";
 import { diaLocal } from "./fechaLocal";
 import { parseEuropeanNumber } from "./numberFormat";
 import { readSpreadsheetSheets } from "./importFileReader";
@@ -613,9 +614,9 @@ export function countCommercialRetroWrites(rows: CommercialRetroImportPreviewRow
 /* Exportación                                                               */
 /* ------------------------------------------------------------------------ */
 
+/* Una celda que una hoja de cálculo no ejecuta como fórmula, sin tocar las cifras (`celdaCsv`, P1-08). */
 function csvCell(value: string | number | undefined): string {
-  const text = String(value ?? "");
-  return /[;"\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  return celdaCsv(String(value ?? ""));
 }
 
 /* Se queda con su propio formato: es una celda del CSV de retrocesiones, que se vuelve a importar y abre una hoja de

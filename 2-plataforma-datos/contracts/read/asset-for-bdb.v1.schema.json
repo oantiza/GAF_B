@@ -181,7 +181,7 @@
     },
     "pms_exposure": {
       "type": "object",
-      "description": "El reparto por clase del activo, en fraccion y neto, tal como lo guarda la base. Sin minimum ni maximum: en la base nueva cada clase va de -0,01 a 1,01, porque declared/exposure admite que se salga de 0-1 hasta un punto (decision A-63 de Oscar, 05-11-2026), y la base vieja no se valida y trae de todo. Quien lo sume o lo dibuje tiene que aceptar un negativo pequeno.",
+      "description": "El reparto por clase del activo, en fraccion y neto, tal como lo guarda la base. Sin minimum ni maximum: en la base nueva cada clase va de -5 a 6, porque declared/exposure guarda el reparto NETO del proveedor, que suma 1, con sus cortos (una clase negativa) y su apalancamiento (una por encima de 1) (decision C-29 de Oscar, 21-11-2026; hasta ese dia, de -0,01 a 1,01 por la A-63), y la base vieja no se valida y trae de todo. Quien lo sume o lo dibuje tiene que aceptar un negativo y una clase por encima del 100 %: la suma ponderada de una cartera sigue siendo correcta, pero una barra o una porcion de aro no pueden ser negativas. Estado NOT_AVAILABLE (decision A-203 de Oscar, 21-11-2026): un fondo o ETF que no declara su reparto, o una posicion sin clase conocida, no tiene reparto, y el servidor lo marca con source = NOT_AVAILABLE. Las seis clases van entonces a cero porque este contrato las pide como numero, y ese cero NO es un reparto: quien lea el reparto mira source antes que las cifras, y con NOT_AVAILABLE no reparte ese peso en ninguna clase y lo cuenta aparte como sin reparto.",
       "additionalProperties": false,
       "required": [
         "equity",
@@ -212,7 +212,8 @@
           "type": "number"
         },
         "source": {
-          "type": "string"
+          "type": "string",
+          "description": "De donde sale el reparto. NOT_AVAILABLE (decision A-203, 21-11-2026) = el activo no tiene reparto declarado: las seis clases van a cero solo porque son obligatorias y no deben leerse como un reparto."
         }
       }
     },
@@ -272,7 +273,7 @@
         "null"
       ],
       "additionalProperties": false,
-      "description": "Perfil de renta fija del fondo (plan Mejorar cartera, fase 1). Solo FUND/ETF; ausente o null si la maestra no trae dato. Duraciones y vencimiento en anios; investment_grade_pct, high_yield_pct y yield_to_maturity en fraccion 0..1 (la maestra los guarda en %); bond_types = portfolio_exposure.bond_types en fraccion, omitido si todo es cero.",
+      "description": "Perfil de renta fija del fondo (plan Mejorar cartera, fase 1). Solo FUND/ETF; ausente o null si la maestra no trae dato. Duraciones y vencimiento en anios; investment_grade_pct, high_yield_pct y yield_to_maturity en fraccion 0..1 (la maestra los guarda en %); bond_types = portfolio_exposure.bond_types en fraccion, solo con sus partes mayores que cero, y omitido si no queda ninguna. Desde el 21-11-2026 (decision C-31 de Oscar) la base nueva guarda ese mapa neto, como lo da el proveedor: una parte puede ser negativa (la liquidez de un fondo con derivados) y otra pasar de 1. Aqui las negativas no se sirven, y la equivalencia de fondos compara el tipo de emisor sin ellas, como compara la mezcla de clases (C-29).",
       "properties": {
         "effective_duration": {
           "type": "number"

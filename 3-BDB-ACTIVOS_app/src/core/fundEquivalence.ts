@@ -167,12 +167,39 @@ const CLASS_NUMBER_PREFIX = new Set(["class", "clase", "cl", "share", "shares"])
  */
 export function familyKey(name: string | undefined): string {
   const tokens = fold(name ?? "").split(/[^a-z0-9]+/).filter(Boolean);
+  // 20-11-2026: la letra con número de la clase (A2, E2, I2, A1) se quita cuando va en la cola del nombre, entre los
+  // sufijos de clase y no antes de la estrategia: «World Mining Fund A2 EUR» y «E2 EUR Hedged» son el mismo fondo.
+  let cola = tokens.length;
+  while (cola > 0 && (CLASS_TOKENS.has(tokens[cola - 1]) || CLASS_DESIGNATOR.test(tokens[cola - 1]))) cola -= 1;
   return tokens
     .filter((token, index) => {
       if (CLASS_TOKENS.has(token)) return false;
+      if (index >= cola && CLASS_DESIGNATOR.test(token)) return false;
       return !(/^\d+$/.test(token) && CLASS_NUMBER_PREFIX.has(tokens[index - 1] ?? ""));
     })
     .join(" ");
+}
+
+/** Letra (o dos) con número de una clase: A2, E2, I2, A1, Z2. Solo cuenta en la cola del nombre (`familyKey`). */
+const CLASS_DESIGNATOR = /^[a-z]{1,2}\d{1,2}$/;
+
+/** Las letras sueltas de clase que lleva un nombre («Cartesio X FI» → x). */
+function letrasDeClase(name: string | undefined): string[] {
+  return fold(name ?? "").split(/[^a-z0-9]+/).filter((token) => token.length === 1 && CLASS_TOKENS.has(token));
+}
+
+/**
+ * Si dos nombres son clases del mismo fondo: la misma clave de familia, y no vacía. Con una clave de una sola palabra
+ * (20-11-2026) no basta: «Cartesio X» y «Cartesio Y» son dos fondos distintos de la misma gestora, y lo único que los
+ * separa es la letra, que en un nombre largo sería la de la clase. Con una sola palabra y letras distintas no se dice que
+ * sean el mismo fondo: pueden entrar como candidato normal, que pasa todas las comprobaciones.
+ */
+export function sameFundFamily(a: string | undefined, b: string | undefined): boolean {
+  const clave = familyKey(a);
+  if (clave === "" || clave !== familyKey(b)) return false;
+  if (clave.split(" ").length > 1) return true;
+  const [la, lb] = [letrasDeClase(a), letrasDeClase(b)];
+  return la.length === 0 || lb.length === 0 || la.join() === lb.join();
 }
 
 /* ------------------------------------------------------------ exposiciones */
@@ -202,6 +229,16 @@ export function exposureDistance(
   let total = 0;
   for (const key of keys) total += Math.abs((mapA.get(key) ?? 0) / sumA - (mapB.get(key) ?? 0) / sumB);
   return total / 2;
+}
+
+/**
+ * El tipo de emisor se compara sin los derivados (Óscar, 21-11-2026, decisión 41). Desde la C-33 el reparto los trae,
+ * casi siempre como cobertura: dicen cómo se cubre el fondo, no en qué invierte, y en un fondo con los derivados en
+ * positivo y la liquidez en negativo llegaban a ser el 82 % de lo comparado (Gestión Talento).
+ */
+export function sinDerivados(mapa: Record<string, number> | null | undefined): Record<string, number> | null | undefined {
+  if (!mapa || !("derivative" in mapa)) return mapa;
+  return Object.fromEntries(Object.entries(mapa).filter(([clave]) => clave !== "derivative"));
 }
 
 function assetMixMap(exposure: BdbPmsExposure | undefined): Record<string, number> | null {
@@ -354,7 +391,7 @@ function buildCriteria(original: BdbAssetDetail, candidate: BdbAssetDetail, opti
       original: bandA === "IG" ? "Grado de inversión" : bandA === "HY" ? "Alto rendimiento" : undefined,
       candidate: bandB === "IG" ? "Grado de inversión" : bandB === "HY" ? "Alto rendimiento" : undefined
     });
-    criteria.push(compareExposure("bond_types", "Tipo de emisor", a?.bond_types, b?.bond_types, options.exposureTolerance, 1.5));
+    criteria.push(compareExposure("bond_types", "Tipo de emisor", sinDerivados(a?.bond_types), sinDerivados(b?.bond_types), options.exposureTolerance, 1.5));
   }
   return criteria;
 }
@@ -385,8 +422,7 @@ export function assessFundEquivalence(
   const shared = criteria.filter((c) => c.status === "MATCH").map(describe);
   const differing = criteria.filter((c) => c.status === "DIFFERS").map(describe);
   const missing = criteria.filter((c) => c.status === "UNKNOWN").map(describe);
-  const sameFamily = original.asset_id !== candidate.asset_id
-    && familyKey(original.display_name) !== "" && familyKey(original.display_name) === familyKey(candidate.display_name);
+  const sameFamily = original.asset_id !== candidate.asset_id && sameFundFamily(original.display_name, candidate.display_name);
 
   const byKey = new Map(criteria.map((c) => [c.key, c]));
   const blocking = criteria.find((c) => c.blocking && c.status === "DIFFERS");
@@ -410,7 +446,7 @@ export function assessFundEquivalence(
   } else if (assetMix.status === "DIFFERS") {
     verdict = "NOT_EQUIVALENT";
     reason = `La mezcla de activos difiere (${assetMix.detail}).`;
-  } else if (options.requireSameDistribution && distribution.status !== "MATCH") {
+  } else if (options.requireSameDistribution && distribution.status !== "MATCH" && score >= 0.5) {
     verdict = "COMPARABLE";
     reason = distribution.status === "DIFFERS"
       ? "Distinta política de distribución (inferida del nombre): las series en NAV no son comparables sin reinvertir el reparto."

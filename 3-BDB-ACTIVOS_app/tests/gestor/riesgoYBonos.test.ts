@@ -139,6 +139,65 @@ describe("bonos", () => {
     ]);
   });
 
+  it("un primer cupón corto paga solo lo devengado desde la emisión (P2-05)", () => {
+    /*
+     * Emitido el 01-09-2024, con cupones el 15-06: el primero cubre del 01-09-2024 al 15-06-2025,
+     * 287 días de un periodo regular de 365 (15-06-2024 a 15-06-2025). ACT/ACT ICMA:
+     * 3,5 % × 287 / 365 = 2,752055 % del nominal, no el 3,5 % entero. El segundo ya es regular.
+     */
+    const corto = { ...anual, emision: "2024-09-01" };
+    const pagos = calendarioDelBono(corto, "2024-09-01", "2026-12-31");
+    expect(pagos.map((p) => p.fecha)).toEqual(["2025-06-15", "2026-06-15"]);
+    expect(pagos[0].fraccion).toBeCloseTo((0.035 * 287) / 365, 12);
+    expect(pagos[1].fraccion).toBe(0.035);
+    /* El corrido de la víspera (286 días) queda por debajo del cupón que se cobra al día siguiente. */
+    expect(cuponCorrido(corto, "2025-06-14")).toBeCloseTo((0.035 * 286) / 365, 12);
+    expect(cuponCorrido(corto, "2025-06-14")).toBeLessThan(pagos[0].fraccion);
+    /*
+     * En 30/360 semestral, emitido el 15-08-2030 con cupones a fin de mes: del 15-08 al 31-12
+     * son (12 − 8) × 30 + (30 − 15) = 135 días; 4 % × 135 / 360 = 1,5 %, no el 2 % del semestre.
+     */
+    const ultimo = calendarioDelBono({ ...semestral, emision: "2030-08-15" }, "2030-07-01", "2031-01-01");
+    expect(ultimo.map((p) => [p.fecha, p.clase])).toEqual([["2030-12-31", "cupon"], ["2030-12-31", "vencimiento"]]);
+    expect(ultimo[0].fraccion).toBeCloseTo((0.04 * 135) / 360, 12);
+    expect(ultimo[1].fraccion).toBe(1);
+  });
+
+  it("en ACT/360 y ACT/365 un cupón regular paga los días del periodo entre la base (A-204)", () => {
+    /*
+     * Semestral al 4 %, con cupones a fin de mes (30-06 y 31-12). El semestre del 31-12-2029 al
+     * 30-06-2030 tiene 31 + 28 + 31 + 30 + 31 + 30 = 181 días; el del 30-06-2030 al 31-12-2030,
+     * 31 + 31 + 30 + 31 + 30 + 31 = 184.
+     *   ACT/360: 4 % × 181 / 360 = 2,011111 %   y   4 % × 184 / 360 = 2,044444 %
+     *   ACT/365: 4 % × 181 / 365 = 1,983562 %   y   4 % × 184 / 365 = 2,016438 %
+     * No el 2 % de cupón / frecuencia, que dejaba el corrido de la víspera por encima del cupón.
+     */
+    const a360: CondicionesDelBono = { ...semestral, base: "ACT/360" };
+    const a365: CondicionesDelBono = { ...semestral, base: "ACT/365" };
+    const pagos360 = calendarioDelBono(a360, "2030-01-01", "2030-12-31").filter((p) => p.clase === "cupon");
+    const pagos365 = calendarioDelBono(a365, "2030-01-01", "2030-12-31").filter((p) => p.clase === "cupon");
+    expect(pagos360.map((p) => p.fecha)).toEqual(["2030-06-30", "2030-12-31"]);
+    expect(pagos360[0].fraccion).toBeCloseTo((0.04 * 181) / 360, 12);
+    expect(pagos360[1].fraccion).toBeCloseTo((0.04 * 184) / 360, 12);
+    expect(pagos365[0].fraccion).toBeCloseTo((0.04 * 181) / 365, 12);
+    expect(pagos365[1].fraccion).toBeCloseTo((0.04 * 184) / 365, 12);
+    expect(pagos360[1].fraccion * 10000).toBeCloseTo(204.44, 2);
+    expect(pagos365[0].fraccion * 10000).toBeCloseTo(198.36, 2);
+    /*
+     * La víspera del cupón del 31-12-2030 lleva 183 días: 4 % × 183 / 360 = 2,033333 % y
+     * 4 % × 183 / 365 = 2,005479 %, los dos por encima del 2 % de antes y por debajo del cupón de ahora.
+     */
+    expect(cuponCorrido(a360, "2030-12-30")).toBeCloseTo((0.04 * 183) / 360, 12);
+    expect(cuponCorrido(a365, "2030-12-30")).toBeCloseTo((0.04 * 183) / 365, 12);
+    expect(cuponCorrido(a360, "2030-12-30")).toBeGreaterThan(0.02);
+    expect(cuponCorrido(a365, "2030-12-30")).toBeGreaterThan(0.02);
+    expect(cuponCorrido(a360, "2030-12-30")).toBeLessThan(pagos360[1].fraccion);
+    expect(cuponCorrido(a365, "2030-12-30")).toBeLessThan(pagos365[1].fraccion);
+    /* ACT/ACT y 30/360 siguen pagando cupón / frecuencia en un periodo regular. */
+    expect(calendarioDelBono({ ...semestral, base: "ACT/ACT" }, "2030-01-01", "2030-12-31").filter((p) => p.clase === "cupon").map((p) => p.fraccion)).toEqual([0.02, 0.02]);
+    expect(calendarioDelBono(semestral, "2030-01-01", "2030-12-31").filter((p) => p.clase === "cupon").map((p) => p.fraccion)).toEqual([0.02, 0.02]);
+  });
+
   it("un bono se valora con precio limpio más cupón corrido", () => {
     /*
      * 10.000 de nominal al 98,5 % el 01-08-2024: 9.850 € más 45,07 € de cupón corrido = 9.895,07 €,

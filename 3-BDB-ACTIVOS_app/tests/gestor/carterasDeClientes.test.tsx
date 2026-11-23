@@ -66,7 +66,7 @@ async function escribir(input: HTMLInputElement, valor: string) {
 describe("la entrada: Carteras de clientes", () => {
   it("la cabecera dice dónde están las carteras, con «Nueva cartera» como principal, «Importar extractos» y lo demás en «Más»", async () => {
     window.scrollTo = (() => undefined) as typeof window.scrollTo;
-    control.almacen = { nombre: "Carteras", listar: async () => [resumen("Familia García", "Marta García")] } as unknown as AlmacenDeCarteras;
+    control.almacen = { nombre: "Carteras", retiradas: async () => [], listar: async () => [resumen("Familia García", "Marta García")] } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     await esperar(() => (document.body.textContent ?? "").includes("Familia García"));
     expect(document.body.querySelector("h1")?.textContent).toBe("Carteras de clientes");
@@ -83,7 +83,7 @@ describe("la entrada: Carteras de clientes", () => {
 
   it("buscar filtra la lista por el nombre de la cartera o del cliente, sin mirar tildes ni mayúsculas", async () => {
     window.scrollTo = (() => undefined) as typeof window.scrollTo;
-    control.almacen = { nombre: "Carteras", listar: async () => [resumen("Familia García", "Marta García"), resumen("Familia Ruiz", "Luis Ruiz"), resumen("Sociedad Olmo")] } as unknown as AlmacenDeCarteras;
+    control.almacen = { nombre: "Carteras", retiradas: async () => [], listar: async () => [resumen("Familia García", "Marta García"), resumen("Familia Ruiz", "Luis Ruiz"), resumen("Sociedad Olmo")] } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     await esperar(() => document.body.querySelectorAll("tbody tr").length === 3);
     const buscar = document.body.querySelector<HTMLInputElement>('input[type="search"]')!;
@@ -101,18 +101,18 @@ describe("la entrada: Carteras de clientes", () => {
 
   it("estados: leyendo la carpeta, carpeta vacía y carpeta que no se puede leer", async () => {
     window.scrollTo = (() => undefined) as typeof window.scrollTo;
-    control.almacen = { nombre: "Carteras", listar: () => new Promise(() => undefined) } as unknown as AlmacenDeCarteras;
+    control.almacen = { nombre: "Carteras", retiradas: async () => [], listar: () => new Promise(() => undefined) } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     expect(document.body.textContent).toContain("Leyendo la carpeta de carteras…");
     await pintado.desmontar();
 
-    control.almacen = { nombre: "Carteras", listar: async () => [] } as unknown as AlmacenDeCarteras;
+    control.almacen = { nombre: "Carteras", retiradas: async () => [], listar: async () => [] } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     await esperar(() => (document.body.textContent ?? "").includes("Aún no hay carteras"));
     expect(boton("Ver la cartera de demostración")).toBeDefined();
     await pintado.desmontar();
 
-    control.almacen = { nombre: "Carteras", listar: async () => { throw new Error("Sin permiso para leer la carpeta."); } } as unknown as AlmacenDeCarteras;
+    control.almacen = { nombre: "Carteras", retiradas: async () => [], listar: async () => { throw new Error("Sin permiso para leer la carpeta."); } } as unknown as AlmacenDeCarteras;
     pintado = await pintar(<GestorDeCarterasPage />);
     await esperar(() => (document.body.textContent ?? "").includes("No se puede leer la carpeta de carteras"));
     expect(document.body.textContent).toContain("Sin permiso para leer la carpeta.");
@@ -230,15 +230,17 @@ function celdas(tabla: HTMLElement, nombreDeLaFila: string): Record<string, stri
 describe("un dato que falta se dice, no se deja en blanco", () => {
   it("Cuentas: una posición sin precio lo dice en Precio, y una sin coste conocido, en Coste", async () => {
     /*
+     * El cambio del dólar empieza el 04-01, el día después de las dos compras.
      * B, una acción en dólares comprada pagando en euros, sin precio declarado y sin serie de mercado: el precio implícito
-     * de la operación se deduce con el cambio de ese día (A-196), y aquí no hay ningún cambio, así que B no tiene ningún
+     * de la operación se deduce con el cambio de ese día (A-196), y ese día no hay ninguno, así que B no tiene ningún
      * precio. Su coste sí se sabe: 1.000 € pagados.
-     * C, en dólares, comprada con dólares y sin ningún cambio a euros: se sabe su precio (120 $ por título, el de la
-     * operación), pero no lo que costó en la divisa de la cartera.
+     * C, en dólares, comprada con dólares el 03-01, sin cambio a euros ese día: se sabe su precio (120 $ por título, el de
+     * la operación), pero no lo que costó en la divisa de la cartera. Hoy sí hay cambio, y se valora. (Sin ningún cambio,
+     * tampoco tendría valor: va como una sin precio desde el 22-11-2026.)
      */
     const B = activo("B", "ACCION", "USD");
     const C = activo("C", "ACCION", "USD");
-    const mercado: MercadoCargado = { datos: { precios: new Map(), cambios: new Map() }, fichas: new Map(), avisos: [] };
+    const mercado: MercadoCargado = { datos: { precios: new Map(), cambios: new Map([["USD", serie(["2025-01-04", 1.25])]]) }, fichas: new Map(), avisos: [] };
     const conHuecos = cartera([B, C], [
       mov("aportacion", "2025-01-02", { importe: "2000" }),
       mov("aportacion", "2025-01-02", { importe: "600", divisa: "USD" }),

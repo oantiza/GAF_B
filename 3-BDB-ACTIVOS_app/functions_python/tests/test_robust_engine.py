@@ -297,3 +297,100 @@ def test_frontier_points_are_deduplicated():
         keys = [(round(p["volatility"], 7), round(p["expected_return"], 7)) for p in frontier]
         assert len(keys) == len(set(keys))
 
+
+# --- P2-03 (auditoria del 20-11-2026): reintento con CLARABEL y reserva segura en ABSOLUTE_VOL ---------------------
+
+def _falla_con_el_solver_por_defecto(monkeypatch, metodo, tambien_clarabel=False):
+    """Simula que OSQP (el solver por defecto, `solver=None`) no resuelve `metodo`; con `tambien_clarabel`, ninguno."""
+    from pypfopt import EfficientFrontier
+    original = getattr(EfficientFrontier, metodo)
+
+    def envuelto(self, *args, **kwargs):
+        if self._solver is None or tambien_clarabel:
+            raise RuntimeError(f"solver simulado: {metodo}")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(EfficientFrontier, metodo, envuelto)
+
+
+def _absoluta(tv):
+    ids, M = _universe(seed=5)
+    return re.solve(ids, M, objective="TARGET_RISK", risk_target_mode="ABSOLUTE_VOL", target_volatility=tv)
+
+
+def test_absolute_vol_retries_with_clarabel(monkeypatch):
+    # La frontera de este universo va de ~2,6 % a ~5,8 %: un 4 % se alcanza. Antes, si OSQP fallaba, la propuesta era la
+    # de maximo riesgo (5,84 %) con el aviso de que el 4 % pasaba de la maxima.
+    _falla_con_el_solver_por_defecto(monkeypatch, "efficient_risk")
+    r = _absoluta(0.04)
+    assert r["target_portfolio"]["volatility"] == pytest.approx(0.04, abs=1e-5)
+    assert not any(w.startswith("TARGET_ABSOLUTE_VOL") for w in r["warnings"])
+
+
+def test_absolute_vol_without_any_solver_takes_the_closest_point_not_above_the_target(monkeypatch):
+    _falla_con_el_solver_por_defecto(monkeypatch, "efficient_risk", tambien_clarabel=True)
+    r = _absoluta(0.04)
+    frontera = r["frontier"]
+    por_debajo = [p for p in frontera if p["volatility"] <= 0.04]
+    assert frontera[0]["volatility"] < 0.04 < frontera[-1]["volatility"]
+    assert r["target_portfolio"]["volatility"] <= 0.04
+    assert r["target_portfolio"]["volatility"] == max(p["volatility"] for p in por_debajo)
+    assert r["target_portfolio"]["volatility"] < frontera[-1]["volatility"]
+    assert "TARGET_ABSOLUTE_VOL_FROM_FRONTIER" in r["warnings"]
+    assert "TARGET_ABSOLUTE_VOL_CLIPPED_HIGH" not in r["warnings"], "el 4 % no pasa de la maxima: decirlo seria falso"
+
+
+def test_absolute_vol_above_the_frontier_without_any_solver_is_the_top_and_says_so(monkeypatch):
+    _falla_con_el_solver_por_defecto(monkeypatch, "efficient_risk", tambien_clarabel=True)
+    r = _absoluta(0.20)
+    assert r["target_portfolio"]["weights"] == r["frontier"][-1]["weights"]
+    assert "TARGET_ABSOLUTE_VOL_CLIPPED_HIGH" in r["warnings"]
+    assert "TARGET_ABSOLUTE_VOL_FROM_FRONTIER" not in r["warnings"]
+
+
+def test_group_probe_retries_before_saying_there_is_no_solution(monkeypatch):
+    # Antes: «Sin solución: ninguna cartera cumple a la vez estos límites por grupo…» solo porque OSQP fallaba.
+    _falla_con_el_solver_por_defecto(monkeypatch, "min_volatility")
+    ids, M = _universe(seed=5)
+    grupos = [{"dimension": "asset_class", "mapper": {a: a[:2] for a in ids}, "upper": {"RV": 0.7}}]
+    r = re.solve(ids, M, risk_slider=5, group_constraints=grupos)
+    assert sum(w for a, w in r["target_portfolio"]["weights"].items() if a.startswith("RV")) <= 0.7 + 1e-6
+
+
+def test_turnover_probe_retries_before_saying_there_is_no_solution(monkeypatch):
+    _falla_con_el_solver_por_defecto(monkeypatch, "min_volatility")
+    ids, M = _universe(seed=5)
+    actual = {a: 1 / len(ids) for a in ids}
+    r = re.solve(ids, M, risk_slider=5, current_weights=actual, max_turnover=0.5)
+    movido = sum(abs(r["target_portfolio"]["weights"][a] - actual[a]) for a in ids)
+    assert movido <= 0.5 + 1e-6
+
+
+def test_max_return_retries_and_the_qp_frontier_keeps_its_points(monkeypatch):
+    # Antes, con un candado (frontera por QP), la frontera se quedaba en un solo punto, la minima volatilidad, sin aviso.
+    _falla_con_el_solver_por_defecto(monkeypatch, "_max_return")
+    ids, M = _universe(seed=5)
+    r = re.solve(ids, M, risk_slider=5, locked_weights={ids[0]: 0.10})
+    assert len(r["frontier"]) > 3
+
+
+def test_target_return_max_return_retries(monkeypatch):
+    # Antes: error interno, aunque el objetivo se alcanzaba.
+    _falla_con_el_solver_por_defecto(monkeypatch, "_max_return")
+    ids, M = _universe(seed=5)
+    r = re.solve(ids, M, objective="TARGET_RETURN", target_return=0.03)
+    assert r["target_portfolio"] is not None
+
+
+def test_condition_number_without_positive_eigenvalues_is_empty_and_serialisable():
+    import json
+    assert re._cond(np.zeros((3, 3))) == (None, 0.0)
+    _S, meta = re.estimate_covariance(np.zeros((160, 3)).tolist(), ["A", "B", "C"])
+    assert meta["condition_number"] is None
+    json.dumps(meta, allow_nan=False)
+
+
+def test_condition_number_is_the_ratio_of_the_extreme_positive_eigenvalues():
+    # diag(4, 1, 0): autovalores positivos 4 y 1, numero de condicion 4.
+    assert re._cond(np.diag([4.0, 1.0, 0.0])) == (4.0, 0.0)
+

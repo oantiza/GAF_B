@@ -134,7 +134,7 @@ describe('un instrumento retirado entero', () => {
     });
 });
 
-describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () => {
+describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70, B-82 y B-83)', () => {
     const rutas = BORRADOS_APROBADOS.map((aprobado) => aprobado.ruta);
     const deHoneywell = rutas.filter((ruta) => ruta.includes('US4385162056'));
     const dePrysmian = rutas.filter((ruta) => ruta.includes('IT0004176001') || ruta === 'issuers/ISS_000478');
@@ -152,12 +152,24 @@ describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () =
         US98389B1008: [1973, 1983] //  Xcel Energy: el 05-11-1984
     };
     const deLasRecortadas = rutas.filter((ruta) => Object.keys(RECORTADAS).some((isin) => ruta.includes(isin)));
+    /* Las siete del 21-11-2026 (B-83), el mismo caso. */
+    const RECORTADAS_21_11: Record<string, [number, number]> = {
+        CH0012214059: [1987, 1994], // Holcim: hoy empieza el 02-08-1995
+        FI0009000681: [1986, 1990], // Nokia: hoy empieza el 30-01-1991
+        US1667641005: [1962, 1983], // Chevron: hoy empieza el 05-11-1984
+        US6516391066: [1980, 1983], // Newmont: hoy empieza el 05-11-1984
+        US65339F1012: [1973, 1983], // NextEra Energy: hoy empieza el 05-11-1984
+        US7427181091: [1962, 1983], // Procter & Gamble: hoy empieza el 05-11-1984
+        US9311421039: [1972, 1983], // Walmart: hoy empieza el 05-11-1984
+    };
+    const deLasRecortadas2111 = rutas.filter((ruta) => Object.keys(RECORTADAS_21_11).some((isin) => ruta.includes(isin)));
 
-    it('son 182, sin repetir y sin ninguna más', () => {
-        /* 149 hasta la B-70, y 33 de la B-82: 4 + 2 + 4 + 4 + 8 + 11. */
-        expect(rutas).toHaveLength(182);
-        expect(new Set(rutas).size).toBe(182);
+    it('son 266, sin repetir y sin ninguna más', () => {
+        /* 149 hasta la B-70, 33 de la B-82 (4 + 2 + 4 + 4 + 8 + 11) y 84 de la B-83 (8 + 5 + 22 + 4 + 11 + 22 + 12). */
+        expect(rutas).toHaveLength(266);
+        expect(new Set(rutas).size).toBe(266);
         expect(deLasRecortadas).toHaveLength(33);
+        expect(deLasRecortadas2111).toHaveLength(84);
         expect(deHoneywell).toHaveLength(74);
         expect(dePrysmian).toHaveLength(12);
         expect(deAllianz).toHaveLength(5);
@@ -222,6 +234,20 @@ describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () =
             expect(aprobado).toMatchObject({ decision: 'decisión B-82 de Óscar', fecha: '2026-11-16' });
             expect(aprobado.motivo).toContain('EODHD recortó la serie');
             /* El instrumento se queda: solo sobran años de su serie. */
+            expect(aprobado.instrumento_retirado).toBeUndefined();
+        }
+    });
+
+    it('de cada una de las siete del 21-11 salen los años enteros anteriores al primero que hoy da el proveedor, y nada más (decisión B-83)', () => {
+        for (const [isin, [desde, hasta]] of Object.entries(RECORTADAS_21_11)) {
+            const suyas = rutas.filter((ruta) => ruta.includes(isin));
+            const esperadas = Array.from({ length: hasta - desde + 1 }, (_, i) => `instruments/${isin}/price_series/${desde + i}`);
+            expect(suyas, isin).toEqual(esperadas);
+        }
+        for (const ruta of deLasRecortadas2111) {
+            const aprobado = BORRADOS_APROBADOS.find((candidato) => candidato.ruta === ruta)!;
+            expect(aprobado).toMatchObject({ decision: 'decisión B-83 de Óscar', fecha: '2026-11-21' });
+            expect(aprobado.motivo).toContain('EODHD recortó la serie');
             expect(aprobado.instrumento_retirado).toBeUndefined();
         }
     });
@@ -297,9 +323,12 @@ describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () =
             const esDeIusq = deIusq.includes(aprobado.ruta);
             const esDeBlackRock = deBlackRock.includes(aprobado.ruta);
             const esRecortada = deLasRecortadas.includes(aprobado.ruta);
-            expect(aprobado.instrumento_retirado).toBe(esDeAllianz || esDeIusq || esDeBlackRock || esRecortada ? undefined : true);
+            const esRecortada2111 = deLasRecortadas2111.includes(aprobado.ruta);
+            expect(aprobado.instrumento_retirado).toBe(esDeAllianz || esDeIusq || esDeBlackRock || esRecortada || esRecortada2111 ? undefined : true);
             expect(aprobado.decision).toContain(
-                esRecortada
+                esRecortada2111
+                    ? 'decisión B-83'
+                    : esRecortada
                     ? 'decisión B-82'
                     : esDeAllianz
                     ? 'decisión 49'
@@ -314,12 +343,12 @@ describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () =
                             : 'decisión 44'
             );
             expect(aprobado.fecha).toBe(
-                esRecortada ? '2026-11-16' : esDeIusq || esDeBlackRock || deXtrackers.includes(aprobado.ruta) ? '2026-11-09' : '2026-11-08'
+                esRecortada2111 ? '2026-11-21' : esRecortada ? '2026-11-16' : esDeIusq || esDeBlackRock || deXtrackers.includes(aprobado.ruta) ? '2026-11-09' : '2026-11-08'
             );
         }
     });
 
-    it('con un catálogo entero que no los trae se borran las 182 y ni una más', async () => {
+    it('con un catálogo entero que no los trae se borran las 266 y ni una más', async () => {
         const quedan = [
             'instruments/US4385161066',
             'issuers/ISS_000258',
@@ -330,14 +359,17 @@ describe('la lista de verdad (decisiones 45, 49, B-64, B-67, B-70 y B-82)', () =
             'instruments/IE00B6R52259/price_series/2012',
             'instruments/LU0171283459',
             'instruments/LU0171283459/declared/quote',
-            /* Las seis recortadas siguen en el catálogo, con el año en que hoy empieza su serie. */
-            ...Object.entries(RECORTADAS).flatMap(([isin, [, hasta]]) => [`instruments/${isin}`, `instruments/${isin}/price_series/${hasta + 1}`])
+            /* Las trece recortadas (B-82 y B-83) siguen en el catálogo, con el año en que hoy empieza su serie. */
+            ...Object.entries({ ...RECORTADAS, ...RECORTADAS_21_11 }).flatMap(([isin, [, hasta]]) => [
+                `instruments/${isin}`,
+                `instruments/${isin}/price_series/${hasta + 1}`
+            ])
         ];
         const { base, borradas, guardado } = baseDeMentira([...rutas, ...quedan]);
         const plan = await planConLaLista(base, new Set([...catalogoEntero(), ...quedan]));
         expect(plan.every((decision) => decision.destino === 'SE_BORRA')).toBe(true);
-        expect((await ejecutarBorrados(base, plan, true)).borrados).toHaveLength(182);
-        expect(borradas).toHaveLength(182);
+        expect((await ejecutarBorrados(base, plan, true)).borrados).toHaveLength(266);
+        expect(borradas).toHaveLength(266);
         for (const ruta of quedan) expect(guardado.has(ruta)).toBe(true);
     });
 });

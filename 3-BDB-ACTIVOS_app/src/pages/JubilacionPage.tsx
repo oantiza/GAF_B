@@ -12,7 +12,7 @@ import { PageHeader } from "../components/ui/PageHeader";
 import { useConfirm } from "../components/ui/useConfirm";
 import * as formato from "../core/formato";
 import { EJERCICIO, ejercicioVencido } from "../core/jubilacion/fiscal";
-import { compararFormasDeCobro, lecturaDeLaSupervivencia, type Unidades } from "../core/jubilacion/lectura";
+import { avisosDelResultado, compararFormasDeCobro, lecturaDeLaSupervivencia, type Unidades } from "../core/jubilacion/lectura";
 import { calcular } from "../core/jubilacion/motor";
 import {
   datosDeEjemplo,
@@ -160,7 +160,7 @@ export function JubilacionPage({
   }
 
   const calculado = resultado?.disponible ? resultado : null;
-  const avisos = calculado ? [...supuestos, ...calculado.avisos] : [];
+  const avisos = calculado ? avisosDelResultado(calculado, supuestos) : [];
   /* Una sola lectura para la pantalla y para el informe: lo que el asesor ve y lo que entrega dicen lo mismo. */
   const supervivencia = calculado ? lecturaDeLaSupervivencia(calculado, datos.sexo) : null;
 

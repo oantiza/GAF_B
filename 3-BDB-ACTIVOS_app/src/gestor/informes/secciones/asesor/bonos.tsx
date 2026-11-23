@@ -24,13 +24,13 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
             { texto: b.activo.nombre, apunte: [b.activo.isin ?? b.activo.id, b.activo.bono ? `${PAGOS[b.activo.bono.frecuencia] ?? `${b.activo.bono.frecuencia} pagos al año`} · base ${b.activo.bono.base}` : ""].filter(Boolean).join(" · ") },
             importe(b.nominal, { divisa }),
             porcentaje(cupon),
-            importe(b.cuponCorrido, { divisa }),
+            b.cuponCorrido === null ? { texto: null, apunte: "Sin precio" } : importe(b.cuponCorrido, { divisa }),
             `${fecha(b.vencimiento) ?? ""}${b.vencido ? " (vencido)" : ""}`,
             b.proximos.length > 0 ? b.proximos.map((p) => `${fecha(p.fecha) ?? ""} ${p.clase === "cupon" ? "cupón" : "nominal"} ${importe(p.importe, { divisa }) ?? ""}`).join("\n") : "Ninguno"
           ];
         })}
       />
-      <Pequena>Importes brutos, antes de retenciones. El cupón corrido es lo devengado desde el último pago, por el nominal en cartera.</Pequena>
+      <Pequena>{`Importes brutos, antes de retenciones. El cupón corrido es lo devengado desde el último pago, por el nominal en cartera.${analisis.bonos.some((b) => b.cuponCorrido === null) ? " De un bono sin precio no se da: la posición no tiene valor." : ""}`}</Pequena>
     </View>
   );
 }

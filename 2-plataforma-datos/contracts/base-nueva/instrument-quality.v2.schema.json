@@ -59,6 +59,15 @@
       "x-owner": "batch",
       "x-absence": "NOT_PROVIDED"
     },
+    "applicable_paths_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "La identidad del CONJUNTO sobre el que esta calculada coverage: la huella de las rutas aplicables que forman su denominador, las mismas applicable_paths que cuenta el recuento de al lado (decision 16 de la base nueva, 03-11-2026; construida el 21-11-2026). Existe porque coverage no depende solo de una formula sino de que entro en el denominador, y ese conjunto cambia cuando un contrato se corrige sin que nadie redefina nada: declarar que el Sharpe no aplica a una accion movia su cobertura +7,95 puntos de media sin tocar un dato.\n\nComo se calcula: cada ruta aplicable se escribe como en absences.path (las de la raiz tal cual, las de un bloque con su sufijo delante, p. ej. declared/costs.ongoing_charge); se ordenan por codigo de caracter, no por idioma; se unen con un salto de linea (U+000A) sin salto final; y se toma el SHA-256 de ese texto en UTF-8, en hexadecimal en minusculas y entero, 64 caracteres. Una ruta indecidible no entra, porque tampoco entra en el denominador. Es una huella derivada y no una version escrita a mano: no puede quedarse obsoleta. A cambio es opaca, y por eso applicable_paths sigue a su lado, que es lo legible.\n\nComo se compara: dos coberturas solo se comparan si su huella coincide. Una huella distinta NO dice que la cobertura se haya redefinido: dice que el conjunto contable cambio, y basta para explicar una cifra que se movio. Sirve para comparar el MISMO instrumento a lo largo del tiempo y para saber si una cifra es anterior a un cambio de contrato; no convierte en comparables las coberturas de dos instrumentos con conjuntos distintos, y dos instrumentos con la misma huella solo tienen el mismo denominador, no la misma calidad.\n\nFalta en los documentos que el lote escribio antes del 21-11-2026; llega con la siguiente pasada de baseNueva:batch. Un documento sin huella no se compara con uno que la lleva.",
+      "x-unit": "code",
+      "x-layer": "computed",
+      "x-owner": "batch",
+      "x-absence": "NOT_PROVIDED"
+    },
     "present_paths": {
       "type": "integer",
       "minimum": 0,

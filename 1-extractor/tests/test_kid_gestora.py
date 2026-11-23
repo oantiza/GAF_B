@@ -4,6 +4,8 @@
 Se prueba la orquestación (qué fuente se prueba, qué se recuerda, qué se
 rechaza) con un HTTP de mentira; el parser del PDF tiene sus propias pruebas.
 """
+import datetime
+import math
 import sys
 import time
 from pathlib import Path
@@ -392,3 +394,26 @@ def test_el_espejo_de_renta4_lee_el_enlace_de_su_ficha_por_isin():
     # Es espejo: vale para cualquier gestora y va despues de la suya.
     assert r4.marcas == ()
     assert "renta4_allfunds" in kid_gestora.ESPEJOS
+
+
+def test_un_pdf_sin_isin_legible_no_es_el_kid_de_nadie(tmp_path, monkeypatch):
+    """P3-01 de la auditoría del 20-11-2026: el ISIN dentro del PDF es la garantía de que el documento es de esta clase.
+    Antes bastaba con que no hablara de otro, y uno sin ISIN legible pasaba por el KID de quien lo pidiera."""
+    sin_isin = _kid(None)
+    monkeypatch.setattr(kid, "parsea_pdf", lambda ruta, isin: sin_isin)
+    http = _Http(sirve=("deutsche-bank.es",))
+    assert kid_gestora.fetch("LU0000000006", http, {}, base=tmp_path, previo={}) == {}
+
+
+def test_un_kid_con_una_fecha_imposible_no_pasa_por_vigente(tmp_path, monkeypatch):
+    """P3-01: el lector arma la fecha con un día y un mes sueltos, y puede dar el 31 de febrero. Esa fecha no prueba
+    que el documento tenga menos de quince meses: antes contaba como de hoy, y se escribía tal cual en la ficha."""
+    assert kid_gestora._edad_dias("2026-02-31") == math.inf
+    assert kid_gestora._edad_dias("no es una fecha") == math.inf
+    # Una fecha buena da su edad en días: del 01-01-2026 a hoy.
+    assert kid_gestora._edad_dias("2026-01-01") == (datetime.date.today() - datetime.date(2026, 1, 1)).days
+    imposible = _kid("LU0000000007")
+    imposible["fecha_documento"] = "2026-02-31"
+    monkeypatch.setattr(kid, "parsea_pdf", lambda ruta, isin: imposible)
+    http = _Http(sirve=("deutsche-bank.es",))
+    assert kid_gestora.fetch("LU0000000007", http, {}, base=tmp_path, previo={}) == {}

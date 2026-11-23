@@ -216,6 +216,16 @@ describe("de la tarjeta de un instrumento a su ficha", () => {
     expect(ficha.sectores).toEqual({ "Tecnología": 0.4, Salud: 0.6 });
   });
 
+  it("un reparto que pasa de 1 da la renta variable reescalada, la misma que sus clases (P2-05)", () => {
+    /* 0,90 + 0,15 = 1,05: la renta variable es 0,90 / 1,05 = 0,857143, en las clases y en la cifra suelta. */
+    const ficha = fichaDeLaTarjeta({ instrument_id: "LU0000000099", instrument_type: "FUND", exposure: { asset_mix: { equity: 0.9, fixed_income: 0.15 } } });
+    expect(ficha.clases?.["Renta variable"]).toBeCloseTo(0.9 / 1.05, 12);
+    expect(ficha.rentaVariable).toBeCloseTo(0.9 / 1.05, 12);
+    /* Sin renta variable declarada, cero; sin reparto, no consta. */
+    expect(fichaDeLaTarjeta({ instrument_id: "LU0000000098", instrument_type: "FUND", exposure: { asset_mix: { equity: 0, fixed_income: 1 } } }).rentaVariable).toBe(0);
+    expect(fichaDeLaTarjeta({ instrument_id: "LU0000000097", instrument_type: "FUND" }).rentaVariable).toBeUndefined();
+  });
+
   it("una acción es renta variable, de la zona de su país y de su sector", () => {
     const ficha = fichaDeLaTarjeta(DOCUMENTOS["tarjeta/ES0000000001"]);
     expect(ficha.clases).toEqual({ "Renta variable": 1 });

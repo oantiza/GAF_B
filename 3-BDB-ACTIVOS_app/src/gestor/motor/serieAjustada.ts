@@ -99,13 +99,18 @@ export function factorDeLaSerie(
 ): FactorDeLaSerie {
   if (serie.length === 0) return SIN_AJUSTE;
 
-  /* 1. Los sucesos del activo, por periodos de tenencia (de tener títulos a no tenerlos). */
-  const periodos: Array<{ sucesos: Suceso[]; abierto: boolean }> = [];
-  let actual: { sucesos: Suceso[]; abierto: boolean } | undefined;
+  /* 1. Los sucesos del activo, por periodos de tenencia (de tener títulos a no tenerlos). `inicio`: el día que entran sus primeros títulos. */
+  interface Periodo {
+    inicio: Dia;
+    sucesos: Suceso[];
+    abierto: boolean;
+  }
+  const periodos: Periodo[] = [];
+  let actual: Periodo | undefined;
   let titulos = 0; // en términos de la serie
   /* Los títulos al cierre de cada día con cambios, y en qué periodo: para saber cuántos había la víspera de una fecha ex. */
-  const tenencia: Array<{ fecha: Dia; titulos: number; periodo: { sucesos: Suceso[]; abierto: boolean } | undefined }> = [];
-  const apuntarTenencia = (fecha: Dia, periodo: { sucesos: Suceso[]; abierto: boolean } | undefined): void => {
+  const tenencia: Array<{ fecha: Dia; titulos: number; periodo: Periodo | undefined }> = [];
+  const apuntarTenencia = (fecha: Dia, periodo: Periodo | undefined): void => {
     const ultima = tenencia.at(-1);
     if (ultima && ultima.fecha === fecha) {
       ultima.titulos = titulos;
@@ -117,9 +122,9 @@ export function factorDeLaSerie(
     return undefined;
   };
 
-  const abrir = (): { sucesos: Suceso[]; abierto: boolean } => {
+  const abrir = (fecha: Dia): Periodo => {
     if (!actual) {
-      actual = { sucesos: [], abierto: true };
+      actual = { inicio: fecha, sucesos: [], abierto: true };
       periodos.push(actual);
     }
     return actual;
@@ -139,7 +144,7 @@ export function factorDeLaSerie(
       case "alta": {
         if (efecto.activoId !== activoId) break;
         const entran = aNumero(efecto.titulos) * factor;
-        const periodo = abrir();
+        const periodo = abrir(apunte.fecha);
         const gratis = !efecto.externo && efecto.pagado.importe.eq(0);
         if (gratis && titulos > 0) {
           /* Acciones liberadas: la serie las trata como un dividendo. */
@@ -169,7 +174,7 @@ export function factorDeLaSerie(
           cerrarSiVacio();
           apuntarTenencia(apunte.fecha, actual);
         } else if (efecto.destinoId === activoId) {
-          const periodo = abrir();
+          const periodo = abrir(apunte.fecha);
           titulos += aNumero(efecto.titulosDestino) * factor;
           apuntarTenencia(apunte.fecha, periodo);
         }
@@ -208,7 +213,8 @@ export function factorDeLaSerie(
 
   for (const periodo of periodos) {
     const sucesos = periodo.sucesos;
-    if (sucesos.length === 0) continue;
+    /* Un periodo sin sucesos (entró por un canje y no ha cobrado nada) también abre su tramo, con el factor de su ancla: si no, heredaba el del periodo anterior. */
+    if (sucesos.length === 0 && tramos.length === 0) continue;
     let indiceDelAncla = sucesos.length; // «después del último suceso»: k = 1
     let kDelAncla = 1;
     if (!periodo.abierto) {
@@ -242,8 +248,13 @@ export function factorDeLaSerie(
     /* El tramo más antiguo del periodo rige desde antes de su primer suceso. */
     anteriores.push({ desde: "0000-01-01", k });
     anteriores.reverse();
-    /* El primer tramo de un periodo no debe pisar los periodos anteriores: empieza donde empieza el periodo. */
-    anteriores[0].desde = tramos.length === 0 ? "0000-01-01" : sucesos[0].fecha;
+    /*
+     * El primer tramo de un periodo no debe pisar los periodos anteriores: empieza donde empieza el periodo, el día que entran
+     * sus primeros títulos (P2-05, auditoría del 20-11-2026). Antes empezaba en su primer suceso: una posición reabierta por un
+     * canje, o por un alta sin precio, cuyo primer suceso era un dividendo meses después, se valoraba hasta ese día con el
+     * factor del periodo anterior.
+     */
+    anteriores[0].desde = tramos.length === 0 ? "0000-01-01" : periodo.inicio;
     tramos.push(...anteriores);
 
     /* Hacia delante desde el ancla, si quedan sucesos después de ella. */

@@ -74,7 +74,7 @@ describe("informe del cliente", () => {
       expect(texto).not.toContain("Costes pagados directamente");
       expect(texto).not.toContain("Total de costes");
       expect(texto).not.toContain(euros(a.ingresosYCostes.costesTotales));
-      expect(texto).toContain("Los costes de la cartera se detallan en el informe de costes.");
+      expect(texto).toContain("Los costes de la cartera se detallan en «Costes de la cartera».");
       /* Sin marca de entidad ni jerga. */
       expect(texto).not.toContain("Independent Private Bankers");
       expect(texto).not.toMatch(/\bTWR\b/);
@@ -96,7 +96,7 @@ describe("informe del cliente", () => {
     /* MOT-09 y DIR-08: la misma regla que la pantalla, la fecha desde la que se mide (el cierre del año anterior). */
     expect(paginas[0]).toContain("Del 31 de diciembre de 2025 al 13 de noviembre de 2026");
     /* El nombre del documento va ahora en la cabecera de cada hoja, como lo pone la plantilla (antes, «INFORME DE SU CARTERA» en la portada). */
-    expect(paginas[0]).toContain("Informe de cartera");
+    expect(paginas[0]).toContain("Informe de la cartera");
   });
 
   test("con la demostración, frente al índice y con los movimientos recortados a los últimos 40", async () => {

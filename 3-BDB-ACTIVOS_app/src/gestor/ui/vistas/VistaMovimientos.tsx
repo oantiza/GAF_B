@@ -6,6 +6,7 @@
  * no lo que se gana o se pierde.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useModoCliente } from "../../../app/ClientModeContext";
 import { EmptyState } from "../../../components/ui/AsyncState";
 import { Aviso } from "../../../components/ui/Aviso";
 import { Button } from "../../../components/ui/Button";
@@ -36,11 +37,11 @@ function plegar(texto: string): string {
   return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 }
 
-function columnas(cartera: Cartera, alEditar: (movimiento: Movimiento) => void, alBorrar: (movimiento: Movimiento) => void): ColumnaDeTabla<FilaDeMovimiento>[] {
+function columnas(cartera: Cartera, alEditar: (movimiento: Movimiento) => void, alBorrar: (movimiento: Movimiento) => void, conNotas: boolean): ColumnaDeTabla<FilaDeMovimiento>[] {
   const base = cartera.divisaBase;
   return [
     { id: "fecha", titulo: "Fecha", encabezaFila: true, celda: ({ movimiento }) => ({ texto: escrito.fecha(movimiento.fechaOperacion), valor: movimiento.fechaOperacion, apunte: movimiento.fechaValor && movimiento.fechaValor !== movimiento.fechaOperacion ? `Valor ${escrito.fecha(movimiento.fechaValor)}` : undefined }) },
-    { id: "tipo", titulo: "Movimiento", celda: (fila) => ({ texto: nombreDelTipo(fila.movimiento.tipo), apunte: fila.errores[0] ?? fila.movimiento.nota }) },
+    { id: "tipo", titulo: "Movimiento", celda: (fila) => ({ texto: nombreDelTipo(fila.movimiento.tipo), apunte: fila.errores[0] ?? (conNotas ? fila.movimiento.nota : undefined) }) },
     { id: "activo", titulo: "Activo", celda: (fila) => (fila.activo ? { texto: fila.activo, valor: fila.activo.toLowerCase(), apunte: fila.destino ? `a ${fila.destino}` : undefined } : { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" }) },
     { id: "titulos", titulo: "Títulos", cifra: true, celda: ({ movimiento }) => (movimiento.titulos ? { texto: escrito.titulos(d(movimiento.titulos)), valor: aNumero(d(movimiento.titulos)) } : { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" }) },
     {
@@ -96,6 +97,7 @@ export function VistaMovimientos({ datos }: { datos: DatosDeVista }) {
   const [activoId, setActivoId] = useState("");
   const [origen, setOrigen] = useState("");
   const { confirm, confirmDialog } = useConfirm();
+  const seVenLasNotas = useModoCliente().seEnsena("notasDelAsesor");
 
   const filas = useMemo<FilaDeMovimiento[]>(() => {
     const contexto = contextoDe(cartera);
@@ -119,9 +121,9 @@ export function VistaMovimientos({ datos }: { datos: DatosDeVista }) {
       if (activoId && movimiento.activoId !== activoId && movimiento.destino?.activoId !== activoId) return false;
       if (origen && (movimiento.origen?.via ?? "manual") !== origen) return false;
       if (!texto) return true;
-      return plegar([nombreDelTipo(movimiento.tipo), fila.activo, fila.destino, movimiento.nota ?? "", movimiento.fechaOperacion, escrito.fecha(movimiento.fechaOperacion), movimiento.importe ?? ""].join(" ")).includes(texto);
+      return plegar([nombreDelTipo(movimiento.tipo), fila.activo, fila.destino, seVenLasNotas ? movimiento.nota ?? "" : "", movimiento.fechaOperacion, escrito.fecha(movimiento.fechaOperacion), movimiento.importe ?? ""].join(" ")).includes(texto);
     });
-  }, [filas, busqueda, tipo, activoId, origen]);
+  }, [filas, busqueda, tipo, activoId, origen, seVenLasNotas]);
 
   /*
    * GES-18: la tabla vuelve a la página 1 cuando cambian sus filas, y las filas cambian con cada
@@ -224,7 +226,7 @@ export function VistaMovimientos({ datos }: { datos: DatosDeVista }) {
         {visibles.length === 0 ? (
           <p className="cmp-note">Ningún movimiento responde a ese filtro.</p>
         ) : (
-          <TablaDeDatos alAbrir={(fila) => datos.editarMovimiento(fila.movimiento)} columnas={columnas(cartera, datos.editarMovimiento, (movimiento) => void borrar(movimiento))} alCambiarEstado={alCambiarEstadoDeLaTabla} estado={estadoDeLaTabla} filas={visibles} porPagina={25} titulo="Movimientos de la cartera" />
+          <TablaDeDatos alAbrir={(fila) => datos.editarMovimiento(fila.movimiento)} columnas={columnas(cartera, datos.editarMovimiento, (movimiento) => void borrar(movimiento), seVenLasNotas)} alCambiarEstado={alCambiarEstadoDeLaTabla} estado={estadoDeLaTabla} filas={visibles} porPagina={25} titulo="Movimientos de la cartera" />
         )}
       </Panel>
 

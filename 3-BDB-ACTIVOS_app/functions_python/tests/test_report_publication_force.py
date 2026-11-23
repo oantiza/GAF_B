@@ -125,6 +125,35 @@ def test_without_force_results_carry_no_new_fields(monkeypatch):
     assert 'force_history' not in db.values[LEASE_PATH]
 
 
+# --- Auditoria 20-11-2026 (P2-10): el informe aparece mientras se genera ------------------
+
+def _aparece_durante_la_generacion(db):
+    def generate(*a, **kw):
+        # Otro escritor publica durante los ~90 s de generacion (despues de la primera lectura).
+        db.values[REPORT_PATH] = {**valid_report(date='2026-07-10T07:30:00Z'), 'id': 'weekly-2026-07-10'}
+        return valid_report(date='2026-07-10T09:30:00Z')
+    return generate
+
+
+def test_forced_publication_replaces_a_report_that_appeared_while_generating(monkeypatch):
+    db, _ = setup(monkeypatch)
+    monkeypatch.setattr(weekly_report, 'generate_strategy_report', _aparece_durante_la_generacion(db))
+    result = publish(db, force=True, forced_by=WHO)
+    assert result['status'] == 'PUBLISHED' and result['forced'] is True
+    assert result['replaced']['date'] == '2026-07-10T07:30:00Z'
+    assert db.values[REPORT_PATH]['date'] == '2026-07-10T09:30:00Z'
+    assert db.values[LEASE_PATH]['status'] == 'PUBLISHED'
+
+
+def test_unforced_publication_does_not_mark_failed_a_report_published_meanwhile(monkeypatch):
+    db, _ = setup(monkeypatch)
+    monkeypatch.setattr(weekly_report, 'generate_strategy_report', _aparece_durante_la_generacion(db))
+    result = publish(db)
+    assert result['status'] == 'ALREADY_PUBLISHED'
+    assert db.values[REPORT_PATH]['date'] == '2026-07-10T07:30:00Z'  # no se pisa lo ya publicado
+    assert db.values[LEASE_PATH]['status'] == 'PUBLISHED'
+
+
 # --- admin_publish_report -------------------------------------------------------------
 
 class _Auth:

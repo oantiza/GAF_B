@@ -98,7 +98,8 @@ function entradaAlAzar(r: ReturnType<typeof azar>): EntradaDeJubilacion {
 }
 
 /** Lo que este motor da y el de NUVIA no tiene: no hay con qué compararlo. */
-const SOLO_AQUI = new Set(["escalasConElIpc"]);
+/* Las cinco de las pérdidas de lo vendido son del P1-03 (21-11-2026): NUVIA no compensa pérdidas, y no las tiene. */
+const SOLO_AQUI = new Set(["escalasConElIpc", "gananciaBruta", "perdida", "compensado", "perdidaCaducada", "perdidasPendientes"]);
 /** Las ramas del resultado que son texto, configuración o funciones: no se comparan. */
 const FUERA = new Set(["cfg", "textos", "limites", "parametros", "plan", "avisos", "mensaje"]);
 /** Las claves cuyo texto sí es parte del cálculo: qué régimen se aplicó, qué escenario es, con qué método. */
@@ -124,6 +125,15 @@ interface Recuento {
  *   que no cabe en esta lista: la muestra de simulaciones quita la liquidez y el cobro de una vez cuando la rentabilidad
  *   es negativa y se gastan los ahorros —sin ellos las dos copias coinciden, y se sigue comparando todo lo demás—, y una
  *   prueba aparte fija que la diferencia va en el sentido decidido.
+ * - Las ventas en pérdidas (hallazgo P1-03 de la auditoría del 20-11-2026; decidido por Óscar el 21-11-2026): aquí lo
+ *   vendido se lleva la parte de su coste que le toca y la pérdida se compensa con las ganancias de los cuatro años
+ *   siguientes; NUVIA limita el coste que sale a lo cobrado y deja el resto en la cartera, sin plazo. Tampoco cabe en
+ *   la lista: la muestra no compara las simulaciones en que algún escenario vende en pérdidas —sin ellas el coste que
+ *   sale es el mismo en las dos copias—, y las cuenta.
+ * - La EPSV vasca sin desglose con años hasta la jubilación y rentabilidad positiva (aprobado por Óscar el 22-11-2026):
+ *   aquí la estimación reglada cubre solo el saldo de hoy y lo que crece hasta jubilarse es todo rentabilidad; NUVIA
+ *   aplica la estimación a la prestación entera. Tampoco cabe en la lista: la muestra no compara esas simulaciones
+ *   —jubilándose hoy, o con pérdida, las dos copias coinciden— y las cuenta.
  */
 const DISTINTO_A_PROPOSITO: ReadonlyArray<{ ruta: RegExp; aqui: number; enNuvia: number }> = [
   { ruta: /parametros\.prevision\.rentaMinimaAnios$/, aqui: 2, enNuvia: 15 }
@@ -225,6 +235,8 @@ describe.skipIf(!RAIZ)("el motor y las reglas de Jubilación dan lo mismo que lo
     let antesDeJubilarse = 0;
     let mayoresDe75 = 0;
     let negativas = 0;
+    let conPerdidas = 0;
+    let epsvSinDesgloseQueCrece = 0;
     for (let i = 0; i < 4000; i++) {
       const entrada = entradaAlAzar(r);
       /* Ver DISTINTO_A_PROPOSITO: fuera del País Vasco las dos copias solo coinciden desde quince años de renta. */
@@ -239,6 +251,16 @@ describe.skipIf(!RAIZ)("el motor y las reglas de Jubilación dan lo mismo que lo
       /* NUVIA deja las reglas del IRPF fijas en todos los territorios; aquí los vascos las actualizan (A-159). Se compara
          con las fijas, que es la cuenta que comparten los dos motores. */
       const aqui = calcular(entrada, { escalasDelIrpf: "fijas" });
+      /* Ver DISTINTO_A_PROPOSITO: si algún escenario vende en pérdidas, las dos copias calculan distinto a propósito (P1-03). */
+      if (aqui.disponible && aqui.escenarios.some((escenario) => escenario.filas.some((fila) => fila.perdida > 0))) {
+        conPerdidas++;
+        continue;
+      }
+      /* Ver DISTINTO_A_PROPOSITO: sin desglose, el crecimiento hasta jubilarse es todo rentabilidad aquí, no en NUVIA. */
+      if (aqui.disponible && aqui.entrada.epsvDesglose === "estimacion" && aqui.entrada.tieneEpsv && aqui.entrada.aniosHastaJubilacion > 0 && aqui.entrada.rentabilidad > 0) {
+        epsvSinDesgloseQueCrece++;
+        continue;
+      }
       if (aqui.disponible) {
         if (aqui.capital) conCapital++;
         if (aqui.entrada.aniosHastaJubilacion > 0) antesDeJubilarse++;
@@ -254,6 +276,8 @@ describe.skipIf(!RAIZ)("el motor y las reglas de Jubilación dan lo mismo que lo
     /* Y por rentabilidades negativas, aunque sea sin liquidez. */
     expect(negativas).toBeGreaterThan(300);
     expect(recuento.comparados).toBeGreaterThan(1_000_000);
+    console.info(`Paridad con NUVIA: ${conPerdidas} de 4.000 simulaciones venden en pérdidas y no se comparan (P1-03).`);
+    console.info(`Paridad con NUVIA: ${epsvSinDesgloseQueCrece} de 4.000 tienen una EPSV vasca sin desglose que crece hasta jubilarse y no se comparan.`);
   }, 600_000);
 
   test("con liquidez y una rentabilidad negativa, aquí se retira más y no sobra nada; en NUVIA sobra (JUB-6, a propósito)", () => {

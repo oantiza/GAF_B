@@ -44,6 +44,8 @@ import type {
   CommercialRetroSheet
 } from "../types/commercialRetro";
 import { Panel } from "./ui/Panel";
+import { descubrirElFoco } from "./tabla/focoBajoColumnaFija";
+import { FILAS_POR_PAGINA, PaginasDeLaTabla } from "./tabla/TablaDeDatos";
 
 /* PLA-12: fechas y recuentos con el formato común de la aplicación («13/11/2026», «13/11/2026 10:30», «1.097»), y lo
    que no llega se dice con su palabra: nunca una raya ni «N/D», que se leen como un dato. */
@@ -161,6 +163,8 @@ export function AdminRetrocessions() {
   const [loQueCobra, setLoQueCobra] = useState<ReadonlyMap<string, LoQueCobraElFondo>>(new Map());
   const [soloLasQueSuperan, setSoloLasQueSuperan] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  /* De 25 en 25, como las demás listas largas (Óscar, 20-11-2026): antes, una caja de 560 px con su propia barra. */
+  const [pagina, setPagina] = useState(1);
   const [namesLoading, setNamesLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -217,6 +221,14 @@ export function AdminRetrocessions() {
         || terms.every((term) => name.includes(term));
     });
   }, [filtraLasQueSuperan, names, records, searchTerm, superan]);
+  /* La búsqueda y el filtro miran todas las filas, y la página es un trozo de lo que encuentran. Cambiarlos vuelve a la primera
+     página; guardar o borrar una fila no, para no perder el sitio. Si la lista encoge, la página se queda en la última que hay. */
+  useEffect(() => {
+    setPagina(1);
+  }, [searchTerm, filtraLasQueSuperan]);
+  const paginas = Math.max(1, Math.ceil(filteredRecords.length / FILAS_POR_PAGINA));
+  const paginaActual = Math.min(pagina, paginas);
+  const filasDeLaPagina = filteredRecords.slice((paginaActual - 1) * FILAS_POR_PAGINA, paginaActual * FILAS_POR_PAGINA);
   /* Los valores cargados conviven en escalas distintas (0,338 junto a 46). No
      se corrige el dato — eso es decisión de negocio — pero se marca lo que se
      sale un orden de magnitud de la mediana para poder revisarlo. */
@@ -692,7 +704,7 @@ export function AdminRetrocessions() {
           </p>
         </div>
 
-        <div aria-label="Retrocesiones registradas (tabla desplazable)" className="report-table-wrapper retro-table-wrapper" role="group" tabIndex={0}>
+        <div aria-label="Retrocesiones registradas (tabla desplazable)" className="report-table-wrapper" onFocus={(evento) => { if (evento.target !== evento.currentTarget) descubrirElFoco(evento.target); }} role="group" tabIndex={0}>
           <table className="report-table retro-table" id="retro-records-table" aria-label="Retrocesiones registradas">
             <thead>
               <tr>
@@ -716,7 +728,7 @@ export function AdminRetrocessions() {
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((record) => {
+                filasDeLaPagina.map((record) => {
                   const draft = drafts[record.isin] ?? toDraft(record);
                   const errorAqui = errorDeFila?.isin === record.isin ? errorDeFila : null;
                   return (
@@ -798,6 +810,7 @@ export function AdminRetrocessions() {
             </tbody>
           </table>
         </div>
+        <PaginasDeLaTabla actual={paginaActual} irA={setPagina} porPagina={FILAS_POR_PAGINA} titulo="Retrocesiones registradas" total={filteredRecords.length} />
       </Panel>
 
       {/* Paso 1 · fichero -------------------------------------------------- */}

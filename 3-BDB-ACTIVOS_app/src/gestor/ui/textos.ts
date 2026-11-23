@@ -41,12 +41,15 @@ export const escrito = {
   titulos: (valor: number | { toNumber(): number } | null | undefined): string => formato.oFalta(formato.titulos(valor))
 };
 
-/** Lo que dice un movimiento en una línea: «Compra · 100 títulos de Telefónica». */
-export function descripcionDelMovimiento(movimiento: Movimiento, nombreDelActivo: string | undefined, nombreDelDestino?: string): string {
+/**
+ * Lo que dice un movimiento en una línea: «Compra · 100 títulos de Telefónica». La nota del asesor entra solo con `conNota`, que
+ * en Modo cliente es falso (`SE_OCULTA.notasDelAsesor`).
+ */
+export function descripcionDelMovimiento(movimiento: Movimiento, nombreDelActivo: string | undefined, nombreDelDestino?: string, { conNota = true }: { conNota?: boolean } = {}): string {
   const partes = [nombreDelTipo(movimiento.tipo)];
   if (nombreDelActivo) partes.push(movimiento.titulos ? `${escrito.titulos(d(movimiento.titulos))} de ${nombreDelActivo}` : nombreDelActivo);
   if (nombreDelDestino) partes.push(`a ${nombreDelDestino}`);
-  if (movimiento.nota && !nombreDelActivo) partes.push(movimiento.nota);
+  if (conNota && movimiento.nota && !nombreDelActivo) partes.push(movimiento.nota);
   return partes.join(" · ");
 }
 

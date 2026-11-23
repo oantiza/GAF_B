@@ -106,7 +106,7 @@ describe("Análisis no pide el resumen de la cartera, que nadie usa (ANA-31)", (
     fuente.informe.mockResolvedValue({ summary: { total_weight_percent: 100 }, xray: {}, positions: [], warnings: [], data_diagnostic: { top_warnings: [] } });
     await act(async () => root.render(createElement(XrayPage, { positions: POSICIONES, sourceKind: "LOCAL_MOCK", onBack: () => undefined })));
     await esperar();
-    const abrir = [...host.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Informe para el cliente")!;
+    const abrir = [...host.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Informe de la propuesta")!;
     await act(async () => abrir.dispatchEvent(new MouseEvent("click", { bubbles: true })));
     const descargar = [...document.querySelectorAll('[role="dialog"] button')].find((b) => b.textContent?.trim() === "Descargar el informe")!;
     await act(async () => descargar.dispatchEvent(new MouseEvent("click", { bubbles: true })));

@@ -15,11 +15,12 @@ Tokens OPCIONALES (Functions env): EODHD_API_TOKEN y/o FMP_API_TOKEN.
 """
 import json
 import os
+import threading
 import time
 import urllib.request
 from datetime import date, timedelta
 from clock import madrid_today
-from quietlog import swallowed_quiet
+from quietlog import swallowed, swallowed_quiet
 
 _UA = {"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
 SCHEMA_VERSION = "spanish-calendar.v2"
@@ -55,6 +56,9 @@ NOMBRES_IBEX35 = {
 # Cache en memoria del proceso: key -> (expira_epoch, valor). Cloud Functions
 # reutiliza instancias, asi que tras la 1a carga las siguientes son instantaneas.
 _CACHE = {}
+# Cloud Run v2 atiende varias peticiones a la vez en una instancia: la expulsion de `_cache_put` recorre y modifica el
+# diccionario, y sin cerrojo dos hilos podian romperlo ("dictionary changed size during iteration").
+_CACHE_LOCK = threading.Lock()
 _CACHE_TTL = 6 * 3600           # 6 h para barridos COMPLETOS del IBEX
 _CACHE_TTL_PARTIAL = 30 * 60    # Auditoría 11-08 (D14): 30 min para parciales
 _CACHE_MAX_ENTRIES = 256        # Auditoría 11-08 (D14): cota de memoria (35 valores x 3 claves cabe de sobra)
@@ -63,8 +67,13 @@ _MIN_RESPONDING = 0.5           # fraccion minima de valores que deben contestar
 _YAHOO_BUDGET_S = 35    # presupuesto de tiempo del bucle Yahoo
 
 
+class _AvisoPublico(RuntimeError):
+    """Un fallo cuyo texto esta escrito para quien lee la pantalla. Cualquier otra excepcion va solo al registro."""
+
+
 def _cache_get(key):
-    v = _CACHE.get(key)
+    with _CACHE_LOCK:
+        v = _CACHE.get(key)
     if v and v[0] > time.time():
         return v[1]
     return None
@@ -73,10 +82,11 @@ def _cache_get(key):
 def _cache_put(key, value, ttl=_CACHE_TTL):
     # Auditoría 11-08 (D14): evicción simple por orden de inserción para que
     # rangos de fechas arbitrarios no hagan crecer la caché sin límite.
-    if key not in _CACHE:
-        while len(_CACHE) >= _CACHE_MAX_ENTRIES:
-            _CACHE.pop(next(iter(_CACHE)))
-    _CACHE[key] = (time.time() + ttl, value)
+    with _CACHE_LOCK:
+        if key not in _CACHE:
+            while len(_CACHE) >= _CACHE_MAX_ENTRIES:
+                _CACHE.pop(next(iter(_CACHE)))
+        _CACHE[key] = (time.time() + ttl, value)
 
 
 def _get_json(url):
@@ -165,7 +175,10 @@ def _collect(sources, sort_key, hint):
         try:
             outcome = fn()
         except Exception as exc:  # red/plan/parse -> siguiente fuente
-            errors.append("%s: %s" % (src, exc))
+            # A quien lee, un texto sin detalles internos (la excepcion de una libreria puede traer rutas, urls con el
+            # token en la consulta o trazas); el detalle va al registro. Solo un `_AvisoPublico` lleva su texto.
+            swallowed("spanish_calendar._collect:%s" % src)
+            errors.append("%s: %s" % (src, exc) if isinstance(exc, _AvisoPublico) else "%s: la fuente no respondió" % src)
             continue
         source_note = None
         if isinstance(outcome, tuple) and len(outcome) == 2:
@@ -283,7 +296,7 @@ def _yahoo_sweep():
     """
     down = _cache_get(("yahoo_down",))
     if down is not None:
-        raise RuntimeError(down)
+        raise _AvisoPublico(down)
     deadline = time.time() + _YAHOO_BUDGET_S
     cals = {}
     truncated = False
@@ -303,7 +316,9 @@ def _yahoo_sweep():
             cal = t.calendar
             if not isinstance(cal, dict) or not cal:
                 continue  # vacio: no responde con contenido
-            entry = {"cal": cal, "ticker": t}
+            # Solo el calendario: el `Ticker` de yfinance no se retiene (35 a la vez durante 6 h); si hace falta el
+            # ultimo dividendo, `_last_paid_dividend` lo vuelve a pedir una vez por valor y lo cachea.
+            entry = {"cal": cal}
             cals[sym] = entry
             _cache_put(("cal", sym), entry)
         except Exception:
@@ -315,7 +330,7 @@ def _yahoo_sweep():
             "no se puede decir si hay anuncios en el rango." % (len(cals), len(IBEX35))
         )
         _cache_put(("yahoo_down",), msg, ttl=_YAHOO_DOWN_TTL)
-        raise RuntimeError(msg)
+        raise _AvisoPublico(msg)
     note = None
     if truncated:
         note = "Cobertura parcial de Yahoo: se consultaron %s de %s componentes." % (scanned, len(IBEX35))
@@ -332,7 +347,7 @@ def _last_paid_dividend(sym, entry):
     amount = None
     amount_ex_date = None
     try:
-        divs = entry["ticker"].dividends
+        divs = _yahoo_ticker(sym).dividends
         if divs is not None and len(divs):
             amount = float(divs.iloc[-1])
             amount_ex_date = _to_iso(divs.index[-1])

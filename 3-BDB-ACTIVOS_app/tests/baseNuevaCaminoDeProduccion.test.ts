@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const PROYECTO_NUEVO = "bdb-gestor-de-activos";
 
-async function cargar(opciones: { dev: boolean; projectId: string | undefined }) {
+async function cargar(opciones: { dev: boolean; projectId: string | undefined; emuladores?: boolean }) {
     vi.resetModules();
     vi.stubEnv("DEV", opciones.dev);
     vi.stubEnv("PROD", !opciones.dev);
@@ -23,7 +23,8 @@ async function cargar(opciones: { dev: boolean; projectId: string | undefined })
         FIREBASE_CONFIGURED: opciones.projectId !== undefined,
         PRODUCCION_SIN_CONFIGURAR: false,
         APUNTA_A_BDB: false,
-        FUNCTIONS_REGION: "europe-west1"
+        FUNCTIONS_REGION: "europe-west1",
+        USE_EMULATORS: opciones.emuladores === true
     }));
     vi.doMock("../src/firebase", () => ({ auth: null, firestore: null, functions: null }));
     return await import("../src/adapters/baseNuevaLectura");
@@ -58,6 +59,21 @@ describe("el camino a la base nueva", () => {
 
         const conElNuevo = await cargar({ dev: false, projectId: PROYECTO_NUEVO });
         expect(conElNuevo.BASE_NUEVA_DISPONIBLE).toBe(true);
+    });
+
+    it("en desarrollo contra los emuladores del proyecto nuevo se lee por el SDK, como en la nube (21-11-2026)", async () => {
+        /* El desarrollo local usa el proyecto de la base nueva: el SDK habla con su emulador
+           con la sesión del usuario local y las reglas de la nube. */
+        const local = await cargar({ dev: true, projectId: PROYECTO_NUEVO, emuladores: true });
+        expect(local.LEE_LA_NUBE).toBe(true);
+
+        /* Sin emuladores, en desarrollo nunca el SDK: leería la nube real. */
+        const sinEmuladores = await cargar({ dev: true, projectId: PROYECTO_NUEVO, emuladores: false });
+        expect(sinEmuladores.LEE_LA_NUBE).toBe(false);
+
+        /* Configurado contra la base vieja, el SDK apunta a otra base: REST contra 8092. */
+        const conElViejo = await cargar({ dev: true, projectId: "gestor-activos-local", emuladores: true });
+        expect(conElViejo.LEE_LA_NUBE).toBe(false);
     });
 
     it("en produccion sin conexion, la lectura lo DICE en vez de callar, en palabras llanas", async () => {

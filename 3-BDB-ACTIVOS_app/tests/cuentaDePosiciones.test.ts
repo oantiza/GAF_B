@@ -85,11 +85,12 @@ describe("los títulos recibidos son los de `carteraPublicada`: sin efectivo, de
 });
 
 /**
- * Decisión 121 (Óscar, 06-11-2026, opción C): la ficha deja de escribir la cuenta, también la cierta, hasta que el dato guarde el total del
- * fondo. En la base nueva `positions_count` es el número de bonos o, si no hay, el de acciones, y la ficha, con 25 líneas, no puede
- * comprobarla: 243 fichas escribían una cuenta corta. El peso de las diez mayores se queda donde cuadra con sus filas.
+ * Decisión 121 (Óscar, 06-11-2026, opción C): la ficha dejó de escribir la cuenta porque `positions_count` es el número de bonos o, si no
+ * hay, el de acciones. El 20-11-2026 Óscar decidió volver a escribirla con el total que la base guarda desde el 08-11, `securities_count`
+ * (acciones más bonos), con la misma comprobación de antes (`cuentaQueCuadra` contra los títulos de las líneas que llegan). Si falta o la
+ * desmienten, «Falta el dato» con su pieza. `positions_count` ya no se lee en la ficha.
  */
-describe("la ficha, sin la cuenta hasta que el dato guarde el total (decisión 121)", () => {
+describe("la ficha escribe cuántas posiciones tiene el fondo, con `securities_count` (Óscar, 20-11-2026)", () => {
   const ficha = (bloque: Record<string, unknown>) =>
     componerFicha({
       isin: "ES0137397008",
@@ -99,49 +100,52 @@ describe("la ficha, sin la cuenta hasta que el dato guarde el total (decisión 1
       bloques: { "declared/holdings": { source: "canonical:fondosdb", as_of: "2026-08-31", ...bloque } }
     } satisfies InstrumentoDeLaBase).secciones.find((s) => s.id === "cartera")!;
   const procedencia = (seccion: ReturnType<typeof ficha>) => seccion.procedencia.map((t) => t.texto).join("");
+  const FALTA = "Declarada por el proveedor · 31/08/2026 · posiciones: Falta el dato";
   /* Las líneas del bloque, en fracción, como las guarda la base nueva. */
   const top = (lineas: BdbHoldingPosition[]) =>
     lineas.map((l) => ({ name: l.name, weight: l.weight_pct / 100, ...(l.holding_type_code ? { holding_type_code: l.holding_type_code } : {}) }));
 
-  test("FON FINECO: ni «1 posiciones» ni «1 posición»; y no pierde nada más (las diez filas y la nota del sector)", () => {
-    const seccion = ficha({ positions_count: 1, top10_weight: 0.6412974, top: top(FON_FINECO) });
-    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026");
+  test("FON FINECO: declara 1 y trae 16 títulos, así que la cuenta no se escribe: «Falta el dato», y no pierde nada más", () => {
+    const seccion = ficha({ positions_count: 1, securities_count: 1, top10_weight: 0.6412974, top: top(FON_FINECO) });
+    expect(procedencia(seccion)).toBe(FALTA);
+    /* Con su pieza, no como texto suelto. */
+    expect(seccion.procedencia.find((t) => t.ausencia)).toEqual({ texto: "Falta el dato", ausencia: "falta" });
     expect(seccion.tabla?.filas).toHaveLength(10);
     expect(seccion.nota).toBe("El proveedor no declara el sector de sus posiciones.");
   });
 
-  test("seis bonos y una cuenta: ni «6 posiciones», aunque sea cierto; las diez mayores y las siete filas, sí", () => {
-    const seccion = ficha({ positions_count: 6, top10_weight: 0.9999999, top: top(HORIZONTE_2026) });
-    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026 · diez mayores 100,0\u00a0%");
+  test("seis bonos y una cuenta: «6 posiciones», que es cierto aunque haya siete líneas, y las diez mayores detrás", () => {
+    const seccion = ficha({ positions_count: 6, securities_count: 6, top10_weight: 0.9999999, top: top(HORIZONTE_2026) });
+    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026 · 6 posiciones, diez mayores 100,0\u00a0%");
     expect(seccion.tabla?.filas).toHaveLength(7);
   });
 
-  test("BlackRock World Mining: sin la cuenta, las diez mayores siguen detrás de la fecha, no detrás de una coma", () => {
+  test("sin `securities_count`, «Falta el dato» y las diez mayores detrás de una coma; `positions_count` no lo sustituye", () => {
     const pesos = [7.36, 6.39, 5.61, 5.53, 5.26, 4.95, 4.89, 4.78, 4.43, 4.05];
-    const seccion = ficha({ positions_count: 1, top10_weight: 0.5324164, top: top(pesos.map((p) => linea("E", p))) });
-    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026 · diez mayores 53,2\u00a0%");
+    const seccion = ficha({ positions_count: 300, top10_weight: 0.5324164, top: top(pesos.map((p) => linea("E", p))) });
+    expect(procedencia(seccion)).toBe(`${FALTA}, diez mayores 53,2\u00a0%`);
   });
 
-  test("una sola posición y una sola línea: tampoco «1 posición»", () => {
-    const seccion = ficha({ positions_count: 1, top: top([linea("FO", 99.2, "Fondo principal")]) });
-    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026");
+  test("una sola posición y una sola línea: «1 posición», en singular", () => {
+    const seccion = ficha({ positions_count: 1, securities_count: 1, top: top([linea("FO", 99.2, "Fondo principal")]) });
+    expect(procedencia(seccion)).toBe("Declarada por el proveedor · 31/08/2026 · 1 posición");
     expect(seccion.tabla?.filas).toHaveLength(1);
   });
 
-  test("la cuenta de los bonos de un mixto: 11 frente a 22 títulos entre sus 25 primeras líneas, no se escribe (MERCH-UNIVERSAL)", () => {
+  test("un mixto: sus 11 bonos ya no se escriben como cuenta; sus títulos, sí (MERCH-UNIVERSAL)", () => {
     const lineas = [...varias(4, "BT", 14), ...varias(2, "CL", 10), ...varias(13, "E", 4), ...varias(2, "GS", 4.1), linea("QQ", 4), ...varias(3, "B", 1)];
     expect(carteraPublicada({ holdings: lineas })).toMatchObject({ lineas: 25, titulos: 22 });
-    expect(procedencia(ficha({ positions_count: 11, top: top(lineas) }))).not.toContain("posicion");
+    expect(procedencia(ficha({ positions_count: 11, top: top(lineas) }))).toBe(FALTA);
+    expect(procedencia(ficha({ positions_count: 11, securities_count: 48, top: top(lineas) }))).toBe("Declarada por el proveedor · 31/08/2026 · 48 posiciones");
   });
 
-  test("R-co Valor Balanced: «191 posiciones», que son sus bonos, deja de salir, y una cuenta grande y cierta tampoco sale", () => {
-    /* 191 bonos declarados y 25 líneas que no la desmienten: la regla la dejaba pasar, y el fondo tiene 243 títulos. */
-    expect(cuentaQueCuadra(191, 20)).toBe(191);
-    expect(procedencia(ficha({ positions_count: 191, top: top(varias(25, "B", 2)) }))).not.toContain("posicion");
-    /* iShares Core MSCI World, 1.247 según la fuente: cierta, y hasta que el dato guarde el total tampoco se escribe. */
+  test("R-co Valor Balanced: 243 posiciones y no «191», que son sus bonos; e iShares Core MSCI World, «1.247 posiciones»", () => {
+    expect(procedencia(ficha({ positions_count: 191, securities_count: 243, top: top(varias(25, "B", 2)) }))).toBe(
+      "Declarada por el proveedor · 31/08/2026 · 243 posiciones"
+    );
     const diezIguales = Array.from({ length: 10 }, (_, i) => linea("E", 2.778, `Acción ${i + 1}`));
-    expect(procedencia(ficha({ positions_count: 1247, top10_weight: 0.2778, top: top(diezIguales) }))).toBe(
-      "Declarada por el proveedor · 31/08/2026 · diez mayores 27,8\u00a0%"
+    expect(procedencia(ficha({ positions_count: 1247, securities_count: 1247, top10_weight: 0.2778, top: top(diezIguales) }))).toBe(
+      "Declarada por el proveedor · 31/08/2026 · 1.247 posiciones, diez mayores 27,8\u00a0%"
     );
   });
 });

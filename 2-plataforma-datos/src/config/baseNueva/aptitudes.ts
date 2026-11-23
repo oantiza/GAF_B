@@ -63,6 +63,25 @@ function veredicto(faltan: string[]): VeredictoDeAptitud {
 }
 
 /** `true` si el instrumento es una acción. Decide qué regla se aplica en tres de las cinco. */
+/**
+ * Un producto de materias primas que no es un fondo —un ETC: `instrument_type` OTHER y clase REAL_ASSETS, que en esta
+ * base son oro y materias primas y nunca inmobiliario (decisión 13)— y no trae reparto. Su composición se deduce del tipo,
+ * como la de una acción: 100 % en «otros», que es donde el programa pone las materias primas (Óscar, 21-11-2026).
+ *
+ * Es la regla más estrecha que cubre el caso. Medido sobre la base del 16/17-11: un solo instrumento la cumple,
+ * IE00B4ND3602 (iShares Physical Gold ETC), cuyo proveedor da las cuatro clases a 0. Los dos fondos REAL_ASSETS que
+ * hay son FUND y publican su reparto, y quedan fuera. No va a `declared/exposure`: ese bloque no aplica a un OTHER
+ * (`FONDO_O_ETF`), y es lo que afirma un tercero; va a la tarjeta, marcado `BY_INSTRUMENT_TYPE`.
+ */
+export function esMateriaPrimaSinReparto(instrumento: MaterialParaAptitudes): boolean {
+    const clase = (instrumento.raiz['classification'] as Record<string, unknown> | undefined)?.['asset_class'];
+    return (
+        instrumento.raiz['instrument_type'] === 'OTHER' &&
+        clase === 'REAL_ASSETS' &&
+        instrumento.bloques['declared/exposure']?.['asset_mix'] === undefined
+    );
+}
+
 function esAccion(material: MaterialParaAptitudes): boolean {
     return material.raiz['instrument_type'] === 'STOCK';
 }
@@ -87,7 +106,8 @@ const NO_APLICA_A_UNA_ACCION: Readonly<Partial<Record<Aptitud, string>>> = {
         'no aplica: de una acción se publican beta y R², porque su alfa no se distingue de cero. Decisión 24.',
 };
 
-/** Un fondo cuyo KID declara un índice compuesto o ninguno (decisión 20 del 07-11-2026), o una clase cubierta (decisión 30). */
+/** Un fondo cuyo KID declara un índice compuesto o ninguno (decisión 20 del 07-11-2026), o una clase cubierta (decisión 30).
+    `SAME_FUND_REFERENCE` (C-28) no: la tarjeta cae a la cifra del proveedor, y la aptitud se juzga con ella. */
 const NO_APLICA_POR_DECISION: Readonly<Record<string, string>> = {
     KID_DECLARES_COMPOSITE:
         'no aplica: su KID declara un índice compuesto, y no se mide contra una sola de sus piezas. Decisión 20 del 07-11-2026.',
@@ -153,6 +173,8 @@ const REGLAS: Readonly<Record<Aptitud, (material: MaterialParaAptitudes) => Vere
             const clase = en(material.raiz, 'classification.asset_class');
             return veredicto(clase === undefined ? ['classification.asset_class'] : []);
         }
+        /* Lo mismo un ETC de materias primas sin reparto: su 100 % en «otros» se deduce del tipo (21-11-2026). */
+        if (esMateriaPrimaSinReparto(material)) return veredicto([]);
         const faltan: string[] = [];
         const exposicion = material.bloques['declared/exposure'];
         if (en(exposicion, 'asset_mix') === undefined) faltan.push('declared/exposure.asset_mix');

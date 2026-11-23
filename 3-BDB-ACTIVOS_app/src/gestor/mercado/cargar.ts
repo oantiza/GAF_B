@@ -65,8 +65,11 @@ export interface MercadoCargado {
   ultimoDato?: Dia;
 }
 
-/** Divisas que cotizan en céntimos de otra: su cambio es el de la divisa mayor por cien. */
-const DIVISAS_MENORES: Record<string, { mayor: string; factor: number }> = {
+/**
+ * Divisas que cotizan en céntimos de otra: su cambio es el de la divisa mayor por cien. Los importadores leen de aquí cuáles
+ * son, para no confundir «GBp» (peniques) con «GBP» (libras) al leer un documento.
+ */
+export const DIVISAS_MENORES: Readonly<Record<string, { mayor: string; factor: number }>> = {
   GBX: { mayor: "GBP", factor: 100 },
   GBp: { mayor: "GBP", factor: 100 }
 };
@@ -220,8 +223,8 @@ export async function cargarMercado(cartera: Cartera, hasta: Dia, fuente: Fuente
   if (sinCambio.length > 0) {
     avisos.push(
       cambiosIlegibles
-        ? `No se han podido leer los tipos de cambio diarios (${sinCambio.join(", ")}). Lo que está en esas divisas se valora con el cambio de sus propias operaciones.`
-        : `La plataforma no tiene tipos de cambio de ${sinCambio.join(", ")}. Lo que está en esas divisas se valora con el cambio de sus propias operaciones.`
+        ? `No se han podido leer los tipos de cambio diarios (${sinCambio.join(", ")}). Lo que está en esas divisas se valora con el último cambio escrito en sus propias operaciones; sin ninguno, no se puede valorar y va como una posición sin precio.`
+        : `La plataforma no tiene tipos de cambio de ${sinCambio.join(", ")}. Lo que está en esas divisas se valora con el último cambio escrito en sus propias operaciones; sin ninguno, no se puede valorar y va como una posición sin precio.`
     );
   }
 

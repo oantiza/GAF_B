@@ -41,6 +41,7 @@ vi.mock("../src/charts/oaa", async (original) => ({
 
 import { ClientModeProvider } from "../src/app/ClientModeContext";
 import { isAppRouteId } from "../src/app/appRoutes";
+import { CLIENT_MODE_STORAGE_KEY } from "../src/app/ClientModeContext";
 import { AssetComparison } from "../src/components/AssetComparison";
 import { fecha } from "../src/core/formato";
 import { clearSessionCaches } from "../src/core/sessionCaches";
@@ -248,6 +249,21 @@ describe("el benchmark (decisión 2)", () => {
     expect(boton("Descargar el informe")?.disabled).toBe(false);
   });
 
+  test("H1-11: sin referencia elegida, el informe no sale mientras las series sean las de la selección anterior", async () => {
+    let entrega: (respuesta: unknown) => void = () => undefined;
+    await monta(<AssetComparison assets={CINCO.slice(0, 3)} onRemove={() => undefined} sourceKind="LOCAL_MOCK" />);
+    expect(boton("Descargar el informe")?.disabled).toBe(false);
+    /* Al quitar un activo se piden las series del par nuevo, y hasta que llegan la matriz es la del trío. */
+    mocks.rebased.mockImplementation(() => new Promise((resolve) => { entrega = resolve; }));
+    await act(async () => (container.querySelector('[aria-label="Quitar Activo C de la comparación"]') as HTMLElement).click());
+    expect(boton("Descargar el informe")?.disabled).toBe(true);
+    await act(async () => {
+      entrega(SERIE(["A", "B"]));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(boton("Descargar el informe")?.disabled).toBe(false);
+  });
+
   test("al elegir uno sale como referencia (gris y a trazos), sea cual sea el perfil, con su «B»", async () => {
     await monta(<AssetComparison assets={CINCO.slice(0, 3)} onRemove={() => undefined} sourceKind="LOCAL_MOCK" />);
     for (const perfil of ["conservador", "moderado", "equilibrado", "dinamico", "agresivo"]) {
@@ -359,6 +375,18 @@ describe("las dos salidas del informe (decisión 20)", () => {
     const entrada = mocks.pdf.mock.lastCall?.[0];
     expect(entrada.salida).toBe("interno");
     expect(entrada.assets.map((asset: { retro?: unknown }) => asset.retro)).toEqual([0.0079, undefined, "no-aplica"]);
+  });
+
+  test("H2-05: si se activa el Modo cliente mientras se dibuja el informe con retrocesiones, no se descarga", async () => {
+    let puede: (() => boolean) | undefined;
+    mocks.pdf.mockImplementation(async (_entrada: unknown, pregunta?: () => boolean) => { puede = pregunta; return true; });
+    mocks.retro.mockResolvedValue(conRetro);
+    await monta(<ClientModeProvider initialValue={false}><AssetComparison assets={CINCO.slice(0, 2)} onRemove={() => undefined} sourceKind="LOCAL_MOCK" /></ClientModeProvider>);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+    await pideElInforme(/Con retrocesiones/);
+    expect(puede?.()).toBe(true);
+    await act(async () => { window.dispatchEvent(new StorageEvent("storage", { key: CLIENT_MODE_STORAGE_KEY, newValue: "true" })); });
+    expect(puede?.()).toBe(false);
   });
 
   test("mientras la base comercial no ha contestado, o si falla, o si la cuenta no tiene acceso, solo se puede sacar la que no la lleva", async () => {

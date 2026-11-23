@@ -1,10 +1,9 @@
 /**
  * Backend de demostración — SOLO desarrollo sin Firebase configurado.
  *
- * Los módulos Agenda, Estrategia, Estado del sistema y BBDD maestra dependen de
- * funciones invocables. Sin credenciales, esas pantallas quedaban en blanco con
- * un aviso de error, lo que impedía revisarlas y hacía imposible enseñar la
- * herramienta sin conexión.
+ * Los módulos Agenda y Estrategia dependen de funciones invocables. Sin
+ * credenciales, esas pantallas quedaban en blanco con un aviso de error, lo
+ * que impedía revisarlas y hacía imposible enseñar la herramienta sin conexión.
  *
  * Este módulo devuelve respuestas que cumplen exactamente los mismos contratos
  * que el backend real, de modo que los validadores de `contractGuards` siguen
@@ -206,117 +205,6 @@ async function weeklyReport(type: string) {
     age_days: 2,
     invalid_count: 0,
     note: "Informe de demostración: contenido ilustrativo, no es una recomendación."
-  };
-}
-
-/* ------------------------------------------------------------------ *
- * Estado del sistema
- * ------------------------------------------------------------------ */
-
-function systemStatus() {
-  return {
-    integrity: {
-      checked_at: isoStamp(0),
-      status: "WARN",
-      applied: true,
-      problems: [
-        {
-          severity: "WARN",
-          check: "price_series_gap",
-          detail: "3 activos con más de 5 días hábiles sin cotización nueva.",
-          sample: ["IE00B5BMR087", "US88160R1014", "SXXP"]
-        },
-        {
-          severity: "INFO",
-          check: "missing_benchmark",
-          detail: "1 activo sin benchmark oficial asignado.",
-          sample: ["LU1681048804"]
-        }
-      ],
-      counts: {
-        assets: 753,
-        assets_with_isin: 740,
-        price_series: 731,
-        metrics_latest: 726,
-        holdings: 402
-      },
-      freshness: {
-        price_refresh: "OK",
-        metrics_refresh: "WARN",
-        backup: "OK"
-      }
-    },
-    backup: {
-      completed_at: isoStamp(-1),
-      verification: "OK",
-      firestore_records: 12_486,
-      auth_users: 4,
-      backup_dir: "gs://bbdd-activos-backups/2026-07-25"
-    },
-    prices: {
-      last_run: isoStamp(0),
-      last_run_date: isoDay(0),
-      read_budget_max: 50_000,
-      read_budget_used: 18_240
-    },
-    metrics: {
-      last_run: isoStamp(-2),
-      last_price_series_last_date: isoDay(-3),
-      scan_after_asset_id: null,
-      cycle_completed: true,
-      scanned_assets: 753,
-      processed_assets: 726,
-      written: 726,
-      read_budget_max: 50_000,
-      read_budget_used: 31_115,
-      stopped_by_budget: false
-    }
-  };
-}
-
-/* ------------------------------------------------------------------ *
- * BBDD maestra
- * ------------------------------------------------------------------ */
-
-function adminDbStatus() {
-  const total = 753;
-  const withHistory = 731;
-  const withoutHistory = total - withHistory;
-  const reach2011 = 604;
-  const notReach2011 = withHistory - reach2011;
-  const stale = 27;
-
-  return {
-    generated_at: isoStamp(0),
-    total_assets: total,
-    by_type: { FUND: 405, ETF: 178, STOCK: 152, INDEX: 18 },
-    with_history: withHistory,
-    without_history: withoutHistory,
-    reach_2011: reach2011,
-    not_reach_2011: notReach2011,
-    stale,
-    stale_days_threshold: 5,
-    last_refresh_date: isoDay(0),
-    latest_data_date: isoDay(-1),
-    latest_by_type: {
-      FUND: isoDay(-1),
-      ETF: isoDay(0),
-      STOCK: isoDay(0),
-      INDEX: isoDay(0)
-    },
-    master_writes_enabled: false,
-    master_writes_env: "demo",
-    master_writes_mode: "disabled",
-    app_check_enforced: true,
-    metrics_present: { vol: 726, sharpe: 726, srri: 719, mdd: 712, mdd_hist: 688 },
-    start_year_histogram: { "2011": 604, "2015": 62, "2018": 41, "2021": 24 },
-    anomalies: {
-      sin_historico: withoutHistory,
-      desactualizados: stale,
-      no_llega_2011: notReach2011,
-      valle_reciente: 4,
-      total_flagged: withoutHistory + stale + notReach2011 + 4
-    }
   };
 }
 
@@ -978,13 +866,10 @@ const HANDLERS: Record<string, (input: DemoInput) => unknown | Promise<unknown>>
   get_dividends_calendar: (input) => dividendsCalendar((input ?? {}) as { from?: string; to?: string }),
   get_earnings_calendar: (input) => earningsCalendar((input ?? {}) as { from?: string; to?: string }),
   get_weekly_report: (input) => weeklyReport(String((input as { type?: string })?.type ?? "WEEKLY_REPORT")),
-  get_system_status: () => systemStatus(),
   get_price_series: (input) => priceSeries((input ?? {}) as Record<string, unknown>),
   optimize_portfolio: (input) => optimizePortfolioDemo(input),
   improve_portfolio: (input) => improvePortfolioDemo(input),
   backtest_portfolio: (input) => input?.analysis_bundle === true ? portfolioHorizonDemo(input) : backtestPortfolioDemo(input),
-  admin_fund_quality: (input) => input?.isin ? { profile: null } : ({ generated_at: isoStamp(0), total_funds: 0, with_profile: 0, with_history: 0, history_blocked: 0, with_kid: 0, rows: [] }),
-  admin_db_status: () => adminDbStatus(),
   list_portfolios: () => ({ portfolios: [] })
 };
 

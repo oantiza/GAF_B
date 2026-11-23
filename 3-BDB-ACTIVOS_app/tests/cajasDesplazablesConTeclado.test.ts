@@ -39,9 +39,7 @@ const SE_ENFOCAN: Record<string, string> = {
 /** El mismo elemento que una de las de arriba, con otra clase que también lleva el desplazamiento. */
 const SON_EL_MISMO_ELEMENTO: Record<string, string> = {
   "tabla__marco--cabecera-fija": "tabla__marco",
-  "retro-table-wrapper": "report-table-wrapper",
-  "retro-preview-wrapper": "report-table-wrapper",
-  "backfill-table-wrapper": "report-table-wrapper"
+  "retro-preview-wrapper": "report-table-wrapper"
 };
 
 /** Se desplazan de lado y no les hace falta: llevan siempre dentro algo que se enfoca. */
@@ -54,20 +52,28 @@ const LLEVAN_DENTRO_LO_QUE_SE_ENFOCA: Record<string, string> = {
 };
 
 /**
- * No se desplazan de lado. Tres de ellas se desplazan en vertical y no llevan nada que se enfoque: se vieron el
- * 19-11-2026 y se dejaron como estaban, porque lo aprobado ese día eran las cajas que se desplazan de lado (apartado
- * 14.7, «visto de paso»).
+ * No se desplazan de lado. Las que se desplazan en vertical y pueden quedarse sin nada que se enfoque están en la lista
+ * siguiente, `SE_ENFOCAN_EN_VERTICAL`.
  */
 const NO_SE_DESPLAZAN_DE_LADO: Record<string, string> = {
   "heatmap": "la rejilla de una matriz: `.corr-heatmap-grid`, que la acompaña siempre, le quita el desplazamiento; quien se desplaza es su marco, `.oaa-heatmap-scroll`",
-  "code-block": "un bloque de código parte sus líneas (`white-space: pre-wrap`)",
   "rail-nav": "la lista del menú se desplaza en vertical, y sus hijos son enlaces",
   "ui-dialog-backdrop": "el fondo de un diálogo se desplaza en vertical, y el diálogo retiene el foco dentro",
   "ui-dialog__body": "el cuerpo de un diálogo se desplaza en vertical",
-  "asset-picker-list": "la lista del selector de activos se desplaza en vertical, y sus filas son botones",
-  "admin-json": "el resultado de la ingesta, en Sistema: en vertical y sin nada que se enfoque. Visto y sin tocar",
-  "inspector-result-json": "la respuesta del inspector, en Sistema: en vertical y sin nada que se enfoque. Visto y sin tocar",
-  "ops-log__body": "el registro de una tarea, en Sistema: en vertical y sin nada que se enfoque. Visto y sin tocar"
+};
+
+/**
+ * Se desplazan en vertical y no llevan nada que se enfoque, o pueden quedarse sin ello: se enfocan ellas, con
+ * `tabIndex={0}` y un nombre que acaba diciendo que se desplazan. Se vieron el 19-11-2026 (apartado 14.7, «visto de
+ * paso») y se arreglaron el 20-11-2026. `papel` es el que llevan: `group` las de texto; la del selector conserva el
+ * suyo de lista.
+ */
+const SE_ENFOCAN_EN_VERTICAL: Record<string, { razon: string; papel: string | null; fichero: string }> = {
+  "asset-picker-list": {
+    razon: "la lista del selector de activos (Comparador y Diseño): sus filas son botones, y al llegar al máximo se desactivan todos",
+    papel: null,
+    fichero: "src/components/AssetPicker.tsx"
+  }
 };
 
 /** Un uso de una clase de `SE_ENFOCAN` que no necesita enfocarse, con su razón y con lo que la prueba. */
@@ -164,14 +170,32 @@ const esExcepcion = (uso: Uso) => EXCEPCIONES.some((excepcion) => excepcion.fich
 const diceQueSeDesplaza = (nombre: string | null) => /\((tabla|matriz) desplazable\)`?$/.test(nombre ?? "");
 
 describe("las hojas dicen qué cajas se desplazan, y cada una está declarada con su razón", () => {
-  const declaradas = { ...SE_ENFOCAN, ...SON_EL_MISMO_ELEMENTO, ...LLEVAN_DENTRO_LO_QUE_SE_ENFOCA, ...NO_SE_DESPLAZAN_DE_LADO };
+  const enVertical = Object.fromEntries(Object.entries(SE_ENFOCAN_EN_VERTICAL).map(([clase, dato]) => [clase, dato.razon]));
+  const declaradas = { ...SE_ENFOCAN, ...SON_EL_MISMO_ELEMENTO, ...LLEVAN_DENTRO_LO_QUE_SE_ENFOCA, ...NO_SE_DESPLAZAN_DE_LADO, ...enVertical };
 
-  test("toda clase con desplazamiento propio está en una de las cuatro listas, y ninguna lista nombra una que ya no existe", () => {
+  test("toda clase con desplazamiento propio está en una de las cinco listas, y ninguna lista nombra una que ya no existe", () => {
     expect(clasesQueSeDesplazan()).toEqual(Object.keys(declaradas).sort());
     /* Ninguna está en dos listas a la vez. */
-    const cuantas = Object.keys(SE_ENFOCAN).length + Object.keys(SON_EL_MISMO_ELEMENTO).length + Object.keys(LLEVAN_DENTRO_LO_QUE_SE_ENFOCA).length + Object.keys(NO_SE_DESPLAZAN_DE_LADO).length;
+    const cuantas =
+      Object.keys(SE_ENFOCAN).length +
+      Object.keys(SON_EL_MISMO_ELEMENTO).length +
+      Object.keys(LLEVAN_DENTRO_LO_QUE_SE_ENFOCA).length +
+      Object.keys(NO_SE_DESPLAZAN_DE_LADO).length +
+      Object.keys(enVertical).length;
     expect(Object.keys(declaradas)).toHaveLength(cuantas);
     for (const [clase, razon] of Object.entries(declaradas)) expect(razon.length, clase).toBeGreaterThan(10);
+  });
+
+  test("las que se desplazan en vertical sin nada que se enfoque se enfocan ellas, con un nombre que dice que se desplazan", () => {
+    for (const [clase, { papel, fichero }] of Object.entries(SE_ENFOCAN_EN_VERTICAL)) {
+      const usos = usosDe([clase]);
+      expect(usos.map((uso) => uso.fichero), clase).toEqual([fichero]);
+      for (const uso of usos) {
+        expect(uso.tabIndex, `${uso.fichero} · ${clase}`).toBe("0");
+        expect(uso.papel, `${uso.fichero} · ${clase}`).toBe(papel);
+        expect(uso.nombre ?? "", `${uso.fichero} · ${clase}`).toMatch(/\((texto|lista) desplazable\)["`]?$/);
+      }
+    }
   });
 
   test("la que es el mismo elemento que otra va siempre con ella", () => {
@@ -201,8 +225,6 @@ describe("las cajas que se desplazan de lado se alcanzan con el teclado", () => 
   test("la prueba ve los envoltorios: los escritos a mano, los del Gestor, los dos marcos de la pieza y las dos matrices", () => {
     const porClase = (clase: string) => usos.filter((uso) => uso.clases.includes(clase)).map((uso) => uso.fichero).sort();
     expect(porClase("report-table-wrapper")).toEqual([
-      "src/components/AdminBackfill.tsx",
-      "src/components/AdminInspector.tsx",
       "src/components/AdminRetrocessions.tsx",
       "src/components/AdminRetrocessions.tsx",
       "src/components/AssetHoldingsSection.tsx",
@@ -218,12 +240,12 @@ describe("las cajas que se desplazan de lado se alcanzan con el teclado", () => 
       "src/gestor/ui/importar/PasoRevision.tsx"
     ]);
     expect(porClase("oaa-heatmap-scroll")).toEqual(["src/charts/oaa/OaaCorrelationHeatmap.tsx", "src/charts/oaa/OaaOverlapHeatmap.tsx"]);
-    /* Las nueve `.table-wrap` que no se enfocaban, entre las seis que ya lo hacían. */
+    /* Las tres `.table-wrap` que no se enfocaban, entre las seis que ya lo hacían. Hasta el 21-11-2026 eran nueve: las
+       otras seis estaban en Sistema › Operaciones, que se borró con la base vieja. */
     const deTabla = porClase("table-wrap");
-    expect(deTabla.filter((fichero) => fichero === "src/components/AdminOperaciones.tsx")).toHaveLength(6);
     expect(deTabla.filter((fichero) => fichero === "src/components/ImportReview.tsx")).toHaveLength(2);
     expect(deTabla).toContain("src/components/MarkdownView.tsx");
-    expect(deTabla).toHaveLength(15);
+    expect(deTabla).toHaveLength(9);
     /* Con las dos lecturas a la vez no se escapa ninguno: son tantos como veces está escrita la clase en el código,
        fuera de los comentarios. Una clase que llegara por una variable descuadraría la cuenta. */
     const sinComentarios = (fuente: string) => fuente.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");

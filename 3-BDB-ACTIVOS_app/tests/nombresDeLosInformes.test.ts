@@ -25,14 +25,14 @@ const propuesta = (nombre: string) => ({ portfolio_name: nombre }) as unknown as
 
 describe("el nombre de cada informe", () => {
   test("informe de costes: el cliente, y sin él solo el documento y el día", () => {
-    expect(nombreDelFicheroDeCostes({ clientName: "Familia García" })).toBe("Informe de costes - Familia García - 2026-11-14.pdf");
-    expect(nombreDelFicheroDeCostes({})).toBe("Informe de costes - 2026-11-14.pdf");
+    expect(nombreDelFicheroDeCostes({ clientName: "Familia García" })).toBe("Costes de la propuesta - Familia García - 2026-11-14.pdf");
+    expect(nombreDelFicheroDeCostes({})).toBe("Costes de la propuesta - 2026-11-14.pdf");
   });
 
   test("informe de cartera: el cliente; sin él, la propuesta; y el día de quien lo genera", () => {
     expect(nombreDelFicheroDelInformeDeCliente({ clientName: "Familia García", report: propuesta("Prudente 2026"), generadoEn: "2026-11-10T12:00:00Z" }))
-      .toBe("Informe de cartera - Familia García - 2026-11-10.pdf");
-    expect(nombreDelFicheroDelInformeDeCliente({ clientName: "  ", report: propuesta("Prudente 2026") })).toBe("Informe de cartera - Prudente 2026 - 2026-11-14.pdf");
+      .toBe("Informe de la propuesta - Familia García - 2026-11-10.pdf");
+    expect(nombreDelFicheroDelInformeDeCliente({ clientName: "  ", report: propuesta("Prudente 2026") })).toBe("Informe de la propuesta - Prudente 2026 - 2026-11-14.pdf");
   });
 
   test("informe interno: la propuesta y el día de generación", () => {

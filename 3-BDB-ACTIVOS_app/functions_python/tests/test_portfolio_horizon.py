@@ -151,3 +151,9 @@ def test_week_indices_are_the_last_observation_of_each_iso_week():
     # Una semana que acaba en jueves (festivo el viernes) cuenta con su ultimo dato.
     sin_viernes=[d for d in laborables if d!='2026-09-18']
     assert [sin_viernes[i] for i in h._week_indices(sin_viernes)]==['2026-09-11','2026-09-17']
+
+
+@pytest.mark.parametrize("ventana, esperado", [("1Y", 53), ("3Y", 157), ("5Y", 261), ("10Y", 521)])
+def test_observaciones_requeridas_leen_todos_los_digitos_de_la_ventana(ventana, esperado):
+    """Anos x 52 semanas + 1: 10 x 52 + 1 = 521, no 1 x 52 + 1 = 53 (leia solo el primer digito de \"10Y\")."""
+    assert h._anos_de_la_ventana(ventana) * 52 + 1 == esperado

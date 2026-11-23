@@ -183,6 +183,103 @@ const RUTAS_DE_SEIS_ACCIONES_RECORTADAS_POR_EODHD = [
 ] as const;
 
 /**
+ * Siete acciones más a las que EODHD ha recortado la historia (21-11-2026), el mismo caso que la B-82. Comprobado en la
+ * respuesta del proveedor guardada por el extractor ese día: Holcim (HOLN.SW) empezaba el 05-01-1987 y empieza el
+ * 02-08-1995; Nokia (NOKIA.HE), del 30-12-1986 al 30-01-1991; Chevron y Procter & Gamble, del 02-01-1962 al 05-11-1984;
+ * Newmont, del 17-03-1980; NextEra Energy, del 21-02-1973; y Walmart, del 25-08-1972, las tres también al 05-11-1984.
+ * Dejarlos empalmaba dos ajustes distintos: Holcim pasaba de 6,87 a 2,75 y Newmont de 3,32 a 2,50 sin que pasara nada, y en
+ * las cinco de 1984 faltaban de enero a octubre. Sobran los años enteros anteriores al primero que hoy trae cada una; ese
+ * primero se reescribe con lo que hay. No toca ninguna cifra publicada, porque las ventanas llegan como mucho a diez años
+ * (decisión B-83).
+ */
+const RUTAS_DE_SIETE_ACCIONES_RECORTADAS_POR_EODHD = [
+    'instruments/CH0012214059/price_series/1987',
+    'instruments/CH0012214059/price_series/1988',
+    'instruments/CH0012214059/price_series/1989',
+    'instruments/CH0012214059/price_series/1990',
+    'instruments/CH0012214059/price_series/1991',
+    'instruments/CH0012214059/price_series/1992',
+    'instruments/CH0012214059/price_series/1993',
+    'instruments/CH0012214059/price_series/1994',
+    'instruments/FI0009000681/price_series/1986',
+    'instruments/FI0009000681/price_series/1987',
+    'instruments/FI0009000681/price_series/1988',
+    'instruments/FI0009000681/price_series/1989',
+    'instruments/FI0009000681/price_series/1990',
+    'instruments/US1667641005/price_series/1962',
+    'instruments/US1667641005/price_series/1963',
+    'instruments/US1667641005/price_series/1964',
+    'instruments/US1667641005/price_series/1965',
+    'instruments/US1667641005/price_series/1966',
+    'instruments/US1667641005/price_series/1967',
+    'instruments/US1667641005/price_series/1968',
+    'instruments/US1667641005/price_series/1969',
+    'instruments/US1667641005/price_series/1970',
+    'instruments/US1667641005/price_series/1971',
+    'instruments/US1667641005/price_series/1972',
+    'instruments/US1667641005/price_series/1973',
+    'instruments/US1667641005/price_series/1974',
+    'instruments/US1667641005/price_series/1975',
+    'instruments/US1667641005/price_series/1976',
+    'instruments/US1667641005/price_series/1977',
+    'instruments/US1667641005/price_series/1978',
+    'instruments/US1667641005/price_series/1979',
+    'instruments/US1667641005/price_series/1980',
+    'instruments/US1667641005/price_series/1981',
+    'instruments/US1667641005/price_series/1982',
+    'instruments/US1667641005/price_series/1983',
+    'instruments/US6516391066/price_series/1980',
+    'instruments/US6516391066/price_series/1981',
+    'instruments/US6516391066/price_series/1982',
+    'instruments/US6516391066/price_series/1983',
+    'instruments/US65339F1012/price_series/1973',
+    'instruments/US65339F1012/price_series/1974',
+    'instruments/US65339F1012/price_series/1975',
+    'instruments/US65339F1012/price_series/1976',
+    'instruments/US65339F1012/price_series/1977',
+    'instruments/US65339F1012/price_series/1978',
+    'instruments/US65339F1012/price_series/1979',
+    'instruments/US65339F1012/price_series/1980',
+    'instruments/US65339F1012/price_series/1981',
+    'instruments/US65339F1012/price_series/1982',
+    'instruments/US65339F1012/price_series/1983',
+    'instruments/US7427181091/price_series/1962',
+    'instruments/US7427181091/price_series/1963',
+    'instruments/US7427181091/price_series/1964',
+    'instruments/US7427181091/price_series/1965',
+    'instruments/US7427181091/price_series/1966',
+    'instruments/US7427181091/price_series/1967',
+    'instruments/US7427181091/price_series/1968',
+    'instruments/US7427181091/price_series/1969',
+    'instruments/US7427181091/price_series/1970',
+    'instruments/US7427181091/price_series/1971',
+    'instruments/US7427181091/price_series/1972',
+    'instruments/US7427181091/price_series/1973',
+    'instruments/US7427181091/price_series/1974',
+    'instruments/US7427181091/price_series/1975',
+    'instruments/US7427181091/price_series/1976',
+    'instruments/US7427181091/price_series/1977',
+    'instruments/US7427181091/price_series/1978',
+    'instruments/US7427181091/price_series/1979',
+    'instruments/US7427181091/price_series/1980',
+    'instruments/US7427181091/price_series/1981',
+    'instruments/US7427181091/price_series/1982',
+    'instruments/US7427181091/price_series/1983',
+    'instruments/US9311421039/price_series/1972',
+    'instruments/US9311421039/price_series/1973',
+    'instruments/US9311421039/price_series/1974',
+    'instruments/US9311421039/price_series/1975',
+    'instruments/US9311421039/price_series/1976',
+    'instruments/US9311421039/price_series/1977',
+    'instruments/US9311421039/price_series/1978',
+    'instruments/US9311421039/price_series/1979',
+    'instruments/US9311421039/price_series/1980',
+    'instruments/US9311421039/price_series/1981',
+    'instruments/US9311421039/price_series/1982',
+    'instruments/US9311421039/price_series/1983'
+] as const;
+
+/**
  * BlackRock Global Allocation A2 (LU0171283459): su serie está parada y la raíz lleva `metrics_absence: SERIES_STOPPED`, así
  * que el extractor ya no escribe `computed/metrics`; el que queda son las métricas V2 a 30-09-2026, que ya no aplican y
  * convivían con el sello que dice que no hay. Es el primer caso de «un campo presente donde no aplica es un error» (A-17),
@@ -324,6 +421,15 @@ export const BORRADOS_APROBADOS: readonly BorradoAprobado[] = [
             fecha: '2026-11-16',
             motivo:
                 'EODHD recortó la serie de seis acciones (HSBC, SSE, AMD, Exxon Mobil, Texas Instruments y Xcel Energy): este año es anterior al primero que el proveedor da hoy y quedó colgando'
+        })
+    ),
+    ...RUTAS_DE_SIETE_ACCIONES_RECORTADAS_POR_EODHD.map(
+        (ruta): BorradoAprobado => ({
+            ruta,
+            decision: 'decisión B-83 de Óscar',
+            fecha: '2026-11-21',
+            motivo:
+                'EODHD recortó la serie de siete acciones (Holcim, Nokia, Chevron, Newmont, NextEra Energy, Procter & Gamble y Walmart): este año es anterior al primero que el proveedor da hoy y quedó colgando'
         })
     )
 ];

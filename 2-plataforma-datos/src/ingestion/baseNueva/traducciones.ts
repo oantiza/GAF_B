@@ -121,7 +121,9 @@ export const DOMICILIO: Readonly<Record<string, string>> = {
     FRA: 'FR',
     FIN: 'FI',
     BEL: 'BE',
-    DEU: 'DE'
+    DEU: 'DE',
+    /* SPY y QQQ (20-11-2026): 2 fichas del canonico traen USA y se quedaban sin bloque `product`. */
+    USA: 'US'
 };
 
 /**
@@ -381,7 +383,11 @@ export const CODIGO_DE_PERIODO_DEL_EMT: Readonly<Record<string, 'V' | 'S' | 'M' 
     H: 'H'
 };
 
-export type AusenciaRelativaDecidida = 'KID_DECLARES_COMPOSITE' | 'KID_DECLARES_NO_BENCHMARK' | 'HEDGED_SHARE_CLASS';
+export type AusenciaRelativaDecidida =
+    | 'KID_DECLARES_COMPOSITE'
+    | 'KID_DECLARES_NO_BENCHMARK'
+    | 'HEDGED_SHARE_CLASS'
+    | 'SAME_FUND_REFERENCE';
 
 /**
  * `riesgo.relativas.aviso` cuando no medir es una DECISIÓN sobre el fondo, y la base lo dice en
@@ -390,12 +396,23 @@ export type AusenciaRelativaDecidida = 'KID_DECLARES_COMPOSITE' | 'KID_DECLARES_
  * cobertura, 4,9 puntos a un año medidos el 01-11, y no la gestión). Hasta la decisión 30 el aviso de
  * clase cubierta se dejaba sin valor a propósito, como «decisión sobre el cálculo»; la ficha lo leía
  * como un hueco. Lo que sigue sin valor es `sin_relativas_divisa_*`: falta el cambio, no se ha decidido nada.
+ *
+ * C-28 (Óscar, 21-11-2026, regla 3): la serie de su índice es otra clase del mismo fondo, la misma cartera
+ * con otra comisión, y saldría beta 1 y R² 100. El extractor lo escribe con el proxy entre paréntesis
+ * —`sin_relativas_referencia_del_mismo_fondo(IE00B03HD191)`—, así que la clave es lo de antes del
+ * paréntesis (`claveDelAvisoDeRelativas`).
  */
 export const AUSENCIA_RELATIVA_DECIDIDA: Readonly<Record<string, AusenciaRelativaDecidida>> = {
     sin_relativas_kid_compuesto: 'KID_DECLARES_COMPOSITE',
     sin_relativas_kid_sin_indice: 'KID_DECLARES_NO_BENCHMARK',
-    sin_relativas_clase_cubierta: 'HEDGED_SHARE_CLASS'
+    sin_relativas_clase_cubierta: 'HEDGED_SHARE_CLASS',
+    sin_relativas_referencia_del_mismo_fondo: 'SAME_FUND_REFERENCE'
 };
+
+/** El aviso de las relativas sin el paréntesis que algunos llevan detrás (el proxy, en la C-28). */
+export function claveDelAvisoDeRelativas(aviso: string): string {
+    return aviso.split('(')[0] as string;
+}
 
 export type AusenciaRelativaDeAccion = 'NO_REFERENCE_FOR_MARKET' | 'NO_REFERENCE_DECIDED_FOR_MARKET';
 

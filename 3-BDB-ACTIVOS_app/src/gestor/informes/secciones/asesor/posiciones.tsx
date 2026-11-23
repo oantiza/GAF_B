@@ -18,12 +18,13 @@ import { fuenteDelPrecio } from "../../formato";
 import type { DatosDelInforme, SeccionDeInforme } from "../../tipos";
 import { Pequena, Subtitulo, TablaCompacta } from "../piezas";
 
+/* Peso lleva sitio para «Falta el dato» en una línea: a 40 se partía en dos con una posición sin precio (20-11-2026). Se lo quita al nombre. */
 const COLUMNAS: ColumnaDeTabla[] = [
-  { titulo: "Activo", ancho: 196 },
+  { titulo: "Activo", ancho: 184 },
   { titulo: "Títulos", ancho: 58, cifra: true },
   { titulo: "Precio", ancho: 78, cifra: true },
   { titulo: "Valor", ancho: 74, cifra: true },
-  { titulo: "Peso", ancho: 40, cifra: true },
+  { titulo: "Peso", ancho: 52, cifra: true },
   { titulo: "Coste", ancho: 74, cifra: true },
   { titulo: "Latente", ancho: 70, cifra: true },
   { titulo: "Latente, %", ancho: 50, cifra: true },

@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
-"""CRIT-01 (auditoria 16-10-2026, documental): .env.example recoge los gates y flags que
-lee el codigo, nace con las escrituras cerradas y no trae secretos.
+"""CRIT-01 (auditoria 16-10-2026, documental): .env.example recoge los flags que lee el
+codigo, nace con App Check en observacion y no trae secretos.
+
+21-11-2026: los gates de escritura de la maestra (`BDB_ACTIVOS_ENABLE_MASTER_WRITES`, los
+`*_WRITE_ENABLED`) y los topes del refresco salieron del fichero con los escritores de la base
+vieja que los leian (censo CENSO_BASE_VIEJA_2026-11-21.md, decision 31). Que no vuelvan sin un
+lector lo fija la ultima prueba.
 
 Ejecuta: pytest functions_python/tests/test_env_example.py
 """
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+RETIRADAS = (
+    "BDB_ACTIVOS_ENABLE_MASTER_WRITES", "PRICES_WRITE_ENABLED", "METRICS_WRITE_ENABLED",
+    "SEARCH_INDEX_WRITE_ENABLED", "INTEGRITY_WRITE_ENABLED", "METRICS_REFRESH_BATCH_SIZE",
+    "METRICS_REFRESH_MAX_READS", "PRICE_REFRESH_MAX_READS",
+)
 
 
 def _assignments():
@@ -19,30 +30,35 @@ def _assignments():
     return out
 
 
-def test_los_gates_y_flags_que_lee_el_codigo_estan_documentados():
-    import integrity_check
-    import write_governance
-    env = _assignments()
+def _fuente():
     source = "".join(p.read_text(encoding="utf-8") for p in ROOT.glob("*.py"))
-    source += "".join(p.read_text(encoding="utf-8") for p in (ROOT / "optimization").glob("*.py"))
-    for name in (write_governance.MASTER_WRITE_ENV, integrity_check.INTEGRITY_WRITE_ENV,
-                 "PRICES_WRITE_ENABLED", "METRICS_WRITE_ENABLED", "SEARCH_INDEX_WRITE_ENABLED",
-                 "BDB_APPCHECK_ENFORCE", "BDB_VERIFIED_PRICE_REPAIR_RELEASES"):
+    for carpeta in ("optimization", "readmodel", "portfolios"):
+        source += "".join(p.read_text(encoding="utf-8") for p in (ROOT / carpeta).glob("*.py"))
+    return source
+
+
+def test_los_flags_que_lee_el_codigo_estan_documentados():
+    env = _assignments()
+    source = _fuente()
+    for name in ("BDB_APPCHECK_ENFORCE", "BDB_VERIFIED_PRICE_REPAIR_RELEASES", "MASTER_PROJECT_ID"):
         assert name in env, name
         assert name in source, "%s ya no lo lee el codigo" % name
 
 
-def test_una_instalacion_nueva_nace_con_las_escrituras_cerradas():
+def test_una_instalacion_nueva_nace_en_observacion_y_sin_liberaciones():
     env = _assignments()
-    assert env["BDB_ACTIVOS_ENABLE_MASTER_WRITES"] == ""
-    for gate in ("PRICES_WRITE_ENABLED", "METRICS_WRITE_ENABLED", "SEARCH_INDEX_WRITE_ENABLED",
-                 "INTEGRITY_WRITE_ENABLED", "BDB_APPCHECK_ENFORCE"):
-        assert env[gate] == "false", gate
+    assert env["BDB_APPCHECK_ENFORCE"] == "false"
     assert env["BDB_VERIFIED_PRICE_REPAIR_RELEASES"] == ""
 
 
-def test_sin_secretos_ni_topes_que_el_entorno_real_no_usa():
+def test_sin_secretos():
     env = _assignments()
     assert not any(key.endswith(("_API_KEY", "_API_TOKEN", "_SECRET")) for key in env)
-    # El entorno desplegado no define el tope de precios; el codigo usa 3600.
-    assert "PRICE_REFRESH_MAX_READS" not in env
+
+
+def test_ni_el_fichero_ni_el_codigo_traen_los_gates_de_la_base_vieja():
+    env = _assignments()
+    source = _fuente()
+    for name in RETIRADAS:
+        assert name not in env, "%s vuelve a .env.example sin nadie que la lea" % name
+        assert name not in source, "%s la vuelve a leer el codigo: era de la base vieja" % name

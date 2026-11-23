@@ -145,6 +145,24 @@ describe("Patrimonial con los datos cambiados", () => {
     expect(boton("Calcular inflación, Letras y depósito").disabled).toBe(true);
   });
 
+  test("una aportación del mismo día que la fecha final no da TIR y dice por qué (H2-09 / N-2)", async () => {
+    /* Antes la tira decía «TIR nominal +202,50 %» con el valor final igual a lo aportado, y la tabla del servidor,
+       202,5 % para Letras y depósito con cualquier valor final. */
+    await montar();
+    await pulsar("Cargar ejemplo");
+    await act(async () => {
+      poner(campoDe("Fecha final"), "2023-06-15");
+    });
+    /* El ejemplo tiene dos aportaciones, la de 2021 y la de 2023: con una anterior, sí hay plazo. */
+    expect(texto()).not.toContain("del mismo día que la fecha final");
+    await act(async () => {
+      poner(host.querySelector('input[aria-label="Fecha de la aportación 1"]') as HTMLInputElement, "2023-06-15");
+    });
+    expect(texto()).toContain("Las aportaciones son del mismo día que la fecha final (15/06/2023)");
+    expect(texto()).not.toContain("202,5");
+    expect(boton("Calcular inflación, Letras y depósito").disabled).toBe(true);
+  });
+
   test("lo tecleado y lo calculado vuelven al volver a la pantalla", async () => {
     await calculado();
     await act(async () => {

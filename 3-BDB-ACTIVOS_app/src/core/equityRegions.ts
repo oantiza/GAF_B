@@ -1,6 +1,6 @@
 import type { BdbAssetDetail, BdbManualPortfolioPosition } from "../types/bdbAssets";
 import { esAccion } from "./esAccion";
-import { assetPmsShares } from "./portfolio";
+import { parteParaLaLectura } from "./portfolio";
 import { zonasDeUnReparto } from "./regionTaxonomy";
 
 export interface EquityRegionRow {
@@ -74,7 +74,8 @@ function zonaDeUnaAccion(asset: BdbAssetDetail): string | null {
  *
  * El peso en RV de cada activo es el canónico (`assetPmsShares`): su vector PMS
  * normalizado o, sin vector, su clase económica (una acción sin `pms_exposure`
- * cuenta entera). Los porcentajes son sobre TODA la RV; lo que nadie declara se
+ * cuenta entera). Un fondo que no declara su reparto de activos no entra (A-211, `parteParaLaLectura`): no se sabe
+ * qué parte es renta variable, ni en pantalla ni en el papel. Los porcentajes son sobre TODA la RV; lo que nadie declara se
  * queda en `unclassified_weight_percent`, y una acción va entera a su zona
  * (`zonaDeUnaAccion`).
  *
@@ -95,7 +96,8 @@ export function computeEquityRegionAllocation(
     const w = p.weight_percent || 0;
     const asset = byId.get(p.asset_id);
     if (w <= 0 || !asset) return;
-    const eqW = w * assetPmsShares(asset).shares.equity;
+    /* A-211: un fondo sin reparto de activos no aporta; su peso lo dice la pantalla aparte (`pesoSinReparto`). */
+    const eqW = w * (parteParaLaLectura(asset, "equity") ?? 0);
     if (eqW <= 0) return;
     const reparto = zonasDeUnReparto(asset.exposure_detail?.equity_regions);
     const situado = Object.values(reparto.zonas).reduce((x, y) => x + y, 0);
@@ -122,7 +124,8 @@ export function computeEquityRegionAllocation(
  * Un reparto de la RV que solo reparte lo publicado (decisión 11): sectores, estilo y tamaño. Una posición que no lo
  * declara no recibe ninguno: su peso se queda en `unclassified_weight_percent`, que es el «No declarado». No se deduce
  * de su nombre, de su categoría ni de su proveedor, y una acción no sale «86 % grande, 14 % mediana». El peso en RV es
- * el canónico (`assetPmsShares`), y por eso cuenta una acción sin vector y un mixto cuenta por su parte.
+ * el canónico (`assetPmsShares`), y por eso cuenta una acción sin vector y un mixto cuenta por su parte. Un fondo sin
+ * reparto de activos no entra, como en las regiones (A-211).
  */
 export function repartoDeclarado(
   positions: readonly BdbManualPortfolioPosition[],
@@ -137,7 +140,7 @@ export function repartoDeclarado(
     const weight = position.weight_percent || 0;
     const asset = byId.get(position.asset_id);
     if (weight <= 0 || !asset) return;
-    const eqW = weight * assetPmsShares(asset).shares.equity;
+    const eqW = weight * (parteParaLaLectura(asset, "equity") ?? 0);
     if (eqW <= 0) return;
     equityWeight += eqW;
     const dist = leer(asset);

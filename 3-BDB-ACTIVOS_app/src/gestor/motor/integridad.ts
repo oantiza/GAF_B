@@ -17,7 +17,7 @@ import { diasEntre, fechaEnTexto, type Dia } from "./fechas";
 import { construirLibro, extractoDeEfectivo, titulosDe, type Libro } from "./libro";
 import type { Cartera, ExtractoDeclarado, Movimiento, PosicionDeclarada } from "./modelo";
 import { nombreDelTipo } from "./movimientos/registro";
-import { FUENTE, ultimoHasta, type DatosDeMercado, type Valoracion } from "./valoracion";
+import { FUENTE, ultimoHasta, type DatosDeMercado, type SerieDeActivo, type Valoracion } from "./valoracion";
 
 export type GravedadDelAviso = "error" | "aviso" | "nota";
 
@@ -39,6 +39,7 @@ export type CodigoDeIntegridad =
   | "CAMBIO_ANTIGUO"
   | "CAPITAL_RESIDUAL"
   | "SIN_CAPITAL"
+  | "SIN_VALORAR"
   | "DIVIDENDO_SIN_FECHA_EX"
   | "CONCENTRACION";
 
@@ -153,6 +154,12 @@ export function posicionesPorActivo(cartera: Cartera, extracto: ExtractoDeclarad
     previa.titulos = aTexto(d(previa.titulos).plus(d(declarada.titulos)));
     if (previa.valor !== undefined && declarada.valor !== undefined) previa.valor = aTexto(d(previa.valor).plus(d(declarada.valor)));
     else delete previa.valor;
+    /* El precio no se suma: es el mismo en las dos filas, y si no lo es (o una no lo dice), la suma no tiene precio (A-205). */
+    const mismoPrecio = previa.precio !== undefined && declarada.precio !== undefined && previa.divisa === declarada.divisa && d(previa.precio).eq(d(declarada.precio));
+    if (!mismoPrecio) {
+      delete previa.precio;
+      delete previa.divisa;
+    }
   }
   return [...grupos.values()];
 }
@@ -323,6 +330,8 @@ export function comprobarIntegridad(cartera: Cartera, valoracion: Valoracion, fe
     if (aviso.codigo === "CAPITAL_RESIDUAL" && aviso.desde <= fecha) avisos.push({ gravedad: "aviso", codigo: "CAPITAL_RESIDUAL", mensaje: aviso.mensaje, fecha: aviso.desde });
     /* GES-9: días con resultado y sin capital sobre el que medirlo. Igual: solo si ya han pasado. */
     if (aviso.codigo === "SIN_CAPITAL" && aviso.desde <= fecha) avisos.push({ gravedad: "aviso", codigo: "SIN_CAPITAL", mensaje: aviso.mensaje, fecha: aviso.desde });
+    /* Decisión 2 del 22-11: días sin valoración que no se encadenan. Igual: solo si ya han pasado. */
+    if (aviso.codigo === "SIN_VALORAR" && aviso.desde <= fecha) avisos.push({ gravedad: "aviso", codigo: "SIN_VALORAR", mensaje: aviso.mensaje, fecha: aviso.desde });
   }
 
   for (const grupo of posiblesDuplicados(cartera.movimientos)) {
@@ -372,6 +381,13 @@ export function comprobarIntegridad(cartera: Cartera, valoracion: Valoracion, fe
   const k = valoracion.indice.get(fecha) ?? valoracion.dias.length - 1;
   if (k >= 0) {
     const total = valoracion.valor[k];
+    /* La divisa de una posición que tiene precio y no se valora un día porque no hay tipo de cambio (`valoracion.ts`, «sin
+       cambio es sin valor»): su fuente es la de una sin precio, y lo que falta no se arregla con un precio a mano sino con el
+       cambio. Si además le falta el precio, `undefined`: lo primero que falta es el precio. */
+    const sinCambioEl = (serie: SerieDeActivo, i: number): string | undefined => {
+      const divisa = cartera.activos.find((activo) => activo.id === serie.activoId)?.divisa;
+      return divisa && divisa !== cartera.divisaBase && serie.precio[i] > 0 && !(valoracion.aBase(divisa, valoracion.dias[i]) > 0) ? divisa : undefined;
+    };
     /*
      * Los días PASADOS también cuentan (auditoría 16-11-2026, GES-1). Una posición con títulos y sin precio vale cero ese
      * día, y un día a cero deja en −100 % la rentabilidad encadenada de cualquier periodo que lo incluya: antes solo se
@@ -383,9 +399,13 @@ export function comprobarIntegridad(cartera: Cartera, valoracion: Valoracion, fe
       let primeroSinPrecio = -1;
       let ultimoSinPrecio = -1;
       let ultimoDeOperacion = -1;
+      /* La divisa sin cambio si TODOS los días sin precio lo fueron por falta de cambio; si no, `undefined`. */
+      let soloSinCambio: string | undefined;
       for (let i = 0; i <= k; i += 1) {
         if (serie.titulos[i] <= 0) continue;
         if (serie.fuente[i] === FUENTE.sinPrecio) {
+          const divisa = sinCambioEl(serie, i);
+          soloSinCambio = primeroSinPrecio < 0 || soloSinCambio !== undefined ? divisa : undefined;
           if (primeroSinPrecio < 0) primeroSinPrecio = i;
           ultimoSinPrecio = i;
         } else if (serie.fuente[i] === FUENTE.operacion) ultimoDeOperacion = i;
@@ -398,7 +418,9 @@ export function comprobarIntegridad(cartera: Cartera, valoracion: Valoracion, fe
           codigo: "SIN_PRECIO",
           activoId: serie.activoId,
           fecha: valoracion.dias[primeroSinPrecio],
-          mensaje: `${quien} no tuvo precio ${tramo}: esos días contó como cero, y la rentabilidad de cualquier periodo que los incluya no vale. Ponle un precio a mano con fecha ${fechaEnTexto(valoracion.dias[primeroSinPrecio])}.`
+          mensaje: soloSinCambio
+            ? `${quien} no tuvo tipo de cambio ${soloSinCambio}/${cartera.divisaBase} ${tramo}: esos días contó como cero, y la rentabilidad de cualquier periodo que los incluya no vale. Escribe el cambio en sus operaciones.`
+            : `${quien} no tuvo precio ${tramo}: esos días contó como cero, y la rentabilidad de cualquier periodo que los incluya no vale. Ponle un precio a mano con fecha ${fechaEnTexto(valoracion.dias[primeroSinPrecio])}.`
         });
       }
       const primeraDeMercado = mercado?.precios.get(serie.activoId)?.[0]?.fecha;
@@ -444,7 +466,9 @@ export function comprobarIntegridad(cartera: Cartera, valoracion: Valoracion, fe
       const fuente = serie.fuente[k];
       const quien = nombre(serie.activoId);
       if (fuente === FUENTE.sinPrecio) {
-        avisos.push({ gravedad: "error", codigo: "SIN_PRECIO", activoId: serie.activoId, mensaje: `${quien} no tiene precio: cuenta como cero. Ponle un precio a mano.` });
+        const divisa = sinCambioEl(serie, k);
+        const que = divisa ? `no tiene tipo de cambio ${divisa}/${cartera.divisaBase}` : "no tiene precio";
+        avisos.push({ gravedad: "error", codigo: "SIN_PRECIO", activoId: serie.activoId, mensaje: `${quien} ${que}: cuenta como cero, y la rentabilidad de cualquier periodo que incluya esta fecha no vale. ${divisa ? "Escribe el cambio en sus operaciones." : "Ponle un precio a mano."}` });
       } else if (fuente === FUENTE.operacion) {
         const conSerie = (mercado?.precios.get(serie.activoId)?.length ?? 0) > 0;
         avisos.push({ gravedad: "aviso", codigo: "PRECIO_DE_OPERACION", activoId: serie.activoId, mensaje: `${quien} ${conSerie ? "aún no tiene precios en su serie" : "no tiene serie de precios"}: se valora al precio de su última operación, de hace ${serie.antiguedad[k]} días. Ponle un precio a mano para actualizarlo.` });

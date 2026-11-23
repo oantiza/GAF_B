@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { peso, porcentaje } from "../core/formato";
 import type { CeldaDeTabla, ColumnaDeTabla, FilaAgrupable } from "../types/tablaDeDatos";
 import type { BdbAssetDetail } from "../types/bdbAssets";
+import type { ParteSinLeer } from "../core/appError";
+import { estadoDeLaPosicion, TEXTO_DEL_ESTADO } from "../core/positionsShared";
 import { seEnsenaLaMetrica, type MetricaDeInstrumento } from "../core/metricasPorInstrumento";
 import { textoDeAusencia } from "../core/textoDeAusencia";
 
@@ -37,6 +39,8 @@ export interface PosicionCalculada {
   /* El activo entero, no solo su nombre: los botones de la pantalla lo necesitan para
      abrir el detalle y las alternativas. */
   asset?: BdbAssetDetail | null;
+  /** Lo que la base no pudo leer de ella: sin activo y con esto, «No se pudo leer», no «No reconocida». */
+  sinLeer?: ParteSinLeer[];
 }
 
 /**
@@ -175,10 +179,13 @@ export function columnasDePosiciones(o: OpcionesDeLaTabla): ColumnaDeTabla<FilaD
   columnas.push({
     id: "estado",
     titulo: "Estado",
-    celda: ({ posicion }) =>
-      posicion.asset
-        ? { texto: "Reconocida", valor: "Reconocida" }
-        : { texto: "No reconocida", valor: "No reconocida", ausencia: "falta" }
+    /* Tres estados (20-11-2026): una posición que la base no pudo leer no es una que no esté en el catálogo. Las dos
+       sin activo llevan la marca de lo que falta, cada una con su palabra. */
+    celda: ({ posicion }) => {
+      const estado = estadoDeLaPosicion({ asset: posicion.asset ?? null, sinLeer: posicion.sinLeer });
+      const texto = TEXTO_DEL_ESTADO[estado];
+      return estado === "found" ? { texto, valor: texto } : { texto, valor: texto, ausencia: "falta" as const };
+    }
   });
 
   if (o.conDetalle) {

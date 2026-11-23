@@ -85,28 +85,74 @@ def _serie(meses, factor):
     return salida
 
 
-def test_medidas_de_una_serie_conocida():
-    meses = G.meses_hasta("2026-10", 61)
-    assert meses[0] == "2021-10" and meses[-1] == "2026-10" and len(meses) == 61
-    serie = _serie(meses, lambda k: 1.01 if k % 2 else 0.995)
-    m = G.medidas(serie, meses, lambda mes: 0.0)
-    rentas = [1.01 - 1 if k % 2 else 0.995 - 1 for k in range(1, 61)]
-    esperado_anual = math.prod(1 + r for r in rentas) ** (12 / 60) - 1
-    assert m["anual"] == pytest.approx(esperado_anual)
-    media = sum(rentas) / 60
-    vol = math.sqrt(sum((r - media) ** 2 for r in rentas) / 59) * math.sqrt(12)
-    assert m["volatilidad"] == pytest.approx(vol)
-    assert m["sharpe"] == pytest.approx(esperado_anual / vol)
-    abajo = math.sqrt(sum(min(0, r) ** 2 for r in rentas) / 60) * math.sqrt(12)
-    assert m["sortino"] == pytest.approx(esperado_anual / abajo)
+def _metricas(sharpe3, sharpe5, sortino5, vol5=0.1, as_of="2026-10-31", method="EXTRACTOR_MONTHLY_V4"):
+    return {"method": method, "as_of": as_of, "sharpe": {"3y": sharpe3, "5y": sharpe5, "1y": 9.9},
+            "sortino": {"5y": sortino5, "3y": 9.9}, "volatility": {"5y": vol5}}
 
 
-def test_el_tipo_sin_riesgo_resta_cada_mes_el_suyo():
+def test_la_calidad_lee_las_cifras_de_la_ficha_tal_cual():
+    """Pendiente del 19-11-2026: el Sharpe con el que se ordena es el de la ficha, no uno calculado aqui con otro estimador."""
+    assert G.cifras_de_la_ficha(_metricas(1.25, 0.8, 1.4, 0.07), "2026-10") == {
+        "sharpe_3a": 1.25, "sharpe_5a": 0.8, "sortino_5a": 1.4, "volatilidad_5a": 0.07}
+
+
+@pytest.mark.parametrize("metricas", [
+    _metricas(1.0, 1.0, 1.0, as_of="2026-09-30"),          # cerrada otro mes: mide otra ventana
+    _metricas(1.0, 1.0, 1.0, method="EXTRACTOR_DAILY_V4"),  # otro metodo: otro estimador
+    _metricas(1.0, 1.0, 1.0, method=None),
+    None,
+])
+def test_una_cifra_de_otro_mes_o_de_otro_metodo_cuenta_como_que_falta(metricas):
+    assert set(G.cifras_de_la_ficha(metricas, "2026-10").values()) == {None}
+
+
+def test_una_cifra_que_no_es_un_numero_falta_y_las_demas_valen():
+    metricas = _metricas(float("nan"), True, 0.9)
+    assert G.cifras_de_la_ficha(metricas, "2026-10") == {
+        "sharpe_3a": None, "sharpe_5a": None, "sortino_5a": 0.9, "volatilidad_5a": 0.1}
+
+
+def test_la_calidad_ordena_por_el_sharpe_de_la_ficha_aunque_la_serie_diga_otra_cosa():
+    """Tres fondos con la misma serie: lo unico que los distingue en calidad es la ficha. Con tres fondos, el
+    percentil de cada cifra es (los que quedan por detras) / 2: el mejor 1, el medio 0,5, el peor 0."""
     meses = G.meses_hasta("2026-10", 61)
-    serie = _serie(meses, lambda k: 1.01 if k % 2 else 0.995)
-    sin = G.medidas(serie, meses, lambda mes: 0.0)
-    con = G.medidas(serie, meses, lambda mes: 0.024)
-    assert con["sharpe"] == pytest.approx((sin["anual"] - 0.024) / sin["volatilidad"])
+    fondos = []
+    for aid, cifras in (("A", (0.2, 0.3, 0.4)), ("B", (1.2, 1.1, 1.5)), ("C", (0.7, 0.6, 0.9))):
+        fondos.append({"asset_id": aid, "nombre": aid, "serie": _serie(meses, lambda k: 1.004), "patrimonio": 1e9,
+                       "anios": 10, "gasto_corriente_pct": 1.0,
+                       "ficha": G.cifras_de_la_ficha(_metricas(*cifras), "2026-10")})
+    notas = G.puntuar(fondos, meses)
+    assert {aid: notas[aid]["pilares"]["calidad"] for aid in "ABC"} == {"A": 0.0, "B": 1.0, "C": 0.5}
+    assert notas["B"]["medidas"]["sharpe_3a"] == 1.2 and notas["B"]["medidas"]["sortino_5a"] == 1.5
+    # Sin cifra en la ficha, el centro del grupo, como cualquier dato que falta.
+    fondos[1]["ficha"] = G.cifras_de_la_ficha(None, "2026-10")
+    assert G.puntuar(fondos, meses)["B"]["pilares"]["calidad"] == 0.5
+
+
+def test_el_patrimonio_se_compara_en_euros():
+    cambios = {"USD": [("2026-10-27", 1.25), ("2026-10-28", 1.20)], "GBP": [("2026-10-28", 0.80)]}
+    lector = lambda divisa: cambios.get(divisa, [])  # noqa: E731
+    # 120 M de dolares a 1,20 dolares por euro son 100 M de euros: justo el minimo.
+    assert G.patrimonio_en_euros({"aum": 120e6, "currency": "USD", "as_of": "2026-10-28"}, lector) == (pytest.approx(100e6), None)
+    # Un dia sin cambio (el 29 no lo hay) usa el anterior.
+    assert G.patrimonio_en_euros({"aum": 120e6, "currency": "USD", "as_of": "2026-10-29"}, lector) == (pytest.approx(100e6), None)
+    # 9.600 M de peniques son 96 M de libras, a 0,80 libras por euro 120 M de euros.
+    assert G.patrimonio_en_euros({"aum": 9600e6, "currency": "GBX", "as_of": "2026-10-28"}, lector) == (pytest.approx(120e6), None)
+    assert G.patrimonio_en_euros({"aum": 5e8, "currency": "EUR"}, lector) == (5e8, None)
+
+
+@pytest.mark.parametrize("tamano, motivo", [
+    ({"aum": 1e9, "currency": None}, "patrimonio sin divisa"),
+    ({"aum": 1e9}, "patrimonio sin divisa"),
+    ({"currency": "EUR"}, "sin patrimonio"),
+    ({"aum": 1e9, "currency": "CHF", "as_of": "2026-10-28"}, "patrimonio en otra divisa sin cambio del BCE"),
+    # El ultimo cambio es de nueve dias antes: mas que los siete de tolerancia.
+    ({"aum": 1e9, "currency": "USD", "as_of": "2026-11-06"}, "patrimonio en otra divisa sin cambio del BCE"),
+    ({"aum": 1e9, "currency": "USD"}, "patrimonio en otra divisa sin fecha"),
+])
+def test_un_patrimonio_que_no_se_puede_pasar_a_euros_lo_dice(tamano, motivo):
+    lector = lambda divisa: {"USD": [("2026-10-28", 1.20)]}.get(divisa, [])  # noqa: E731
+    assert G.patrimonio_en_euros(tamano, lector) == (None, motivo)
 
 
 def test_el_mes_anterior_a_uno_dado():
@@ -143,13 +189,6 @@ def test_un_fondo_atrasado_no_se_mide_con_un_mes_a_medias():
     assert G.llega_al_ultimo_mes(None, comun) is False
 
 
-def test_medidas_sin_meses_completos_no_dan_cifra():
-    meses = G.meses_hasta("2026-10", 61)
-    serie = _serie(meses, lambda k: 1.001)
-    del serie["2024-03"]
-    assert G.medidas(serie, meses, lambda mes: 0.0) is None
-
-
 def test_consistencia_cuenta_los_meses_por_encima_de_la_mediana():
     meses = G.meses_hasta("2026-10", 61)
     series = {
@@ -161,15 +200,6 @@ def test_consistencia_cuenta_los_meses_por_encima_de_la_mediana():
     assert c == {"bueno": 1.0, "medio": 0.0, "malo": 0.0}
 
 
-def test_estr_mensual_media_y_antes_de_empezar():
-    diaria = [(date(2019, 10, 1), -0.55), (date(2019, 10, 2), -0.53), (date(2020, 1, 2), -0.54)]
-    tipo = G.estr_mensual(diaria)
-    assert tipo("2019-10") == pytest.approx(-0.0054)
-    assert tipo("2018-10") == pytest.approx(-0.0054)
-    assert tipo("2020-01") == pytest.approx(-0.0054)
-    assert tipo("2030-01") == pytest.approx(-0.0054)
-
-
 def test_es_indexado_por_el_nombre():
     assert G.es_indexado("Vanguard Global Stock Index Fund EUR Acc")
     assert G.es_indexado("INDEXA RV MIXTA INTERNACIONAL 75, FI")
@@ -178,10 +208,11 @@ def test_es_indexado_por_el_nombre():
     assert not G.es_indexado("DWS Strategic Balance NC")
 
 
-def _fondo(asset_id, bloque, nombre, gasto, patrimonio, anios, factor, indexado=False):
+def _fondo(asset_id, bloque, nombre, gasto, patrimonio, anios, factor, indexado=False, sharpe=0.5):
     meses = G.meses_hasta("2026-10", 61)
     return {"asset_id": asset_id, "nombre": nombre, "bloque": bloque, "indexado": indexado,
-            "gasto_corriente_pct": gasto, "patrimonio": patrimonio, "anios": anios, "serie": _serie(meses, factor)}
+            "gasto_corriente_pct": gasto, "patrimonio": patrimonio, "anios": anios, "serie": _serie(meses, factor),
+            "ficha": G.cifras_de_la_ficha(_metricas(sharpe, sharpe, sharpe * 1.3), "2026-10")}
 
 
 def _catalogo():
@@ -189,15 +220,16 @@ def _catalogo():
     for b_i, bloque in enumerate(G.BLOQUES):
         for k in range(4):
             fondos.append(_fondo(f"{b_i}{k}", bloque, f"Gestora{b_i}{k} Fondo", 1.0 + k / 10, 500e6 + k * 1e8, 10 + k,
-                                 lambda m, k=k, b=b_i: 1.003 + 0.001 * k + (0.002 if m % 3 == 0 else -0.001) * (b + 1) / 8))
-        fondos.append(_fondo(f"{b_i}i", bloque, f"Indice{b_i} Index Fund", 0.1, 5e9, 20, lambda m: 1.006, indexado=True))
+                                 lambda m, k=k, b=b_i: 1.003 + 0.001 * k + (0.002 if m % 3 == 0 else -0.001) * (b + 1) / 8,
+                                 sharpe=0.3 + 0.1 * k))
+        fondos.append(_fondo(f"{b_i}i", bloque, f"Indice{b_i} Index Fund", 0.1, 5e9, 20, lambda m: 1.006, indexado=True, sharpe=1.5))
     return fondos
 
 
 def test_el_borrador_suma_cien_respeta_topes_y_deja_fuera_los_indexados():
     fondos = _catalogo()
     for nivel in range(1, 11):
-        b = G.componer(nivel, 8, False, fondos, "2026-10", lambda mes: 0.0, {})
+        b = G.componer(nivel, 8, False, fondos, "2026-10", {})
         assert b["estado"] == "OK"
         assert sum(p["peso_pct"] for p in b["posiciones"]) == pytest.approx(100.0)
         assert all(p["peso_pct"] <= 25.0 + 1e-9 and p["peso_pct"] >= 5.0 - 1e-9 for p in b["posiciones"])
@@ -208,12 +240,12 @@ def test_el_borrador_suma_cien_respeta_topes_y_deja_fuera_los_indexados():
 
 
 def test_con_indexados_pueden_entrar():
-    b = G.componer(10, 8, True, _catalogo(), "2026-10", lambda mes: 0.0, {})
+    b = G.componer(10, 8, True, _catalogo(), "2026-10", {})
     assert any(p["indexado"] for p in b["posiciones"])
 
 
 def test_pedir_menos_del_minimo_lo_dice_y_no_compone():
-    b = G.componer(4, 3, False, _catalogo(), "2026-10", lambda mes: 0.0, {})
+    b = G.componer(4, 3, False, _catalogo(), "2026-10", {})
     assert b["estado"] == "FALTAN_FONDOS"
     assert b["posiciones"] == []
     assert b["minimo_de_fondos"] == 6
@@ -221,7 +253,7 @@ def test_pedir_menos_del_minimo_lo_dice_y_no_compone():
 
 
 def test_la_nota_pondera_los_cuatro_pilares():
-    b = G.componer(10, 4, False, _catalogo(), "2026-10", lambda mes: 0.0, {})
+    b = G.componer(10, 4, False, _catalogo(), "2026-10", {})
     for p in b["posiciones"]:
         esperado = sum(G.PESOS[k] * v for k, v in p["pilares"].items())
         assert p["nota"] == pytest.approx(esperado, abs=1e-3)
@@ -240,11 +272,11 @@ def test_dentro_del_bloque_gana_la_mejor_nota_y_gestoras_distintas():
 
 def test_la_peticion_valida_el_nivel_y_el_numero_de_fondos():
     with pytest.raises(G.GeneradorNoDisponible):
-        G.generar_borrador(None, None, [], {"nivel": 11})
+        G.generar_borrador(None, None, {"nivel": 11})
     with pytest.raises(G.GeneradorNoDisponible):
-        G.generar_borrador(None, None, [], {"nivel": 5, "num_fondos": 0})
+        G.generar_borrador(None, None, {"nivel": 5, "num_fondos": 0})
     with pytest.raises(G.GeneradorNoDisponible):
-        G.generar_borrador(None, None, [], {})
+        G.generar_borrador(None, None, {})
 
 
 def test_la_renta_variable_cuadra_exacta_con_cualquier_numero_de_fondos():
@@ -252,7 +284,7 @@ def test_la_renta_variable_cuadra_exacta_con_cualquier_numero_de_fondos():
     fondos = _catalogo()
     for nivel in range(1, 11):
         for num in range(4, 21):
-            b = G.componer(nivel, num, False, fondos, "2026-10", lambda mes: 0.0, {})
+            b = G.componer(nivel, num, False, fondos, "2026-10", {})
             if b["estado"] != "OK":
                 continue
             rv = round(sum(p["peso_pct"] for p in b["posiciones"] if G.BLOQUES[p["bloque"]][0] == "RV"), 2)

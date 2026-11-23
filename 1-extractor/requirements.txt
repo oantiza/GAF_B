@@ -1,7 +1,7 @@
 requests==2.34.2
 pandas==3.0.3
 mstarpy==10.0.0
-yfinance==1.4.1
+yfinance==1.5.1
 pycountry==26.2.16
 firebase-admin==7.4.0
 defusedxml==0.7.1

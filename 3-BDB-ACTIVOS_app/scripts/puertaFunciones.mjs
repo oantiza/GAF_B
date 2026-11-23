@@ -3,7 +3,7 @@
  *
  * Aborta el despliegue salvo que lo lance `scripts/desplegarFunciones.mjs`, que es el único que comprueba la lista
  * de funciones, el destino y el estado de Git. Sin esta puerta, `firebase deploy --config firebase.funciones.json`
- * a mano subiría las 51 funciones de `main.py` (hallazgo 4 de la auditoría del backend, 15-11-2026).
+ * a mano subiría las 26 funciones de `main.py` (46 hasta el 21-11-2026; hallazgo 4 de la auditoría del backend, 15-11-2026).
  *
  * Por qué no escribe: el `predeploy` de `firebase.json` (`syncContractsCache.mjs`) escribe en `functions_python`, y el
  * emulador de Functions, si está en marcha, vuelve a leer las funciones al ver el cambio, con un servidor en el puerto
@@ -54,7 +54,7 @@ export function evaluaPuerta(entorno) {
     mensaje: [
       "",
       "  DESPLIEGUE DE FUNCIONES BLOQUEADO",
-      "  Este fichero de configuración solo se despliega con el guion, que sube las 23 funciones permitidas y no las 51:",
+      "  Este fichero de configuración solo se despliega con el guion, que sube las 23 funciones permitidas y no las 26:",
       "    node scripts/desplegarFunciones.mjs --despliega",
       "",
     ].join("\n"),

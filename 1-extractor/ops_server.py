@@ -4,8 +4,8 @@
     python main.py ops --puerto 9000
 
 La app (Sistema › Operaciones) habla con este servicio para dar de alta
-activos, extraerlos, generar los canónicos y llevarlos a la maestra sin abrir
-tres programas. Solo escucha en 127.0.0.1, solo atiende peticiones con el Host
+activos, extraerlos, generar los canónicos y corregirlos en origen sin abrir
+otro programa. Solo escucha en 127.0.0.1, solo atiende peticiones con el Host
 de este servidor (127.0.0.1 o localhost y su puerto) y solo responde a los
 orígenes de la app en desarrollo (`ops_origenes` en settings.json). Cada petición
 (salvo el preflight OPTIONS) debe traer el token en la cabecera `X-Ops-Token`: el de
@@ -23,39 +23,9 @@ Los trabajos van en segundo plano, uno a la vez, con registro en vivo:
     POST /api/ops/extraer               {isins, force?}              -> tarea
     POST /api/ops/canonico              {isins?}                     -> tarea
     POST /api/ops/reclasificar          {isin, tipo}                 cambia el tipo en fondos.csv (solo el
-                                        universo del extractor: a la maestra llega con
-                                        plataforma/reclasificar-seco y plataforma/reclasificar)
+                                        universo del extractor)
     GET  /api/ops/tareas                últimas tareas
     GET  /api/ops/tareas/{id}?desde=N   estado y registro de una tarea
-
-Plataforma de datos (`core.ops_plataforma`, subprocesos de `2-plataforma-datos`):
-
-    GET  /api/ops/plataforma/estado     disponibilidad, última copia, corridas
-    POST /api/ops/plataforma/backup     copia de la maestra           -> tarea
-    POST /api/ops/plataforma/seco       {isins, modo: alta|republish} -> tarea
-                                        la alta crea raíz, cartera y metrics/latest puente
-    POST /api/ops/plataforma/escribir   {isins, modo, aprobacion}     -> tarea
-                                        exige pasada en seco previa de esos ISIN,
-                                        aprobación = su recuento y copia < 24 h; en la
-                                        alta solo se escriben los CREATE aprobados
-    POST /api/ops/plataforma/reclasificar-seco {isins, preparar?}    -> tarea
-                                        ISIN que fondos.csv ya da por acción: pasada en
-                                        seco de reclassify:stock; con preparar (por
-                                        defecto) extrae y regenera el canónico solo de
-                                        los que aún no tienen canónico de acción
-    POST /api/ops/plataforma/reclasificar {isins, aprobacion}        -> tarea
-                                        exige esa pasada en seco, aprobación = su
-                                        recuento y copia < 24 h; reescribe la raíz
-                                        como acción, invalida metrics/latest y cambia
-                                        el buscador; después, auditoría
-    POST /api/ops/plataforma/auditar    {isins}                       -> tarea
-    POST /api/ops/plataforma/archivar-seco {isins, motivo?}           -> tarea (qué hay, sin tocar nada)
-    POST /api/ops/plataforma/archivar   {isins, aprobacion, motivo?}  -> tarea
-                                        exige pasada en seco previa de esos ISIN, aprobación =
-                                        su recuento y copia < 24 h; copia local + _archived_assets,
-                                        retirada de assets y del índice; después baja del universo
-                                        del extractor y canónico regenerado
-    GET  /api/ops/plataforma/corridas   artefactos de las corridas
 
 Correcciones manuales en origen (`core.correcciones`, config/correcciones.json):
 
@@ -72,7 +42,6 @@ import hmac
 import json
 import logging
 import sys
-import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
@@ -82,13 +51,15 @@ sys.path.insert(0, str(BASE))
 
 from core import correcciones, ops, red_local  # noqa: E402
 from core.package_integrity import ConfigBloqueada  # noqa: E402
-from core import ops_plataforma  # noqa: E402
 
 log = logging.getLogger("fondosdb.ops_server")
 
-ORIGENES_POR_DEFECTO = ("http://localhost:5173", "http://127.0.0.1:5173",
-                        "http://localhost:5178", "http://127.0.0.1:5178",
-                        "http://localhost:4173", "http://127.0.0.1:4173")
+# Los puertos de Vite en local: 5174 es el de la aplicacion principal (`arrancar-entorno`), y 5173-5179 son los que usan
+# las copias de trabajo, que arrancan en el siguiente libre. 4173 es `vite preview`. Faltaba 5174: la aplicacion
+# principal era la unica que el servicio local rechazaba (pendiente del 20-11-2026). Solo escucha en 127.0.0.1, y el
+# origen no es una credencial: la puerta es el Host y el token.
+PUERTOS_VITE = (5173, 5174, 5175, 5176, 5177, 5178, 5179, 4173)
+ORIGENES_POR_DEFECTO = tuple(f"http://{host}:{puerto}" for puerto in PUERTOS_VITE for host in ("localhost", "127.0.0.1"))
 
 
 class Servicio:
@@ -108,11 +79,6 @@ class Servicio:
         # leer en cada petición (`token`).
         self._settings = settings
         ops.token_ops(self.base, settings)
-        self.plataforma = ops_plataforma.localiza(self.base, settings)
-        # Última pasada en seco por (modo, isins): la escritura exige que exista
-        # y que el recuento aprobado sea el suyo.
-        self.ultima_seco: dict[tuple, dict] = {}
-        self.lock = threading.Lock()
 
     def settings_actuales(self) -> dict:
         try:
@@ -138,17 +104,7 @@ class Servicio:
 
     # ----------------------------------------------------------- consultas
     def estado(self) -> dict:
-        est = ops.estado(self.base, self.cola)
-        est["plataforma"] = self.plataforma_estado()
-        return est
-
-    def plataforma_estado(self) -> dict:
-        return {
-            **ops_plataforma.disponible(self.plataforma),
-            "ultimo_backup": ops_plataforma.ultimo_backup(self.plataforma),
-            "backup_max_horas": ops_plataforma.BACKUP_MAX_HORAS,
-            "corridas": ops_plataforma.corridas(self.base, limite=8),
-        }
+        return ops.estado(self.base, self.cola)
 
     def universo(self, q: str) -> list[dict]:
         filas = ops.lista_universo(self.base)
@@ -218,155 +174,6 @@ class Servicio:
             siguiente = "reclasificar en la maestra: pasada en seco de la reclasificación (extrae, canónico y reclassify:stock)"
         return {"ok": True, **res, "siguiente": siguiente}
 
-    # ----------------------------------------------------------- plataforma
-    def _isins_y_modo(self, datos: dict) -> tuple[list[str], str]:
-        isins = ops.extrae_isins(datos.get("texto"), datos.get("isins"))
-        if not isins:
-            raise ErrorPeticion(400, "No encuentro ningún ISIN")
-        modo = str(datos.get("modo") or "alta").strip().lower()
-        if modo not in ops_plataforma.MODOS:
-            raise ErrorPeticion(400, f"modo desconocido: {modo} (alta | republish)")
-        return isins, modo
-
-    def _exige_plataforma(self) -> None:
-        d = ops_plataforma.disponible(self.plataforma)
-        if not (d["existe"] and d["scripts_ok"] and d["node_modules"] and d["npm"]):
-            raise ErrorPeticion(503, "la plataforma de datos no está disponible en esta máquina", {"plataforma": d})
-
-    def backup(self, _datos: dict) -> dict:
-        self._exige_plataforma()
-
-        def fn(t: ops.Tarea):
-            return ops_plataforma.backup(self.plataforma, t.linea)
-        return self._lanza("plataforma_backup", fn, {})
-
-    def seco(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins, modo = self._isins_y_modo(datos)
-        clave = (modo, tuple(isins))
-
-        def fn(t: ops.Tarea):
-            res = ops_plataforma.pasada_en_seco(self.base, self.plataforma, isins, modo, t.linea)
-            with self.lock:
-                self.ultima_seco[clave] = {"escrituras": res["escrituras"], "run_id": res.get("run_id"), "tarea": t.id,
-                                           "crear": res.get("crear")}
-            return res
-        return self._lanza("plataforma_seco", fn, {"isins": isins, "modo": modo})
-
-    def escribir(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins, modo = self._isins_y_modo(datos)
-        clave = (modo, tuple(isins))
-        with self.lock:
-            previa = self.ultima_seco.get(clave)
-        if not previa:
-            raise ErrorPeticion(409, "primero la pasada en seco de estos mismos ISIN y modo")
-        try:
-            aprobacion = int(datos.get("aprobacion"))
-        except (TypeError, ValueError):
-            raise ErrorPeticion(400, "falta la aprobación: el número de escrituras de la pasada en seco") from None
-        if aprobacion != previa["escrituras"]:
-            raise ErrorPeticion(409, f"la pasada en seco previó {previa['escrituras']} escrituras y se han aprobado {aprobacion}")
-        copia = ops_plataforma.ultimo_backup(self.plataforma)
-        if not copia or not copia.get("vigente"):
-            raise ErrorPeticion(409, "no hay copia de la maestra de las últimas 24 horas: haz la copia antes de escribir",
-                                {"ultimo_backup": copia})
-
-        def fn(t: ops.Tarea):
-            res = ops_plataforma.escribir(self.base, self.plataforma, isins, modo, aprobacion, t.linea,
-                                          esperados=previa.get("crear") if modo == "alta" else None)
-            with self.lock:
-                self.ultima_seco.pop(clave, None)
-            return res
-        return self._lanza("plataforma_escribir", fn, {"isins": isins, "modo": modo, "aprobacion": aprobacion})
-
-    # ------------------------------------------------------- reclasificar
-    def _isins_accion(self, datos: dict) -> list[str]:
-        isins = ops.extrae_isins(datos.get("texto"), datos.get("isins"))
-        if not isins:
-            raise ErrorPeticion(400, "No encuentro ningún ISIN")
-        tipos = {f["isin"].strip().upper(): (f.get("tipo") or "").strip() for f in ops.carga_fondos(self.base)}
-        fuera = [i for i in isins if i not in tipos]
-        if fuera:
-            raise ErrorPeticion(400, f"no están en el universo: {', '.join(fuera)}")
-        no_accion = [i for i in isins if tipos[i] != "accion"]
-        if no_accion:
-            raise ErrorPeticion(400, f"solo se reclasifica a acción: cambia antes el tipo a acción de {', '.join(no_accion)}")
-        return isins
-
-    def reclasificar_seco(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins = self._isins_accion(datos)
-        preparar = bool(datos.get("preparar", True))
-        clave = ("reclasificar", tuple(isins))
-
-        def fn(t: ops.Tarea):
-            res = self._reclasificacion_en_seco(isins, preparar, t)
-            with self.lock:
-                self.ultima_seco[clave] = {"escrituras": res["reclasificables"], "run_id": res.get("run_id"), "tarea": t.id,
-                                           "isins": [f["isin"] for f in res["filas"]
-                                                     if f["accion"] in ops_plataforma.ACCIONES_RECLASIFICACION]}
-            return res
-        return self._lanza("plataforma_reclasificar_seco", fn, {"isins": isins, "preparar": preparar})
-
-    def _reclasificacion_en_seco(self, isins: list[str], preparar: bool, t: ops.Tarea) -> dict:
-        """Pasada en seco de la reclasificación. Con `preparar`, primero sin
-        extraer nada: solo se extraen (por red) los ISIN cuyo canónico aún no es
-        de acción; lo que la maestra ya tiene como acción, lo que no está en ella y
-        lo que ya tiene canónico de acción no se vuelve a descargar."""
-        if not preparar:
-            return ops_plataforma.reclasificar(self.base, self.plataforma, isins, escribir=False, log_cb=t.linea)
-        if not ops_plataforma.paquete_coherente(self.base)["coherente"]:
-            t.linea("El canónico no es coherente: lo regenero (sin red) antes de la pasada en seco…")
-            ops.canonico(self.base, isins, t.linea)
-        res = ops_plataforma.reclasificar(self.base, self.plataforma, isins, escribir=False, log_cb=t.linea)
-        pendientes = [f["isin"] for f in res["filas"] if f["accion"] == "SKIP" and f.get("razon") == "NO_STOCK_CANONICAL"]
-        if not pendientes:
-            t.linea("Nada que extraer: todos tienen ya canónico de acción, ya son acción en la maestra o no están en ella.")
-            return res
-        t.linea(f"Extrayendo como acción solo los que aún no tienen canónico de acción: {', '.join(pendientes)}")
-        ops.extrae(self.base, pendientes, False, False, t.linea, t.avanza)
-        t.linea("Regenerando el canónico…")
-        ops.canonico(self.base, pendientes, t.linea)
-        return ops_plataforma.reclasificar(self.base, self.plataforma, isins, escribir=False, log_cb=t.linea)
-
-    def reclasificar_maestra(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins = self._isins_accion(datos)
-        clave = ("reclasificar", tuple(isins))
-        with self.lock:
-            previa = self.ultima_seco.get(clave)
-        if not previa:
-            raise ErrorPeticion(409, "primero la pasada en seco de la reclasificación de estos mismos ISIN")
-        try:
-            aprobacion = int(datos.get("aprobacion"))
-        except (TypeError, ValueError):
-            raise ErrorPeticion(400, "falta la aprobación: el número de activos a reclasificar de la pasada en seco") from None
-        if aprobacion != previa["escrituras"]:
-            raise ErrorPeticion(409, f"la pasada en seco encontró {previa['escrituras']} activo(s) a reclasificar y se han aprobado {aprobacion}")
-        copia = ops_plataforma.ultimo_backup(self.plataforma)
-        if not copia or not copia.get("vigente"):
-            raise ErrorPeticion(409, "no hay copia de la maestra de las últimas 24 horas: haz la copia antes de reclasificar",
-                                {"ultimo_backup": copia})
-
-        def fn(t: ops.Tarea):
-            res = ops_plataforma.reclasificar(self.base, self.plataforma, isins, escribir=True, log_cb=t.linea,
-                                              esperado=aprobacion, esperados=previa.get("isins"))
-            with self.lock:
-                self.ultima_seco.pop(clave, None)
-            return res
-        return self._lanza("plataforma_reclasificar", fn, {"isins": isins, "aprobacion": aprobacion})
-
-    def auditar(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins = ops.extrae_isins(datos.get("texto"), datos.get("isins"))
-        if not isins:
-            raise ErrorPeticion(400, "No encuentro ningún ISIN")
-
-        def fn(t: ops.Tarea):
-            return ops_plataforma.auditar(self.base, self.plataforma, isins, t.linea)
-        return self._lanza("plataforma_auditar", fn, {"isins": isins})
-
     # -------------------------------------------------------- correcciones
     def correcciones(self, isin: str | None = None) -> dict:
         from core.adquisicion import registro
@@ -409,62 +216,6 @@ class Servicio:
 
     def _ficha_v2(self, isin: str) -> dict | None:
         return ops._lee_json(self.base / "data" / "funds" / f"{isin}.json")
-
-    # ------------------------------------------------------------ archivar
-    def archivar_seco(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins = ops.extrae_isins(datos.get("texto"), datos.get("isins"))
-        if not isins:
-            raise ErrorPeticion(400, "No encuentro ningún ISIN")
-        motivo = str(datos.get("motivo") or "")
-        clave = ("archivar", tuple(isins))
-
-        def fn(t: ops.Tarea):
-            res = ops_plataforma.archivar(self.base, self.plataforma, isins, escribir=False, motivo=motivo, log_cb=t.linea)
-            with self.lock:
-                self.ultima_seco[clave] = {"escrituras": res["archivables"], "run_id": res.get("run_id"), "tarea": t.id}
-            return res
-        return self._lanza("plataforma_archivar_seco", fn, {"isins": isins})
-
-    def archivar(self, datos: dict) -> dict:
-        self._exige_plataforma()
-        isins = ops.extrae_isins(datos.get("texto"), datos.get("isins"))
-        if not isins:
-            raise ErrorPeticion(400, "No encuentro ningún ISIN")
-        motivo = str(datos.get("motivo") or "")
-        clave = ("archivar", tuple(isins))
-        with self.lock:
-            previa = self.ultima_seco.get(clave)
-        if not previa:
-            raise ErrorPeticion(409, "primero la pasada en seco del archivo de estos mismos ISIN")
-        try:
-            aprobacion = int(datos.get("aprobacion"))
-        except (TypeError, ValueError):
-            raise ErrorPeticion(400, "falta la aprobación: el número de activos a archivar de la pasada en seco") from None
-        if aprobacion != previa["escrituras"]:
-            raise ErrorPeticion(409, f"la pasada en seco encontró {previa['escrituras']} activo(s) y se han aprobado {aprobacion}")
-        copia = ops_plataforma.ultimo_backup(self.plataforma)
-        if not copia or not copia.get("vigente"):
-            raise ErrorPeticion(409, "no hay copia de la maestra de las últimas 24 horas: haz la copia antes de archivar",
-                                {"ultimo_backup": copia})
-
-        def fn(t: ops.Tarea):
-            archivo = ops_plataforma.archivar(self.base, self.plataforma, isins, escribir=True, motivo=motivo,
-                                              log_cb=t.linea, esperado=aprobacion)
-            with self.lock:
-                self.ultima_seco.pop(clave, None)
-            archivados = [f["isin"] for f in archivo["filas"] if (f.get("postverify") or {}).get("ok")]
-            baja = None
-            canonico = None
-            if archivados:
-                t.linea(f"Retirando del universo del extractor: {', '.join(archivados)}")
-                baja = ops.baja(self.base, archivados, t.linea)
-                t.linea("Regenerando el canónico sin los activos archivados…")
-                canonico = ops.canonico(self.base, [], t.linea)
-            elif archivo.get("escritura"):
-                t.linea("Ningún activo superó la postverificación: el universo del extractor no se toca.")
-            return {"archivo": archivo, "baja": baja, "canonico": canonico}
-        return self._lanza("plataforma_archivar", fn, {"isins": isins, "aprobacion": aprobacion})
 
     def tarea(self, id_: str, desde: int) -> dict:
         t = self.cola.obtiene(id_)
@@ -602,10 +353,6 @@ def crea_manejador(servicio: Servicio):
                 self._despacha(lambda: servicio.universo((q.get("q") or [""])[0]))
             elif ruta.startswith("/api/ops/ficha/"):
                 self._despacha(lambda: servicio.ficha(ruta.rsplit("/", 1)[-1]))
-            elif ruta == "/api/ops/plataforma/estado":
-                self._despacha(servicio.plataforma_estado)
-            elif ruta == "/api/ops/plataforma/corridas":
-                self._despacha(lambda: {"corridas": ops_plataforma.corridas(servicio.base)})
             elif ruta == "/api/ops/correcciones":
                 self._despacha(lambda: servicio.correcciones())
             elif ruta.startswith("/api/ops/correcciones/"):
@@ -626,14 +373,6 @@ def crea_manejador(servicio: Servicio):
                 "/api/ops/extraer": servicio.extraer,
                 "/api/ops/canonico": servicio.canonico,
                 "/api/ops/reclasificar": servicio.reclasificar,
-                "/api/ops/plataforma/backup": servicio.backup,
-                "/api/ops/plataforma/seco": servicio.seco,
-                "/api/ops/plataforma/escribir": servicio.escribir,
-                "/api/ops/plataforma/auditar": servicio.auditar,
-                "/api/ops/plataforma/archivar-seco": servicio.archivar_seco,
-                "/api/ops/plataforma/archivar": servicio.archivar,
-                "/api/ops/plataforma/reclasificar-seco": servicio.reclasificar_seco,
-                "/api/ops/plataforma/reclasificar": servicio.reclasificar_maestra,
                 "/api/ops/correcciones": servicio.corrige,
             }
             accion = acciones.get(ruta)

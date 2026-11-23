@@ -294,7 +294,9 @@ export function AssetPicker({
         ) : null}
       </p>
 
-      <ul className="asset-picker-list">
+      {/* La lista se enfoca ella: sus filas son botones, pero al llegar al máximo se desactivan todos, y entonces nada
+          dentro se enfoca y el teclado no llegaba a recorrerla (20-11-2026). Conserva su papel de lista. */}
+      <ul aria-label="Activos encontrados (lista desplazable)" className="asset-picker-list" tabIndex={0}>
         {visible.map((a) => {
           const already = selectedIds.includes(a.asset_id);
           /* Se ve y se marca, y no se elige (decisión 44): en esta fila no hay nada que comparar. */

@@ -3,7 +3,7 @@ import type { FrontierPointView, FrontierViewModel, PortfolioFrontierMeasure } f
 import { oFalta, peso, porcentaje, ratio, rentabilidad } from "./formato";
 import { isPartialFrontier } from "./frontierPortfolioCoverage";
 import { ventanaEnPalabras } from "./glosarioDePantalla";
-import { topeDelModelo } from "./internalPortfolioReport";
+import { hayCandadoPorEncimaDelTope, queRegularizaElMaximoSharpe, topeDelModelo, topeEscrito as topeEnPalabras } from "./internalPortfolioReport";
 import { esUnaSolaAccion } from "./medidaDeLaCartera";
 
 /**
@@ -24,10 +24,8 @@ export const TU_OBJETIVO = "Tu objetivo";
 
 const esDelMotor = (model: Pick<FrontierViewModel, "methodologyV2">) => OPTIMIZADORES_DEL_MOTOR.has(model.methodologyV2?.optimizer ?? "");
 
-const topeEscrito = (model: FrontierViewModel) => {
-  const tope = topeDelModelo({ frontier: model });
-  return tope === null ? "tope por posición no informado" : `tope del ${oFalta(peso(tope))} por posición`;
-};
+/* El tope, y si un candado lo pasa (Óscar, 20-11-2026): la misma frase que el informe interno. */
+const topeEscrito = (model: FrontierViewModel) => topeEnPalabras(topeDelModelo({ frontier: model }), hayCandadoPorEncimaDelTope(model));
 
 type ActivoConClase = Pick<BdbAssetDetail, "asset_id" | "economic_asset_class">;
 
@@ -55,7 +53,7 @@ export function fraseDelEncogimiento(model: Pick<FrontierViewModel, "maxSharpe">
  */
 export function notaDeLaPropuesta(model: FrontierViewModel, assets: readonly ActivoConClase[] = []): string | null {
   if (!esDelMotor(model)) return null;
-  const base = `Máximo Sharpe del modelo: rentabilidades y covarianza regularizadas, ${topeEscrito(model)}. Medida luego con la serie real puede quedar por debajo de la cartera actual.`;
+  const base = `Máximo Sharpe del modelo: ${queRegularizaElMaximoSharpe(model)}, ${topeEscrito(model)}. Medida luego con la serie real puede quedar por debajo de la cartera actual.`;
   const encogimiento = fraseDelEncogimiento(model, assets);
   return encogimiento ? `${base} ${encogimiento}` : base;
 }
@@ -113,10 +111,15 @@ type ActivoConTipo = Pick<BdbAssetDetail, "asset_id" | "instrument_type">;
 const idsConPeso = (punto: FrontierPointView | undefined) =>
   Object.entries(punto?.pesosCompletos ?? {}).filter(([, peso]) => peso > 0).map(([id]) => id);
 
-/** De cuál de las dos no se enseña el Sharpe, porque lo que se mide es una sola acción: «actual», «propuesta» o ninguna. */
-export function sharpeQueNoAplica(model: FrontierViewModel, assets: readonly ActivoConTipo[]): "actual" | "propuesta" | null {
-  if (esUnaSolaAccion(idsConPeso(model.current), assets)) return "actual";
-  return esUnaSolaAccion(idsConPeso(model.targetReturn), assets) ? "propuesta" : null;
+/**
+ * De cuál de las dos no se enseña el Sharpe, porque lo que se mide es una sola acción: «actual», «propuesta», «ambas» o ninguna. El Sharpe de una
+ * acción individual no se enseña nunca (Óscar, 03 y 04-11-2026). Hasta el 21-11-2026 (P2-06), con la actual de una sola acción se respondía
+ * «actual» sin mirar la propuesta, y si también lo era su Sharpe salía en la tabla y en la frase.
+ */
+export function sharpeQueNoAplica(model: FrontierViewModel, assets: readonly ActivoConTipo[]): "actual" | "propuesta" | "ambas" | null {
+  const actual = esUnaSolaAccion(idsConPeso(model.current), assets);
+  const propuesta = esUnaSolaAccion(idsConPeso(model.targetReturn), assets);
+  return actual && propuesta ? "ambas" : actual ? "actual" : propuesta ? "propuesta" : null;
 }
 
 /** Lo mismo, en una frase: es lo que se lee en la revisión, donde no está la tabla. */
@@ -137,7 +140,7 @@ export function notaDeLaRentabilidadObjetivo(model: FrontierViewModel, assets: r
   if (!medida || !frenteALoPedido) return `${queEs}${laDeLaTarjeta} La medida con la serie no está: falta el dato.`;
   const noAplica = sharpeQueNoAplica(model, assets);
   const riesgo = (cartera: PortfolioFrontierMeasure, suya: "actual" | "propuesta") =>
-    noAplica === suya
+    noAplica === suya || noAplica === "ambas"
       ? `una volatilidad del ${oFalta(porcentaje(cartera.volatility))}`
       : `una volatilidad del ${oFalta(porcentaje(cartera.volatility))} y un Sharpe de ${oFalta(ratio(cartera.sharpe))}`;
   const conActual = actual
@@ -183,5 +186,26 @@ export function notaDeLaCartera(model: FrontierViewModel, origen: string | undef
   if (origen === RENTABILIDAD_OBJETIVO) return notaDeLaRentabilidadObjetivo(model, assets);
   if (origen === MAXIMO_SHARPE) return notaDeLaPropuesta(model, assets);
   const deQueSale = origen === undefined ? undefined : DE_QUE_SALE.get(origen);
-  return deQueSale && esDelMotor(model) ? `${deQueSale}, ${topeEscrito(model)}. ${SUS_CIFRAS_SON_DEL_MODELO}` : null;
+  /* Con una rotación máxima, la de mínima volatilidad no se aleja de la cartera de partida más de lo que esa rotación deja: depende también de ella
+     (Óscar, 20-11-2026; `cp.norm1(w - turnover_vec) <= turnover_cap` en robust_engine.py). La rotación llega como Σ|w − w₀|: lo que cambia de
+     sitio es la mitad. */
+  const rotacion = model.methodologyV2?.maxTurnover;
+  const conRotacion = origen === MIN_VOLATILIDAD && typeof rotacion === "number"
+    ? ` Con una rotación máxima del ${oFalta(peso(rotacion / 2))} del patrimonio, depende también de la cartera de partida.`
+    : "";
+  return deQueSale && esDelMotor(model) ? `${deQueSale}, ${topeEscrito(model)}.${conRotacion} ${SUS_CIFRAS_SON_DEL_MODELO}` : null;
+}
+
+/** El nombre de la cartera de cada objetivo: con él se elige la nota que va sobre las tarjetas. */
+const CARTERA_DEL_OBJETIVO = { MAX_SHARPE: MAXIMO_SHARPE, MIN_VOLATILITY: MIN_VOLATILIDAD, TARGET_RISK: TU_OBJETIVO, TARGET_RETURN: RENTABILIDAD_OBJETIVO } as const;
+
+/**
+ * La nota que va sobre las tarjetas de Optimizar: la del objetivo que se ha calculado (Óscar, 20-11-2026). Hasta entonces era siempre la de Máximo
+ * Sharpe. El objetivo es el que declara el servidor (`methodology.objective`). Con «Rentabilidad objetivo» no va ninguna aquí: su nota ya la pinta
+ * `MedidaDelObjetivo`, justo encima, y saldría dos veces. Sin objetivo declarado —un servidor anterior—, la de Máximo Sharpe, como antes.
+ */
+export function notaDelObjetivoCalculado(model: FrontierViewModel, assets: readonly (ActivoConTipo & ActivoConClase)[] = []): string | null {
+  const objetivo = model.methodologyV2?.objective;
+  if (objetivo === "TARGET_RETURN") return null;
+  return notaDeLaCartera(model, objetivo ? CARTERA_DEL_OBJETIVO[objetivo] : MAXIMO_SHARPE, assets);
 }

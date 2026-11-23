@@ -17,6 +17,7 @@ import { descargar, diaDelDocumento, nombreDelFichero } from "../core/descargaDe
 import { fechaLarga, importeTitular, oFalta, porcentaje } from "../core/formato";
 import { consultaFuentes, resumenParametros } from "../core/jubilacion/fiscal";
 import {
+  avisosDelResultado,
   cortesDelEje,
   datosDeLaSimulacion,
   divisorDe,
@@ -32,6 +33,7 @@ import {
   saldoAlCierre,
   serieDeIngresos,
   serieDeSaldos,
+  supuestosDeLaPrevision,
   type FormaComparada,
   type LecturaDeSupervivencia,
   type PuntoDeIngresos,
@@ -72,7 +74,10 @@ export interface InformeDeJubilacionInput {
   formas: FormaComparada[] | null;
   /** Cuántos llegan a la edad del plan, según la tabla de mortalidad: la misma lectura que enseña la pantalla. */
   supervivencia?: LecturaDeSupervivencia | null;
-  /** Lo que se ha supuesto para poder calcular y cambia la cifra: se dice en la primera hoja. */
+  /**
+   * Lo que se ha supuesto para poder calcular y cambia la cifra (`entradaDelMotor`). Se dice en la primera hoja, con lo que
+   * el motor avisa y lo supuesto de una EPSV sin desglose, como en la pantalla (`supuestosDelInforme`).
+   */
   supuestos: string[];
   /** Los datos son de un ejemplo: el documento lo dice en la primera hoja, en la cabecera y en el pie de cada hoja. */
   ejemplo: boolean;
@@ -218,6 +223,11 @@ function lecturaDeLaJubilacion(input: InformeDeJubilacionInput) {
   const netoAlMes = lineas.find((linea) => linea.clave === "neto")?.alMes ?? Math.round(y1.neto / d / 12);
   const cliente = input.clientName?.trim() ?? "";
   const capital = res.capital;
+  /* Lo que la pantalla avisa del resultado va en la primera hoja; lo supuesto de una EPSV sin desglose, que la pantalla dice
+     junto al saldo, va con su cobro, y en la primera hoja si el informe no lleva la hoja del cobro (H2-17, 22-11-2026). */
+  const conHojaDelCobro = Boolean(capital || input.formas);
+  const deLaPrevision = supuestosDeLaPrevision(res);
+  const supuestos = [...avisosDelResultado(res, input.supuestos), ...(conHojaDelCobro ? [] : deLaPrevision)].join(" ");
   return {
     res,
     o,
@@ -234,8 +244,12 @@ function lecturaDeLaJubilacion(input: InformeDeJubilacionInput) {
     ingresos: serieDeIngresos(res, input.unidades),
     capital,
     cliente,
-    /* El gráfico de la primera hoja cede alto a lo que esa hoja lleve de más: el cobro de una vez y lo supuesto. La respuesta tiene que caber entera en una hoja. */
-    altoDelGrafico: 168 - (capital ? 18 : 0) - (input.supuestos.length ? 26 : 0)
+    supuestos,
+    supuestosDelCobro: conHojaDelCobro ? deLaPrevision.join(" ") : "",
+    /* El gráfico de la primera hoja cede alto a lo que esa hoja lleve de más: el cobro de una vez y lo supuesto. La respuesta
+       tiene que caber entera en una hoja. Lo supuesto, 26 hasta tres líneas de la nota (unos 120 caracteres cada una) y 12 más
+       por cada línea siguiente. */
+    altoDelGrafico: 168 - (capital ? 18 : 0) - (supuestos ? 26 + 12 * Math.max(0, Math.ceil((supuestos.length + 11) / 120) - 3) : 0)
   };
 }
 
@@ -348,7 +362,7 @@ const hastaCuando: SeccionDeInforme<Datos> = {
   procede: ({ l }) => Boolean(l.frases),
   juntoAlTitulo: 90,
   Contenido: ({ datos }) => {
-    const { l, supervivencia, supuestos } = datos;
+    const { l, supervivencia } = datos;
     return (
       <>
         {/* Los escenarios, en frases: el caso y lo que pasa. El desenlace no es una cifra con signo: va en tinta y en seminegrita, y la diferencia la dicen las palabras. */}
@@ -367,7 +381,7 @@ const hastaCuando: SeccionDeInforme<Datos> = {
             <Apunte arriba={1}>{`${supervivencia.fuente}.${supervivencia.disponible ? ` ${supervivencia.limite}` : ""}`}</Apunte>
           </>
         ) : null}
-        {supuestos.length ? <Aviso palabra="Supuestos.">{supuestos.join(" ")}</Aviso> : null}
+        {l.supuestos ? <Aviso palabra="Supuestos.">{l.supuestos}</Aviso> : null}
       </>
     );
   }
@@ -378,8 +392,8 @@ const supuestosSinEscenarios: SeccionDeInforme<Datos> = {
   id: "supuestos",
   titulo: "Supuestos",
   sinNumero: true,
-  procede: ({ l, supuestos }) => !l.frases && supuestos.length > 0,
-  Contenido: ({ datos }) => <Aviso palabra="Supuestos.">{datos.supuestos.join(" ")}</Aviso>
+  procede: ({ l }) => !l.frases && l.supuestos.length > 0,
+  Contenido: ({ datos }) => <Aviso palabra="Supuestos.">{datos.l.supuestos}</Aviso>
 };
 
 const plan: SeccionDeInforme<Datos> = {
@@ -478,6 +492,8 @@ const cobro: SeccionDeInforme<Datos> = {
             <Apunte arriba={6}>{`El impuesto es el que este cobro añade al IRPF del primer año, y no está en «Del bruto al neto». Lo neto se suma a los ahorros y se reparte en el plan.${variosRegimenes ? ` ${capital.automatico ? "Se aplica el régimen de menor impuesto estimado. " : ""}El régimen que corresponde lo confirma la EPSV.` : ` La parte de los derechos anterior a ${pv.corte} la certifica la entidad gestora.`}`}</Apunte>
           </View>
         ) : null}
+        {/* Sin desglose, lo que se supone de la EPSV: lo mismo que el formulario dice junto al saldo (H2-17). */}
+        {l.supuestosDelCobro ? <Aviso palabra="Supuestos.">{l.supuestosDelCobro}</Aviso> : null}
       </>
     );
   }

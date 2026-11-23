@@ -383,16 +383,16 @@ a.ui-button {
   }
 }
 
-/* Una tira de importes en euros (`importes` en `KpiStrip`): la cifra mengua antes, por debajo de 168 px de columna.
-   Medido el 18-11-2026 en Comparador › Patrimonial: «1.234.567 €» mide 5,10 em —163,2 px a 32 px— y a 1.920 la columna
-   mide 163, así que se partía por 0,2 px. Por debajo del umbral la cifra va al 19 % del ancho de su columna y un
-   importe de siete cifras ocupa 5,10 × 0,19 = el 97 % de ella; por encima va a 32 px y sus 163,2 px caben en una
-   columna de más de 168. No alcanza a ocho cifras ni a siete con signo («+1.234.567 €», 5,64 em): esas se parten en
-   toda columna de menos de 180,4 px, como en la rama principal, donde se midió a 1.920 y a 768. */
-@container (max-width: 10.5rem) {
-  .ui-kpi-strip--importes .ui-kpi__value:not(.ui-kpi__value--text) {
-    font-size: 19cqi;
-  }
+/* Una tira de importes en euros (`importes` en `KpiStrip`): la cifra mengua con su columna según lo larga que sea la
+   más larga de la tira (`--kpi-caracteres`, que cuenta `KpiStrip`; sin él, once: «1.234.567 €»). Medido el 20-11-2026
+   en Comparador › Patrimonial, en la serifa de la cifra: «1.234.567 €» mide 5,10 em, «26.165.538 €» 5,64 y
+   «+12.936.757 €» 6,17, es decir, entre 0,46 y 0,48 em por carácter. Con 0,5 em por carácter de margen, la cifra va a
+   32 px mientras quepa y, si no, a 200 / N del ancho de su columna, de modo que la más larga ocupa como mucho el 96 %
+   de ella. Hasta ese día solo cabía la de siete cifras sin signo: las de ocho, y las de siete con signo, se salían de
+   su casilla a 1.920, 1.440, 1.024 y 768 px (tapadas por la de al lado o por el borde de la tarjeta). */
+.ui-kpi-strip--importes .ui-kpi__value:not(.ui-kpi__value--text) {
+  font-size: min(var(--cifra-indicador), calc(200cqi / var(--kpi-caracteres, 11)));
+  white-space: nowrap;
 }
 
 /* Valor cualitativo («No aplica», «Vigilar»): no es una cifra, no compite en
@@ -416,54 +416,6 @@ a.ui-button {
   font-size: var(--texto-xs);
   line-height: var(--lh-normal);
   color: var(--tinta-3);
-}
-
-/* Rejilla de métricas dentro de panel */
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--s-6) var(--s-7);
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  min-width: 0;
-}
-
-.metric__label {
-  font-size: var(--texto-xs);
-  font-weight: 600;
-  color: var(--tinta-2);
-  line-height: var(--lh-snug);
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-/* Dentro de una rejilla el rótulo reserva dos líneas: así los valores de
-   toda la tira comparten línea base aunque un rótulo sea más largo. */
-.metric-grid .metric__label {
-  min-height: calc(var(--texto-xs) * var(--lh-snug) * 2);
-}
-
-.metric__value {
-  font-family: var(--fuente-titulos);
-  font-size: var(--titulo-sm);
-  font-weight: var(--peso-titulo);
-  letter-spacing: -0.02em;
-  color: var(--tinta);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-.metric__note {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-  min-width: 0;
-  overflow-wrap: break-word;
 }
 
 /* ==========================================================================
@@ -795,11 +747,13 @@ header.ui-page-header--section {
   min-width: 0;
 }
 
+/* El rótulo de un campo, en la tinta de los rótulos (7,75:1 sobre el papel), a 13 px y en su peso: el gris de las
+   láminas sin achicar la letra (Óscar, 21-11-2026). Hasta entonces iba en la tinta 3 (5,70:1). */
 .field__label,
 .ui-field-label {
   font-size: var(--texto-xs);
   font-weight: 500;
-  color: var(--tinta-3);
+  color: var(--tinta-2);
 }
 
 .field__hint {
@@ -1636,45 +1590,11 @@ th[aria-sort="descending"] button::after {
    13. Barras de proporción y medidores
    ========================================================================== */
 
-/* Barra proporcional en tabla (peso, exposición) */
-
-.bar-cell__track {
-  flex: 1;
-  min-width: 40px;
-  height: 4px;
-  background: var(--banda);
-  overflow: hidden;
-}
-
-.bar-cell__fill {
-  /* Es un `span`: sin esto medía 0×0 y el histograma pintaba solo el carril. */
-  display: block;
-  height: 100%;
-  background: var(--serie-1);
-}
-
 /* Escala SRI 1-7 */
 
 /* ==========================================================================
    14. Paginación
    ========================================================================== */
-
-/* ==========================================================================
-   15. Segmento de código / dato técnico
-   ========================================================================== */
-
-.code-block {
-  padding: var(--s-5);
-  border: 1px solid var(--filete);
-  background: var(--banda);
-  font-family: var(--fuente-codigo);
-  font-size: var(--texto-xs);
-  line-height: var(--lh-relaxed);
-  color: var(--tinta-2);
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
 
 /* ==========================================================================
    16. Prosa editorial (informes, estrategia, markdown)
@@ -2204,6 +2124,28 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   font-size: var(--texto-sm);
   color: var(--tinta);
   flex-wrap: nowrap;
+}
+
+/* --- Marca de un activo: su número y su color en el Comparador (Óscar, 20-11-2026) --- */
+/* El número en tinta y en cifras de ancho fijo; el punto, del color de su serie, solo acompaña. Va delante del nombre en
+   los chips de lo que se compara y en la cabecera de cada columna de la tabla comparada. */
+.marca-de-activo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--s-2);
+  margin-right: var(--s-2);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+  vertical-align: baseline;
+}
+
+.marca-de-activo__punto {
+  width: 8px;
+  height: 8px;
+  flex: none;
 }
 
 /* --- Distintivo: una etiqueta corta con contorno --- */

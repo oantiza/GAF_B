@@ -14,3 +14,13 @@ export function estrellasDeMorningstar(puntuacion: unknown): number | undefined 
 export function textoDeEstrellas(estrellas: number): string {
   return `${"★".repeat(estrellas)}${"☆".repeat(5 - estrellas)}`;
 }
+
+/**
+ * El rótulo de la columna o fila de las estrellas. De qué proveedor viene un dato es cocina y no se enseña a un cliente
+ * (`fuenteDeDatos`; decisión 5 de la auditoría consolidada del 22-11-2026, H3-01): en Modo cliente y en el papel de
+ * cliente es «Estrellas», como en Planes y EPSV (D-11); con la fuente a la vista —asesor sin Modo cliente, informe
+ * interno—, «Morningstar».
+ */
+export function rotuloDeEstrellas(conProveedor: boolean): string {
+  return conProveedor ? "Morningstar" : "Estrellas";
+}

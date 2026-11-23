@@ -10,7 +10,7 @@ import { Panel } from "../../../components/ui/Panel";
 import { TablaDeDatos } from "../../../components/tabla/TablaDeDatos";
 import type { ColumnaDeTabla } from "../../../types/tablaDeDatos";
 import type { Analisis, LineaDeIngreso } from "../../motor/analisis";
-import { notaDeLoContadoComoCero } from "../../motor/sinPrecio";
+import { notaDelCosteCorrienteSinPrecio, notaDeLoContadoComoCero } from "../../motor/sinPrecio";
 import { FilaDeDato } from "../piezas";
 import { escrito } from "../textos";
 
@@ -43,12 +43,17 @@ export function BloqueIngresosYCostes({ analisis }: { analisis: Analisis }) {
   ];
   if (ic.otros.bruto !== 0 || ic.otros.neto !== 0) ingresos.push({ id: "otros", concepto: "Otros abonos", ...ic.otros });
 
-  const notaDeGastos =
+  const sinPrecioEnGastos = notaDelCosteCorrienteSinPrecio(analisis);
+  const notaDeGastos = [
     ic.gastosCorrientes === null
       ? "No se conoce el coste corriente de los fondos de la cartera."
-      : ic.coberturaDeGastosCorrientes < 1
-        ? `Estimación: ya va descontado en el valor de los fondos. Solo se conoce para el ${escrito.porcentaje(ic.coberturaDeGastosCorrientes, 0)} de lo invertido.`
-        : "Estimación: ya va descontado en el valor de los fondos.";
+      : ic.productosSinGastosCorrientes.length > 0
+        ? `Estimación: ya va descontado en el valor de los fondos. Solo se conoce para el ${escrito.porcentaje(ic.coberturaDeGastosCorrientes, 0)} de lo invertido en fondos y ETF.`
+        : "Estimación: ya va descontado en el valor de los fondos.",
+    sinPrecioEnGastos
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const sinPrecio = notaDeLoContadoComoCero(analisis, { quien: "El patrimonio medio" });
 
@@ -83,7 +88,7 @@ export function BloqueIngresosYCostes({ analisis }: { analisis: Analisis }) {
               nota={
                 ic.gastosCorrientes === null
                   ? "Sin el coste corriente de los fondos no se puede dar el total."
-                  : [sobreElMedio(ic.costesTotalesPct), ic.coberturaDeGastosCorrientes < 1 ? "parcial: falta el coste corriente de parte de los fondos" : undefined].filter(Boolean).join(" · ")
+                  : [sobreElMedio(ic.costesTotalesPct), !ic.gastosCorrientesCompletos ? "parcial: falta el coste corriente de parte de los fondos" : undefined].filter(Boolean).join(" · ")
               }
               rotulo="Costes totales, con el coste corriente"
               total

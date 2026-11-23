@@ -461,6 +461,13 @@
   border-bottom: 1px solid var(--filete);
 }
 
+/* En Modo cliente, la barra lleva un filete de latón de 2 px en vez del de siempre (M3, Óscar, 21-11-2026): el asesor
+   sabe de un vistazo que lo que ve es lo que ve el cliente. La sombra interior suma el segundo píxel sin mover nada. */
+.app-topbar--cliente {
+  border-bottom-color: var(--laton);
+  box-shadow: inset 0 -1px 0 var(--laton);
+}
+
 
 
 
@@ -664,6 +671,32 @@
      quedaba en «si…», y de 900 a 1.150, con el menú desplegado, en «sin gua» o en nada. Ceden antes la miga, el
      correo, el nombre de la propuesta y el recuento. */
   flex: none;
+}
+
+/* «Vista para el cliente», junto al interruptor y solo con él encendido: un estado, que se lee entero y no cede. La
+   región está siempre montada, para que se anuncie al encenderse; vacía, sale del flujo (no del árbol accesible, como
+   haría `display: none`) para no sumar un hueco de la barra. */
+.topbar-vista-cliente {
+  flex: none;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  color: var(--rail-ink-active);
+  white-space: nowrap;
+}
+
+.topbar-vista-cliente:empty {
+  position: absolute;
+}
+
+/* Sin propuesta, el recuadro lo dice y ofrece empezar (M4, 21-11-2026). «Empezar» es la acción: en el azul de los
+   enlaces. */
+.topbar-chip__sin {
+  color: var(--rail-ink);
+}
+
+.topbar-chip__empezar {
+  font-weight: 600;
+  color: var(--marca-fuerte);
 }
 
 /* Interruptor de modo cliente */

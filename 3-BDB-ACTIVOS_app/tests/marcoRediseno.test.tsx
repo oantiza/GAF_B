@@ -301,7 +301,8 @@ describe("la propuesta en curso", () => {
 
   test("ANA-12: el nombre escrito en el diálogo de Análisis se queda en la propuesta en curso", async () => {
     await abrir("/analisis");
-    expect(recuadro()).toBeNull();
+    /* Sin propuesta, el recuadro lo dice (M4, 21-11-2026). */
+    expect(recuadro()?.textContent).toMatch(/^Sin propuestaEmpezar/);
     await act(async () => boton("Poner el nombre en el diálogo")!.click());
     expect(recuadro()?.textContent).toContain("Familia García");
     expect(recuadro()?.hasAttribute("aria-label")).toBe(false);

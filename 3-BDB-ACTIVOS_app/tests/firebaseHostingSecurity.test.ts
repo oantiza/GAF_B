@@ -74,8 +74,12 @@ describe("Firebase Hosting security policy", () => {
       "Referrer-Policy",
       "Permissions-Policy",
       "Cross-Origin-Opener-Policy",
+      "Strict-Transport-Security",
       "Cache-Control"
     ]));
+    /* P2-08 (21-11-2026): el mismo valor que Firebase Hosting ya sirve en web.app, medido ese día. */
+    expect(global?.headers.find((header) => header.key === "Strict-Transport-Security")?.value)
+      .toBe("max-age=31556926; includeSubDomains; preload");
     expect(global?.headers.find((header) => header.key === "Content-Security-Policy")?.value)
       .toContain("frame-ancestors 'none'");
     expect(global?.headers.find((header) => header.key === "Cache-Control")?.value)
@@ -122,11 +126,11 @@ describe("Firebase Hosting security policy", () => {
     expect(directive("style-src")).toBe("style-src 'self' 'unsafe-inline'");
     expect(directive("font-src")).toBe("font-src 'self' data:");
     expect(directive("connect-src")).not.toMatch(/wss:/);
-    // Lo abierto para S-02 y App Check/reCAPTCHA se conserva.
+    // Lo abierto para S-02 se conserva, y reCAPTCHA en script-src y frame-src también (P2-08: ver abajo).
     expect(directive("script-src")).toContain("https://apis.google.com");
     expect(directive("script-src")).toContain("https://www.gstatic.com/recaptcha/");
     expect(directive("frame-src")).toContain("https://www.google.com/recaptcha/");
-    expect(directive("frame-src")).toContain("https://bbdd-activos-financieros.firebaseapp.com");
+    expect(directive("frame-src")).toContain("https://bdb-gestor-de-activos.firebaseapp.com");
     // Coherencia con el código: las letras de pantalla son ficheros propios, no un servicio de fuera.
     const base = readFileSync(resolve(process.cwd(), "src/styles/base.css"), "utf8");
     const origenes = [...base.matchAll(/@font-face\s*\{[^}]*src:\s*url\("([^"]+)"\)/g)].map((m) => m[1]);
@@ -146,6 +150,58 @@ describe("Firebase Hosting security policy", () => {
     // https://<authDomain>/__/auth/iframe; sin ellos el SDK falla con
     // auth/internal-error (confirmado en producción el 30-09).
     expect(directive("script-src")).toContain("https://apis.google.com");
-    expect(directive("frame-src")).toContain("https://bbdd-activos-financieros.firebaseapp.com");
+    expect(directive("frame-src")).toContain("https://bdb-gestor-de-activos.firebaseapp.com");
+  });
+
+  /* P2-08 (auditoría integral del 20-11-2026, 21-11): `connect-src` abría cuatro comodines
+     (`*.googleapis.com`, `*.cloudfunctions.net`, `*.firebaseapp.com`, `*.google.com`) y `*.recaptcha.net`.
+     Ahora nombra un origen por servicio, medido sobre el código y sobre el sitio compilado de 778c7732:
+       identitytoolkit / securetoken  -> Firebase Auth (acceso, MFA, renovación del token)
+       firestore.googleapis.com       -> el SDK de Firestore (las lecturas de la base nueva)
+       europe-west1-…cloudfunctions   -> las callables: FUNCTIONS_REGION y el proyecto del sitio
+       el authDomain y apis.google.com -> el acceso con Google (S-02)
+       www.google.com/recaptcha/      -> lo que Google pide para reCAPTCHA, que se conserva (abajo)
+     App Check está apagado en la compilación publicada (`compilar-sitio.mjs`), y por eso no entra
+     `content-firebaseappcheck.googleapis.com`. Si se enciende, esta prueba lo pide. */
+  it("P2-08: connect-src nombra solo los orígenes que la app usa, sin comodines", () => {
+    const global = config.hosting.headers.find((rule) => rule.source === "**");
+    const csp = global?.headers.find((header) => header.key === "Content-Security-Policy")?.value ?? "";
+    const directive = (name: string) => csp.split(";").map((d) => d.trim()).find((d) => d.startsWith(`${name} `)) ?? "";
+
+    expect(directive("connect-src").split(" ").slice(1)).toEqual([
+      "'self'",
+      "data:",
+      "https://identitytoolkit.googleapis.com",
+      "https://securetoken.googleapis.com",
+      "https://firestore.googleapis.com",
+      "https://europe-west1-bdb-gestor-de-activos.cloudfunctions.net",
+      "https://bdb-gestor-de-activos.firebaseapp.com",
+      "https://apis.google.com",
+      "https://www.google.com/recaptcha/"
+    ]);
+    expect(csp).not.toContain("*");
+    /* recaptcha.net no lo nombra ni el SDK compilado: el de Firebase carga reCAPTCHA de www.google.com. */
+    expect(csp).not.toContain("recaptcha.net");
+
+    /* La región de las callables es la del código. */
+    const entorno = readFileSync(resolve(process.cwd(), "src/firebaseEnv.ts"), "utf8");
+    expect(entorno).toContain('export const FUNCTIONS_REGION = "europe-west1";');
+
+    /* App Check, apagado en lo publicado: si se enciende, connect-src necesita su origen. */
+    const compilar = readFileSync(resolve(process.cwd(), "..", "4-base-nueva", "compilar-sitio.mjs"), "utf8");
+    if (compilar.includes("'VITE_FIREBASE_APPCHECK_DISABLED=true'")) {
+      expect(directive("connect-src")).not.toContain("firebaseappcheck");
+    } else {
+      expect(directive("connect-src")).toContain("https://content-firebaseappcheck.googleapis.com");
+    }
+  });
+
+  /* El sitio publicado sale de `4-base-nueva/firebase.json`, no de este: las dos políticas son la misma
+     (lo exige también `4-base-nueva/probar-puerta.mjs`), y esta prueba lo comprueba sin ejecutarla. */
+  it("las cabeceras del sitio publicado son estas", () => {
+    const publicado = JSON.parse(readFileSync(resolve(process.cwd(), "..", "4-base-nueva", "firebase.json"), "utf8")) as {
+      hosting: { headers: HeaderRule[] };
+    };
+    expect(publicado.hosting.headers).toEqual(config.hosting.headers);
   });
 });

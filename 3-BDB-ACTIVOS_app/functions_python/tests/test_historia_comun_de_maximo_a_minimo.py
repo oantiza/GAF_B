@@ -81,9 +81,12 @@ def test_si_no_vuelve_al_maximo_no_hay_recuperacion_y_dice_cuanto_falta():
 
 def test_la_crisis_sigue_desde_su_primer_dia_y_la_historia_comun_desde_el_maximo():
     # La misma serie: 100 el 19-02-2020, 110 el 02-03, 90 el 20-03. La COVID compara con su primer día, −10 %, y no tiene
-    # máximo. La historia común compara con el máximo, 90 / 110 − 1 = −18,18 %, y vuelve a 110 el 01-06-2020.
+    # máximo. La historia común compara con el máximo, 90 / 110 − 1 = −18,18 %, y vuelve a 110 el 01-06-2020. Los
+    # puntos del 09-03 (105) y el 16-03 (100) bajan entre los dos: sin ellos, 18 días sin precio dentro de la COVID la
+    # apartarían (N03, 22-11-2026), y ninguno es un máximo nuevo ni un mínimo.
     serie = puntos(
-        ("2019-01-01", 100), ("2020-02-19", 100), ("2020-03-02", 110), ("2020-03-20", 90), ("2020-03-23", 95),
+        ("2019-01-01", 100), ("2020-02-19", 100), ("2020-03-02", 110), ("2020-03-09", 105), ("2020-03-16", 100),
+        ("2020-03-20", 90), ("2020-03-23", 95),
         ("2020-06-01", 110), ("2020-07-01", 111),
     )
     resultado = stress_windows({"A": serie}, {"A": 1.0}, today=HOY)

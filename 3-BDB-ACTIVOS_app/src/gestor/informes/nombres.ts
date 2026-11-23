@@ -12,9 +12,9 @@ import type { TipoDeInforme } from "./tipos";
 export { sanearNombreDeFichero };
 
 const PREFIJO: Record<TipoDeInforme | "excel", string> = {
-  cliente: "Informe del cliente",
+  cliente: "Informe de la cartera",
   asesor: "Informe del asesor",
-  costes: "Informe de costes",
+  costes: "Costes de la cartera",
   excel: "Datos"
 };
 

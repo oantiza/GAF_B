@@ -12,6 +12,8 @@ import {
 } from "../adapters/componerLista";
 import { TablaDeDatos } from "../components/tabla/TablaDeDatos";
 import { EmptyState } from "../components/ui/AsyncState";
+import { useModoCliente } from "../app/ClientModeContext";
+import { Aviso } from "../components/ui/Aviso";
 import { Button } from "../components/ui/Button";
 import { Campo } from "../components/ui/Campo";
 import { Cifra } from "../components/ui/Cifra";
@@ -43,6 +45,7 @@ import { alternarFavorito, escribirFavoritos, leerFavoritos } from "../core/favo
 import { QUALITY_FLAG_LABELS } from "../core/labels";
 import { fecha as fechaComun, numero } from "../core/formato";
 import { ZONAS_DEL_BUSCADOR, zonaDeLaClave, type ZonaDelBuscador } from "../core/regionTaxonomy";
+import { rotuloDeEstrellas } from "../core/estrellasDeMorningstar";
 import { useAsyncData } from "../core/useAsyncData";
 import type { AssetDataSourceKind } from "../types/assetDataSource";
 import type { ColumnaDeTabla } from "../types/tablaDeDatos";
@@ -146,6 +149,8 @@ export function BuscadorNuevoPage({
   alCambiarEstado,
   sourceKind
 }: BuscadorNuevoPageProps) {
+  const { seEnsena } = useModoCliente();
+  const conProveedor = seEnsena("fuenteDeDatos");
   const fuente = useMemo(() => (sourceKind ? getAssetDataSource(sourceKind) : null), [sourceKind]);
   const [estadoPropio, setEstadoPropio] = useState(ESTADO_INICIAL_DEL_BUSCADOR);
   const estado = estadoGuardado ?? estadoPropio;
@@ -342,6 +347,8 @@ export function BuscadorNuevoPage({
           }
         };
       }
+      /* El rótulo de las estrellas nombra al proveedor solo con la fuente a la vista (`fuenteDeDatos`; H3-01). */
+      if (columna.id === "estrellas") return { ...columna, titulo: rotuloDeEstrellas(conProveedor) };
       /* Las cifras, con la pieza común: el mismo formato y, en la rentabilidad, el color de su signo. El texto se queda para ordenar. */
       const tipo = TIPO_DE_CIFRA_DEL_BUSCADOR[columna.id];
       if (!tipo) return columna;
@@ -428,7 +435,7 @@ export function BuscadorNuevoPage({
       }
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `anadir` solo cierra sobre lo que ya está aquí
-  }, [onAnadirACartera, onAlternarComparacion, enCartera, paraComparar, favoritos, avisos, consultando]);
+  }, [onAnadirACartera, onAlternarComparacion, enCartera, paraComparar, favoritos, avisos, consultando, conProveedor]);
 
   return (
     <div className="buscador-nuevo" ref={raiz}>
@@ -453,8 +460,7 @@ export function BuscadorNuevoPage({
           <>
             {data ? `${numero(data.length) ?? "0"} ${data.length === 1 ? "activo" : "activos"} del catálogo` : "Fondos, ETF y acciones del catálogo"}
             {ultimaPasada ? ` · base actualizada el ${fechaComun(ultimaPasada) ?? ultimaPasada}` : ""}
-            {" · "}rentabilidad y volatilidad en euros; las marcadas «proveedor», en la divisa que él publique. Al ordenar por una cifra
-            se agrupan por método de cálculo, porque cifras de métodos distintos no se comparan entre sí.
+            {" · "}rentabilidad y volatilidad en euros; las marcadas «proveedor», en la divisa que él publique.
           </>
         }
         title="Buscador"
@@ -575,6 +581,15 @@ export function BuscadorNuevoPage({
 
           {data ? (
             <>
+              {/* B4 (Óscar, 21-11-2026): lo que impide comparar dos cifras va encima de la tabla, como aviso, y no en una frase de
+                  la cabecera que se pasaba por alto. Es una regla del método (§3): dos cifras solo se comparan si coinciden en el
+                  estimador. */}
+              {filas.length > 0 ? (
+                <Aviso tono="nota" titulo="Cifras de métodos distintos.">
+                  Al ordenar por una cifra, la tabla agrupa los activos por su método de cálculo: dentro de cada grupo se comparan,
+                  y entre grupos no.
+                </Aviso>
+              ) : null}
               {filas.length > 0 ? (
                 <TablaDeDatos
                   alAbrir={

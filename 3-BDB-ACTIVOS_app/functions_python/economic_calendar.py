@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
 import unicodedata
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -36,6 +37,9 @@ _PRIMARY_CACHE: dict[str, Any] = {
     "events": None,
     "source": None,
 }
+# Cloud Run v2 atiende varias peticiones a la vez en una instancia: la cache se lee y se escribe bajo cerrojo, y la
+# descarga (lenta) va fuera de el. Sin el, una lectura podia ver `events` de una descarga y `source` de otra.
+_CACHE_LOCK = threading.Lock()
 logger = logging.getLogger(__name__)
 
 
@@ -135,9 +139,10 @@ def _normalise_xml_events(payload: bytes) -> list[dict[str, Any]]:
 
 
 def _load_primary_events(now: datetime) -> tuple[list[dict[str, Any]], str]:
-    cached_at = _PRIMARY_CACHE.get("fetched_at")
-    cached_events = _PRIMARY_CACHE.get("events")
-    cached_source = _PRIMARY_CACHE.get("source")
+    with _CACHE_LOCK:
+        cached_at = _PRIMARY_CACHE.get("fetched_at")
+        cached_events = _PRIMARY_CACHE.get("events")
+        cached_source = _PRIMARY_CACHE.get("source")
     if (
         isinstance(cached_at, datetime)
         and isinstance(cached_events, list)
@@ -155,7 +160,8 @@ def _load_primary_events(now: datetime) -> tuple[list[dict[str, Any]], str]:
             events = parser(_read_url(url))
             if not events:
                 raise ValueError("respuesta sin eventos validos")
-            _PRIMARY_CACHE.update({"fetched_at": now, "events": list(events), "source": source})
+            with _CACHE_LOCK:
+                _PRIMARY_CACHE.update({"fetched_at": now, "events": list(events), "source": source})
             return events, source
         except Exception as exc:  # el proveedor nunca rompe la callable
             errors.append(f"{source}: {exc}")
@@ -164,6 +170,21 @@ def _load_primary_events(now: datetime) -> tuple[list[dict[str, Any]], str]:
     if isinstance(cached_events, list) and cached_events and isinstance(cached_source, str):
         return list(cached_events), f"{cached_source}_STALE_CACHE"
     raise RuntimeError("; ".join(errors) or "fuente primaria no disponible")
+
+
+def _aviso_de_antiguedad(now: datetime) -> str:
+    """Lo que se le dice a quien lee cuando la fuente no responde y se sirve la ultima descarga guardada."""
+    with _CACHE_LOCK:
+        descargada = _PRIMARY_CACHE.get("fetched_at")
+    if not isinstance(descargada, datetime):
+        return "La fuente no respondió y se muestra una descarga anterior de la que no consta la hora."
+    minutos = max(0, int((now - descargada).total_seconds() // 60))
+    hace = f"hace {minutos} min" if minutos < 120 else f"hace {minutos // 60} h"
+    return f"La fuente no respondió y se muestra la última descarga guardada, de {hace}."
+
+
+def _con_aviso(*partes: str | None) -> str | None:
+    return " ".join(parte for parte in partes if parte) or None
 
 
 def _fold(value: str) -> str:
@@ -329,6 +350,7 @@ def get_economic_calendar(request):
             status="SOURCE_ERROR",
         )
 
+    aviso = _aviso_de_antiguedad(now) if source.endswith("_STALE_CACHE") else None
     cover_from, cover_to = _coverage(all_events, now)
     covers = (cover_from, cover_to)
     if end < cover_from or start > cover_to:
@@ -338,7 +360,8 @@ def get_economic_calendar(request):
             start,
             end,
             f"El rango pedido cae fuera del alcance de la fuente, que solo cubre del "
-            f"{_fecha_larga(cover_from)} al {_fecha_larga(cover_to)}.",
+            f"{_fecha_larga(cover_from)} al {_fecha_larga(cover_to)}."
+            + (f" {aviso}" if aviso else ""),
             status="OUT_OF_SOURCE_RANGE",
             covers=covers,
         )
@@ -351,8 +374,6 @@ def get_economic_calendar(request):
         )
     events = _deduplicate(_filter_events(all_events, start, end, country))
     if events:
-        return _response(events, source, start, end, partial_note, status="OK", covers=covers)
-    note = "No hay eventos en lo que la fuente cubre."
-    if partial_note:
-        note = f"{note} {partial_note}"
+        return _response(events, source, start, end, _con_aviso(aviso, partial_note), status="OK", covers=covers)
+    note = _con_aviso("No hay eventos en lo que la fuente cubre.", partial_note, aviso)
     return _response([], source, start, end, note, status="NO_EVENTS_IN_COVERAGE", covers=covers)

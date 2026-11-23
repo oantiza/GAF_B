@@ -25,7 +25,6 @@ export {
   informeDeClienteMetricRows,
   lineaDelAlcance,
   nombreEnLineas,
-  notaDelTipoSinRiesgo,
   pasoDeLaMatriz,
   rentabilidadPorDividendoDe,
   SIGLAS_DE_LAS_CATEGORIAS,
@@ -36,7 +35,7 @@ export {
 export { BLANCO_DESDE_EL_PASO, COLORES_DE_ZONA, colorDeLaCifra, RAMPA_DE_LA_MATRIZ, rellenoDeLaZona, tintaSobreElPaso, ZONA_SIN_PESO } from "./informeDeCliente/tinta";
 
 /** Lo que el documento dice de sí mismo en la cabecera, en los metadatos y en el nombre del fichero. */
-const DOCUMENTO = "Informe de cartera";
+const DOCUMENTO = "Informe de la propuesta";
 
 function InformeDeClienteDoc({ datos }: { datos: DatosDelInforme }) {
   return (

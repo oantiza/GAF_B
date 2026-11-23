@@ -56,7 +56,7 @@ function Contenido({ datos }: { datos: DatosDelInforme }) {
   const avisos = [
     "Las rentabilidades pasadas no garantizan rentabilidades futuras. El valor de las inversiones puede subir o bajar.",
     "Este informe no es asesoramiento fiscal ni un cálculo de impuestos: los resultados que muestra no son los que se declaran a Hacienda.",
-    "Los costes de la cartera se detallan en el informe de costes.",
+    "Los costes de la cartera se detallan en «Costes de la cartera».",
     notaDeLosPrecios(analisis),
     `Datos a ${fechaLarga(analisis.fecha) ?? analisis.fecha}. Informe generado el ${fechaLarga(datos.generado) ?? datos.generado}.`,
     ...(esDemostracion(datos.cartera) ? ["Cartera de demostración: sus activos, precios y movimientos son inventados."] : [])

@@ -144,6 +144,64 @@ export function leerCifra(crudo: string): Decimal | undefined {
   return new Big(signo + normal);
 }
 
+/** El separador decimal de un documento: la coma, como se escribe en español, o el punto, como en inglés. */
+export type SeparadorDecimal = "coma" | "punto";
+
+/** Lo que dice una cifra escrita de su separador decimal: uno de los dos, que admite los dos, o nada (un entero, un texto). */
+export type PistaDelSeparador = SeparadorDecimal | "ambigua" | "ninguna";
+
+/** El texto de una cifra sin espacios, símbolos ni signo, como lo mira `leerCifra`; `undefined` si no es una cifra. */
+function cuerpoDeLaCifra(crudo: string): { signo: string; texto: string } | undefined {
+  let texto = crudo.replace(/[\s €$%]/g, "").replace(/−/g, "-");
+  let signo = "";
+  if (texto.startsWith("-") || texto.startsWith("+")) {
+    signo = texto[0] === "-" ? "-" : "";
+    texto = texto.slice(1);
+  }
+  if (texto === "" || !/^[\d.,]+$/.test(texto) || !/\d/.test(texto)) return undefined;
+  return { signo, texto };
+}
+
+/**
+ * Qué separador decimal delata una cifra escrita (H1-07, decisión 4 de la auditoría consolidada del 22-11-2026). Ambigua es
+ * la que tiene un solo separador con exactamente tres cifras detrás y de una a tres delante, sin empezar por cero: «1.085» es
+ * mil ochenta y cinco en español y uno coma cero ocho cinco en inglés, y «1,085», al revés. Delatan la coma «12,5», «0,125»,
+ * «1.234,56» y los millares con punto «1.234.567»; delatan el punto «12.5», «0.125», «1234.567», «1,234.56» y «1,234,567».
+ */
+export function pistaDelSeparador(crudo: string): PistaDelSeparador {
+  const cuerpo = cuerpoDeLaCifra(crudo);
+  if (!cuerpo) return "ninguna";
+  const { texto } = cuerpo;
+  const comas = (texto.match(/,/g) ?? []).length;
+  const puntos = (texto.match(/\./g) ?? []).length;
+  if (comas > 0 && puntos > 0) return texto.lastIndexOf(",") > texto.lastIndexOf(".") ? "coma" : "punto";
+  const unSolo = comas + puntos === 1;
+  if (unSolo && /^[1-9]\d{0,2}[.,]\d{3}$/.test(texto)) return "ambigua";
+  if (comas === 1 && puntos === 0) return "coma";
+  if (puntos === 1 && comas === 0) return "punto";
+  if (puntos > 1) return /^\d{1,3}(\.\d{3})+$/.test(texto) ? "coma" : "ninguna";
+  if (comas > 1) return /^\d{1,3}(,\d{3})+$/.test(texto) ? "punto" : "ninguna";
+  return "ninguna";
+}
+
+/**
+ * Lee una cifra con el separador decimal ya decidido para su documento. Con la coma es `leerCifra`, la lectura de siempre.
+ * Con el punto, el punto es decimal y la coma solo de millares, en grupos de tres: «1.085» es 1,085 y «1,085», 1.085.
+ * Devuelve `undefined` si no es una cifra.
+ */
+export function leerCifraCon(crudo: string, separador: SeparadorDecimal): Decimal | undefined {
+  if (separador === "coma") return leerCifra(crudo);
+  const cuerpo = cuerpoDeLaCifra(crudo);
+  if (!cuerpo) return undefined;
+  const { signo, texto } = cuerpo;
+  let normal: string;
+  if (/^\d+(\.\d+)?$/.test(texto) || /^\.\d+$/.test(texto)) normal = texto;
+  else if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(texto)) normal = texto.replace(/,/g, "");
+  else return undefined;
+  if (!FORMA_DECIMAL.test(normal)) return undefined;
+  return new Big(signo + normal);
+}
+
 /**
  * Una cifra escrita en español para los mensajes del motor: punto de millar, coma decimal y
  * signo menos tipográfico («−1.250,40»). Con `decimales`, redondeada a ellos; sin ellos, con los

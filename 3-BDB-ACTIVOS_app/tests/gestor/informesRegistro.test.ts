@@ -86,9 +86,9 @@ describe("los nombres de fichero", () => {
   test("llevan el tipo, la cartera y el periodo, sin caracteres que Windows no admite", () => {
     const datos = datosDeLaDemo("anio");
     /* El inicio, con la regla del rótulo (MOT-09 y DIR-08): el cierre desde el que se mide. */
-    expect(nombreDelFichero("cliente", datos.analisis)).toBe("Informe del cliente - Cartera de demostración - 2025-12-31 a 2026-11-13.pdf");
+    expect(nombreDelFichero("cliente", datos.analisis)).toBe("Informe de la cartera - Cartera de demostración - 2025-12-31 a 2026-11-13.pdf");
     expect(nombreDelFichero("asesor", datos.analisis)).toBe("Informe del asesor - Cartera de demostración - 2025-12-31 a 2026-11-13.pdf");
-    expect(nombreDelFichero("costes", datos.analisis)).toBe("Informe de costes - Cartera de demostración - 2025-12-31 a 2026-11-13.pdf");
+    expect(nombreDelFichero("costes", datos.analisis)).toBe("Costes de la cartera - Cartera de demostración - 2025-12-31 a 2026-11-13.pdf");
     expect(nombreDelFichero("excel", datos.analisis)).toBe("Datos - Cartera de demostración - 2025-12-31 a 2026-11-13.xlsx");
     expect(sanearNombreDeFichero('García/López: "plan" <A|B>?*.')).toBe("García López  plan  A B".replace(/\s+/g, " "));
     expect(sanearNombreDeFichero("CON")).toBe("_CON");

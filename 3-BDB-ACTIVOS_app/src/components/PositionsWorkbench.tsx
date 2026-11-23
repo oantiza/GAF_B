@@ -20,7 +20,7 @@ import { importe, peso } from "../core/formato";
 import { summarizeCoveredRate } from "../core/coveredFinancialMetrics";
 import { esAccion } from "../core/esAccion";
 import { categoriaLegible } from "../core/etiquetasDeReparto";
-import { assetRateForAverage, NOTA_DE_LAS_ACCIONES } from "../core/portfolioCosts";
+import { apunteDeLaMediaConAcciones, assetRateForAverage, NOTA_DE_LAS_ACCIONES } from "../core/portfolioCosts";
 import { textoDeAusencia } from "../core/textoDeAusencia";
 import { parsePositionImport, type PositionImportResult } from "../core/positionImport";
 import { groupPositionAmounts } from "../core/groupPositionAmounts";
@@ -44,6 +44,7 @@ import {
   csvCell,
   downloadBlob,
   downloadCsv,
+  estadoDeLaPosicion,
   positionRowMatches,
   resolveRowsFromAssets,
   sortPositionRows,
@@ -562,7 +563,7 @@ export function PositionsWorkbench({ mode, sourceKind, onSendToBuilder, onModeCh
           retroSourceLabel: retro?.sourceLabel ?? null,
           cessionPct,
           incomeEur,
-          status: r.asset ? "found" : "missing"
+          status: estadoDeLaPosicion(r)
         };
       }),
     [cessionCoefficient, config.showCosts, retroByAssetId, rows, totalAmount]
@@ -675,7 +676,7 @@ export function PositionsWorkbench({ mode, sourceKind, onSendToBuilder, onModeCh
       const cells: Array<string | number | null> = [
         row.asset?.isin ?? row.id,
         row.asset?.display_name ?? row.id,
-        row.status === "found" ? "Encontrado" : row.sinLeer?.includes("asset") ? "No se pudo leer" : "No encontrado",
+        row.status === "found" ? "Encontrado" : row.status === "unread" ? "No se pudo leer" : "No encontrado",
         row.retroPct,
         cessionCoefficient,
         row.cessionPct,
@@ -850,7 +851,8 @@ export function PositionsWorkbench({ mode, sourceKind, onSendToBuilder, onModeCh
           {
             rotulo: "Coste medio conocido",
             cifra: soloAcciones ? <Ausencia clase="no-aplica" /> : <Cifra tipo="porcentaje" valor={avgCostPct} />,
-            apunte: hayAcciones ? NOTA_DE_LAS_ACCIONES : undefined
+            /* Una media que cuenta las acciones a cero dice de qué es (Óscar, 21-11-2026); solo con acciones no hay media. */
+            apunte: soloAcciones ? NOTA_DE_LAS_ACCIONES : hayAcciones ? apunteDeLaMediaConAcciones(costSummary.coverageRatio) : undefined
           }
         ]
       : []),
@@ -1158,6 +1160,7 @@ export function PositionsWorkbench({ mode, sourceKind, onSendToBuilder, onModeCh
                     <option value="all">Todos</option>
                     <option value="found">Reconocidos</option>
                     <option value="missing">No reconocidos</option>
+                    <option value="unread">No se pudieron leer</option>
                   </select>
                 </Campo>
               ) : null}

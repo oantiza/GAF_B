@@ -19,7 +19,10 @@ import re
 MAX_POSITIONS = 200
 MAX_TOTAL_CAPITAL = 1_000_000_000_000.0
 SCHEMA_VERSION = "portfolios.v2"
-ALLOWED_POSITION_FIELDS = {"asset_id", "weight_percent", "label", "keep_euros", "target_euros"}
+# `label` deja de guardarse el 20-11-2026: es el nombre del activo para mostrar, un dato maestro, y la base nueva (la de
+# produccion) ya lo descartaba al escribir -el nombre vive en el instrumento, `2-plataforma-datos/.../carteras.ts`-. Se
+# aceptaba y no volvia: ahora se ignora como cualquier otro campo de datos maestros, y la pantalla deja de mandarlo.
+ALLOWED_POSITION_FIELDS = {"asset_id", "weight_percent", "keep_euros", "target_euros"}
 PORTFOLIO_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 ASSET_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
 
@@ -70,6 +73,9 @@ def expected_updated_at_of(payload: dict):
 
 
 def _num(v):
+    # `True` es 1.0 para float(): un booleano no es una cantidad, y un peso o un capital de verdadero/falso se rechaza.
+    if isinstance(v, bool):
+        return None
     try:
         value = None if v is None else float(v)
     except (TypeError, ValueError):
@@ -166,8 +172,6 @@ def sanitize_portfolio(payload: dict, uid: str, now: str = None) -> dict:
             raise InvalidPortfolio(f"Peso no valido en posicion {index + 1}.")
         seen_asset_ids.add(aid)
         pos = {"asset_id": aid, "weight_percent": float(w)}
-        if p.get("label"):
-            pos["label"] = str(p["label"])[:120]
         keep_euros = p.get("keep_euros") if "keep_euros" in p else p.get("keepEuros")
         if keep_euros is not None:
             if not isinstance(keep_euros, bool):
@@ -243,7 +247,10 @@ MAX_PORTFOLIOS_PER_USER = 200
 def save_portfolio(store, uid: str, payload: dict, now: str = None) -> dict:
     doc = sanitize_portfolio(payload, uid, now)
     expected_updated_at = expected_updated_at_of(payload)
-    existing = store.get(uid, doc["portfolio_id"]) if hasattr(store, "get") else None
+    # Solo hace falta la cabecera (existencia, fecha de alta, perfil y horizonte): quien sepa leerla sin los objetivos
+    # se ahorra una lectura de todos ellos en cada guardado.
+    leer = getattr(store, "get_cabecera", None) or getattr(store, "get", None)
+    existing = leer(uid, doc["portfolio_id"]) if leer else None
     # Ola A2 (A2.7): tope de carteras por usuario. Sobrescribir una existente
     # siempre esta permitido; el tope solo frena documentos NUEVOS. Un guardado
     # condicionado (DIS-03) nunca crea uno: si no existe, es un conflicto.

@@ -8,6 +8,26 @@ the EUR master-price series already loaded by the backtest path as::
 Only observations inside each asset's own first/last dates may be carried
 forward.  In particular, this module never backfills before the first point or
 extends a stale series beyond its last point.
+
+P1-06 (auditoria del 20-11-2026). A series that stopped (its last point more than
+``MAX_BRIDGED_WEEK_GAP_DAYS`` before the most recent one) is set aside in every
+scenario with ``SERIES_ENDS_EARLY``, the same code and the same tolerance as the
+period of the simulation (decision A-161). Before, as every scenario ends at the
+earliest last date, it cut the recovery of a crisis (a COVID reported as not
+recovered because one fund stopped in April 2020) and, in the common history,
+the loop removed the youngest healthy asset instead of the stopped one. And a
+scenario in which the portfolio never fell below its reference level says so,
+``NO_DRAWDOWN``: before it was "recovered in 1 day", or "not recovered" with 0 %
+left to recover.
+
+N03 (22-11-2026, approved by Oscar). A crisis only takes a series that is observed
+through it: if, inside the window, two consecutive points are more than
+``MAX_BRIDGED_WEEK_GAP_DAYS`` apart, it is set aside with ``GAP_IN_WINDOW``, like
+the other exclusions (the measured weight and ``representative`` drop with it).
+Before, the last price was carried across the gap: a fund with a quote on
+19-02-2020 and the next on 01-04-2020 gave a COVID of 0,00 %, "did not fall".
+H1-05 (22-11-2026) closes the same hole at the end: a series with no point after its last one inside the crisis is
+unobserved from there to the end of the crisis (or to today, while it lasts), and the same 14 days apply.
 """
 from __future__ import annotations
 
@@ -16,6 +36,9 @@ from datetime import date, datetime, timedelta
 import math
 from typing import Dict, Iterable, Mapping, Optional
 
+from fund_history_quality import tiene_precio_congelado
+from weekly_sampling import MAX_BRIDGED_WEEK_GAP_DAYS
+
 
 COVID_START = date(2020, 2, 19)
 COVID_END = date(2020, 3, 23)
@@ -23,6 +46,15 @@ RATES_2022_START = date(2022, 1, 1)
 RATES_2022_END = date(2022, 10, 31)
 START_TOLERANCE_BUSINESS_DAYS = 5
 REPRESENTATIVE_WEIGHT_THRESHOLD = 0.60
+# The code of `optimization.repository.MOTIVO_SERIE_PARADA` (A-161), which the screen already names.
+SERIES_ENDS_EARLY = "SERIES_ENDS_EARLY"
+# N03: inside a crisis, two consecutive points of the series are more than MAX_BRIDGED_WEEK_GAP_DAYS apart. Carrying
+# the last price across that gap would invent a flat path exactly where the fall is measured.
+GAP_IN_WINDOW = "GAP_IN_WINDOW"
+# The portfolio never went below the level the fall is measured from: there is nothing to recover.
+NO_DRAWDOWN = "NO_DRAWDOWN"
+# The same tolerance with which a level counts as recovered.
+LEVEL_TOLERANCE = 1e-12
 
 
 _FIXED_SCENARIOS = (
@@ -253,32 +285,52 @@ def _calculate_result(
         # merely because a flat trough is repeated on later dates.
         reference = (analysis_start, 1.0, {asset_id: 1.0 for asset_id in included_ids})
         trough = min(loss_levels, key=lambda item: (item[1], item[0]))
+    # P1-06: with no level below the reference (within the recovery tolerance) there is no fall, no
+    # recovery and no asset that took the most away. The trough is then the reference day itself, so the
+    # duration is zero even if a float rounding left a later level a hair below it.
+    no_drawdown = trough[1] >= reference[1] - LEVEL_TOLERANCE
+    if no_drawdown:
+        trough = reference
     reference_date, reference_level, reference_relatives = reference
     trough_date, trough_level, trough_relatives = trough
-    drawdown = trough_level / reference_level - 1.0
+    drawdown = 0.0 if no_drawdown else trough_level / reference_level - 1.0
 
-    # First return to the reference level after the trough. `levels` continues through common_end,
-    # so the search is deliberately not capped at the scenario's configured end.
-    recovery = next(
-        (item for item in levels if item[0] > trough_date and item[1] >= reference_level - 1e-12),
-        None,
-    )
-    recovery_date = recovery[0] if recovery else None
-    recovery_days = (recovery_date - trough_date).days if recovery_date else None
-    # The final common observation is the only admissible terminal value: using
-    # any later value from a longer individual series would be external LOCF.
-    last_common_level = levels[-1][1]
-    remaining_to_recover = 0.0 if recovery else max(0.0, 1.0 - last_common_level / reference_level)
+    if no_drawdown:
+        recovery_date = None
+        recovery_days = None
+        remaining_to_recover = 0.0
+        recovery_status = NO_DRAWDOWN
+        worst_asset = None
+    else:
+        # First return to the reference level after the trough. `levels` continues through common_end,
+        # so the search is deliberately not capped at the scenario's configured end.
+        recovery = next(
+            (item for item in levels if item[0] > trough_date and item[1] >= reference_level - LEVEL_TOLERANCE),
+            None,
+        )
+        recovery_date = recovery[0] if recovery else None
+        recovery_days = (recovery_date - trough_date).days if recovery_date else None
+        # The final common observation is the only admissible terminal value: using
+        # any later value from a longer individual series would be external LOCF.
+        last_common_level = levels[-1][1]
+        remaining_to_recover = 0.0 if recovery else max(0.0, 1.0 - last_common_level / reference_level)
+        recovery_status = "RECOVERED" if recovery_date else "NOT_RECOVERED"
 
-    # Each asset's weight on the reference day times its own move to the trough: the contributions add up
-    # to the fall. On a crisis that day is the first one, so it is today's weight and its move since then.
-    contributions = []
-    for asset_id in included_ids:
-        weight = normalised_weights[asset_id] * reference_relatives[asset_id] / reference_level
-        asset_return = trough_relatives[asset_id] / reference_relatives[asset_id] - 1.0
-        contribution = weight * asset_return
-        contributions.append((contribution, asset_id, asset_return, weight))
-    worst_contribution, worst_asset_id, worst_return, worst_weight = min(contributions, key=lambda item: (item[0], item[1]))
+        # Each asset's weight on the reference day times its own move to the trough: the contributions add up
+        # to the fall. On a crisis that day is the first one, so it is today's weight and its move since then.
+        contributions = []
+        for asset_id in included_ids:
+            weight = normalised_weights[asset_id] * reference_relatives[asset_id] / reference_level
+            asset_return = trough_relatives[asset_id] / reference_relatives[asset_id] - 1.0
+            contribution = weight * asset_return
+            contributions.append((contribution, asset_id, asset_return, weight))
+        worst_contribution, worst_asset_id, worst_return, worst_weight = min(contributions, key=lambda item: (item[0], item[1]))
+        worst_asset = {
+            "asset_id": worst_asset_id,
+            "weight_pct": round(worst_weight * 100.0, 6),
+            "return_pct": round(worst_return * 100.0, 6),
+            "contribution_pct": round(worst_contribution * 100.0, 6),
+        }
 
     coverage = _coverage(requested_weights, included_ids)
     return {
@@ -296,21 +348,67 @@ def _calculate_result(
         "duration_days": max(0, (trough_date - reference_date).days),
         "recovery_date": recovery_date.isoformat() if recovery_date else None,
         "recovery_days": recovery_days,
-        "recovery_status": "RECOVERED" if recovery_date else "NOT_RECOVERED",
-        # RECOVERED is exactly zero.  NO_DATA uses null in `_empty_result`.
+        "recovery_status": recovery_status,
+        # RECOVERED and NO_DRAWDOWN are exactly zero.  NO_DATA uses null in `_empty_result`.
         "remaining_to_recover_pct": round(remaining_to_recover * 100.0, 6),
-        "worst_asset": {
-            "asset_id": worst_asset_id,
-            "weight_pct": round(worst_weight * 100.0, 6),
-            "return_pct": round(worst_return * 100.0, 6),
-            "contribution_pct": round(worst_contribution * 100.0, 6),
-        },
+        # Null with NO_DRAWDOWN: every contribution is zero, and naming one would be inventing it.
+        "worst_asset": worst_asset,
         "coverage": coverage,
         "representative": coverage["weight_pct"] >= REPRESENTATIVE_WEIGHT_THRESHOLD * 100.0,
         "included_assets": included_ids,
         "excluded_assets": excluded_assets,
         "reason": None,
     }
+
+
+def stopped_series(
+    all_series: Mapping[str, list[tuple[date, float]]],
+    requested_weights: Mapping[str, float],
+) -> set[str]:
+    """The assets whose series ends more than MAX_BRIDGED_WEEK_GAP_DAYS before the most recent one.
+
+    The rule of the simulation's period (A-161, `portfolio_horizon._periodo_comun`): the end is the most recent
+    last point, and a series that stops before it, beyond the gap that is bridged, has history but no recent
+    prices. As there (P1-04), a frozen-price asset (`frozen_price`, NH Hotel) does not set that end, because its
+    series is extended flat to today when read; only a portfolio made only of them takes it from them. A single
+    asset, or several ending together, never stop: the end is theirs.
+    """
+    with_series = {asset_id: all_series[asset_id] for asset_id in requested_weights if all_series.get(asset_id)}
+    if not with_series:
+        return set()
+    real_ends = [points[-1][0] for asset_id, points in with_series.items() if not tiene_precio_congelado(asset_id)]
+    latest = max(real_ends or [points[-1][0] for points in with_series.values()])
+    return {
+        asset_id for asset_id, points in with_series.items()
+        if (latest - points[-1][0]).days > MAX_BRIDGED_WEEK_GAP_DAYS
+    }
+
+
+def _gap_in_window(points: list[tuple[date, float]], start: date, end: date, as_of: date) -> bool:
+    """Whether the series leaves a stretch of the window [start, end] unobserved for more than the bridged gap.
+
+    The gaps counted are those between consecutive points from the first one on or after ``start``. The last stretch
+    runs from the last point on or before ``end`` to the first point after it, capped at ``end``: what is checked is
+    the window, and a pause that starts on its last day leaves nothing in it unobserved. A series with no point after
+    it runs to the end of the window that can be observed, ``min(end, as_of)``: a window still in course ends today,
+    and a series that is up to date is not cut. The tolerance is ``MAX_BRIDGED_WEEK_GAP_DAYS``, in calendar days as
+    in ``stopped_series``: a weekly series that misses one week (14 days) still passes, and 15 days do not.
+
+    H1-05 (auditoria del 22-11-2026). Until then a series with no point after the window was taken to end there, on
+    the grounds that ``stopped_series`` (``SERIES_ENDS_EARLY``) set the stopped ones aside. It does not when there is
+    nothing to compare with: a single asset, several that end together, or one that ends beside a frozen-price asset,
+    which does not set the end. A fund whose last price was on 19-02-2020 then gave a COVID of 0,0 %, representative.
+    """
+    previous: Optional[date] = None
+    for point_date, _value in points:
+        if point_date < start:
+            continue
+        if previous is not None and (min(point_date, end) - previous).days > MAX_BRIDGED_WEEK_GAP_DAYS:
+            return True
+        if point_date > end:
+            return False
+        previous = point_date
+    return previous is not None and (min(end, as_of) - previous).days > MAX_BRIDGED_WEEK_GAP_DAYS
 
 
 def _fixed_window(
@@ -321,6 +419,8 @@ def _fixed_window(
     all_series: Mapping[str, list[tuple[date, float]]],
     requested_weights: Mapping[str, float],
     exclusion_reasons: Mapping[str, str],
+    stopped: set[str],
+    as_of: date,
 ) -> dict:
     included: Dict[str, list[tuple[date, float]]] = {}
     excluded: list[dict] = []
@@ -331,9 +431,18 @@ def _fixed_window(
         if not points:
             excluded.append({"asset_id": asset_id, "reason": exclusion_reasons.get(asset_id, "NO_SERIES")})
             continue
+        # P1-06: a stopped series would end the scenario at its last point, and a crisis could come out
+        # as not recovered only because of it. It is set aside even if it covers the crisis itself.
+        if asset_id in stopped:
+            excluded.append({"asset_id": asset_id, "reason": SERIES_ENDS_EARLY})
+            continue
         first_in_window = next((item for item in points if item[0] >= start), None)
         if first_in_window is None or first_in_window[0] > latest_allowed_start or first_in_window[0] > end:
             excluded.append({"asset_id": asset_id, "reason": "NO_DATA_AT_WINDOW_START"})
+            continue
+        # N03: with a hole inside the crisis the fall would be measured on a carried-forward price.
+        if _gap_in_window(points, start, end, as_of):
+            excluded.append({"asset_id": asset_id, "reason": GAP_IN_WINDOW})
             continue
         included[asset_id] = points
 
@@ -356,16 +465,23 @@ def _common_history(
     requested_weights: Mapping[str, float],
     today: date,
     exclusion_reasons: Mapping[str, str],
+    stopped: set[str],
 ) -> dict:
     active: Dict[str, list[tuple[date, float]]] = {}
     excluded: list[dict] = []
     for asset_id in requested_weights:
         points = all_series.get(asset_id) or []
-        if points:
-            active[asset_id] = points
-        else:
+        if not points:
             excluded.append({"asset_id": asset_id, "reason": exclusion_reasons.get(asset_id, "NO_SERIES")})
+        elif asset_id in stopped:
+            # P1-06: set aside before the loop below, which only looks at first dates. With a stopped series
+            # in, the shortfall was at the end, and the loop removed the youngest healthy asset instead.
+            excluded.append({"asset_id": asset_id, "reason": SERIES_ENDS_EARLY})
+        else:
+            active[asset_id] = points
 
+    # With every stopped series out, all the others end within the bridged gap of each other, so what
+    # keeps the common span under three years is the start: removing the youngest is the right cut.
     while len(active) > 1:
         common_start = max(points[0][0] for points in active.values())
         common_end = min(points[-1][0] for points in active.values())
@@ -422,6 +538,13 @@ def stress_windows(
     the highest level reached so far (decision 115, 06-11-2026): ``peak_date`` is
     that high, ``duration_days`` runs from it to the trough, recovery is the first
     return to it, and the worst asset is weighted as it stood on that day.
+
+    A stopped series (``stopped_series``) is excluded from all three with
+    ``SERIES_ENDS_EARLY``, and a series with a gap of more than
+    ``MAX_BRIDGED_WEEK_GAP_DAYS`` inside a crisis, from that crisis with
+    ``GAP_IN_WINDOW`` (the common history keeps its rule). A scenario with no level below its reference has
+    ``recovery_status`` ``NO_DRAWDOWN``: drawdown 0, trough on the reference day,
+    nothing to recover and no ``worst_asset``.
     """
     as_of = _as_date(today) if today is not None else date.today()
     requested_weights = _positive_weights(weights)
@@ -443,8 +566,11 @@ def stress_windows(
             )
         ]
 
+    stopped = stopped_series(all_series, requested_weights)
     fixed = [
-        _fixed_window(scenario_id, label, start, end, all_series, requested_weights, declared_exclusions)
+        _fixed_window(
+            scenario_id, label, start, end, all_series, requested_weights, declared_exclusions, stopped, as_of,
+        )
         for scenario_id, label, start, end in _FIXED_SCENARIOS
     ]
-    return fixed + [_common_history(all_series, requested_weights, as_of, declared_exclusions)]
+    return fixed + [_common_history(all_series, requested_weights, as_of, declared_exclusions, stopped)]

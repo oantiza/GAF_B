@@ -704,6 +704,10 @@ function irpfNavarra(P: ParametrosNavarros, { trabajo, ahorro, edad, otrasDeducc
 
 /* ------------------------------------------------------ Piezas del modelo común --- */
 
+/**
+ * La reducción por obtención de rendimientos del trabajo (art. 20 LIRPF). `rendimientoNeto` es el del propio art. 20:
+ * el íntegro menos los gastos de las letras a) a e) del art. 19.2, **sin** los 2.000 € de la letra f).
+ */
 export function reduccionTrabajoComun(P: ParametrosComunes, rendimientoNeto: number, otrasRentas: number): number {
   const R = P.reduccionTrabajo;
   const x = pos(rendimientoNeto);
@@ -747,7 +751,18 @@ function irpfComun(
   const a = pos(ahorro);
   const gastos = Math.min(t, P.gastos);
   const rn = t - gastos;
-  const reduccion = Math.min(rn, reduccionTrabajoComun(P, rn, a));
+  /* La reducción del art. 20 se mide sobre el rendimiento **previo** a los 2.000 € de «otros gastos», no sobre `rn`
+     (auditoría del 20-11-2026, P1-01; corregido el 21-11-2026 con la aprobación de Óscar). Art. 20, párrafo que sigue
+     a los tres tramos, Ley 35/2006 (redacción del RDL 4/2024, art. 3.1, con efectos 1-1-2024): «A estos efectos, el rendimiento neto del
+     trabajo será el resultante de minorar el rendimiento íntegro en los gastos previstos en las letras a), b), c), d)
+     y e) del artículo 19.2», es decir, sin la letra f). El Manual práctico de Renta 2025 de la AEAT (cap. 3, «Fase 3.ª:
+     Determinación del rendimiento neto reducido») lo aplica igual. Una pensión no tiene gastos de las letras a) a e),
+     así que el rendimiento previo es el íntegro, `t`. Lo que no cambia es el tope del último párrafo del art. 20 («el saldo
+     resultante no podrá ser negativo»): la reducción no pasa de `rn`. Texto consolidado del BOE, última actualización 18-11-2026,
+     consultado el 21-11-2026: https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764#a20
+     El motor de NUVIA (`js/nuvia-jubilacion-fiscal.js`) sigue midiéndola sobre `rn`: la prueba de paridad lo dirá. */
+  const rendimientoPrevio = t;
+  const reduccion = Math.min(rn, reduccionTrabajoComun(P, rendimientoPrevio, a));
   const baseGeneral = Math.max(0, rn - reduccion);
   const minimo = minimoPersonalComun(P.minimo, num(edad));
   const minimoA = minimoAutonomico ? minimoPersonalComun(minimoAutonomico, num(edad)) : minimo;
@@ -804,6 +819,56 @@ function irpfComun(
  */
 export function escalasConElIpc(cfg: Configuracion): boolean {
   return cfg.modelo === "vasco" || cfg.modelo === "navarra";
+}
+
+/* --------------------------------- Pérdidas de lo vendido: cómo se compensan --- */
+
+/** Cómo compensa un territorio las pérdidas patrimoniales de la base del ahorro, y dónde lo dice su norma. */
+export interface ReglaDeCompensacion {
+  /** Cuántos años siguientes al de la pérdida puede compensarse lo que quede; después caduca. */
+  plazo: number;
+  /**
+   * La parte del saldo positivo de los rendimientos del capital del mismo año con la que la norma deja compensar un
+   * saldo negativo de ganancias y pérdidas: 0,25 en territorio común y Navarra, 0 en los territorios vascos. **El
+   * motor no la usa** (opción prudente, Óscar 21-11-2026): solo compensa pérdidas con ganancias.
+   */
+  cruceConRendimientos: number;
+  /** El precepto, para citarlo. */
+  articulo: string;
+}
+
+/**
+ * La regla de compensación de pérdidas patrimoniales en la base del ahorro de cada territorio (hallazgo P1-03 de la
+ * auditoría del 20-11-2026; decisión de Óscar del 21-11-2026). Las cinco dan cuatro años; cambia el cruce con los
+ * rendimientos del capital. Consultadas el 21-11-2026:
+ *
+ * - **Territorio común**, art. 49.1.b y 49.2 de la Ley 35/2006 (BOE consolidado, redacción de la Ley 26/2014,
+ *   https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20260930): el saldo negativo se compensa con el
+ *   positivo de los rendimientos del art. 46 del mismo año hasta el 25 %, y lo que quede «se compensará en los cuatro
+ *   años siguientes en el mismo orden»; «en la cuantía máxima que permita cada uno de los ejercicios siguientes».
+ * - **Navarra**, art. 54.2.b y 54.3 del DFL 4/2008 (BOE consolidado, redacción de la Ley Foral 23/2015,
+ *   https://www.boe.es/buscar/act.php?id=BON-n-2008-90013&p=20260420&tn=1): lo mismo, 25 % y cuatro años, y dice
+ *   además que se compensan «en primer lugar los más antiguos».
+ * - **Álava**, art. 66.1.b y 66.2 de la NF 33/2013 (texto consolidado de la Hacienda Foral,
+ *   https://web.araba.eus/documents/d/araba/indice_norma-foral_irpf_cas-7-pdf): el saldo negativo «sólo se podrá
+ *   compensar con el saldo positivo de las ganancias y pérdidas» de los cuatro años siguientes. Sin cruce.
+ * - **Gipuzkoa**, art. 66.1.b y 66.2 de la NF 3/2014 (texto vigente 2026 de la Hacienda Foral,
+ *   https://www.gipuzkoa.eus/documents/2456431/8.0759126E7/NF%203-2014%20(2026-0).pdf/8ab5c95c-3f89-8fdf-5cb8-01950e3983cc):
+ *   el mismo texto que Álava, sin cruce, con una salvedad que aquí no aplica —diez años para las pérdidas de
+ *   acciones de entidades innovadoras del art. 89 ter—.
+ * - **Bizkaia**, art. 66.1.b y 66.2 de la NF 13/2013: el mismo texto, sin cruce. Leído en la redacción original
+ *   (BOB de 13-12-2013, copia del CEF, https://www.fiscal-impuestos.com/sites/fiscal-impuestos.com/files/NFL016422.pdf),
+ *   porque el texto consolidado de la Hacienda Foral pide una comprobación de persona y no se pudo abrir. La reforma de
+ *   la NF 2/2025 subió del 10 % al 25 % el cruce de la base **general** (art. 65.c), no el de la del ahorro.
+ *
+ * El cruce de la base general no importa aquí: las ganancias por transmisión van todas a la del ahorro.
+ */
+export const PLAZO_DE_COMPENSACION = 4;
+
+export function reglaDeCompensacion(cfg: Configuracion): ReglaDeCompensacion {
+  if (cfg.modelo === "vasco") return { plazo: PLAZO_DE_COMPENSACION, cruceConRendimientos: 0, articulo: `art. 66.1.b de la ${cfg.normaCorta}` };
+  if (cfg.modelo === "navarra") return { plazo: PLAZO_DE_COMPENSACION, cruceConRendimientos: 0.25, articulo: `art. 54.2.b del ${cfg.normaCorta}` };
+  return { plazo: PLAZO_DE_COMPENSACION, cruceConRendimientos: 0.25, articulo: `art. 49.1.b de la ${cfg.normaCorta}` };
 }
 
 export function irpf(cfg: Configuracion, rentas: RentasDelAnio): ResultadoDelIrpf {
@@ -882,25 +947,53 @@ export function basesCapitalVasco(pv: PrevisionVasca, o: CondicionesDelCapital, 
     limite -= red;
     return red * tipo + (x - red);
   };
-  const certificado = o.epsvDesglose === "certificado";
-  const rPre = certificado ? (ep.pre ? ep.preRent / ep.pre : 0) : ep.ratio;
-  const rPost = certificado ? (ep.post ? ep.postRent / ep.post : 0) : ep.ratio;
+  /* La rentabilidad de cada tramo es la que llevan sus saldos. Con certificado, la que dice; sin él, el motor pone en
+     `preRent` y `postRent` la estimación reglada sobre el saldo de hoy, y suma al tramo posterior lo que crezca hasta
+     jubilarse, que es todo rentabilidad (`situacionInicial`). Hasta el 22-11-2026, sin desglose se aplicaba la
+     estimación también a ese crecimiento, y tres cuartas partes de una rentabilidad pasaban por aportación.
+     La parte que se cobra de cada tramo es `pct` de su rentabilidad, sin pasar por la razón rentabilidad / saldo. Hasta
+     el 22-11-2026 se pasaba, y con un tramo a 0 € la razón valía 0: su pérdida se tiraba. Con 49.000 € (20.000 de
+     rentabilidad) y un tramo posterior que una pérdida deja en 0 € y −1.000 €, el ahorro salía 20.000 € y con un céntimo
+     más de saldo 19.000 €; y con el tramo anterior a 0 € y −20.000 €, el posterior ganaba 15.000 € de base del ahorro que
+     la diferencia positiva de la EPSV entera deja en 0 (H1-02 de la auditoría del 22-11-2026). La pérdida de un tramo no
+     se limita a su saldo (`c525a845`). */
+  const preRent = ep.preRent * pct;
+  const postRent = ep.postRent * pct;
   let detalle: BasesDelCapital["detalle"];
+  /* Con una rentabilidad negativa antes de jubilarse, la pérdida se lleva al tramo posterior (`situacionInicial`
+     del motor) y sus derechos y su rentabilidad pueden quedar en negativo. La norma no deja que eso cree base: el
+     rendimiento del capital mobiliario es solo «la diferencia positiva entre los derechos económicos de la persona
+     contribuyente y las aportaciones y contribuciones realizadas» (art. 37.e de la NF 33/2013 de Álava, redacción
+     de la NF 17/2025, BOTHA n.º 145 de 22-12-2025, https://www.araba.eus/botha/Boletines/2025/145/2025_145_03675_C.pdf;
+     el mismo texto en el art. 37.e de la NF 3/2014 de Gipuzkoa, redacción de la NF 1/2025, BOG de 15-05-2025,
+     https://egoitza.gipuzkoa.eus/gao-bog/castell/bog/2025/05/15/c2503564.htm; y la Hacienda Foral de Bizkaia lo
+     explica igual para el art. 37 de la NF 13/2013 en su ficha KA-01878; consultados el 21-11-2026). Lo que no es
+     rendimiento es prestación, y tributa como trabajo (art. 18.a): ni la rentabilidad baja de cero ni la parte de
+     aportación pasa de lo cobrado. Auditoría del 20-11-2026, P1-02; corregido el 21-11-2026 con la aprobación de
+     Óscar. El motor de NUVIA (`js/nuvia-jubilacion-fiscal.js`) no lo acota: la prueba de paridad lo dirá. */
   if (regimen === "transitorio") {
-    /* Caso práctico DFB 2026: prestación × aportaciones previas / aportaciones totales. */
+    /* Caso práctico DFB 2026: prestación × aportaciones previas / aportaciones totales. La cuota es una proporción
+       de la prestación, entre 0 y 1: la de los derechos pasaba de 1 cuando el tramo posterior quedaba en negativo. Sin
+       desglose, las aportaciones son las que deja la estimación, y sobre el saldo de hoy la cuota es la de los derechos;
+       el crecimiento hasta jubilarse, que es rentabilidad, no la mueve, igual que con certificado. */
     const apPre = ep.pre - ep.preRent;
     const apPost = ep.post - ep.postRent;
-    const cuotaPre = certificado && apPre + apPost > 0 ? apPre / (apPre + apPost) : ep.pre + ep.post ? ep.pre / (ep.pre + ep.post) : 0;
+    const cuotaBruta = apPre + apPost > 0 ? apPre / (apPre + apPost) : ep.pre + ep.post ? ep.pre / (ep.pre + ep.post) : 0;
+    const cuotaPre = Math.max(0, Math.min(1, cuotaBruta));
     const tramoPre = bruto * cuotaPre;
     const tramoPost = bruto - tramoPre;
-    const rentPost = Math.min(tramoPost, post * rPost);
+    /* La diferencia positiva es la de la EPSV entera: la ganancia del tramo posterior no pasa de la de los dos tramos
+       juntos, y una pérdida del tramo anterior la reduce (N06, 22-11-2026). */
+    const rentPost = Math.max(0, Math.min(tramoPost, postRent, preRent + postRent));
     const apTramoPost = tramoPost - rentPost;
     general += integrar(tramoPre, pv.capitalTransitorio);
     ahorro += rentPost;
     general += integrar(apTramoPost, pv.capital);
     detalle = { tramoPre, tramoPost, rentabilidad: rentPost, aportacion: apTramoPost };
   } else {
-    const rent = pre * rPre + post * rPost;
+    /* La diferencia positiva del art. 37.e, sobre la EPSV entera: con más aportado que cobrado no hay rendimiento, y
+       todo es aportación. La pérdida de un tramo, que el certificado puede declarar, resta de la ganancia del otro. */
+    const rent = Math.max(0, Math.min(bruto, preRent + postRent));
     const aport = Math.max(0, bruto - rent);
     ahorro = rent;
     general = integrar(aport, pv.capital);
@@ -953,6 +1046,35 @@ export function ratioEstimado(cfg: Configuracion, antiguedadConocida: boolean, a
   return pv.estimacionSinAntiguedad;
 }
 
+/** La antigüedad, en años, con la que el saldo sin desglose ya no se puede dar por anterior a 2026. */
+export const ANTIGUEDAD_SIN_TRAMO_ANTERIOR = 1;
+
+/**
+ * Sin desglose (modelo vasco), el saldo se trata como aportado hasta 2025: derechos anteriores al régimen de 2026. Con
+ * una antigüedad conocida de un año o menos —el campo no admite menos de uno— la primera aportación puede ser ya de 2026,
+ * y esa suposición no se sostiene: el saldo se trata entero como posterior, y el régimen transitorio no tiene sobre qué
+ * aplicarse (N05, aprobado por Óscar el 22-11-2026).
+ */
+export function saldoSinDesgloseEsPosterior(antiguedadConocida: boolean, antiguedad: number): boolean {
+  return antiguedadConocida && num(antiguedad) <= ANTIGUEDAD_SIN_TRAMO_ANTERIOR;
+}
+
+/** Los años desde la primera aportación que exige la reducción del cobro en capital («más de 2 años»). */
+export const ANTIGUEDAD_MINIMA_DEL_CAPITAL = 2;
+
+/**
+ * Sin desglose, con la antigüedad conocida, el requisito de «más de 2 años desde la primera aportación» puede no poder
+ * cumplirse: si la antigüedad de hoy más los años que faltan hasta el cobro (0 si ya se cobra) no llega a 2. Con una
+ * antigüedad desconocida no se sabe y no se toca; en invalidez y dependencia el requisito no se exige. El formulario
+ * desmarca la casilla y lo dice, y `normalizar` no aplica la reducción aunque la casilla llegue marcada (H1-03, parte 2;
+ * aprobado por Óscar el 23-11-2026).
+ */
+export function dosAniosNoPuedeCumplirse(o: { sinDesglose: boolean; antiguedadConocida: boolean; antiguedad: number; aniosHastaCobro: number; contingencia: string }): boolean {
+  if (!o.sinDesglose || !o.antiguedadConocida) return false;
+  if (o.contingencia === "invalidez" || o.contingencia === "dependencia") return false;
+  return num(o.antiguedad) + Math.max(0, num(o.aniosHastaCobro)) < ANTIGUEDAD_MINIMA_DEL_CAPITAL;
+}
+
 /* ------------------------------------------------------------ Textos de apoyo --- */
 
 const decimalesDelTipo = (tipo: number): number => (Math.round(tipo * 1000) % 10 ? 1 : 0);
@@ -1003,7 +1125,7 @@ export function resumenParametros(cfg: Configuracion): string[] {
   const propio = cfg.minimoAutonomico;
   return [
     `Gastos deducibles del trabajo: ${eur(P.gastos)} (art. 19.2.f).`,
-    "Reducción por rendimientos del trabajo (art. 20): 7.302 € hasta 14.852 €, decreciente hasta desaparecer a 19.747,5 €; no se aplica si otras rentas superan 6.500 €.",
+    `Reducción por rendimientos del trabajo (art. 20): 7.302 € hasta 14.852 €, decreciente hasta desaparecer a 19.747,5 €, medidos sobre el rendimiento antes de los ${eur(P.gastos)} de gastos; no se aplica si otras rentas superan 6.500 €.`,
     propio
       ? `Mínimo del contribuyente (art. 57): ${eur(P.minimo.base)}, más ${eur(P.minimo.edad65)} desde el año en que se cumplen 65 y otros ${eur(P.minimo.edad75)} desde los 75 (edad a 31 de diciembre); se aplica «a escala» en la parte estatal. En la parte autonómica se aplica, también «a escala», el mínimo propio ${deComunidad(cfg.ccaa)} (art. 56.3): ${eurosExactos(propio.base)} (${eurosExactos(propio.base + propio.edad65)} desde los 65 y ${eurosExactos(propio.base + propio.edad65 + propio.edad75)} desde los 75).`
       : `Mínimo del contribuyente (art. 57): ${eur(P.minimo.base)}, más ${eur(P.minimo.edad65)} desde el año en que se cumplen 65 y otros ${eur(P.minimo.edad75)} desde los 75 (edad a 31 de diciembre); se aplica «a escala» en la parte estatal y en la autonómica.`,

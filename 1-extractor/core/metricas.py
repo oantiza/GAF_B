@@ -48,6 +48,9 @@ Dos cosas cambian a la vez, y por eso cambia otra vez la versión:
   (`HUECO_MAXIMO_DIAS_DIARIO`).
 - **Las relativas cierran en el mismo mes que el riesgo, o no se dan** (`relativas` con `fin`):
   si el índice no llega a ese cierre, no se miden un mes antes.
+- **El ratio de información divide la rentabilidad activa sin redondear** (21-11-2026). Es una
+  corrección dentro de la versión 4, no una versión 5 (C-28, Óscar): la fórmula no cambió, la
+  cuenta dividía la activa ya redondeada. Mueve 45 ratios una diezmilésima.
 
 ## La misma métrica tiene dos puertas, y hay que saberlo
 
@@ -678,6 +681,26 @@ def rf_medio_pct(estr: list[tuple[date, float]], inicio: date,
     return sum(vals) / len(vals)
 
 
+def estr_sin_tramos_vacios(estr: list[tuple[date, float]], desde: date, hasta: date) -> bool:
+    """Si el €STR da tipo a cada noche de la ventana, de `desde` a la víspera de `hasta`.
+
+    Es la regla de cada noche del método mensual (`RF_ARRASTRE_MAX_DIAS`: vale el último €STR publicado, como mucho
+    7 días viejo) llevada a la media del camino diario: el €STR tiene que empezar antes que la ventana, o como mucho
+    7 días antes de su primer día, y no tener por dentro un tramo más largo que eso.
+
+    **Y el final, desde la C-28** (Óscar, 21-11-2026): la última noche de la ventana —la víspera de `hasta`— también
+    necesita un €STR de como mucho 7 días, como en `_rf_entre`. Hasta entonces el final no se miraba: un €STR parado
+    se marcaba (`cobertura_rf`, decisión del 09-11-2026) y el Sharpe se publicaba con él sin límite de días. Un retraso
+    de 7 días o menos se sigue marcando sin suprimir nada, que es lo que hace el mensual: arrastrar el último tipo."""
+    fechas = sorted(f for f, _v in estr if f <= hasta)
+    i = bisect.bisect_right(fechas, desde) - 1
+    if i < 0 or (desde - fechas[i]).days > RF_ARRASTRE_MAX_DIAS:
+        return False                       # el €STR empieza después de la ventana, o su primer día no tiene tipo
+    if (hasta - timedelta(days=1) - fechas[-1]).days > RF_ARRASTRE_MAX_DIAS:
+        return False                       # el €STR se paró antes del final: la última noche no tiene tipo
+    return all((b - timedelta(days=1) - a).days <= RF_ARRASTRE_MAX_DIAS for a, b in zip(fechas[i:], fechas[i + 1:]))
+
+
 #: Días hábiles (lunes a viernes) que el €STR puede acabar antes que la ventana sin que la ficha lo
 #: marque. Tres porque es lo que da la operación normal: el BCE publica el €STR de un día a la
 #: mañana siguiente (uno), la caché lo puede servir con hasta un día de edad (`estr_bce.TTL_DIAS`,
@@ -686,6 +709,12 @@ def rf_medio_pct(estr: list[tuple[date, float]], inicio: date,
 #: Cuánto pesa: medido el 09-11-2026, un día de menos movía la media a un año en 0,0015 puntos y el
 #: Sharpe como mucho en 0,0009, así que no se suprime nada (§3 del método: el Sharpe solo falta
 #: si falta el tipo); se dice, y `rf_hasta` deja la cifra reproducible.
+#:
+#: Desde la C-28 (Óscar, 21-11-2026) esta marca ya no es lo único: pasados `RF_ARRASTRE_MAX_DIAS`
+#: días naturales sin €STR en la última noche de la ventana, la última noche no tiene tipo y el
+#: Sharpe se suprime, como en el método mensual (`estr_sin_tramos_vacios`). Entre los 3 hábiles y
+#: esos 7 naturales —un €STR de cuatro o cinco días hábiles de retraso— se sigue marcando y
+#: publicando, y `sharpe_suprimido` dice en cuál de los dos casos está la ficha.
 RF_TOLERANCIA_DIAS_HABILES = 3
 
 
@@ -704,6 +733,9 @@ def cobertura_rf(estr: list[tuple[date, float]], fin: date) -> dict | None:
     `rf_hasta` es la última fecha del €STR que entra en la media (la última `<= fin`): con ella y
     la serie del BCE, un re-mapeo reproduce `rf_pct` sin adivinar qué copia había en la caché.
     `incompleto` es True si faltan más de `RF_TOLERANCIA_DIAS_HABILES` días hábiles hasta `fin`.
+    `sharpe_suprimido` es True si el €STR se paró tanto que la última noche de la ventana no tiene
+    tipo (más de `RF_ARRASTRE_MAX_DIAS` días: C-28), y entonces no hay `rf_pct` ni Sharpe; siempre
+    que lo es, `incompleto` también.
     `None` si no hay €STR hasta `fin`, que es el caso en que tampoco hay `rf_pct`."""
     fechas = [f for f, _v in estr if f <= fin]
     if not fechas:
@@ -712,7 +744,8 @@ def cobertura_rf(estr: list[tuple[date, float]], fin: date) -> dict | None:
     faltan = dias_habiles_entre(hasta, fin)
     return {"rf_hasta": hasta.isoformat(), "fin_ventana": fin.isoformat(),
             "dias_habiles_sin_estr": faltan,
-            "incompleto": faltan > RF_TOLERANCIA_DIAS_HABILES}
+            "incompleto": faltan > RF_TOLERANCIA_DIAS_HABILES,
+            "sharpe_suprimido": (fin - timedelta(days=1) - hasta).days > RF_ARRASTRE_MAX_DIAS}
 
 
 def _caida_maxima_ventana(ventana: Serie) -> float | None:
@@ -775,12 +808,18 @@ def metricas_diarias(serie: Serie, anos: int,
     # Se reproduce con lo que la ficha ya publica: (observaciones − 1) × 365,25 / días entre
     # `fecha_inicio` y `fecha_fin`.
     por_ano = len(retornos) * DIAS_DEL_ANO / dias
-    vol = statistics.stdev(retornos) * math.sqrt(por_ano) * 100
-    rf_pct = rf_medio_pct(estr or [], ventana[0][0], ventana[-1][0])
+    desviacion = statistics.stdev(retornos)
+    vol = desviacion * math.sqrt(por_ano) * 100
+    # El €STR tiene que cubrir la ventana desde su primer día y sin tramos sin tipo (§3: el Sharpe falta cuando el BCE no
+    # da el tipo para algún tramo). Antes bastaba un solo dato dentro de la ventana (P2-01). Y hasta el final: desde la
+    # C-28 (21-11-2026), un €STR parado más de 7 días antes de la última noche deja la ventana sin tipo, como en el
+    # mensual; un retraso menor lo marca `cobertura_rf` y no suprime la cifra (decisión del 09-11-2026).
+    rf_pct = (rf_medio_pct(estr, ventana[0][0], ventana[-1][0])
+              if estr and estr_sin_tramos_vacios(estr, ventana[0][0], ventana[-1][0]) else None)
     # Sharpe con rf = media diaria €STR del BCE en la ventana. rent, rf y vol
     # estan en porcentaje, por lo que (rent_pct-rf_pct)/vol_pct equivale a
-    # usar decimales: (rent-rf)/vol.
-    sharpe = (rent - rf_pct) / vol if vol and rf_pct is not None else None
+    # usar decimales: (rent-rf)/vol. La volatilidad nula es la del método (`DESVIACION_NULA`), no un `if vol`.
+    sharpe = (rent - rf_pct) / vol if desviacion > DESVIACION_NULA and rf_pct is not None else None
     return {
         "rent_anualizada": _r(rent),
         "volatilidad": _r(vol),
@@ -862,15 +901,25 @@ def relativas(serie: Serie, indice: Serie, base_indice: str,
         tramo = comun[-(n + 1):]
         if not _consecutivos([(f.year, f.month) for f, _p, _i in tramo]) or hueco_en_ventana(serie, tramo[0][0], fin):
             continue
+        # El índice tampoco puede tener un hueco en la ventana (P2-01, auditoría del 20-11-2026). Sus cierres de mes son
+        # consecutivos, pero uno puede caer hasta cinco laborables antes del final (`es_cierre_de_mes`), y entre él y el
+        # siguiente caben más de `HUECO_MAXIMO_DIAS` sin un dato: esa rentabilidad del índice no es la de los mismos días
+        # que la del fondo. Es la regla de la ventana con hueco (§2 del método), aplicada a la otra serie de la cuenta.
+        if hueco_en_ventana(indice, tramo[0][0], fin):
+            continue
         rf_ = [b[1] / a[1] - 1 for a, b in zip(tramo, tramo[1:])]
         ri = [b[2] / a[2] - 1 for a, b in zip(tramo, tramo[1:])]
         var_i = statistics.variance(ri)
         datos: dict = {}
-        if var_i > 0:
+        # Las dos desviaciones con el «exactamente cero» del método (`DESVIACION_NULA`), como el Sharpe. Sin la del fondo,
+        # un fondo de valor liquidativo constante hacía saltar `statistics.correlation` (StatisticsError, P2-01): su beta
+        # es cero —no se mueve con el índice—, pero su R² es 0/0 y no se publica.
+        if math.sqrt(var_i) > DESVIACION_NULA:
             beta = statistics.covariance(rf_, ri) / var_i
             datos["beta"] = _r(beta)
-            r = statistics.correlation(rf_, ri)
-            datos["r2"] = _r(r * r * 100)
+            if statistics.stdev(rf_) > DESVIACION_NULA:
+                r = statistics.correlation(rf_, ri)
+                datos["r2"] = _r(r * r * 100)
             if retorno_total and estr:
                 tipos = _tipos(estr)
                 rfs = [_rf_entre(tipos, a[0], b[0]) for a, b in zip(tramo, tramo[1:])]
@@ -878,15 +927,21 @@ def relativas(serie: Serie, indice: Serie, base_indice: str,
                     ef = statistics.fmean([a - b for a, b in zip(rf_, rfs)])
                     ei = statistics.fmean([a - b for a, b in zip(ri, rfs)])
                     datos["jensen_alpha"] = _r((ef - beta * ei) * 12 * 100)
+        activa = (statistics.fmean(rf_) - statistics.fmean(ri)) * 12 * 100
         if retorno_total:
-            datos["rentabilidad_activa"] = _r(
-                (statistics.fmean(rf_) - statistics.fmean(ri)) * 12 * 100)
+            datos["rentabilidad_activa"] = _r(activa)
         diferencias = [a - b for a, b in zip(rf_, ri)]
         if len(diferencias) >= 2:
-            te = statistics.stdev(diferencias) * math.sqrt(12) * 100
+            sd_dif = statistics.stdev(diferencias)
+            te = sd_dif * math.sqrt(12) * 100
             datos["tracking_error"] = _r(te)
-            if retorno_total and te > 0 and "rentabilidad_activa" in datos:
-                datos["information_ratio"] = _r(datos["rentabilidad_activa"] / te)
+            # El ratio de información divide por el tracking error: con el mismo «exactamente cero» que el Sharpe, no
+            # con `te > 0`, que dejaba pasar el ruido de coma flotante de dos series casi idénticas (P2-01).
+            # Y divide la rentabilidad activa SIN redondear, como todo cociente del módulo (el Sharpe, el Sortino). Hasta
+            # el 21-11-2026 dividía la ya redondeada a cuatro decimales: en un fondo que sigue de cerca a su índice, con un
+            # tracking error de centésimas, ese redondeo movía el ratio en la segunda cifra (P2-01).
+            if retorno_total and sd_dif > DESVIACION_NULA and "rentabilidad_activa" in datos:
+                datos["information_ratio"] = _r(activa / te)
         if datos:
             out[clave] = datos
     return out

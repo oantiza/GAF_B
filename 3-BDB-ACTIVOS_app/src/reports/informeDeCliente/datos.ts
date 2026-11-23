@@ -28,7 +28,7 @@ import { measurementSeries } from "../../core/seriesFrequency";
 import { esUnaSolaAccion, fueraDeLaMedida, idsConPeso, motivoSinCifraDeCartera } from "../../core/medidaDeLaCartera";
 import { motivoDeQueNoAplique } from "../../core/metricasPorInstrumento";
 import { fraseDeLaParteMedida, motivoParaElCliente, parteMedidaDeLaSimulacion, pesoEnElPapel, SIMULACION_CON_LOS_PESOS_DE_HOY, versionDeLaReferencia, type ParteMedida } from "../../core/parteMedida";
-import { filasPorCategoria, fraseDeLoQueNoEntra, FUERA_DEL_CATALOGO, FUERA_DEL_REPARTO, fueraDelRepartoDelInforme, posicionesFueraDelCatalogo } from "../../core/repartoDelPapel";
+import { filasPorCategoria, fraseDeLoQueNoEntra, fraseDeLoQueNoTieneRepartoEnElPapel, fraseDelSinRepartoEnElPapel, FUERA_DEL_CATALOGO, FUERA_DEL_REPARTO, fueraDelRepartoDelInforme, posicionesFueraDelCatalogo } from "../../core/repartoDelPapel";
 import { fraseDelTipoDeRespaldo, tipoDeRespaldo } from "../../core/tipoDeRespaldo";
 import type { PortfolioFeasibilityCheck } from "../../core/portfolioConstraints";
 import { backtestPeriodTitle, backtestWindowCoverage } from "../../core/backtestCoverage";
@@ -269,7 +269,7 @@ export const TITULO_DE_LAS_CIFRAS = "Cifras de la cartera";
 
 /**
  * Las cuatro cifras de la cartera, como se imprimen en su sección («Cifras de la cartera»; nunca en la portada, Óscar, 15-11-2026):
- * rentabilidad anualizada (con su signo), volatilidad, Sharpe y caída máxima. El tipo sin riesgo no es una de ellas (decisión de Óscar del 10-11-2026): va en una nota debajo, `notaDelTipoSinRiesgo`.
+ * rentabilidad anualizada (con su signo), volatilidad, Sharpe y caída máxima. El tipo sin riesgo no es una de ellas (decisión de Óscar del 10-11-2026), y desde el 22-11-2026 tampoco va en una nota debajo: al cliente no le dice nada.
  */
 export function informeDeClienteMetricRows(report: BdbPortfolioReport, analysis?: PortfolioHorizon): CifraDeLaCartera[] {
   const anos = analysis?.years ?? 3;
@@ -287,18 +287,6 @@ export function informeDeClienteMetricRows(report: BdbPortfolioReport, analysis?
       : oFalta(cifras.sharpe.label, ratio(cifras.sharpe.value)),
     oFalta(cifras.maxDrawdown.label, porcentaje(cifras.maxDrawdown.value))
   ];
-}
-
-/**
- * La nota del tipo sin riesgo bajo las cifras. Sale también sin cifra de la cartera: es del periodo, no de la cartera. Sin simulación, falta.
- * Dice que es la referencia del Sharpe solo si el Sharpe se imprime.
- */
-export function notaDelTipoSinRiesgo(report: BdbPortfolioReport, analysis?: PortfolioHorizon): string {
-  const anos = analysis?.years ?? 3;
-  const tipo = safeNumber(analysis?.backtest.metrics.rf_rate);
-  if (!analysis || tipo === null) return `Tipo sin riesgo a ${anos} años: ${FALTA.toLocaleLowerCase("es-ES")}.`;
-  const conSharpe = !motivoSinCifra(report, analysis) && !sharpeDeUnaSolaAccion(report, analysis.backtest);
-  return `Tipo sin riesgo a ${anos} años: ${porcentaje(tipo)}${conSharpe ? ", la referencia del ratio de Sharpe" : ""}.`;
 }
 
 /* ------------------------------------------------------------------------------------------------ El alcance de las cifras */
@@ -504,11 +492,13 @@ function altoDeLasCrisis(modelo: ModeloDeCrisis, queMide: string, loQueNoEs: str
  * La guía de interpretación. Describe y no juzga (decisión 4): ningún «gestión excelente», ningún «peor escenario», ningún nivel de confort
  * que el informe no contiene. Lo que depende de la cartera se dice solo si es verdad en esta, y cada entrada corresponde a algo que el papel
  * imprime.
+ *
+ * Sin «Tipo sin riesgo», «Caída máxima» ni «Crisis pasadas» (Óscar, 22-11-2026): el tipo sin riesgo no le dice nada al cliente y su cifra
+ * sigue en la nota bajo las cifras (con el tipo de respaldo, si lo hay, en `fraseDelRespaldo`); las crisis se explican en su propia
+ * sección; y la caída máxima, que es una de las cuatro cifras, se queda sin entrada. Entra el cono, que no la tenía.
  */
-function entradasDeLaGuia({ anos, ampliado, tipoDeRespaldo, sharpeNoAplica, unaSolaAccion, conAcciones, conFrontera }: {
+function entradasDeLaGuia({ anos, sharpeNoAplica, unaSolaAccion, conAcciones, conFrontera, conCono }: {
   anos: number;
-  ampliado: boolean;
-  tipoDeRespaldo: boolean;
   sharpeNoAplica: boolean;
   /** La cartera entera es una sola acción: sin solapamiento, que no le aplica (decisión 80). */
   unaSolaAccion: boolean;
@@ -516,6 +506,8 @@ function entradasDeLaGuia({ anos, ampliado, tipoDeRespaldo, sharpeNoAplica, unaS
   conAcciones: boolean;
   /** Se dibuja la frontera: la guía la explica (Óscar, 16-11-2026). Sin curva, esa entrada no sale. */
   conFrontera: boolean;
+  /** Sale el cono estadístico: la guía lo explica (Óscar, 22-11-2026). Sin cono, esa entrada no sale. */
+  conCono: boolean;
 }): ReadonlyArray<readonly [titulo: string, subtitulo: string, texto: string]> {
   const entradas: ReadonlyArray<readonly [titulo: string, subtitulo: string, texto: string]> = [
     ["Rentabilidad anualizada", "Lo que se habría ganado cada año, de media", "La rentabilidad media de cada año del periodo medido, con las ganancias acumuladas. Sale de una simulación con los pesos de hoy: no es la rentabilidad que usted ha obtenido."],
@@ -523,20 +515,17 @@ function entradasDeLaGuia({ anos, ampliado, tipoDeRespaldo, sharpeNoAplica, unaS
     sharpeNoAplica
       ? ["Ratio de Sharpe", "No aplica a una sola acción", `Lo que mide la simulación es una sola acción, y a una acción no se le da este ratio. ${motivoDeQueNoAplique("sharpe", "STOCK")}`]
       : ["Ratio de Sharpe", "Rentabilidad por cada punto de oscilación", "Rentabilidad por encima del tipo sin riesgo por cada punto de oscilación en el periodo medido. No mide la calidad de la gestión ni anticipa el futuro."],
-    ["Tipo sin riesgo", sharpeNoAplica ? "La referencia del dinero a muy corto plazo" : "La referencia del ratio de Sharpe", tipoDeRespaldo
-      ? "Un tipo fijo de respaldo, porque no se ha podido leer el tipo a un día del Banco Central Europeo (€STR) en el periodo medido."
-      : "La media del tipo a un día del Banco Central Europeo (€STR) en el periodo medido: lo que rinde el dinero a muy corto plazo y casi sin riesgo."],
-    [`Caída máxima a ${anos} años`, "La mayor caída dentro de este periodo", `La mayor caída desde un máximo hasta un mínimo posterior dentro del periodo de ${anos} años, medida sobre la serie de la composición simulada. No es el peor escenario posible.${ampliado ? " Incluye los tramos estimados indicados en el anexo." : ""}`],
     ["Mapa de riesgo y rentabilidad", "El contexto visual (¿dónde estoy situado?)", "El eje horizontal representa el riesgo (volatilidad) y el eje vertical la rentabilidad. Hacia la derecha: mayor riesgo/movimiento. Hacia arriba: mayor rentabilidad en el periodo medido; comparada con cinco carteras de referencia."],
     ["Frontera eficiente", "Qué combinaciones dieron más por el mismo riesgo", `Con estas mismas posiciones y el histórico de ${anos} años, la curva marca, para cada nivel de oscilación, la combinación que más habría rendido. Depende del periodo con que se calcula: con otros años sería otra curva. No dice lo que rendirá ninguna combinación, y no es una recomendación de cambiar su cartera.`],
-    ["Crisis pasadas", "Una medida del pasado, no una previsión", "La variación de la composición, con los pesos de hoy, entre el primer día de cada crisis y su punto más bajo. Las posiciones sin precios válidos en esa fecha no entran, y cada cifra dice qué parte de la cartera mide."],
+    [`Cono estadístico a ${anos} años`, "El margen en que podría moverse su inversión", `Dibuja entre qué valores podría moverse la cartera en los próximos ${anos} años si oscilara tanto como en los últimos ${anos}. La línea central supone que el dinero crece como una inversión sin riesgo, sin dar por hecho que se repitan las ganancias del pasado. La zona oscura del cono reúne la mitad de los resultados posibles, y la clara, nueve de cada diez. Es un cálculo estadístico, no una previsión: los resultados pueden quedar fuera del cono, y las pérdidas, ser mayores que las del caso desfavorable.`],
     ["Solapamiento", "Qué parte de sus carteras comparten dos fondos", "El porcentaje de inversiones que dos fondos tienen en común, según las carteras que publican, con el peso real de cada una. Solo se suma lo publicado: por eso dice «al menos», y el real puede ser mayor. Si a uno de los dos le falta más de la mitad de su cartera publicada, el par no se mide, y eso no quiere decir que no coincidan."],
     ["Rentabilidad por dividendo prevista", "Lo que se espera que reparta cada acción", "El dividendo que se prevé que pague cada acción en los próximos doce meses, dividido entre su precio de hoy. Es una estimación del proveedor de datos, no un dividendo cobrado, y puede cambiar. En los fondos y los ETF no aplica."]
   ];
   return entradas.filter(([titulo]) =>
     !(unaSolaAccion && titulo === "Solapamiento")
     && (conAcciones || !titulo.startsWith("Rentabilidad por dividendo"))
-    && (conFrontera || titulo !== "Frontera eficiente"));
+    && (conFrontera || titulo !== "Frontera eficiente")
+    && (conCono || !titulo.startsWith("Cono estadístico")));
 }
 
 /* ------------------------------------------------------------------------------------------------ La rentabilidad por dividendo */
@@ -622,7 +611,6 @@ export interface DatosDelInforme {
   cifras: CifraDeLaCartera[];
   fraseDelRespaldo: string | null;
   sinCifra: string | null;
-  notaDelTipoSinRiesgo: string;
   ilustrativas: boolean;
   /* La composición. */
   conImporte: boolean;
@@ -632,10 +620,14 @@ export interface DatosDelInforme {
   /* El reparto. */
   composicionGlobal: Array<{ label: string; value: number }>;
   loQueNoEntra: string | null;
+  /** A-203: los fondos que no declaran su reparto de activos, que no cuentan en la composición global. Null si no hay. */
+  sinReparto: string | null;
   categorias: FilaDeCategoria[];
   /* La geografía. */
   regiones: Array<{ key: string; weight_percent: number }>;
   equityLookThrough: boolean;
+  /** A-211: lo que no declara su reparto de activos y no entra en las regiones de la renta variable. Null si no hay, o sin mapa por dentro. */
+  sinRepartoEnLaGeografia: string | null;
   fueraDelReparto: number;
   /* La evolución. */
   tituloDeLaEvolucion: string;
@@ -952,6 +944,7 @@ export function prepararInforme(input: InformeDeClientePdfInput, mide: Medidor =
   });
 
   /* ---------- El reparto. ---------- */
+  /* A-203: lo que no declara su reparto no se reparte por su clase; las cuatro cifras suman menos de 100, y `sinReparto` dice por qué. */
   const exposure = deriveExposure(report);
   /* `pms_exposure_percent` suma 100 de lo invertible: aquí se lleva a toda la cartera, como la pantalla, y lo que no entra se dice debajo (decisión 85). */
   const deLaCartera = (valor: number) => valor * fuera.parteInvertible;
@@ -1051,15 +1044,16 @@ export function prepararInforme(input: InformeDeClientePdfInput, mide: Medidor =
     (assetId) => positions.find((position) => position.asset_id === assetId)?.weight_percent ?? null,
     (assetId) => positions.find((position) => position.asset_id === assetId)?.display_name ?? null
   );
+  const elCono = prepararElCono(analysis, sinCifra !== null, capitalKnown, periodo);
   const entradas = entradasDeLaGuia({
     anos: horizonYears,
-    ampliado: (analysis?.extensions.length ?? 0) > 0,
-    tipoDeRespaldo: respaldo !== null,
     sharpeNoAplica: !sinCifra && sharpeDeUnaSolaAccion(report, backtest),
     unaSolaAccion,
     conAcciones: (report.positions ?? []).some((posicion) => esAccion(posicion.instrument_type)),
     /* La guía explica la frontera solo si se dibuja: sin curva no hay nada que interpretar. */
-    conFrontera: laFrontera !== null && laFrontera.ausencia === null
+    conFrontera: laFrontera !== null && laFrontera.ausencia === null,
+    /* Y el cono, solo si sale su sección. */
+    conCono: elCono !== null
   });
   const leadDeLaGuia = `«Breve guía para ayudarle a interpretar los indicadores clave de su cartera.»${sinCifra ? ` En esta cartera no se dan las cifras de rentabilidad, volatilidad, Sharpe y caída máxima: «${TITULO_DE_LAS_CIFRAS}» dice por qué.` : ""}${conSiglas(categorias.map((fila) => fila.label)) ? ` ${SIGLAS_DE_LAS_CATEGORIAS}` : ""}`;
   /* El alcance existe si las cifras miden menos del 100 % de la cartera (A-143), y es una sola línea al pie de la guía. Sin cifras de la
@@ -1103,7 +1097,6 @@ export function prepararInforme(input: InformeDeClientePdfInput, mide: Medidor =
     /* Solo si ocurre, y solo si hay un Sharpe del que decirlo (decisión 89). */
     fraseDelRespaldo: respaldo !== null && !sinCifra && !sharpeDeUnaSolaAccion(report, backtest) ? fraseDelTipoDeRespaldo(respaldo) : null,
     sinCifra,
-    notaDelTipoSinRiesgo: notaDelTipoSinRiesgo(report, analysis),
     ilustrativas: esMuestra && cifras !== null,
     conImporte: capitalKnown !== null,
     filas,
@@ -1111,9 +1104,12 @@ export function prepararInforme(input: InformeDeClientePdfInput, mide: Medidor =
     totalImporte: capitalKnown ? importe(Math.round(capitalKnown)) : null,
     composicionGlobal,
     loQueNoEntra: fraseDeLoQueNoEntra(fuera, EN_LA_TABLA_DE_COMPOSICION),
+    sinReparto: fraseDeLoQueNoTieneRepartoEnElPapel(report, fuera.parteInvertible),
     categorias,
     regiones,
     equityLookThrough,
+    /* En % de la cartera, como la frase de la composición global: los pesos del análisis son de lo invertible. */
+    sinRepartoEnLaGeografia: equityLookThrough ? fraseDelSinRepartoEnElPapel((report.xray?.pms_exposure_sin_reparto_percent ?? 0) * fuera.parteInvertible) : null,
     fueraDelReparto: fuera.peso,
     tituloDeLaEvolucion: rotuloDeLaParte ? "Evolución simulada de la parte medida" : "Evolución simulada de la composición actual",
     periodoDeLaEvolucion: `Evolución · ${historyPeriod}${(analysis?.extensions.length ?? 0) > 0 ? " · estimado" : ""}`,
@@ -1128,7 +1124,7 @@ export function prepararInforme(input: InformeDeClientePdfInput, mide: Medidor =
     resumenDeLaEvolucion,
     mapa: prepararElMapa(cifras, sinCifra !== null, analysis, referenciaDelMapa),
     frontera: laFrontera,
-    cono: prepararElCono(analysis, sinCifra !== null, capitalKnown, periodo),
+    cono: elCono,
     crisis,
     solapamiento,
     matrizAparte,

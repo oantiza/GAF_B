@@ -22,4 +22,12 @@ describe("ClientModeContext", () => {
     expect(html).toContain('aria-checked="true"');
     expect(html).toContain("Modo cliente");
   });
+  test("encendido, la barra dice «Vista para el cliente» fuera del interruptor, que conserva su nombre (M3, 21-11-2026)", () => {
+    const encendido = renderToStaticMarkup(createElement(ClientModeProvider, { initialValue: true, children: createElement(ClientModeToggle) }));
+    const apagado = renderToStaticMarkup(createElement(ClientModeProvider, { initialValue: false, children: createElement(ClientModeToggle) }));
+    expect(encendido).toContain('<span class="topbar-vista-cliente" role="status">Vista para el cliente</span>');
+    expect(encendido).toMatch(/role="switch"[^>]*>.*Modo cliente<\/span><\/button>/);
+    /* Apagado, la región sigue montada y vacía: así se anuncia al encenderse. */
+    expect(apagado).toContain('<span class="topbar-vista-cliente" role="status"></span>');
+  });
 });

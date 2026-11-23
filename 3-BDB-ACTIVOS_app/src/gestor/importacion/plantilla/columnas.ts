@@ -11,6 +11,7 @@
  * por su clave del registro o por un sinónimo de `SINONIMOS_DE_TIPOS`.
  */
 import type { CampoDeMovimiento, DefinicionDeMovimiento } from "../../motor/efectos";
+import type { TipoDeActivo } from "../../motor/modelo";
 import { TIPOS } from "../../motor/movimientos/registro";
 
 export type ClaveDeColumna =
@@ -284,7 +285,7 @@ export const COLUMNAS_DE_MOVIMIENTOS: readonly ColumnaDeLaPlantilla<ClaveDeColum
   }
 ];
 
-export type ClaveDeColumnaDePosiciones = "fecha" | "isin" | "nombre" | "titulos" | "valor" | "divisa";
+export type ClaveDeColumnaDePosiciones = "fecha" | "isin" | "nombre" | "titulos" | "valor" | "precio" | "divisa";
 
 /** La hoja opcional «Posiciones»: lo que la entidad declara que hay a una fecha, para conciliar. */
 export const COLUMNAS_DE_POSICIONES: readonly ColumnaDeLaPlantilla<ClaveDeColumnaDePosiciones>[] = [
@@ -328,12 +329,22 @@ export const COLUMNAS_DE_POSICIONES: readonly ColumnaDeLaPlantilla<ClaveDeColumn
     descripcion: "Valor de mercado en la divisa base de la cartera. En las filas de efectivo, el saldo en su divisa.",
     ejemplo: "11200"
   },
+  /* A-210 (21-11-2026): el precio de mercado en la divisa del activo, como el que trae un extracto de Andbank (A-205). Va con
+     la divisa al lado: sin ella no se usa. */
+  {
+    clave: "precio",
+    nombre: "Precio",
+    sinonimos: ["Precio de mercado", "Cotización", "Valor liquidativo", "Price"],
+    obligatoria: "no",
+    descripcion: "Precio de mercado por título, en la divisa del activo, que va en «Divisa». En un bono, en % del nominal. Con él la posición se valora a ese precio; en blanco, el precio se deduce del valor en la divisa base, con el cambio del día.",
+    ejemplo: "11,2"
+  },
   {
     clave: "divisa",
     nombre: "Divisa",
     sinonimos: ["Moneda", "Currency"],
     obligatoria: "no",
-    descripcion: "En las filas de efectivo, la divisa del saldo (en blanco, la base). En las de un activo, su divisa.",
+    descripcion: "En las filas de efectivo, la divisa del saldo (en blanco, la base). En las de un activo, su divisa, que es también la del precio: con precio, no puede ir en blanco.",
     ejemplo: "EUR"
   }
 ];
@@ -364,6 +375,29 @@ export const SINONIMOS_DE_TIPOS: Readonly<Record<string, readonly string[]>> = {
   canje: ["Fusión", "Cambio de ISIN", "Canje de valores"],
   amortizacion: ["Amortización", "Vencimiento", "Amortización de bono"]
 };
+
+/**
+ * Los rótulos de compra o venta que dicen además qué se compra o se vende. Cada uno es un sinónimo de `SINONIMOS_DE_TIPOS`.
+ * Una «Compra» a secas no dice nada del activo: la lectura supone «acción» y la revisión pregunta si el activo es nuevo
+ * (22-11-2026: 10.000 de nominal de un bono al 98,5 comprados con «Compra» valían 985.000 €).
+ */
+export const TIPO_DE_ACTIVO_DE_LOS_ROTULOS: Readonly<Record<string, TipoDeActivo>> = {
+  "Compra de bonos": "BONO",
+  "Venta de bonos": "BONO",
+  "Compra de acciones": "ACCION",
+  "Venta de acciones": "ACCION",
+  "Compra de ETF": "ETF",
+  "Venta de ETF": "ETF"
+};
+
+const TIPO_DE_ACTIVO_POR_ROTULO: ReadonlyMap<string, TipoDeActivo> = new Map(
+  Object.entries(TIPO_DE_ACTIVO_DE_LOS_ROTULOS).map(([rotulo, tipo]) => [normalizarRotulo(rotulo), tipo])
+);
+
+/** El tipo de activo que dice el rótulo de una compra o una venta («Compra de bonos»), o `undefined` si no dice ninguno. */
+export function tipoDeActivoDelRotulo(rotulo: string): TipoDeActivo | undefined {
+  return TIPO_DE_ACTIVO_POR_ROTULO.get(normalizarRotulo(rotulo));
+}
 
 /** Sin tildes, en minúsculas y sin nada que no sea letra o cifra: «Fecha_Valor» y «fecha valor» son lo mismo. */
 export function normalizarRotulo(texto: string): string {

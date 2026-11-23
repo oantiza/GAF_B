@@ -128,9 +128,11 @@ RE_PERIODO = {
 _F = (r"\d{1,2}[/.\-]\d{1,2}[/.\-]\d{4}|\d{4}-\d{2}-\d{2}"
       r"|\d{1,2}(?:er)?\s+(?:de\s+)?[A-Za-z\u00e0-\u00fc]+\s+(?:de\s+)?\d{4}")
 RE_FECHA_DOC = {
-    "es": [re.compile(r"fecha de (?:elaboraci[oó]n|producci[oó]n|publicaci[oó]n|actualizaci[oó]n)[^:\d]{0,80}:?\s*(" + _F + r")", re.I),
+    # «\s*» y no espacios: el PDF de Amundi pierde los de todo el texto y da «Fechadeelaboracióndeldocumentodedatosfundamentales:17/10/2025».
+    "es": [re.compile(r"fecha\s*de\s*(?:elaboraci[oó]n|producci[oó]n|publicaci[oó]n|actualizaci[oó]n)[^:\d]{0,80}:?\s*(" + _F + r")", re.I),
            re.compile(r"fecha (?:del |de este )?documento(?: es)?\s*:?\s*(" + _F + r")", re.I),
-           re.compile(r"(?:es|son) exactos?\s+a\s+(?:fecha\s+(?:de\s+)?)?(?:el\s+)?(" + _F + r")", re.I),
+           # DWS parte la línea entre «son» y «exactos a 16.04.2026».
+           re.compile(r"(?:es|son)\s+exactos?\s+a\s+(?:fecha\s+(?:de\s+)?)?(?:el\s+)?(" + _F + r")", re.I),
            re.compile(r"se\s*(?:elabor[oó]|public[oó]|actualiz[oó]|produjo)\s*el\s*(" + _F + r")", re.I),
            # Participio sin «se»: «Producido el: 16/04/2026» es la redacción más común de
            # las que faltaban, y el patrón de arriba exige «se produjo el». Medido el
@@ -149,11 +151,19 @@ RE_FECHA_DOC = {
            # «...última revisión del documento de datos fundamentales: 5 de mayo de 2025»
            # y «...con este documento de datos fundamentales. Fecha: 7 noviembre 2025».
            # Tienen que ir pegados: en «Fecha de elaboración del Código ISIN: LU0675297237
-           # 30 de diciembre de 2022» los dos puntos cuelgan del ISIN y esa fecha es la de
-           # lanzamiento, no la del documento. Ese caso debe seguir sin acertar.
+           # 30 de diciembre de 2022» los dos puntos cuelgan del ISIN y este patrón no debe cogerlos
+           # (leería «ISIN: …»). Ojo: esa fecha NO es la de lanzamiento, como se creyó hasta el
+           # 21-11-2026: el KID de Groupama G Fund Avenir Europe NC va a dos columnas y, por las
+           # coordenadas, es la fecha de elaboración del documento. La leen los dos patrones del
+           # final de esta lista (C-30).
            re.compile(r"datos fundamentales\s*[.,]?\s*(?:fecha\s*)?:\s*(" + _F + r")", re.I),
            re.compile(r"documento de datos fundamentales[^\n]{0,40}\n?[^\n]{0,60}(\d{1,2}/\d{1,2}/\d{4})", re.I),
-           re.compile(r"informaci[oó]n general\s*\n?\s*(\d{1,2} de \w+ de \d{4})", re.I)],
+           re.compile(r"informaci[oó]n general\s*\n?\s*(\d{1,2} de \w+ de \d{4})", re.I),
+           # Columbia Threadneedle: la fecha va sola en la última línea del bloque «Producto», justo antes de
+           # «¿Qué es este producto?» («26 marzo 2026»). Anclada a esa posición para no coger otra suelta.
+           re.compile(r"\n[ \t]*(" + _F + r")[ \t]*\n\s*[¿?]?\s*qu[eé] es este producto", re.I),
+           # Groupama (dos columnas): la etiqueta partida en dos líneas y la fecha en la del medio, a su derecha.
+           re.compile(r"fecha de elaboraci[oó]n del[ \t]*\n[^\n]*?(" + _F + r")[ \t]*\n[ \t]*documento\b", re.I)],
     "en": [re.compile(r"date of production[^:\d]{0,80}:?\s*(" + _F + r")", re.I),
            re.compile(r"production date[^:\d]{0,40}:?\s*(" + _F + r")", re.I),
            re.compile(r"(?:accurate|correct|valid) as (?:at|of)\s+(?:the\s+)?(" + _F + r")", re.I),

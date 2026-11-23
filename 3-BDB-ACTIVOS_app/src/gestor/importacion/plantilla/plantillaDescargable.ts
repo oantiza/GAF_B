@@ -112,11 +112,14 @@ type FilaDePosicion = Partial<Record<ClaveDeColumnaDePosiciones, Celda>>;
 /**
  * Lo que la entidad declararía a 31-12-2026 si el libro de los ejemplos es correcto. Los
  * valores de mercado son inventados (1.000 × 11,20 = 11.200; 400 × 26,80 = 10.720); el
- * efectivo es el de la cuenta de la cabecera de este fichero.
+ * efectivo es el de la cuenta de la cabecera de este fichero. El precio es opcional (A-210):
+ * el fondo de bolsa lo da, el de renta fija no, y Ejemplo Corp., en dólares, lo da en su
+ * divisa: 60 × 105 = 6.300 USD, que la entidad declara como 6.000 EUR (a 1,05 USD por EUR).
  */
 export const EJEMPLOS_DE_POSICIONES: readonly FilaDePosicion[] = [
-  { fecha: "31/12/2026", ...FONDO_BOLSA, titulos: 1000, valor: 11200, divisa: "EUR" },
+  { fecha: "31/12/2026", ...FONDO_BOLSA, titulos: 1000, valor: 11200, precio: 11.2, divisa: "EUR" },
   { fecha: "31/12/2026", ...FONDO_RF, titulos: 400, valor: 10720, divisa: "EUR" },
+  { fecha: "31/12/2026", isin: ACCION_USD.isin, nombre: ACCION_USD.nombre, titulos: 60, valor: 6000, precio: 105, divisa: "USD" },
   { fecha: "31/12/2026", nombre: "Efectivo", valor: 56677.7, divisa: "EUR" },
   { fecha: "31/12/2026", nombre: "Efectivo", valor: 4725, divisa: "USD" }
 ];
@@ -136,8 +139,9 @@ function hojaDeInstrucciones(): HojaDeLaPlantilla {
     ["Plantilla de movimientos del gestor de carteras"],
     ["Una fila por movimiento en la hoja «Movimientos». El orden de las columnas no importa: se reconocen por su nombre, sin distinguir mayúsculas ni tildes. Las columnas que un tipo no usa se dejan en blanco."],
     ["El importe se puede escribir con o sin signo: el signo lo pone el tipo. Solo en los intereses, en otro cargo o abono y en la retención el signo del fichero manda (negativo carga, positivo abona)."],
-    ["Las cifras se admiten con coma o con punto decimal («1.234,56» o «1234.56»). Las filas vacías, las de totales y las que empiezan por # se ignoran."],
+    ["Las cifras se admiten con coma o con punto decimal («1.234,56» o «1234.56»), una sola forma en todo el fichero: si alguna cifra lleva coma decimal, el punto es de millares; si alguna lleva punto decimal y ninguna coma, el punto es decimal y «1.085» es 1,085. Si ninguna lo deja ver, «1.085» se lee como 1.085,00 y la línea queda por revisar. Las filas vacías, las de totales y las que empiezan por # se ignoran."],
     ["La hoja «Posiciones» es opcional: lo que la entidad declara a una fecha, para comprobar que el libro cuadra. El efectivo va en filas con Nombre «Efectivo» y su divisa."],
+    ["En «Posiciones», el precio de cada activo es opcional. Si se pone, va en la divisa del activo, con esa divisa en «Divisa» (en un bono, en % del nominal), y la posición se valora a ese precio. Sin él, el precio se deduce del valor en la divisa base, con el cambio del día."],
     [],
     ["Columnas de la hoja «Movimientos»"],
     ["Columna", "Obligatoria", "Qué es", "Ejemplo", "Otros nombres que se aceptan"],

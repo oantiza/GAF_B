@@ -20,7 +20,13 @@
  *   escribe el asesor, y por eso el resultado va siempre con tres escenarios más. La excepción es la liquidez, que
  *   con una rentabilidad negativa rinde un 0 % en todo el plan (`rendimientoDeLaLiquidez`).
  * - Las retiradas salen de la liquidez y de las inversiones a prorrata de su saldo, sin orden fiscal.
- * - De cada venta tributa la ganancia a coste medio. No compensa pérdidas ni lleva lotes.
+ * - De cada venta tributa la ganancia a coste medio, sin lotes: lo vendido se lleva la parte de su coste que le toca
+ *   (arts. 34.1.a y 35.1 LIRPF y sus equivalentes forales). Si se vende en pérdidas, la pérdida se compensa con las
+ *   ganancias de lo vendido de los cuatro años siguientes, la más antigua primero, y lo que no cabe en ese plazo caduca
+ *   (`F.reglaDeCompensacion`). No se usa el cruce con los rendimientos del capital del mismo año que permiten el
+ *   territorio común y Navarra (hasta el 25 %): es la opción prudente que eligió Óscar el 21-11-2026 (hallazgo P1-03),
+ *   y ahí el impuesto puede salir algo mayor que el real. Hasta ese día, el coste que salía con la venta en pérdidas se
+ *   limitaba a lo vendido, y el resto se quedaba en la cartera: compensaba la pérdida sin plazo. NUVIA sigue así.
  * - Las reglas del IRPF del ejercicio: en los territorios forales (los tres vascos y Navarra) se supone que las
  *   escalas, las deducciones y los límites se actualizan cada año con el IPC; en territorio común se mantienen
  *   fijas, **en euros nominales**, y ahí el impuesto real sale mayor que si se actualizaran (decisión A-159,
@@ -268,8 +274,26 @@ export function normalizar(entrada?: Partial<EntradaDeJubilacion> | null): Entra
      75, cinco años atrás, con la pensión deflactada y un IRPF menor que el real (corregido al traerlo, 13-11-2026). */
   const edadJubilacion = Math.round(clamp(s.edadJubilacion, edad, Math.max(edad, 75)));
   const tieneEpsv = Boolean(s.tieneEpsv);
-  const epsvPre = tieneEpsv ? pos(s.epsvPre) : 0;
-  const epsvPost = tieneEpsv ? pos(s.epsvPost) : 0;
+  const epsvDesglose = vasco && s.epsvDesglose === "estimacion" ? "estimacion" : "certificado";
+  const antiguedadConocida = s.antiguedadConocida !== false;
+  const antiguedad = Math.round(clamp(s.antiguedad, 1, 60));
+  /* Sin desglose el saldo se da por anterior a 2026, salvo que la antigüedad diga que puede no serlo: entonces va
+     entero al tramo posterior (`saldoSinDesgloseEsPosterior`, N05). */
+  const todoPosterior = epsvDesglose === "estimacion" && F.saldoSinDesgloseEsPosterior(antiguedadConocida, antiguedad);
+  const saldoPre = tieneEpsv ? pos(s.epsvPre) : 0;
+  const saldoPost = tieneEpsv ? pos(s.epsvPost) : 0;
+  /* Sin desglose no hay tramos: el saldo es uno, y va entero a uno de los dos. Un saldo posterior que quede de cuando se
+     escribió con certificado no se conserva aparte: hasta el 22-11-2026 se conservaba, y con 100.000 € escritos en el tramo
+     posterior la pantalla decía «aportado hasta 2025» mientras el motor aplicaba el régimen de 2026 (H1-03 de la auditoría
+     del 22-11-2026). Con certificado, cada tramo es el suyo. */
+  const sinDesglose = epsvDesglose === "estimacion";
+  const epsvPre = sinDesglose ? (todoPosterior ? 0 : saldoPre + saldoPost) : saldoPre;
+  const epsvPost = sinDesglose ? (todoPosterior ? saldoPre + saldoPost : 0) : saldoPost;
+  /* La rentabilidad de un tramo certificado puede ser negativa. La ganancia no pasa de su saldo (lo aportado no puede ser
+     negativo); la pérdida no tiene más tope que lo aportado, que no se escribe: con 10.000 € de derechos y 30.000 €
+     aportados, el tramo pierde 20.000 €. La diferencia positiva que grava la norma es la de la EPSV entera, y eso lo
+     acota `basesCapitalVasco` (N06). */
+  const rentDelTramo = (valor: unknown, saldo: number): number => Math.min(saldo, num(valor));
   const epsvCobro = FORMAS_DE_COBRO.includes(s.epsvCobro) ? s.epsvCobro : "renta";
   const importes = Object.fromEntries(IMPORTES.map((clave) => [clave, pos(s[clave])])) as Record<(typeof IMPORTES)[number], number>;
   const edadFin = Math.round(clamp(Math.round(num(s.edadFin, 95)), edadJubilacion + 1, 110));
@@ -286,18 +310,22 @@ export function normalizar(entrada?: Partial<EntradaDeJubilacion> | null): Entra
     epsvPre,
     epsvPost,
     /* Fuera del modelo vasco no hay desglose de rentabilidad: todo el cobro es trabajo. */
-    epsvPreRent: vasco ? Math.min(epsvPre, pos(s.epsvPreRent)) : 0,
-    epsvPostRent: vasco ? Math.min(epsvPost, pos(s.epsvPostRent)) : 0,
-    epsvDesglose: vasco && s.epsvDesglose === "estimacion" ? "estimacion" : "certificado",
-    antiguedadConocida: s.antiguedadConocida !== false,
-    antiguedad: Math.round(clamp(s.antiguedad, 1, 60)),
+    epsvPreRent: vasco ? rentDelTramo(s.epsvPreRent, epsvPre) : 0,
+    epsvPostRent: vasco ? rentDelTramo(s.epsvPostRent, epsvPost) : 0,
+    epsvDesglose,
+    antiguedadConocida,
+    antiguedad,
     epsvCobro,
     epsvPctCapital: epsvCobro === "capital" ? 100 : epsvCobro === "renta" ? 0 : clamp(s.epsvPctCapital, 5, 95),
     epsvRenta: TIPOS_DE_RENTA.includes(s.epsvRenta) ? s.epsvRenta : "flexible",
     epsvAniosRenta: Math.round(clamp(s.epsvAniosRenta, pv ? pv.rentaMinimaAnios : 15, 40)),
     contingencia: vasco ? s.contingencia || "jubilacion" : "jubilacion",
     primerCobro: s.primerCobro !== false,
-    dosAnios: s.dosAnios !== false,
+    /* Sin desglose y con la antigüedad conocida, el requisito puede ser imposible: entonces no se aplica la reducción
+       aunque la casilla llegue marcada (una entrada guardada, un ejemplo). Lo dice `notaDeLosDosAnios` (H1-03). */
+    dosAnios:
+      s.dosAnios !== false &&
+      !F.dosAniosNoPuedeCumplirse({ sinDesglose: epsvDesglose === "estimacion", antiguedadConocida, antiguedad, aniosHastaCobro: edadJubilacion - edad, contingencia: vasco ? s.contingencia || "jubilacion" : "jubilacion" }),
     regimen: vasco && REGIMENES.includes(s.regimen) ? s.regimen : vasco ? "auto" : "reduccion",
     rentabilidad: clamp(s.rentabilidad, -2, 10) / 100,
     inflacion: clamp(s.inflacion, 0, 6) / 100,
@@ -335,8 +363,10 @@ function ratioRentabilidad(cfg: Configuracion, o: EntradaNormalizada, pre: numbe
   const total = pre + post;
   if (!total) return { ratio: 0, metodo: "sin-epsv" };
   if (cfg.parametros.prevision.modelo !== "vasco") return { ratio: 0, metodo: "trabajo" };
-  if (o.epsvDesglose === "certificado") return { ratio: (preRent + postRent) / total, metodo: "certificado" };
-  return { ratio: F.ratioEstimado(cfg, o.antiguedadConocida, o.antiguedad), metodo: o.antiguedadConocida ? "antiguedad" : "sin-antiguedad" };
+  /* Sin desglose, `preRent` y `postRent` ya llevan la estimación reglada (`situacionInicial`): la cuenta es la misma. */
+  const ratio = (preRent + postRent) / total;
+  if (o.epsvDesglose === "certificado") return { ratio, metodo: "certificado" };
+  return { ratio, metodo: o.antiguedadConocida ? "antiguedad" : "sin-antiguedad" };
 }
 
 /* ------------------------------------------------- Situación a la jubilación --- */
@@ -362,8 +392,14 @@ function situacionInicial(cfg: Configuracion, o: EntradaNormalizada, r: number):
   let K = o.fondosCoste + o.accionesCoste + o.segurosCoste;
   let pre = o.epsvPre;
   let post = o.epsvPost;
-  const preRent = o.epsvPreRent;
-  let postRent = o.epsvPostRent;
+  /* Sin desglose (modelo vasco), la estimación reglada da la rentabilidad del saldo de hoy, y solo de él: lo que crezca
+     hasta la jubilación va al tramo posterior y es todo rentabilidad, como con certificado. Antes la estimación se
+     aplicaba a la prestación entera, y con diez años al 5 % unos 47.000 € de rentabilidad de cada 100.000 € del saldo de
+     hoy contaban como aportación (decisión de Óscar del 22-11-2026). */
+  const estimada = cfg.parametros.prevision.modelo === "vasco" && o.epsvDesglose === "estimacion";
+  const estimacion = estimada ? F.ratioEstimado(cfg, o.antiguedadConocida, o.antiguedad) : 0;
+  const preRent = estimada ? pre * estimacion : o.epsvPreRent;
+  let postRent = estimada ? post * estimacion : o.epsvPostRent;
   let aportado = 0;
   for (let y = 1; y <= A; y += 1) {
     /* Antes de jubilarse, la liquidez rinde lo mismo que después: con una rentabilidad negativa, un 0 % (decisión de
@@ -385,6 +421,9 @@ function situacionInicial(cfg: Configuracion, o: EntradaNormalizada, r: number):
     K += ap;
     aportado += ap;
   }
+  /* Con una pérdida hasta la jubilación, sin desglose se sigue estimando sobre el saldo final, como antes: cómo debe
+     restar la pérdida a la rentabilidad estimada es una cuestión aparte, pendiente de decisión. */
+  if (estimada && post < o.epsvPost) postRent = post * estimacion;
   const rr = ratioRentabilidad(cfg, o, pre, preRent, post, postRent);
   return { liq, V, K, aportado, ep: { pre, post, preRent, postRent, ratio: rr.ratio, metodo: rr.metodo } };
 }
@@ -501,7 +540,13 @@ function construirPlan(cfg: Configuracion, o: EntradaNormalizada, actualiza: boo
     });
     let elegido: F.OpcionDeCapital["clave"] = calc[0].clave;
     const automatico = calc.length > 1 && o.regimen === "auto";
-    if (calc.length > 1) elegido = automatico ? calc.reduce((m, x) => (x.impuesto < m.impuesto ? x : m), calc[0]).clave : (o.regimen as F.OpcionDeCapital["clave"]);
+    /* Sin derechos anteriores a 2026 el régimen transitorio no tiene sobre qué aplicarse y da lo mismo que el de 2026,
+       y en el empate se quedaba con él por ir primero: se elige el de 2026. Es el caso sin desglose con un año de
+       antigüedad o menos (N05). */
+    const sinTramoAnterior = ini.ep.pre <= 0 && calc.some((x) => x.clave === "nuevo");
+    if (calc.length > 1) {
+      elegido = !automatico ? (o.regimen as F.OpcionDeCapital["clave"]) : sinTramoAnterior ? "nuevo" : calc.reduce((m, x) => (x.impuesto < m.impuesto ? x : m), calc[0]).clave;
+    }
     const sel = calc.find((x) => x.clave === elegido) ?? calc[0];
     const siguiente: CobroEnCapital = { bruto: calc[0].bases.bruto, opciones: calc, elegido: sel.clave, automatico, impuesto: sel.impuesto, neto: sel.neto, bases: sel.bases };
     for (const x of calc) siguiente[x.clave] = { bases: x.bases, impuesto: x.impuesto, neto: x.neto };
@@ -534,8 +579,19 @@ export interface FilaAnual {
   pensionNeta: number;
   restoNeto: number;
   interes: number;
+  /** La ganancia de lo vendido que entra en la base del ahorro: la de la venta, menos las pérdidas que compensa. */
   ganancia: number;
-  /** La parte de la retirada de ahorros que es capital propio y no tributa. */
+  /** La ganancia de la venta del año, antes de compensar pérdidas: lo vendido menos su coste. */
+  gananciaBruta: number;
+  /** La pérdida de la venta del año, en positivo: el coste de lo vendido menos lo cobrado. */
+  perdida: number;
+  /** Lo que las pérdidas de años anteriores le quitan este año a la ganancia. */
+  compensado: number;
+  /** Las pérdidas que, al cierre del año, cumplen su plazo sin haberse compensado: se pierden. */
+  perdidaCaducada: number;
+  /** Las pérdidas que quedan por compensar al cierre del año. */
+  perdidasPendientes: number;
+  /** La parte de la retirada de ahorros que es capital propio y no tributa: lo retirado menos la ganancia de la venta. */
   principal: number;
   epsvTrabajo: number;
   epsvRent: number;
@@ -568,6 +624,80 @@ export interface Escenario extends Proyeccion {
   nombre: string;
 }
 
+/** Una pérdida de lo vendido que queda por compensar, con el año del plan en que se produjo. */
+export interface PerdidaPendiente {
+  origen: number;
+  importe: number;
+}
+
+/** Fondos, acciones y seguros antes de una venta: su valor, su coste y las pérdidas por compensar, de la más antigua a la más reciente. */
+export interface CarteraFiscal {
+  V: number;
+  K: number;
+  pendientes: readonly PerdidaPendiente[];
+}
+
+export interface Venta extends CarteraFiscal {
+  /** El coste que sale con lo vendido. */
+  costeRetirado: number;
+  gananciaBruta: number;
+  perdida: number;
+  compensado: number;
+  /** Lo que entra en la base del ahorro. */
+  ganancia: number;
+  perdidaCaducada: number;
+  perdidasPendientes: number;
+}
+
+/**
+ * Vende `deInv` euros de la cartera en el año `anio` del plan, y compensa (hallazgo P1-03; Óscar, 21-11-2026).
+ *
+ * - Lo vendido se lleva la parte de su coste que le toca, gane o pierda: `deInv × K / V` (arts. 34.1.a y 35.1 LIRPF y
+ *   sus equivalentes forales). Si se vende todo, sale todo el coste. Hasta el 21-11-2026 el coste que salía se limitaba a
+ *   lo cobrado, y con la venta en pérdidas el resto se quedaba en la cartera y rebajaba las ganancias de después, sin plazo.
+ * - Una ganancia se compensa con las pérdidas pendientes, la más antigua primero y en la cuantía máxima que quepa (art.
+ *   49.2 LIRPF, 54.3 DFL 4/2008 navarro, 66.2 de las tres normas vascas). Nunca con los intereses: ver
+ *   `F.reglaDeCompensacion`.
+ * - Una pérdida queda pendiente con su año. La del año `anio − plazo` ha tenido ya sus `plazo` años siguientes: lo que
+ *   quede de ella caduca al cierre de este.
+ *
+ * No cambia la cartera que recibe: devuelve la de después.
+ */
+export function vender(cartera: CarteraFiscal, deInv: number, anio: number, plazo: number): Venta {
+  const { V, K } = cartera;
+  /* Vender todo (`deInv = V`) se lleva todo el coste. Sin caso aparte: con la misma cuenta que el motor de NUVIA, los
+     restos de coma flotante de un plan que se agota son los mismos en las dos copias. */
+  const costeRetirado = V > 0 ? deInv * (K / V) : 0;
+  const resultado = deInv - costeRetirado;
+  const gananciaBruta = Math.max(0, resultado);
+  const perdida = Math.max(0, -resultado);
+  let compensado = 0;
+  const tras = cartera.pendientes.map((p) => {
+    const usa = Math.max(0, Math.min(p.importe, gananciaBruta - compensado));
+    compensado += usa;
+    return { origen: p.origen, importe: p.importe - usa };
+  });
+  if (perdida > 0) tras.push({ origen: anio, importe: perdida });
+  let perdidaCaducada = 0;
+  const pendientes = tras.filter((p) => {
+    if (p.origen + plazo > anio) return p.importe > 1e-9;
+    perdidaCaducada += p.importe;
+    return false;
+  });
+  return {
+    V: Math.max(0, V - deInv),
+    K: Math.max(0, K - costeRetirado),
+    pendientes,
+    costeRetirado,
+    gananciaBruta,
+    perdida,
+    compensado,
+    ganancia: gananciaBruta - compensado,
+    perdidaCaducada,
+    perdidasPendientes: pendientes.reduce((suma, p) => suma + p.importe, 0)
+  };
+}
+
 /**
  * Proyecta un escenario con el plan del escenario base —las mismas retiradas previstas— y una rentabilidad
  * distinta o una secuencia de mal comienzo. Así los escenarios dicen cuánto dura el dinero, no cuánto se
@@ -583,6 +713,8 @@ function proyectar(plan: Plan, r: number, estres: boolean): Proyeccion {
   let V = ini.V;
   let K = ini.K;
   let E = plan.Epsv0;
+  let pendientes: readonly PerdidaPendiente[] = [];
+  const { plazo } = F.reglaDeCompensacion(cfg);
   const filas: FilaAnual[] = [];
   let agotado: number | null = null;
   let previstoTotal = 0;
@@ -600,10 +732,11 @@ function proyectar(plan: Plan, r: number, estres: boolean): Proyeccion {
     const w = Math.min(objetivo, disp);
     const deInv = disp ? (w * V) / disp : 0;
     const deLiq = w - deInv;
-    const ganancia = V > K && V > 0 ? deInv * (1 - K / V) : 0;
-    const costeRetirado = V > 0 ? deInv * Math.min(1, K / V) : 0;
-    K = Math.max(0, K - costeRetirado);
-    V = Math.max(0, V - deInv);
+    const venta = vender({ V, K, pendientes }, deInv, k, plazo);
+    const { ganancia, gananciaBruta, perdida, compensado, perdidaCaducada, perdidasPendientes } = venta;
+    pendientes = venta.pendientes;
+    K = venta.K;
+    V = venta.V;
     liq = Math.max(0, liq - deLiq);
     const pagoObj = pagoEpsv(k);
     const pago = Math.min(pagoObj, E);
@@ -626,7 +759,7 @@ function proyectar(plan: Plan, r: number, estres: boolean): Proyeccion {
       anio: k, edad, pension, retiradaAhorros: w, retiradaEpsv: pago, bruto,
       impuesto: t.total, impuestoPension: tPension.total, impuestoResto: t.total - tPension.total,
       neto: bruto - t.total, pensionNeta: pension - tPension.total, restoNeto: w + pago - (t.total - tPension.total),
-      interes, ganancia, principal: w - ganancia, epsvTrabajo, epsvRent, epsvRentExenta: rp.exento,
+      interes, ganancia, gananciaBruta, perdida, compensado, perdidaCaducada, perdidasPendientes, principal: w - gananciaBruta, epsvTrabajo, epsvRent, epsvRentExenta: rp.exento,
       irpf: t, saldo, deflactor, previsto: objetivo + pagoObj
     });
   }

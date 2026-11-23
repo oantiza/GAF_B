@@ -59,7 +59,9 @@ function Texto({ trozos }: { trozos: Trozo[] }) {
   return (
     <>
       {trozos.map((trozo, indice) =>
-        trozo.fuerte ? (
+        trozo.ausencia ? (
+          <Ausencia clase={trozo.ausencia} key={indice} motivo={trozo.texto} />
+        ) : trozo.fuerte ? (
           /* La clave es el índice a propósito: el texto se repite y la lista no se
              reordena nunca —es una frase, no una tabla—. El comentario que había aquí
              silenciaba `react/no-array-index-key`, una regla que este eslint no tiene
@@ -364,13 +366,16 @@ export function FichaInstrumento({
                       {rentabilidades.celdas.map((celda, indice) => (
                         <td className="ficha__celda--cifra" key={rentabilidades.columnas[indice]}>
                           <CeldaDeRentabilidad celda={celda} />
+                          {rentabilidades.motivos[indice] ? (
+                            <span className="ficha__celda-motivo">{rentabilidades.motivos[indice]}</span>
+                          ) : null}
                         </td>
                       ))}
                     </tr>
                   </tbody>
                 </table>
                 <p className="ficha__nota">
-                  Las de más de un año son anualizadas; «En el año» no lo está. Quién calcula cada una, en «Rentabilidad y riesgo».
+                  Las de más de un año son anualizadas; «YTD», la de lo que va de año, no lo está. Quién calcula cada una, en «Rentabilidad y riesgo».
                 </p>
               </div>
             ) : null}

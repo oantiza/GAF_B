@@ -555,6 +555,7 @@ export function buildFrontierViewModel(response: PortfolioFrontierResponse): Fro
       : undefined,
     methodologyV2: {
       optimizer: response.methodology.optimizer,
+      objective: response.methodology.objective,
       covarianceEstimator: response.methodology.covariance_estimator,
       expectedReturnModel: response.methodology.expected_return_model,
       targetRiskMode: response.methodology.target_risk_mode,

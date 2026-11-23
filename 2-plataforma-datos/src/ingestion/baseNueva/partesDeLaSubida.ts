@@ -21,6 +21,7 @@
  * con la misma forma canónica que usa el escritor.
  */
 import { canonico } from '../../loader/baseNuevaWriter';
+import { coleccionesRaizDeclaradas, raicesDelDueno } from '../../config/baseNueva/esquemas';
 import { COLECCION_PLANES } from './planes';
 import { COLECCION_IMPORTACIONES, COLECCION_RETROCESIONES } from './retrocesiones';
 
@@ -33,17 +34,60 @@ export const COLECCION_DE_LAS_CARTERAS = 'portfolios';
 /** De quién es una colección raíz a efectos de la subida. `de-la-app` es de la aplicación y sin parte propia. */
 export type ClaseDeColeccion = 'carteras' | 'retrocesiones' | 'planes' | 'catalogo' | 'de-la-app';
 
-export function claseDeLaColeccion(raiz: string | undefined, raicesDeLaApp: ReadonlySet<string>): ClaseDeColeccion {
+/** Lo que los contratos dicen de las colecciones raíz, que es con lo que se decide la parte. */
+export interface RaicesDeLaSubida {
+    /** Las que el contrato declara de la aplicación (`x-owner: app`). */
+    deLaApp: ReadonlySet<string>;
+    /** Todas las que declara algún contrato, de quien sean. */
+    declaradas: ReadonlySet<string>;
+}
+
+/** Las raíces de la subida, leídas de los contratos. Se leen una vez por guion: no hay caché de contratos. */
+export function raicesDeLaSubida(): RaicesDeLaSubida {
+    return { deLaApp: raicesDelDueno('app'), declaradas: new Set(coleccionesRaizDeclaradas().keys()) };
+}
+
+/**
+ * La parte de una colección raíz. **Falla cerrada** (P2-09, 21-11-2026): una colección que no declara
+ * ningún contrato no es catálogo por defecto, porque `catalogo` es la parte que sube sin
+ * `--piso-lo-de-la-app`. Nadie ha dicho de quién es, así que no sube en ninguna parte y se dice.
+ */
+export function claseDeLaColeccion(raiz: string | undefined, raices: RaicesDeLaSubida): ClaseDeColeccion {
     if (raiz === COLECCION_RETROCESIONES || raiz === COLECCION_IMPORTACIONES) return 'retrocesiones';
     if (raiz === COLECCION_DE_LAS_CARTERAS) return 'carteras';
     if (raiz === COLECCION_PLANES) return 'planes';
-    if (raiz !== undefined && raicesDeLaApp.has(raiz)) return 'de-la-app';
-    return 'catalogo';
+    if (raiz !== undefined && raices.deLaApp.has(raiz)) return 'de-la-app';
+    if (raiz !== undefined && raices.declaradas.has(raiz)) return 'catalogo';
+    throw new Error(
+        `la coleccion raiz ${JSON.stringify(raiz)} no la declara ningun contrato: no se sabe de quien es, ` +
+            'y no se sube en ninguna parte hasta que un contrato lo diga.'
+    );
 }
 
-/** Si los documentos de esa colección raíz entran en la parte pedida. */
-export function entraEnLaParte(parte: Parte, raiz: string | undefined, raicesDeLaApp: ReadonlySet<string>): boolean {
-    return parte === 'todo' || claseDeLaColeccion(raiz, raicesDeLaApp) === parte;
+/** Si los documentos de esa colección raíz entran en la parte pedida. También con `todo`, una raíz sin contrato para. */
+export function entraEnLaParte(parte: Parte, raiz: string | undefined, raices: RaicesDeLaSubida): boolean {
+    const clase = claseDeLaColeccion(raiz, raices);
+    return parte === 'todo' || clase === parte;
+}
+
+/**
+ * Lo que queda por escribir al reanudar una subida cortada (P2-09, 21-11-2026): los documentos desde `ruta`, que es la
+ * primera de la tanda que falló y la subida la dice al fallar. Por la ruta y no por el número de tanda: si el emulador
+ * ha cambiado entre medias, las tandas se cortan en otro sitio y un número saltaría documentos sin decirlo. Una ruta
+ * que no está en lo que se va a subir para, por lo mismo.
+ *
+ * Saltar no es dar por subido: la relectura posterior compara TODOS los documentos de la parte, también los saltados.
+ */
+export function loQueQuedaPorSubir<Documento extends { ruta: string }>(
+    aSubir: readonly Documento[],
+    ruta: string | undefined
+): { quedan: Documento[]; saltados: number } {
+    if (ruta === undefined) return { quedan: [...aSubir], saltados: 0 };
+    const desde = aSubir.findIndex((documento) => documento.ruta === ruta);
+    if (desde === -1) {
+        throw new Error(`--reanuda-desde ${ruta}: esa ruta no esta en lo que se va a subir. No se salta nada a ciegas.`);
+    }
+    return { quedan: aSubir.slice(desde), saltados: desde };
 }
 
 /** Lo mínimo de la base que hace falta para releer documentos por tandas. */

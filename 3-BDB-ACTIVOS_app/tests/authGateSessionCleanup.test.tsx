@@ -52,7 +52,6 @@ import { IMPROVEMENT_RESULT_STORAGE_KEY } from "../src/core/improvementResultSto
 import { CURRENT_PORTFOLIO_STORAGE_KEY } from "../src/core/localPortfolioStorage";
 import { registerSessionCache } from "../src/core/sessionCaches";
 import { readComparisonSelection, writeComparisonSelection } from "../src/core/comparisonSelection";
-import { lastOpsTaskId } from "../src/adapters/opsLocalBackend";
 
 const FAVORITES_KEY = "bdb-activos.favorites.v1";
 
@@ -72,21 +71,18 @@ function seedBrowserSession() {
   sessionStorage.setItem(IMPROVEMENT_RESULT_STORAGE_KEY, JSON.stringify({ schema_version: "improvement-result.v1" }));
   sessionStorage.setItem(CURRENT_PORTFOLIO_STORAGE_KEY, "{}");
   localStorage.setItem(CURRENT_PORTFOLIO_STORAGE_KEY, "{}");
-  // Selección del comparador (en local o en sesión según la fuente) y última tarea de Operaciones.
+  // Selección del comparador (en local o en sesión según la fuente).
   writeComparisonSelection(localStorage, ["LU0232524495", "LU0524465548"]);
   writeComparisonSelection(sessionStorage, ["LU0232524495"]);
-  sessionStorage.setItem("bdb.ops.last-task", "tarea-42");
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(["LU0232524495"]));
   // Las claves que borra AuthGate son las que leen sus módulos.
   expect(readComparisonSelection(localStorage)).toHaveLength(2);
-  expect(lastOpsTaskId()).toBe("tarea-42");
 }
 
 function expectSessionKeysCleared() {
   expect(readComparisonSelection(localStorage)).toEqual([]);
   expect(readComparisonSelection(sessionStorage)).toEqual([]);
   expect(localStorage.getItem("bdb-activos.comparison-selection.v1")).toBeNull();
-  expect(lastOpsTaskId()).toBeNull();
   // Los favoritos son preferencias: se quedan.
   expect(localStorage.getItem(FAVORITES_KEY)).not.toBeNull();
 }
@@ -130,8 +126,7 @@ describe("ALTA-21 · cerrar sesión no deja datos de la anterior", () => {
     expect(storedImprovement()).not.toBeNull();
     expect(storedDraft()).not.toBeNull();
     expect(readComparisonSelection(localStorage)).toHaveLength(2);
-    expect(lastOpsTaskId()).toBe("tarea-42");
-  });
+    });
 
   test("«Salir» vacía las cachés de sesión, la cartera y el resultado de «Mejorar cartera»", async () => {
     seedBrowserSession();

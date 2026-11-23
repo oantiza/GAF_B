@@ -102,9 +102,9 @@ describe("Jubilación en pantalla", () => {
     /* La residencia sí está puesta, con su norma a la vista: es la procedencia de todo lo que venga después. */
     expect(campo("Territorio").value).toBe("bizkaia");
     expect(texto()).toContain("IRPF de Bizkaia 2026 · NF 13/2013 · fuentes consultadas el 04-10-2026");
-    /* Ningún título de sección es un párrafo, y hay uno por bloque del formulario: la residencia fiscal, que casi nunca
-       cambia, va al final (rediseño del 14-11-2026). */
-    expect([...document.querySelectorAll("h2.panel__title")].map((h) => h.textContent)).toEqual(["El cliente", "Ahorros e inversiones", "EPSV", "Hipótesis", "Residencia fiscal"]);
+    /* Ningún título de sección es un párrafo, y hay uno por bloque del formulario: la residencia fiscal va la primera,
+       porque de ella sale la norma de todo lo demás (J1, Óscar, 21-11-2026; hasta entonces iba al final). */
+    expect([...document.querySelectorAll("h2.panel__title")].map((h) => h.textContent)).toEqual(["Residencia fiscal", "El cliente", "Ahorros e inversiones", "EPSV", "Hipótesis"]);
   });
 
   test("lo que falta se dice que falta, y no sale una fila de ceros", async () => {
@@ -202,6 +202,51 @@ describe("Jubilación en pantalla", () => {
     expect(texto()).toContain("Falta el coste de adquisición de los fondos de inversión: se calcula con el coste igual al valor de hoy.");
     await confirmarImporte(importe("Lo aportado a los fondos de inversión"), "60.000");
     expect(texto()).not.toContain("Falta el coste de adquisición");
+  });
+
+  test("sin desglose dice que el saldo se da por aportado hasta 2025, y con un año de antigüedad que no (N05)", async () => {
+    await montar();
+    await pulsar("Tiene una EPSV");
+    await pulsar("Sin desglose");
+    expect(texto()).toContain("El simulador trata el saldo como aportado hasta 2025. Si el cliente ha aportado en 2026, el certificado de la EPSV da el reparto exacto.");
+    await escribir("Años desde la primera aportación", "1");
+    expect(texto()).toContain(
+      "Con un año de antigüedad o menos, la primera aportación puede ser de 2026: el simulador trata el saldo entero como posterior a 2025 y no aplica el régimen transitorio. El certificado de la EPSV da el reparto exacto."
+    );
+    expect(texto()).not.toContain("El simulador trata el saldo como aportado hasta 2025.");
+  });
+
+  test("sin desglose, con un año de antigüedad y el cliente ya jubilado, «más de 2 años» se desmarca sola y dice por qué (H1-03)", async () => {
+    await montar();
+    await escribir("Edad actual", "65");
+    await pulsar("Ya jubilado");
+    await pulsar("Tiene una EPSV");
+    await pulsar("Sin desglose");
+    await pulsar("De una vez");
+    const casilla = () => {
+      const c = [...document.querySelectorAll<HTMLLabelElement>("label.jubilacion-casilla")].find((l) => l.textContent?.includes("más de 2 años"));
+      if (!c) throw new Error("Falta la casilla de los dos años");
+      return c.querySelector("input")!;
+    };
+    const AVISO = "Con la antigüedad escrita, no han pasado más de 2 años desde la primera aportación: el cobro no tiene la reducción.";
+    expect(casilla().checked).toBe(true);
+    expect(texto()).not.toContain(AVISO);
+    await escribir("Años desde la primera aportación", "1");
+    expect(casilla().checked).toBe(false);
+    expect(texto()).toContain(AVISO);
+    /* Con tres años vuelve a ser posible: el aviso desaparece y la casilla NO se remarca sola. */
+    await escribir("Años desde la primera aportación", "3");
+    expect(texto()).not.toContain(AVISO);
+    expect(casilla().checked).toBe(false);
+  });
+
+  test("con certificado, la rentabilidad de un tramo admite una pérdida (N06)", async () => {
+    await montar();
+    await pulsar("Tiene una EPSV");
+    const rentabilidad = importe("Aportado desde el 1/1/2026: rentabilidad");
+    await confirmarImporte(rentabilidad, "−20.000");
+    expect(rentabilidad().getAttribute("aria-invalid")).not.toBe("true");
+    expect(rentabilidad().value).toBe("-20.000");
   });
 
   test("cambiar a un territorio de plan de pensiones cambia la figura y vacía la EPSV", async () => {

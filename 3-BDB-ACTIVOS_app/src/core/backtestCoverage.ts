@@ -152,6 +152,8 @@ const MOTIVOS_PARA_EL_CLIENTE: Record<string, string> = {
   INSUFFICIENT_HISTORY: "sin historia suficiente",
   REFERENCE_LINK_FAILED: "sin historia suficiente, y su referencia no se pudo enlazar",
   SERIES_ENDS_EARLY: "sin precios recientes",
+  /* N03: solo en una crisis, la posición que dejó de cotizar durante parte de ella. */
+  GAP_IN_WINDOW: "sin cotizaciones durante parte de la crisis",
   FX_SERIES_MISSING: "sin conversión a euros",
   FX_QUARANTINE: "sin conversión a euros fiable",
   NON_INVESTABLE: "no es invertible",

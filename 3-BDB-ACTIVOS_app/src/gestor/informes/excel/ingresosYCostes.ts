@@ -3,7 +3,7 @@
  * alguna posición no tiene precio, una última fila dice que ese patrimonio medio la cuenta como cero.
  */
 import type { LineaDeIngreso } from "../../motor/analisis";
-import { notaDeLoContadoComoCero } from "../../motor/sinPrecio";
+import { notaDeLoContadoComoCero, notaDelCosteCorrienteSinPrecio } from "../../motor/sinPrecio";
 import { importe, porcentaje, type Celda, type HojaDelExcel } from "./celdas";
 
 const linea = (rotulo: string, l: LineaDeIngreso): Celda[] => [rotulo, importe(l.bruto), importe(l.retencion), importe(l.neto)];
@@ -14,6 +14,8 @@ export const hojaIngresosYCostes: HojaDelExcel = {
   filas: ({ analisis }) => {
     const ic = analisis.ingresosYCostes;
     const comoCero = notaDeLoContadoComoCero(analisis, { quien: "El patrimonio medio" });
+    /* Lo que no entra en los gastos corrientes: fondos sin precio y fondos sin valor parte del periodo (H2-02, 22-11-2026). */
+    const gastosIncompletos = notaDelCosteCorrienteSinPrecio(analisis);
     return [
       ["Ingresos", "Bruto", "Retención", "Neto"],
       linea("Dividendos", ic.dividendos),
@@ -27,11 +29,12 @@ export const hojaIngresosYCostes: HojaDelExcel = {
       ["Costes de operación", importe(ic.costesDeOperacion)],
       ["Costes del servicio", importe(ic.costesDelServicio)],
       ["Costes explícitos", importe(ic.costesExplicitos), porcentaje(ic.costesExplicitosPct)],
-      ["Gastos corrientes (estimados)", importe(ic.gastosCorrientes)],
-      ["Cobertura de los gastos corrientes", porcentaje(ic.coberturaDeGastosCorrientes)],
+      ["Gastos corrientes (estimados)", importe(ic.gastosCorrientes), ic.gastosCorrientes !== null && !ic.gastosCorrientesCompletos ? "Parcial" : null],
+      ["Cobertura de los gastos corrientes (sobre lo invertido en fondos y ETF)", porcentaje(ic.coberturaDeGastosCorrientes)],
       ["Costes totales", importe(ic.costesTotales), porcentaje(ic.costesTotalesPct)],
       ["Impuestos y retenciones", importe(ic.impuestos)],
       ["Patrimonio medio", importe(ic.patrimonioMedio)],
+      ...(gastosIncompletos ? [[], [gastosIncompletos]] : []),
       ...(comoCero ? [[], [`${comoCero} Los porcentajes de esta hoja son sobre ese patrimonio.`]] : [])
     ];
   }

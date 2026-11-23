@@ -39,10 +39,10 @@
      terciaria es otra). */
   --borde-control: #9b9385;
   --tinta: #1c1a17;          /* texto y cifras · 17,36:1 sobre el papel, 16,36:1 sobre el lienzo */
-  --tinta-2: #57524a;        /* rótulos, texto secundario; el borde de un control bajo el ratón · 7,75:1 */
+  --tinta-2: #57524a;        /* rótulos (también el de un campo), texto secundario; el borde de un control bajo el ratón · 7,75:1 */
   /* La tinta más clara admitida para texto, también la de un control desactivado: 5,70:1
      sobre el papel, 5,37:1 sobre el lienzo y 5,05:1 sobre la banda fuerte. */
-  --tinta-3: #6b665d;        /* procedencia, apuntes, rótulo de un campo */
+  --tinta-3: #6b665d;        /* procedencia, apuntes */
   --tinta-inversa: #ffffff;  /* el texto sobre un relleno de marca o de error */
 
   /* ------------------------------------------------------------------ *
@@ -371,6 +371,11 @@
   /* Los carriles del flujo en columnas. */
   --carril-w: 360px; /* la columna de datos de Jubilación: con la letra a 15 px, 300 apretaban los campos */
   --filas-max-w: 38em; /* una lista de rótulo y cifra: el ancho máximo de un bloque de prosa */
+  /* Tope de lectura de una lista de reparto en un tercio de tarjeta (Producto, Categoría, Exposición agregada): a 1.920
+     y 2.560 la cifra quedaba a 400 px de su nombre y a 32 px de la columna siguiente, que se leía como suya (21-11-2026). */
+  --reparto-max-w: 22rem;
+  /* Lo mismo para las Cifras de mercado de Mercado → Estrategia, con sitio para «Petróleo Brent» y un valor de rango. */
+  --cifras-mercado-max-w: 24rem;
   --tabla-lectura-max: 72rem; /* una tabla de rótulo y pocas cifras: más ancha, la cifra se aleja de su nombre y se salta de fila al leer (Salud del catálogo) */
   --calendario-cifra-w: 9.5rem; /* «Previsión 160.700 M» o «Anterior 1.080.000 M» enteras, en el calendario económico */
   /* A partir de aquí una frontera se aplana: la pendiente es lo que se lee (hallazgo 88). */

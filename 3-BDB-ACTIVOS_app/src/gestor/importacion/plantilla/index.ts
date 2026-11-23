@@ -50,6 +50,8 @@ export const importadorDePlantilla: Importador = {
           resultado.errores.push(explicarCabeceraQueFalta(documento, tablas));
           continue;
         }
+        /* H1-07: el separador decimal se decide una vez por documento, con las cifras de todas sus tablas. */
+        lectura.fijarElSeparadorDecimal(documento, tablas);
         let filas = 0;
         for (const tabla of tablas.movimientos) filas += lectura.leerMovimientos(documento, tabla);
         for (const tabla of tablas.posiciones) filas += lectura.leerPosiciones(documento, tabla);

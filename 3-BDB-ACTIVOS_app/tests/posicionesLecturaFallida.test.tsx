@@ -45,6 +45,25 @@ test("la posición que no se pudo leer se dice aparte de la que no está en el c
     expect(texto).toContain("Vuelve a analizar en unos segundos. LU0524465548.");
     // La que no existe sigue contándose sola como no reconocida; la que no se leyó, no.
     expect(texto).toContain("1 posición no reconocida en el catálogo.");
+    /* 20-11-2026: la tabla tiene tres estados, y la que no se leyó dice el suyo, no «No reconocida». */
+    const estadoDe = (isin: string) => {
+      const fila = [...host.querySelectorAll(".positions-table-panel .tabla tbody tr")].find((tr) => tr.textContent?.includes(isin));
+      const celdas = [...(fila?.querySelectorAll("td") ?? [])].map((td) => td.textContent ?? "");
+      return celdas.find((c) => /Reconocida|No reconocida|No se pudo leer/.test(c));
+    };
+    expect(estadoDe("LU0232524495")).toBe("Reconocida");
+    expect(estadoDe("LU0524465548")).toBe("No se pudo leer");
+    expect(estadoDe("LU0000000001")).toBe("No reconocida");
+    /* Y el filtro de estado la separa. */
+    const filtro = [...host.querySelectorAll("select")].find((s) => [...s.options].some((o) => o.value === "unread"))!;
+    expect([...filtro.options].map((o) => o.textContent)).toEqual(["Todos", "Reconocidos", "No reconocidos", "No se pudieron leer"]);
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")!.set!.call(filtro, "unread");
+      filtro.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    const filas = [...host.querySelectorAll(".positions-table-panel .tabla tbody tr")].map((tr) => tr.textContent ?? "");
+    expect(filas).toHaveLength(1);
+    expect(filas[0]).toContain("LU0524465548");
   } finally {
     act(() => root.unmount());
     host.remove();

@@ -132,7 +132,7 @@ check((await capitalInput.inputValue()) === "250.000", `F2.7: el capital sobrevi
 // 5 · Informes: la lista de documentos monta sin alert() ni pantalla rota. Se
 // mira el botón de la lista y no la descripción de la cabecera, que sale
 // también cuando la pantalla está vacía o cargando.
-const prepararInforme = page.getByRole("button", { name: "Preparar: Informe para el cliente", exact: true });
+const prepararInforme = page.getByRole("button", { name: "Preparar: Informe de la propuesta", exact: true });
 await abrir("/cartera/informes");
 const listaMontada = await prepararInforme.waitFor({ state: "visible", timeout: 15000 }).then(() => true, () => false);
 check(listaMontada, "la pantalla Informes enseña su lista de documentos, con el informe para el cliente");
@@ -146,7 +146,7 @@ check(lecturaMontada, "el Análisis enseña «Qué conviene mirar»");
 
 // 7 · Una cartera de un solo activo no puede tener frontera, pero sí informe.
 // Se descarga de verdad, por las dos puertas.
-const dialogoDelInforme = page.getByRole("dialog", { name: "Informe para el cliente", exact: true });
+const dialogoDelInforme = page.getByRole("dialog", { name: "Informe de la propuesta", exact: true });
 const descargar = dialogoDelInforme.getByRole("button", { name: "Descargar el informe", exact: true });
 await page.evaluate(SEED_SCRIPT, [{ ...SEED_POSITIONS[0], weight_percent: 100 }]);
 await abrir("/cartera/informes");
@@ -163,7 +163,7 @@ const pdf = await leerPdf(await downloading);
 check(esUnPdfConContenido(pdf), `una cartera de un activo descarga su PDF desde Informes sin necesitar frontera (${pdf.length} bytes)`);
 
 await abrir("/analisis");
-await page.getByRole("button", { name: "Informe para el cliente", exact: true }).click();
+await page.getByRole("button", { name: "Informe de la propuesta", exact: true }).click();
 await dialogoDelInforme.waitFor({ state: "visible" });
 const analysisDownloading = page.waitForEvent("download", { timeout: 30_000 });
 await descargar.click();

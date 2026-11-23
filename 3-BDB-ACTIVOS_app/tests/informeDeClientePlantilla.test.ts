@@ -37,7 +37,7 @@ import { comprobarPlantilla, guardarSiSePide, IDENTIDAD_DE_PRUEBA } from "./supp
 import { extractPdfPageTexts, extractPdfTextBaselines, extractPdfTextRuns } from "./support/pdfText";
 import { SERIES_HASTA_20260928 } from "./support/referenciaDePrueba";
 
-const DOCUMENTO = "Informe de cartera";
+const DOCUMENTO = "Informe de la propuesta";
 const ESPACIO_DURO = " ";
 
 /* ---------- Una cartera de prueba: fondos, ETF y acciones, dos divisas, y nombres de largo real. ---------- */
@@ -194,7 +194,8 @@ describe("el informe de cliente en la plantilla única", () => {
     for (const cifra of CIFRAS) expect(cadenasDeLasCifras, cifra).toContain(cifra);
     expect(cadenasDeLasCifras).toContain(`+13,00${ESPACIO_DURO}%`);
     expect(cadenasDeLasCifras).toContain(`−10,00${ESPACIO_DURO}%`);
-    expect(hojas[hojaDeLasCifras]).toContain(`Tipo sin riesgo a 3 años: 2,00 %, la referencia del ratio de Sharpe.`);
+    /* Sin la nota del tipo sin riesgo (Óscar, 22-11-2026). */
+    expect(hojas[hojaDeLasCifras]).not.toContain("Tipo sin riesgo");
     /* La portada es una hoja entera: la tabla de posiciones empieza en la segunda, con el título grande de la hoja. */
     expect(primera).not.toContain("01 Composición de la cartera");
     expect(hojas[1]).toContain("01 Composición de la cartera");

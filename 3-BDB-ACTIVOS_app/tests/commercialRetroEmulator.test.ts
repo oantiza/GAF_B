@@ -4,6 +4,8 @@ import type { FirebaseApp } from "firebase/app";
 import type { CommercialRetroImportPreviewRow } from "../src/types/commercialRetro";
 
 // Opt-in integration suite. The demo prefix and loopback guards precede every connection.
+// Desde el 21-11-2026 corre contra las reglas de producción (`4-base-nueva/firestore.rules`): el instrumento se siembra en
+// `instruments/` y el administrador entra con el correo verificado, que esas reglas exigen (`esAsesor()`).
 describe.skipIf(process.env.BDB_TEST_EMULATORS !== "1")("commercial imports against actual Firestore rules", () => {
   let store: typeof import("../src/adapters/commercialRetroStore");
   let db: Firestore;
@@ -26,15 +28,23 @@ describe.skipIf(process.env.BDB_TEST_EMULATORS !== "1")("commercial imports agai
     fs.connectFirestoreEmulator(db, host, Number(port));
     authApi.connectAuthEmulator(auth, `http://${authHost}`, { disableWarnings: true });
     const now = Math.floor(Date.now() / 1000);
+    const uid = "retro-integration-admin";
+    const email = `${uid}@example.com`;
     const token = [
       { alg: "none", typ: "JWT" },
-      { iss: "owner", sub: "owner", aud: "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit", iat: now, exp: now + 3600, uid: "retro-integration-admin", claims: { admin: true } }
+      { iss: "owner", sub: "owner", aud: "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit", iat: now, exp: now + 3600, uid, claims: { admin: true, email } }
     ].map((part) => Buffer.from(JSON.stringify(part)).toString("base64url")).join(".") + ".";
     await authApi.signInWithCustomToken(auth, token);
+    const verificado = await fetch(`http://${authHost}/identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:update`, {
+      method: "POST", headers: { Authorization: "Bearer owner", "Content-Type": "application/json" },
+      body: JSON.stringify({ localId: uid, email, emailVerified: true })
+    });
+    if (!verificado.ok) throw new Error(`Emulator email verification failed: ${verificado.status}`);
+    await auth.currentUser!.getIdToken(true);
     vi.doMock("../src/firebase", () => ({ auth, firestore: db }));
     store = await import("../src/adapters/commercialRetroStore");
     await Promise.all(Array.from({ length: 45 }, async (_, n) => {
-      const response = await fetch(`http://${firestoreHost}/v1/projects/${projectId}/databases/(default)/documents/assets/${isin(n)}`, {
+      const response = await fetch(`http://${firestoreHost}/v1/projects/${projectId}/databases/(default)/documents/instruments/${isin(n)}`, {
         method: "PATCH", headers: { Authorization: "Bearer owner", "Content-Type": "application/json" },
         body: JSON.stringify({ fields: { asset_id: { stringValue: isin(n) } } })
       });

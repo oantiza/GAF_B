@@ -112,7 +112,9 @@ def yahoo(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def _sin_estr_ni_token(monkeypatch):
-    estr = [{"date": dt.date(a, m, 1), "value_pct": 2.0} for a in range(2014, 2027) for m in range(1, 13)]
+    # Un dato cada día: desde el 21-11-2026 (P2-01) el €STR tiene que dar tipo a cada noche de la ventana, y
+    # con uno al mes ya no hay Sharpe.
+    estr = [{"date": dt.date(2014, 1, 1) + dt.timedelta(days=i), "value_pct": 2.0} for i in range(13 * 366)]
     monkeypatch.setattr(eodhd, "_ESTR_CACHE", estr)
     monkeypatch.setattr(eodhd, "_token", lambda _base: "demo")
 

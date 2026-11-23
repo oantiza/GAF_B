@@ -75,8 +75,8 @@ DEFAULT_THRESHOLDS: Dict[str, object] = {
     # casi ninguno. En RF a corto plazo la correlacion no mide nada (ver low_volatility_cutoff).
     "min_correlation": {"EQUITY": 0.75, "FIXED_INCOME": 0.60, "MIXED": 0.65, "MONEY_MARKET": 0.0, "DEFAULT": 0.65},
     "max_tracking_error": {"EQUITY": 0.08, "FIXED_INCOME": 0.04, "MIXED": 0.06, "MONEY_MARKET": 0.015, "DEFAULT": 0.08},
-    # Por debajo de esta volatilidad anual del fondo original (casi monetario) la correlacion
-    # no se exige: solo el tracking error acota la equivalencia.
+    # Por debajo de esta volatilidad anual del fondo original Y del candidato (los dos casi
+    # monetarios) la correlacion no se exige: solo el tracking error acota la equivalencia.
     "low_volatility_cutoff": 0.02,
     # Desviacion maxima de exposicion por dimension (peso agregado por etiqueta).
     "max_group_deviation": {"asset_class": 0.03, "region": 0.03, "currency": 0.05},
@@ -106,29 +106,97 @@ class ImprovementInputError(ValueError):
     """La peticion no se puede evaluar tal como viene."""
 
 
+WEIGHTS_SUM_TOLERANCE = 1e-9
+
+
+def _check_weights_sum_to_one(weights: Dict[str, float]) -> None:
+    """P0-02 (20-11-2026): una cartera propuesta que no suma el 100 % no se emite. Es un fallo del motor, no de la
+    peticion: se lanza en vez de devolver una propuesta que pierde parte de la cartera."""
+    total = math.fsum(weights.values())
+    if abs(total - 1.0) > WEIGHTS_SUM_TOLERANCE:
+        raise RuntimeError("Mejorar cartera: los pesos de la propuesta suman %.12f, no 1." % total)
+
+
+# P1-09 (auditoria del 20-11-2026): cotas duras de servidor para lo que llega del cliente. Antes se aceptaba cualquier numero
+# finito: `exhaustive_limit` de mil millones bloqueaba la CPU, `rolling_weeks = 0` daba un 100 % de consistencia siempre (cada
+# semana contra si misma) e `Infinity` en `max_substitutions` era un error interno. Los rangos cubren los de la pantalla
+# (tolerancias de 0-5 pp de volatilidad, 0-10 pp de caida y 0-10 pp de mejora; de 1 a 5 sustituciones) y lo que tiene
+# sentido financiero; fuera de rango la peticion se rechaza con el campo nombrado, no se recorta en silencio.
+THRESHOLD_BOUNDS: Dict[str, Tuple[float, float]] = {
+    "max_volatility_increase": (0.0, 0.05),
+    "max_drawdown_worsening": (0.0, 0.10),
+    "max_sharpe_decrease": (0.0, 0.50),
+    "max_return_decrease": (0.0, 0.05),
+    "max_cost_increase": (0.0, 0.01),
+    "min_return_improvement": (0.0, 0.10),
+    "min_sharpe_improvement": (0.0, 1.0),
+    "min_cost_reduction": (0.0, 0.02),
+    "min_drawdown_improvement": (0.0, 0.20),
+    "min_volatility_reduction": (0.0, 0.10),
+    "selection_fraction": (0.3, 0.9),
+    # «Igualar o superar a la original en la mayoria de las ventanas»: por debajo de la mitad ya no es mayoria.
+    "min_consistency": (0.5, 1.0),
+    "low_volatility_cutoff": (0.0, 0.05),
+    "rolling_weeks": (26, 104),
+    "rolling_step_weeks": (1, 26),
+    "max_substitutions": (1, 5),
+    "max_proposals": (1, 10),
+    # El defecto es el tope: por encima, la busqueda pasa a voraz, que es lo que la acota.
+    "exhaustive_limit": (1, 5000),
+    "min_observations": (52, 1000),
+}
+MAPPING_THRESHOLD_BOUNDS: Dict[str, Tuple[float, float]] = {
+    "min_correlation": (0.0, 1.0),
+    "max_tracking_error": (0.0, 0.15),
+    "max_group_deviation": (0.0, 0.10),
+}
+MAX_MAPPING_ENTRIES = 16
+MAX_MAPPING_KEY_LENGTH = 32
+
+
+def _bounded_number(name: str, value, low: float, high: float) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ImprovementInputError("Umbral %s: tiene que ser un número finito." % name)
+    if not low <= value <= high:
+        raise ImprovementInputError("Umbral %s fuera de rango: %s; admite de %s a %s." % (name, value, low, high))
+    return float(value)
+
+
+def bounded_threshold(key: str, value) -> object:
+    """El valor de un umbral de cliente, comprobado contra su cota; fuera de rango, ImprovementInputError con el campo."""
+    low, high = THRESHOLD_BOUNDS[key]
+    number = _bounded_number(key, value, low, high)
+    if key in INTEGER_THRESHOLD_KEYS:
+        if number != int(number):
+            raise ImprovementInputError("Umbral %s: tiene que ser un número entero." % key)
+        return int(number)
+    return number
+
+
 def merge_thresholds(overrides: Optional[dict]) -> Dict[str, object]:
-    """Umbrales por defecto con las claves conocidas sobreescritas; el resto se ignora."""
+    """Umbrales por defecto con las claves conocidas sobreescritas; las claves desconocidas se ignoran, y un valor
+    conocido fuera de su cota es ImprovementInputError (P1-09)."""
     out: Dict[str, object] = {k: (dict(v) if isinstance(v, dict) else v) for k, v in DEFAULT_THRESHOLDS.items()}
-    if not isinstance(overrides, dict):
+    if overrides is None:
         return out
-    for key in NUMERIC_THRESHOLD_KEYS:
-        value = overrides.get(key)
-        if isinstance(value, (int, float)) and math.isfinite(value):
-            out[key] = float(value)
-    for key in INTEGER_THRESHOLD_KEYS:
-        value = overrides.get(key)
-        if isinstance(value, (int, float)) and math.isfinite(value) and value >= 0:
-            out[key] = int(value)
+    if not isinstance(overrides, dict):
+        raise ImprovementInputError("Los umbrales tienen que ser un objeto.")
+    for key in NUMERIC_THRESHOLD_KEYS + INTEGER_THRESHOLD_KEYS:
+        if overrides.get(key) is not None:
+            out[key] = bounded_threshold(key, overrides[key])
     for key in MAPPING_THRESHOLD_KEYS:
         value = overrides.get(key)
-        if isinstance(value, dict):
-            merged = dict(out[key])  # type: ignore[arg-type]
-            for sub, number in value.items():
-                if isinstance(number, (int, float)) and math.isfinite(number):
-                    merged[str(sub)] = float(number)
-            out[key] = merged
-    if not 0.3 <= float(out["selection_fraction"]) <= 0.9:
-        out["selection_fraction"] = DEFAULT_THRESHOLDS["selection_fraction"]
+        if value is None:
+            continue
+        if not isinstance(value, dict) or len(value) > MAX_MAPPING_ENTRIES:
+            raise ImprovementInputError("Umbral %s: tiene que ser un objeto de como mucho %d claves." % (key, MAX_MAPPING_ENTRIES))
+        low, high = MAPPING_THRESHOLD_BOUNDS[key]
+        merged = dict(out[key])  # type: ignore[arg-type]
+        for sub, number in value.items():
+            if not isinstance(sub, str) or not sub or len(sub) > MAX_MAPPING_KEY_LENGTH:
+                raise ImprovementInputError("Umbral %s: clave no válida." % key)
+            merged[sub] = _bounded_number("%s.%s" % (key, sub), number, low, high)
+        out[key] = merged
     return out
 
 
@@ -529,9 +597,8 @@ def improve_portfolio(data: ImprovementInput) -> dict:
         asset_class = (data.labels.get(position) or {}).get("asset_class")
         min_corr = _class_threshold(t["min_correlation"], asset_class)
         max_te = _class_threshold(t["max_tracking_error"], asset_class)
+        cutoff = float(t["low_volatility_cutoff"])
         position_vol = window_metrics(data.levels[position], 0, ev.n - 1, ev.rf, ev.ordinals).volatility
-        if position_vol < float(t["low_volatility_cutoff"]):
-            min_corr = 0.0  # casi monetario: la correlacion no discrimina; manda el tracking error
         seen: Set[str] = set()
         for candidate in data.candidates.get(position, []) or []:
             if candidate in seen or candidate == position or candidate in original:
@@ -549,9 +616,20 @@ def improve_portfolio(data: ImprovementInput) -> dict:
                                                           "detail": "Correlación no calculable (serie sin variación o sin semanas comunes): no evaluable.",
                                                           "not_evaluable": True})
                 continue
-            if corr < min_corr:
+            # Casi monetario: la correlacion de dos series casi planas es ruido y no discrimina; manda el tracking error.
+            # Pero solo si los DOS lo son (pendiente del 19-11-2026): con el original por debajo del corte se dejaba de
+            # exigir correlacion a cualquier candidato, y uno con riesgo de verdad que no se mueve con el original pasaba
+            # con un tracking error de hasta el de su clase (un 4 % en renta fija). Si el candidato tiene riesgo, su
+            # correlacion vuelve a medir algo y se exige la de la clase.
+            candidate_vol = window_metrics(data.levels[candidate], 0, ev.n - 1, ev.rf, ev.ordinals).volatility
+            corr_needed = 0.0 if position_vol < cutoff and candidate_vol < cutoff else min_corr
+            if corr < corr_needed:
+                detalle = "Correlación %.2f, mínimo %.2f." % (corr, corr_needed)
+                if position_vol < cutoff:
+                    detalle += (" El original es casi monetario (volatilidad %.2f %%), pero este candidato no (%.2f %%): "
+                                "se exige la correlación de su clase." % (position_vol * 100, candidate_vol * 100))
                 rejected.setdefault(position, []).append({"asset_id": candidate, "reason": "LOW_CORRELATION",
-                                                          "detail": "Correlación %.2f, mínimo %.2f." % (corr, min_corr), "correlation": round(corr, 6)})
+                                                          "detail": detalle, "correlation": round(corr, 6)})
                 continue
             if tracking > max_te:
                 rejected.setdefault(position, []).append({"asset_id": candidate, "reason": "HIGH_TRACKING_ERROR",
@@ -584,6 +662,7 @@ def improve_portfolio(data: ImprovementInput) -> dict:
         for position, replacement in assignment.items():
             if replacement:
                 weights[replacement] = weights.pop(position)
+        _check_weights_sum_to_one(weights)
         return weights
 
     def is_free(position: str, candidate: str) -> bool:
@@ -594,6 +673,12 @@ def improve_portfolio(data: ImprovementInput) -> dict:
         subs = {p: c for p, c in assignment.items() if c}
         counted = {p: c for p, c in subs.items() if not is_free(p, c)}
         if not subs or len(counted) > max_subs:
+            return None
+        # P0-02 (auditoria del 20-11-2026; decision de Oscar, 21-11-2026): un mismo fondo no sustituye a dos posiciones en
+        # una misma combinacion. Antes `trial_weights` escribia el peso de la segunda encima del de la primera y la
+        # propuesta sumaba menos del 100 %. No se suman los pesos: se conserva la diversificacion por fondo y no se
+        # rompen los topes de concentracion. La combinacion no se cuenta como evaluada.
+        if len(set(subs.values())) < len(subs):
             return None
         evaluated += 1
         weights = trial_weights(assignment)
@@ -681,6 +766,7 @@ def improve_portfolio(data: ImprovementInput) -> dict:
             if best_failure is None:
                 best_failure = {"substitutions": payload["substitutions"], "failed": [c["label"] for c in failed]}
             continue
+        _check_weights_sum_to_one(result["weights"])
         proposals.append(payload)
 
     mean_equivalence = lambda p: sum(s["correlation"] for s in p["substitutions"]) / len(p["substitutions"])  # noqa: E731

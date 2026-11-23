@@ -1,54 +1,45 @@
 ---
 name: pipeline-extractor
-description: Ejecuta el pipeline de datos de fondos — del extractor a la maestra — en el orden obligatorio, con los gates, las reglas de propiedad y la allowlist de proyecto que lo rompen si se saltan. Úsalo cuando haya que refrescar datos de fondos, regenerar el export canónico, cargar o republicar activos, o auditar la consistencia de la maestra.
+description: Ejecuta el pipeline de datos de fondos — del extractor a la base nueva — en el orden obligatorio, con los gates, las reglas de propiedad y las barreras de proyecto que lo rompen si se saltan. Úsalo cuando haya que refrescar datos de fondos, regenerar el export canónico, o escribir y auditar la base nueva.
 ---
 
 # Ejecutar el pipeline del extractor
 
-Es la única secuencia del sistema que puede escribir en la maestra, y es **manual a
+Es la única secuencia del sistema que escribe el catálogo de la base nueva, y es **manual a
 propósito**. No hay orquestador: cada etapa se lanza a mano y en orden.
 
 ```
-update → calidad → export → bdb → loader/republish → audit:consistency
+update → calidad → export → bdb (→ series, cambios) → baseNueva:write → baseNueva:batch → baseNueva:series → audit:base-nueva
 ```
 
-**No mezclar artefactos de fechas distintas.** El loader consume los informes de calidad
-y el `export_bdb/` de la misma pasada; cruzarlos produce documentos incoherentes que el
-audit no siempre detecta.
+**La maestra vieja ya no tiene pipeline.** Su cargador y su republish (`load:fondosdb`,
+`republish:fondosdb`, `audit:consistency`, `reclassify:stock`, `archive:assets`), sus reparaciones
+y su copia diaria se borraron el 21-11-2026 (decisiones 30 a 39 de Óscar, sobre
+`CENSO_BASE_VIEJA_2026-11-21.md`); el estado anterior está en la etiqueta de Git
+`referencia-base-vieja-2026-11-21`. Si un documento o un recuerdo te pide uno de esos comandos, ya no existe.
 
-## La allowlist de proyecto: aquí apunta al clon, y solo al clon
+**No mezclar artefactos de fechas distintas.** El escritor de la base nueva consume `export_bdb/` y
+`export/fondos.ndjson` de la misma pasada; cruzarlos produce documentos incoherentes que la
+auditoría no siempre detecta.
 
-Dieciséis ficheros de la plataforma comprueban el `FIREBASE_PROJECT_ID` contra una allowlist
-antes de abrir Firestore. **En este clon la allowlist contiene un único valor:
-`gestor-activos-local`.** El proyecto real de BDB queda rechazado por construcción, no
-por configuración: aunque alguien se equivoque con las variables de entorno, el código
-de aquí no puede escribir en BDB.
+## Los proyectos: el destino lo pone el código, no el entorno
 
-Comprobado el 30-10-2026 llamando a `getDb()` de `writer.ts` con el entorno real:
+**Los dos proyectos viven en un solo sitio:** `2-plataforma-datos/src/config/projectAllowlist.ts`, y
+**separados por papel**. La base nueva tiene `PROYECTO_BASE_NUEVA` y `HOST_EMULADOR_BASE_NUEVA`, y el
+escritor (`src/loader/baseNuevaWriter.ts`) los toma de ahí y no del entorno: si una variable pide otro
+proyecto u otro puerto, se para nombrando el conflicto. El proyecto real de BDB queda rechazado por
+construcción, no por configuración.
 
-```
-gestor-activos-local     => ACEPTADO
-bbdd-activos-financieros => RECHAZADO: Project id fuera de la allowlist de plataforma
-```
+`ALLOWED_PROJECT_ID(S)` es el de la base vieja, `gestor-activos-local`. Desde el 21-11-2026 **no lo importa
+ningún programa** —sus seis consumidores se borraron con ella—, y se queda a propósito: es la pareja del
+defecto seguro de `functions_python/master_project.py` (un id que no existe en la nube) y
+`barreraDeBdb.test.ts` compara los dos. La regla sigue: **el id real de la base nueva no entra en ese
+conjunto.** Quien lo usara para autorizar una conexión sin exigir emulador escribiría en la nube en cuanto
+exista una clave de servicio. `tests/projectAllowlist.test.ts` falla si se juntan.
 
-**El valor vive en un solo sitio:** `src/config/projectAllowlist.ts`. Las dieciséis
-comprobaciones de `src/loader/` y `scripts/` lo importan de ahí, así que para cambiar de
-proyecto se cambia una línea. Si tienes que tocarlo, tócalo ahí y en ningún otro sitio.
-
-**Desde el 01-11-2026 ese fichero nombra DOS proyectos, y no están en el mismo conjunto.**
-`ALLOWED_PROJECT_ID` sigue siendo solo la base vieja; la base nueva tiene los suyos,
-`PROYECTO_BASE_NUEVA` y `HOST_EMULADOR_BASE_NUEVA`. Están separados por papel a propósito: con
-los dos en el mismo conjunto, un `FIREBASE_PROJECT_ID` equivocado escribiría los documentos de
-la base nueva en el proyecto de la vieja, la comprobación lo autorizaría, y cada documento
-sería válido salvo en que está en la base que no es. Y hay una razón más fuerte: el de la base
-nueva es un proyecto **real** en la nube, mientras el de la vieja no existe fuera del
-emulador. Ampliar el conjunto heredado con un proyecto real dejaría catorce comprobaciones
-—que conectan sin exigir emulador— escribiendo fuera en cuanto haya una clave de servicio.
-`tests/projectAllowlist.test.ts` falla si se juntan.
-
-`tests/projectAllowlist.test.ts` falla si alguien vuelve a escribir el literal del
-proyecto de BDB en cualquier `.ts` de `src/` o `scripts/`, con seis excepciones declaradas:
-las cuatro guardas que lo prohíben, `asesores.ts` y la cabecera del propio
+`tests/projectAllowlist.test.ts` falla también si alguien vuelve a escribir el literal del
+proyecto de BDB en cualquier `.ts` de `src/` o `scripts/`, con cinco excepciones declaradas:
+las tres guardas que lo prohíben, `asesores.ts` y la cabecera del propio
 `projectAllowlist.ts`, que lo nombran en un comentario.
 
 **La prueba que barre el repositorio es `3-BDB-ACTIVOS_app/tests/barreraDeBdb.test.ts`**
@@ -58,33 +49,24 @@ BDB solo en su lista declarada, todo cliente de base con el proyecto de la const
 la lista sin mirar qué hace. Los dos programas de `_legacy/scripts/` que abrían el proyecto de
 la clave que encontrasen ya no se ejecutan.
 
-Por qué está así: hasta el 30-10-2026 el literal estaba copiado en los dieciséis, con dos
+Por qué está en un solo sitio: hasta el 30-10-2026 el literal estaba copiado en dieciséis ficheros, con dos
 ortografías distintas (`ALLOWED_PROJECT_IDS` con un `Set` y `const PROJECT_ID` con un
 `!==`), y al corregirlo un grep de la primera forma se dejó cinco sin cambiar.
 
 ### Lo que nunca se hace
 
-Si una etapa dice «Project id fuera de la allowlist», la salida intuitiva es poner
+Si una etapa se niega por el proyecto, la salida intuitiva es poner
 `FIREBASE_PROJECT_ID=bbdd-activos-financieros`. **Nunca.** Es apuntar el clon al proyecto
 real de BDB, y si además falta o se cae `FIRESTORE_EMULATOR_HOST`, la etapa escribe en la
 maestra de producción. Rompe la regla que no se rompe. El error no es un obstáculo: es la
 barrera funcionando.
 
-### Dos guardas que van al revés y se dejan como están
+### Las guardas que van al revés y se dejan como están
 
-`scripts/restoreBackupToEmulator.ts` y `scripts/runBackupExport.ts` **prohíben**
-explícitamente el proyecto de BDB, y desde el 03-11-2026 también `subirALaNube.ts` y
-`verReglasDesplegadas.ts`, que niegan su clave. Siguen nombrándolo a propósito. No los «uniformes».
-
-### Qué corre y qué no, aquí
-
-| Etapa | Aquí |
-|---|---|
-| `update`, `calidad`, `export`, `bdb` | Corre entera. Solo produce ficheros locales. |
-| `load:fondosdb --dry-run --ids quality-ok` | Corre, offline: escribe `plan.json` y `plan.md` en `runs/`. |
-| `republish:fondosdb --dry-run` | Corre. |
-| `audit:consistency` | Corre (quitando el gate del entorno). |
-| `load:fondosdb --write` y `--ids missing` | **Siguen cerradas por un segundo cierre**: `cli.ts` exige además credenciales de servicio (`GOOGLE_APPLICATION_CREDENTIALS` o `FIREBASE_SERVICE_ACCOUNT_PATH` apuntando a un fichero que exista), y aquí no hay ninguna configurada. Contra el emulador no hacen falta de verdad, pero el código las pide igual. |
+`scripts/restoreBackupToEmulator.ts` **prohíbe** explícitamente el proyecto de BDB, y desde el
+03-11-2026 también `subirALaNube.ts` y `verReglasDesplegadas.ts`, que niegan su clave. Siguen
+nombrándolo a propósito. No los «uniformes». (La cuarta, `runBackupExport.ts`, se borró con la base
+vieja el 21-11-2026.)
 
 ## Primera mitad: el extractor
 
@@ -102,8 +84,9 @@ salir a internet, `--fuentes` y `--familias` limitan lo que se refresca, `--sin-
 se salta las series. Hay más subcomandos (`add`, `cnmv`, `figi`, `report`, `contraste`,
 `cobertura`, `capacidades`, `visor`); `python main.py -h` los lista.
 
-**`calidad` se re-ejecuta tras cada `update` masivo.** El loader consume sus informes: si
-quedan los de la pasada anterior, selecciona mal.
+**`calidad` se re-ejecuta tras cada `update` masivo.** El cargador de la maestra vieja seleccionaba
+con sus informes (`--ids quality-ok`); se borró el 21-11-2026, y la cadena `calidad` → `export` → `bdb`
+sigue como estaba.
 
 `export_bdb/` es **entrada para dry-run y gate**, nunca carga directa.
 
@@ -237,37 +220,13 @@ filas sobre líneas visuales. Un cambio ahí se comprueba releyendo los PDF de `
 solo con las pruebas: es como salió que PIMCO, con un «0 % en el KID», dice «492 EUR». `regulatory.kid.costs` trae el rendimiento
 como el tipo contractual y no como su impacto anual: ese sigue sin llegar a la base.
 
-## Segunda mitad: la plataforma
+## Segunda mitad: la plataforma, que escribe la base nueva
 
-Desde `2-plataforma-datos`. Las variables de `.env.local` se cargan solas al ejecutar
-desde esa carpeta —comprobado el 30-10-2026—, así que el host del emulador y el project
-id del clon están puestos sin pasar nada.
+Desde `2-plataforma-datos`. Los guiones de la base nueva **no leen `.env.local`**: ese fichero era el
+destino de la base vieja, y el de la nueva lo pone el escritor, de la constante (ver arriba).
 
-```bash
-# plan en seco (esto sí corre aquí)
-npm run load:fondosdb -- --input "<dir_fondosdb>" --ids quality-ok --dry-run
-
-# cargar (create-only). Exige el gate:
-BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES=YES_I_UNDERSTAND_MASTER_DB_WRITES \
-  npm run load:fondosdb -- --input "<dir>" --ids quality-ok --write
-
-# actualizar lo ya cargado
-npm run republish:fondosdb -- --input "<dir>" --ids all --dry-run
-BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES=YES_I_UNDERSTAND_MASTER_DB_WRITES \
-  npm run republish:fondosdb -- --input "<dir>" --ids all --write
-
-# cerrar: auditar consistencia (SIN el gate en el entorno)
-npm run audit:consistency -- --input "<dir>"
-```
-
-`--targets` elige qué se escribe (`root`, `holdings`, `metrics`; por defecto `root`).
-`--limit` acota una prueba. `--ids` acepta `quality-ok`, `all`, `missing` o una lista.
-
-## La base nueva: otra base, otras barreras, otros scripts
-
-Es una base **aparte** de la maestra, con sus propios contratos y su propio escritor. No la
-toca ninguno de los comandos de arriba. Desde el 01-11-2026 ya **no está en el mismo
-emulador**: tiene proyecto propio (`bdb-gestor-de-activos`), su emulador en el **8092** y
+La base nueva tiene sus propios contratos (`contracts/base-nueva/`) y su propio escritor. Desde el
+01-11-2026 **no está en el emulador de la vieja**: tiene proyecto propio (`bdb-gestor-de-activos`), su emulador en el **8092** y
 persistencia en disco. Se levanta con `node 4-base-nueva/arrancar.mjs`; lo lleva la habilidad
 `arrancar-entorno`.
 
@@ -304,8 +263,8 @@ está vacía, así que da 0 instrumentos con serie aunque haya más de mil. Comp
 puntos en la base. Quien las comprueba es `baseNueva:series -- --write`, que relee los puntos y los compara con la fuente.
 
 ```bash
-# CARTERAS del asesor (el dominio de clientes). Lee bdb_activos/{uid}/portfolios:
-npm run dryrun:carteras
+# CARTERAS del asesor (el dominio de clientes). Leen bdb_activos de la base nueva, o un NDJSON con --fuente.
+# La pasada en seco que leía la base vieja (dryrun:carteras) se borró el 21-11-2026: la migración ya estaba hecha.
 npm run carteras:plan
 npm run carteras:write -- --write --verify
 ```
@@ -399,49 +358,22 @@ Lo que conviene saber antes:
 - **`export_planes/` no va al repositorio**: son datos de Morningstar. Qué se pide y qué se dejó fuera, con su medición,
   está en la cabecera de `fetchers/morningstar_planes.py` y en D-11.
 
-## Las cinco reglas que rompen cosas
+## La regla que sigue rompiendo cosas
 
-1. **El loader es create-only** (SKIP_EXISTS): no refresca nunca. Para actualizar un
-   activo que ya existe, `republish:fondosdb`. Si lo que buscas es actualizar y usas el
-   loader, no da error: salta en silencio.
-2. **`metrics/latest` tiene dos dueños declarados.** El refresh de la app posee
-   `max_drawdown_hist`, `last_date` y `updated_at` (escritura merge); el loader y el
-   republish poseen el resto y **deben preservar** esos tres
-   (`METRICS_REFRESH_OWNED_FIELDS` en `republish.ts`). Romperlo reabre el ping-pong entre
-   escritores: cada tubería pisa a la otra en cada pasada.
-3. **`audit:consistency` se niega a correr con el gate activo.** Es de solo lectura y lo
-   comprueba: `SECURITY: este audit es read-only; no debe correr con el gate de escritura
-   activo`. Quita la variable del entorno antes de auditar, no la dejes exportada.
-4. **El gate se abre por comando, no por sesión.** Ponlo delante de la orden concreta que
-   escribe, nunca con `export`. Una variable exportada convierte el audit en un error y
-   cualquier otra etapa en una escritura no vigilada.
-5. **`--accept-canonical` no resuelve un conflicto: desactiva las guardas del activo entero.**
-   El nombre suena a «acepta este valor», y lo que hace es dejar pasar el canónico en *todos* los
-   campos de ese ISIN. Silencia a la vez `emptiedPlatformPaths` y `keepLegacyAppData`, así que se
-   lleva por delante lo que la app poseía y el canónico ya no trae, aunque no tenga nada que ver
-   con el conflicto que querías resolver. Medido el 31-10-2026: aceptar el canónico en tres fondos
-   por un desacuerdo de SRI borró `risk.sri_kid_evidence` en dos de ellos, que siguieron publicando
-   SRI 3 **sin ninguna evidencia detrás**. Antes de usarla, mira el `preserved_withdrawn.json` de la
-   pasada en seco y entérate de qué más vas a perder. Para devolver una evidencia perdida así está
-   `npm run repair:sri-evidence`, que la saca de la copia más nueva que la tenga.
+**El gate se abre por comando, no por sesión.** Ponlo delante de la orden concreta que escribe,
+nunca con `export`. Una variable exportada convierte cualquier otra etapa en una escritura no
+vigilada. Las otras cuatro reglas que había aquí eran del cargador de la maestra vieja (create-only,
+los dos dueños de `metrics/latest`, `audit:consistency` sin gate y `--accept-canonical`) y se fueron
+con su código el 21-11-2026.
 
-## La evidencia del SRI no se guarda: se deriva, y por ocho puertas
+## La evidencia del SRI no se guarda: se deriva
 
-`risk.sri_kid_evidence` —lo que sostiene ante un cliente el SRI de un fondo— **no lo escribe
-nadie a mano**. Lo deriva `withSriKidEvidence` en `fondosDbMapper.ts` a partir de
-`regulatory.kid`, y solo si se cumplen **ocho** condiciones seguidas:
-
-1. El KID está atestado: `kid.verified_isin` es el ISIN, o la procedencia de `regulatory.kid`
-   es una oficial (`kid_gestora:*`, `cnmv_ficha:kid`, `amf_geco:kid`).
-2. Existe `regulatory.kid`.
-3. Tiene `sha256`.
-4. **Tiene `date`.**
-5. `regulatory.sri` es un entero.
-6. Ese SRI **sale del propio KID**: `kid.sri` coincide, o la procedencia de `regulatory.sri`
-   es oficial.
-7. `risk.sri_kid_1a7` coincide con `regulatory.sri`.
-8. Hay un `verified_at` que sacar (`kid.checked_at`, el `fetched_at` del endpoint, o
-   `provenance.acquired_at`).
+`declared/regulatory.kid_evidence` —lo que sostiene ante un cliente el SRI de un fondo— **no lo escribe
+nadie a mano**. Lo deriva el mapper de la base nueva (`src/ingestion/baseNueva/mapper.ts`, bloque
+`declared/regulatory`) a partir de `regulatory.kid` del canónico: **sin URL, huella y fecha del KID no hay
+`sri` ni `kid_evidence`**, e `isin_evidence` dice si la URL del documento nombra el ISIN (`DOCUMENT_URL`) o
+no (`NONE`). El contrato (`instrument-declared-regulatory.v2`, `kid_evidence`) explica por qué las ocho
+puertas del mapper de la maestra vieja (`withSriKidEvidence`, borrado el 21-11-2026) se redujeron a eso.
 
 **La trampa al medir esto:** un análisis de puertas encuentra la **primera** que falla, no todas.
 El 31-10-2026 conté los que se caían en la 4 como si arreglar la fecha los fuera a salvar todos, y
@@ -450,7 +382,7 @@ un arreglo hay que simular las puertas que vienen **después**, no contar la que
 
 La cadena entera, de punta a punta, es: el KID en PDF → `core/kid.py` lo parsea
 (`fecha_documento`, `sri`) → la ficha en `documentos_oficiales.kid_*` → el canónico en
-`regulatory.kid` → la maestra en `risk.sri_kid_evidence`. Un fondo que publica SRI sin evidencia
+`regulatory.kid` → la base nueva en `declared/regulatory`. Un fondo que publica SRI sin evidencia
 está roto en alguno de esos cinco saltos, y casi nunca en el último.
 
 **Y la regla que no se toca al tocar esa cadena:** `es_priips()` en `core/kid.py` es lo único que
@@ -464,13 +396,11 @@ dígito y que el guardia marca el documento para que el fetcher lo tire.
 
 ## Antes de dar una pasada por buena
 
-- `status: PASS` y `mismatches: 0` en lo que devuelva la etapa.
-- Los artefactos del loader quedan en `runs/`: `plan.json` y `plan.md` dicen qué se
-  habría hecho activo por activo. Léelos antes de abrir el gate.
-- Tras cada `--write`, el índice de búsqueda se reconcilia solo. No hay que lanzarlo.
-- Las carteras tienen regla propia de desempate: gana la más reciente salvo que sea
-  parcial. La decide `holdingsRepublish.decideHoldingsRepublish` y la deja escrita en
-  `holdings_kept.json` y `holdings_replaced.json`.
+- `baseNueva:plan -- --verify` antes de abrir el gate: lo que cambia de verdad está en `distintos`, y hay
+  que saber explicarlo.
+- `audit:base-nueva` al final: todo lo escrito valida contra su contrato.
+- Tras una pasada que importe, `node 4-base-nueva/guardar.mjs`: el emulador solo persiste en una salida
+  ordenada.
 
 ## Contexto que no está en el código
 

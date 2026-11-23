@@ -1,6 +1,6 @@
 import { Ausencia } from "./ui/Ausencia";
 import { Cifra, type TipoDeCifra } from "./ui/Cifra";
-import { claseDeLaDiferencia, NOTA_DEL_COLOR_DE_LA_DIFERENCIA, type SentidoDeLaCifra } from "../core/sentidoDeLaDiferencia";
+import { claseDeLaDiferencia, NOTA_DEL_COLOR_DE_LA_DIFERENCIA, veredictoDeLaDiferencia, type SentidoDeLaCifra } from "../core/sentidoDeLaDiferencia";
 
 /** Las cuatro cifras que se miden con la serie de una cartera. */
 export interface MetricasDeCartera {
@@ -21,12 +21,20 @@ export interface MetricasDeCartera {
  * Desde el 14-11-2026 (Óscar: recuperar el color y los datos de antes del rediseño), la diferencia vuelve a ir en verde si la segunda cartera
  * mejora y en rojo si empeora, según el sentido de cada cifra: más rentabilidad y más Sharpe, mejor; menos volatilidad y una caída menos
  * profunda, mejor. El signo escrito no cambia: una volatilidad que baja se escribe con «−» y va en verde. Lo que se escribe como cero, sin color.
+ *
+ * Con `conPalabra` (Diseño › Simular, Óscar, 20-11-2026, y la rentabilidad objetivo de Optimizar, 21-11-2026), junto a la cifra va además la palabra, «mejora» o «empeora», con el mismo sentido que
+ * el color: el estado no se dice solo con color (regla 3). Lo que se escribe como cero no lleva palabra, como no lleva color.
  */
-function Diferencia({ antes, despues, tipo, sentido }: { antes: number; despues: number; tipo: TipoDeCifra; sentido: SentidoDeLaCifra }) {
+function Diferencia({ antes, despues, tipo, sentido, conPalabra }: { antes: number; despues: number; tipo: TipoDeCifra; sentido: SentidoDeLaCifra; conPalabra: boolean }) {
   const valor = despues - antes;
-  const clase = claseDeLaDiferencia(antes, despues, sentido, tipo === "ratio" ? 2 : 4);
-  if (tipo === "ratio") return <Cifra className={clase} tipo="ratio" valor={valor} conSigno />;
-  return <Cifra className={clase} colorDeSigno={false} tipo="puntos" valor={valor} />;
+  const decimales = tipo === "ratio" ? 2 : 4;
+  const clase = claseDeLaDiferencia(antes, despues, sentido, decimales);
+  const cifra = tipo === "ratio"
+    ? <Cifra className={clase} tipo="ratio" valor={valor} conSigno />
+    : <Cifra className={clase} colorDeSigno={false} tipo="puntos" valor={valor} />;
+  const veredicto = conPalabra ? veredictoDeLaDiferencia(antes, despues, sentido, decimales) : null;
+  if (!veredicto) return cifra;
+  return <>{cifra} <span className={`diferencia__palabra ${clase}`}>{veredicto}</span></>;
 }
 
 /**
@@ -35,28 +43,29 @@ function Diferencia({ antes, despues, tipo, sentido }: { antes: number; despues:
  */
 const cabecera = (rotulo: string) => rotulo.replace(/ %/g, "\u00a0%");
 
-function Fila({ label, conActual, a, b, tipo, sentido, noAplica = false }: {
+function Fila({ label, conActual, conPalabra, a, b, tipo, sentido, noAplica = false }: {
   label: string;
   conActual: boolean;
+  conPalabra: boolean;
   a?: number | null;
   b?: number | null;
   tipo: TipoDeCifra;
   sentido: SentidoDeLaCifra;
-  /** En alguna de las dos no se enseña: el Sharpe de una sola acción. */
-  noAplica?: "a" | "b" | false;
+  /** En alguna de las dos, o en las dos, no se enseña: el Sharpe de una sola acción. */
+  noAplica?: "a" | "b" | "ambas" | false;
 }) {
   const comparable = !noAplica && typeof a === "number" && typeof b === "number" && !Number.isNaN(a) && !Number.isNaN(b);
   return (
     <tr>
       <td>{label}</td>
       {conActual ? (
-        <td className="num">{noAplica === "a" ? <Ausencia clase="no-aplica" /> : <Cifra tipo={tipo} valor={a} estrecha />}</td>
+        <td className="num">{noAplica === "a" || noAplica === "ambas" ? <Ausencia clase="no-aplica" /> : <Cifra tipo={tipo} valor={a} estrecha />}</td>
       ) : null}
-      <td className="num">{noAplica === "b" ? <Ausencia clase="no-aplica" /> : <Cifra tipo={tipo} valor={b} estrecha />}</td>
+      <td className="num">{noAplica === "b" || noAplica === "ambas" ? <Ausencia clase="no-aplica" /> : <Cifra tipo={tipo} valor={b} estrecha />}</td>
       {conActual ? (
         <td className="num">
           {comparable
-            ? <strong><Diferencia antes={a} despues={b} tipo={tipo} sentido={sentido} /></strong>
+            ? <strong><Diferencia antes={a} despues={b} tipo={tipo} sentido={sentido} conPalabra={conPalabra} /></strong>
             : <Ausencia clase={noAplica ? "no-aplica" : "falta"} estrecha={!noAplica} />}
         </td>
       ) : null}
@@ -72,13 +81,18 @@ function Fila({ label, conActual, a, b, tipo, sentido, noAplica = false }: {
  * «Máx. Sharpe (máx. 35 % por activo)», la tabla no cabía en su columna a 1024 y a 1280, y sin él empujaba la página y cortaba «Diferencia».
  * Desde que esas cabeceras parten en dos líneas cabe entera en los seis anchos; si un rótulo más largo no cupiera, se desliza en su caja.
  */
-export function TablaDeMetricasComparativas({ aria, rotuloA, rotuloB, a, b, sharpeNoAplica = false }: {
+export function TablaDeMetricasComparativas({ aria, rotuloA, rotuloB, a, b, sharpeNoAplica = false, conPalabra = false }: {
   aria: string;
+  /**
+   * La palabra «mejora» o «empeora» junto a cada diferencia. En Simular (Óscar, 20-11-2026) y en la tabla de la rentabilidad objetivo de
+   * Optimizar (`MedidaDelObjetivo`, Óscar, 21-11-2026).
+   */
+  conPalabra?: boolean;
   rotuloA?: string;
   rotuloB: string;
   a?: MetricasDeCartera;
   b?: MetricasDeCartera;
-  sharpeNoAplica?: "a" | "b" | false;
+  sharpeNoAplica?: "a" | "b" | "ambas" | false;
 }) {
   const conActual = rotuloA !== undefined;
   return (
@@ -94,10 +108,10 @@ export function TablaDeMetricasComparativas({ aria, rotuloA, rotuloB, a, b, shar
           </tr>
         </thead>
         <tbody>
-          <Fila label="Rentabilidad anualizada" conActual={conActual} a={a?.cagr} b={b?.cagr} tipo="rentabilidad" sentido="mas" />
-          <Fila label="Volatilidad" conActual={conActual} a={a?.volatility} b={b?.volatility} tipo="porcentaje" sentido="menos" />
-          <Fila label="Sharpe" conActual={conActual} a={a?.sharpe} b={b?.sharpe} tipo="ratio" sentido="mas" noAplica={sharpeNoAplica} />
-          <Fila label="Caída máxima" conActual={conActual} a={a?.max_drawdown} b={b?.max_drawdown} tipo="porcentaje" sentido="menosProfunda" />
+          <Fila label="Rentabilidad anualizada" conActual={conActual} conPalabra={conPalabra} a={a?.cagr} b={b?.cagr} tipo="rentabilidad" sentido="mas" />
+          <Fila label="Volatilidad" conActual={conActual} conPalabra={conPalabra} a={a?.volatility} b={b?.volatility} tipo="porcentaje" sentido="menos" />
+          <Fila label="Sharpe" conActual={conActual} conPalabra={conPalabra} a={a?.sharpe} b={b?.sharpe} tipo="ratio" sentido="mas" noAplica={sharpeNoAplica} />
+          <Fila label="Caída máxima" conActual={conActual} conPalabra={conPalabra} a={a?.max_drawdown} b={b?.max_drawdown} tipo="porcentaje" sentido="menosProfunda" />
         </tbody>
       </table>
     </div>

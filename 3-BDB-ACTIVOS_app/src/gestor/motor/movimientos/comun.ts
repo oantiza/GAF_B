@@ -6,7 +6,7 @@
 import { CERO, UNO, d, dOCero, dOpcional, esDecimal, type Decimal } from "../decimal";
 import { esDia } from "../fechas";
 import type { CampoDelTipo, ContextoDeMovimiento, DefinicionDeMovimiento, Efecto, GrupoDeMovimiento } from "../efectos";
-import { divisaDelEfectivo, type Activo, type Movimiento } from "../modelo";
+import { LARGO_DEL_CONCEPTO, divisaDelEfectivo, type Activo, type Movimiento } from "../modelo";
 
 /** Los campos decimales de un movimiento, para comprobar su forma de una vez. */
 const CAMPOS_DECIMALES = ["titulos", "precio", "importe", "comision", "gastos", "retencion", "cuponCorrido", "cambio", "valor", "razon"] as const;
@@ -31,6 +31,10 @@ export function erroresDeForma(movimiento: Movimiento): string[] {
   }
   if (movimiento.cambio !== undefined && esDecimal(movimiento.cambio) && d(movimiento.cambio).lte(0)) {
     errores.push("El tipo de cambio tiene que ser mayor que cero.");
+  }
+  if (movimiento.conceptoCliente !== undefined) {
+    if (typeof movimiento.conceptoCliente !== "string") errores.push("El concepto para el cliente no es un texto.");
+    else if (movimiento.conceptoCliente.length > LARGO_DEL_CONCEPTO) errores.push(`El concepto para el cliente no puede pasar de ${LARGO_DEL_CONCEPTO} caracteres.`);
   }
   for (const campo of ["titulos", "precio", "importe"] as const) {
     const valor = movimiento.destino?.[campo];

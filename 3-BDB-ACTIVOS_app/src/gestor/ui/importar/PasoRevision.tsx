@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Ausencia } from "../../../components/ui/Ausencia";
 import { Button } from "../../../components/ui/Button";
 import { Campo } from "../../../components/ui/Campo";
-import { activoPropioPara, type ActivoPorResolver, type DecisionSobreUnActivo, type LineaDeRevision, type Revision } from "../../importacion/revision";
+import { activoNuevoDelTipo, activoPropioPara, type ActivoPorResolver, type DecisionSobreUnActivo, type LineaDeRevision, type Revision } from "../../importacion/revision";
 import type { ResultadoDeImportacion } from "../../importacion/tipos";
 import { activoDesdeElCatalogo } from "../../mercado/fichas";
 import { aNumero, d } from "../../motor/decimal";
@@ -18,7 +18,9 @@ import { LineaDeAviso } from "../piezas";
 import { escrito } from "../textos";
 import {
   CLASE_DE_LA_GRAVEDAD,
+  TIPOS_PARA_ELEGIR,
   agruparActivos,
+  avisosDeLaLinea,
   avisosGenerales,
   documentosDeLasLineas,
   erroresDeLosResultados,
@@ -48,8 +50,17 @@ function DecisionDeActivo({ activo, decision, cartera, idsDeLaCartera, alDecidir
   alDecidir: AlDecidir;
 }) {
   const [buscando, setBuscando] = useState(false);
+  const [eligiendoTipo, setEligiendoTipo] = useState(false);
   const clave = activo.citado.clave;
   const porDecidir = activo.estado === "por-decidir";
+  /* El documento no dice qué tipo de activo es (solo se supone «acción» de una compra sin más) y de eso depende cómo se
+     lee su precio: el activo nuevo no se da de alta hasta que el asesor lo dice (22-11-2026). */
+  const faltaElTipo = activo.estado === "falta-el-tipo";
+  const sugerencias = activo.sugerencias.map((sugerencia) => (
+    <Button key={sugerencia.isin} onClick={() => alDecidir(clave, activoDesdeElCatalogo(sugerencia))} size="sm">
+      {sugerencia.nombre} · {sugerencia.isin}
+    </Button>
+  ));
 
   return (
     <div className="gestor-decision stack stack--3">
@@ -74,6 +85,39 @@ function DecisionDeActivo({ activo, decision, cartera, idsDeLaCartera, alDecidir
           elegido={undefined}
           rotulo={`Qué activo es «${activo.citado.nombre}»`}
         />
+      ) : faltaElTipo || eligiendoTipo ? (
+        <>
+          <p className="cmp-note">
+            {faltaElTipo
+              ? "El documento no dice qué tipo de activo es, y no está en el catálogo. Dilo para darlo de alta con precio a mano: en un bono, los títulos son el nominal y el precio va en % del nominal."
+              : "Di qué tipo de activo es: en un bono, los títulos son el nominal y el precio va en % del nominal."}
+          </p>
+          <div aria-label={`Tipo de activo de «${activo.citado.nombre}»`} className="row" role="group">
+            {TIPOS_PARA_ELEGIR.map(({ tipo, nombre }) => (
+              <Button
+                key={tipo}
+                onClick={() => {
+                  setEligiendoTipo(false);
+                  /* Con su ISIN si lo trae; si solo trae un nombre, como activo propio. */
+                  alDecidir(clave, activoNuevoDelTipo(activo.citado, tipo, cartera.divisaBase, !faltaElTipo));
+                }}
+                size="sm"
+              >
+                {nombre}
+              </Button>
+            ))}
+          </div>
+          {faltaElTipo && sugerencias.length > 0 ? (
+            <>
+              <p className="cmp-note">¿O es uno de estos del catálogo?</p>
+              <div className="row">{sugerencias}</div>
+            </>
+          ) : null}
+          <div className="row">
+            {eligiendoTipo ? <Button onClick={() => setEligiendoTipo(false)} size="sm" variant="quiet">Volver</Button> : null}
+            <Button onClick={() => alDecidir(clave, "omitir")} size="sm" variant="quiet">Dejar fuera sus movimientos</Button>
+          </div>
+        </>
       ) : (
         <>
           <p className="cmp-note">
@@ -82,15 +126,17 @@ function DecisionDeActivo({ activo, decision, cartera, idsDeLaCartera, alDecidir
               : `¿Es este del catálogo? Si no es ninguno, se dará de alta con su ISIN y con precio a mano.`}
           </p>
           <div className="row">
-            {activo.sugerencias.map((sugerencia) => (
-              <Button key={sugerencia.isin} onClick={() => alDecidir(clave, activoDesdeElCatalogo(sugerencia))} size="sm">
-                {sugerencia.nombre} · {sugerencia.isin}
-              </Button>
-            ))}
+            {sugerencias}
             {porDecidir ? (
               <>
                 <Button onClick={() => setBuscando(true)} size="sm" variant="quiet">Buscar otro</Button>
-                <Button onClick={() => alDecidir(clave, activoPropioPara(activo.citado, cartera.divisaBase))} size="sm" variant="quiet">Crear como activo propio</Button>
+                <Button
+                  onClick={() => (activo.citado.tipoSupuesto ? setEligiendoTipo(true) : alDecidir(clave, activoPropioPara(activo.citado, cartera.divisaBase)))}
+                  size="sm"
+                  variant="quiet"
+                >
+                  Crear como activo propio
+                </Button>
               </>
             ) : null}
             <Button onClick={() => alDecidir(clave, "omitir")} size="sm" variant="quiet">Dejar fuera sus movimientos</Button>
@@ -120,7 +166,7 @@ function FilaDeLinea({ linea, marcada, revision, decisiones, divisaBase, alMarca
   const estado = estadoDeLaLinea(linea);
   const activo = nombreDelActivo(linea.propuesto.activo?.clave, revision, decisiones);
   const destino = nombreDelActivo(linea.propuesto.destino?.clave, revision, decisiones);
-  const avisos = linea.propuesto.avisos;
+  const avisos = avisosDeLaLinea(linea);
   const tipo = nombreDelTipo(movimiento.tipo);
   return (
     <>

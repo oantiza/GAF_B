@@ -82,8 +82,9 @@ async function main(): Promise<void> {
     /*
      * De donde sale el trabajo del asesor. Hay dos fuentes y no es una comodidad.
      *
-     * `--fuente <fichero>` es el paso C hecho: el NDJSON que deja `carteras:reoriginar`, leido
-     * de la base vieja y con su informe al lado diciendo qué entró, qué no y por qué. Que el
+     * `--fuente <fichero>` es el paso C hecho: el NDJSON que dejaba `carteras:reoriginar` (borrado el 20-11-2026 por
+     * decisión de Óscar, ya usado; sigue en la historia de Git), leido de la base vieja y con su
+     * informe al lado diciendo qué entró, qué no y por qué. Que el
      * paso intermedio sea un fichero es lo que deja por escrito qué se trajo exactamente, que
      * es la pregunta que la tarea F3.4 hace sobre todo lo que hay en la base nueva.
      *
@@ -109,8 +110,8 @@ async function main(): Promise<void> {
             throw new Error(
                 `la coleccion fuente '${COLECCION_DEL_ASESOR}' esta vacia en ${PROYECTO_BASE_NUEVA}.\n` +
                     '  Vive en la base vieja (la copia restaurada de la maestra de BDB), no aqui.\n' +
-                    '  Para traerla: `npm run carteras:reoriginar -- --escribe-fichero` y despues\n' +
-                    '  este mismo script con `--fuente data/reoriginacion/<fichero>.ndjson`.\n' +
+                    '  Se trajo una vez con `carteras:reoriginar` (borrado el 20-11-2026; en la historia de Git):\n' +
+                    '  este mismo script con `--fuente data/reoriginacion/<fichero>.ndjson` vuelve a leer ese fichero.\n' +
                     '  Este script no puede dar una pasada en vacio por buena.'
             );
         }

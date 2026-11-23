@@ -150,27 +150,52 @@ export function useCarteraAbierta(inicial: Cartera, almacen: AlmacenDeCarteras |
     setErrorDeGuardado(null);
   }, []);
 
-  /** Escribe la cartera en la carpeta. Devuelve el fichero escrito, o `null` si no se pudo. */
-  const guardar = useCallback(async (cartera: Cartera): Promise<string | null> => {
-    if (!almacen || demo) return null;
+  /*
+   * LOS GUARDADOS VAN EN FILA (P2-12, auditoría del 20-11-2026). El automático, «Guardar ahora», el de `pagehide`, el de salir
+   * y el de desmontar podían escribir a la vez el mismo fichero: si el de la versión 1 acababa después que el de la 2, en el
+   * disco quedaba la 1, la pantalla decía «Guardado» y la 2 no se volvía a escribir. Ahora cada escritura espera a la anterior,
+   * en el orden en que se pidieron, así que la última que se pidió —la de lo último de pantalla— es la que queda. Y al llegarle
+   * el turno, si lo que iba a escribir ya está en el disco, no escribe.
+   */
+  const cola = useRef<Promise<unknown>>(Promise.resolve());
+  const enCola = useRef(0);
+  const ficheroEscrito = useRef<string | null>(ficheroInicial);
+  const enFila = useCallback(<T,>(tarea: () => Promise<T>): Promise<T> => {
+    const turno = cola.current.then(tarea);
+    cola.current = turno.catch(() => undefined);
+    return turno;
+  }, []);
+
+  /** Escribe la cartera en la carpeta, en su turno. Devuelve el fichero escrito, o `null` si no se pudo. */
+  const guardar = useCallback((cartera: Cartera): Promise<string | null> => {
+    if (!almacen || demo) return Promise.resolve(null);
     setGuardado("guardando");
-    const copiaObligada = copiaPendiente.current;
-    copiaPendiente.current = false;
-    try {
-      const { fichero: escrito } = await almacen.guardar(cartera, { copiaObligada });
-      enDisco.current = cartera;
-      setFichero(escrito);
-      quitarError();
-      /* Si mientras se guardaba ha habido otro cambio, sigue pendiente: lo recoge el siguiente guardado. */
-      setGuardado((actual) => (actual === "guardando" ? "guardado" : actual));
-      return escrito;
-    } catch (causa) {
-      if (copiaObligada) copiaPendiente.current = true;
-      ponerError(causa);
-      setGuardado("error");
-      return null;
-    }
-  }, [almacen, demo, ponerError, quitarError]);
+    enCola.current += 1;
+    return enFila(async () => {
+      try {
+        if (cartera === enDisco.current && ficheroEscrito.current !== null) return ficheroEscrito.current;
+        const copiaObligada = copiaPendiente.current;
+        copiaPendiente.current = false;
+        try {
+          const { fichero: escrito } = await almacen.guardar(cartera, { copiaObligada });
+          enDisco.current = cartera;
+          ficheroEscrito.current = escrito;
+          setFichero(escrito);
+          quitarError();
+          return escrito;
+        } catch (causa) {
+          if (copiaObligada) copiaPendiente.current = true;
+          ponerError(causa);
+          setGuardado("error");
+          return null;
+        }
+      } finally {
+        enCola.current -= 1;
+        /* Con la fila vacía y lo último escrito: guardado. Si mientras tanto ha habido otro cambio, sigue pendiente: lo recoge el siguiente guardado. */
+        if (enCola.current === 0 && enDisco.current === cartera) setGuardado((actual) => (actual === "guardando" || actual === "error" ? "guardado" : actual));
+      }
+    });
+  }, [almacen, demo, enFila, ponerError, quitarError]);
 
   /* Guardado automático: un instante después del último cambio. Tras un conflicto no se
      reintenta solo: cada intento volvería a fallar y a copiar lo del disco. */
@@ -228,23 +253,37 @@ export function useCarteraAbierta(inicial: Cartera, almacen: AlmacenDeCarteras |
     return () => window.removeEventListener("pagehide", alOcultar);
   }, [almacen, demo]);
 
-  /* Al salir de la cartera con un cambio aún sin escribir, se escribe; si no se puede, se
-     descarga una copia de rescate: el error no se traga en silencio. */
+  /*
+   * Al salir de la cartera con un cambio aún sin escribir, se escribe; si no se puede, se descarga una copia de rescate: el
+   * error no se traga en silencio. Solo al desmontar de verdad (P2-12): antes el efecto dependía del almacén, y conectar una
+   * carpeta con la cartera abierta y cambios en pantalla ejecutaba la limpieza del efecto anterior —sin carpeta— y descargaba
+   * un rescate que no hacía falta, porque el guardado automático ya los escribe en la carpeta nueva. El almacén se lee del
+   * último render. Y la escritura de salida va en la fila, detrás de la que estuviera en curso.
+   */
+  const almacenVigente = useRef(almacen);
+  useEffect(() => {
+    almacenVigente.current = almacen;
+  }, [almacen]);
   useEffect(() => () => {
     window.clearTimeout(temporizador.current);
     const actual = ultima.current;
-    if (demo || cerrada.current || actual === enDisco.current) return;
-    if (!almacen) {
+    const almacenAlSalir = almacenVigente.current;
+    if (demo || cerrada.current) return;
+    if (!almacenAlSalir) {
       /* Sin carpeta solo se rescata lo que ha cambiado desde que se abrió. */
-      if (actual !== original.current) rescatar(actual, "sin carpeta y sin descargar");
+      if (actual !== enDisco.current && actual !== original.current) rescatar(actual, "sin carpeta y sin descargar");
       return;
     }
+    if (actual === enDisco.current && enCola.current === 0) return;
     if (codigo.current === "CONFLICTO") {
       rescatar(actual, "la cartera cambió fuera de esta pestaña");
       return;
     }
-    void almacen.guardar(actual, { copiaObligada: copiaPendiente.current }).catch((causa: unknown) => rescatar(actual, causa));
-  }, [almacen, demo]);
+    void enFila(async () => {
+      if (actual === enDisco.current) return;
+      await almacenAlSalir.guardar(actual, { copiaObligada: copiaPendiente.current });
+    }).catch((causa: unknown) => rescatar(actual, causa));
+  }, [demo, enFila]);
 
   const cambiar = useCallback((accion: string, cambio: (cartera: Cartera) => Cartera, opciones?: { copiaObligada?: boolean }) => {
     if (opciones?.copiaObligada) copiaPendiente.current = true;
@@ -313,56 +352,63 @@ export function useCarteraAbierta(inicial: Cartera, almacen: AlmacenDeCarteras |
     await guardar(ultima.current);
   }, [almacen, guardar]);
 
+  /* Recargar y guardar como copia cambian lo que se sabe del disco: van en la fila, para que un guardado en curso no lo pise al acabar. */
   const recargarDelDisco = useCallback(async () => {
     if (!almacen) return;
     window.clearTimeout(temporizador.current);
-    const id = ultima.current.id;
-    try {
-      /* Primero el fichero conocido; si ya no es de esta cartera (otra pestaña la renombró), se busca por id. */
-      let leida = fichero ? await almacen.abrir(fichero).catch(() => null) : null;
-      let en = fichero;
-      if (leida?.cartera.id !== id) {
-        const resumen = (await almacen.listar()).find((r) => r.id === id && r.error === undefined);
-        if (!resumen) throw new ErrorDeAlmacen("NO_ENCONTRADO", "No se encuentra esta cartera en la carpeta: puede que la hayan retirado o renombrado desde otra pestaña o desde otro equipo.");
-        leida = await almacen.abrir(resumen.fichero);
-        en = resumen.fichero;
+    await enFila(async () => {
+      const id = ultima.current.id;
+      try {
+        /* Primero el fichero conocido; si ya no es de esta cartera (otra pestaña la renombró), se busca por id. */
+        let leida = fichero ? await almacen.abrir(fichero).catch(() => null) : null;
+        let en = fichero;
+        if (leida?.cartera.id !== id) {
+          const resumen = (await almacen.listar()).find((r) => r.id === id && r.error === undefined);
+          if (!resumen) throw new ErrorDeAlmacen("NO_ENCONTRADO", "No se encuentra esta cartera en la carpeta: puede que la hayan retirado o renombrado desde otra pestaña o desde otro equipo.");
+          leida = await almacen.abrir(resumen.fichero);
+          en = resumen.fichero;
+        }
+        const delDisco = leida.cartera;
+        enDisco.current = delDisco;
+        ficheroEscrito.current = en;
+        copiaPendiente.current = false;
+        setHistoria((actual) => ({
+          pasado: [...actual.pasado.slice(-(PASOS_DE_DESHACER - 1)), { cartera: actual.presente, accion: "Recargar la versión del disco" }],
+          presente: delDisco,
+          futuro: []
+        }));
+        setFichero(en);
+        quitarError();
+        setGuardado("guardado");
+      } catch (causa) {
+        ponerError(causa);
       }
-      const delDisco = leida.cartera;
-      enDisco.current = delDisco;
-      copiaPendiente.current = false;
-      setHistoria((actual) => ({
-        pasado: [...actual.pasado.slice(-(PASOS_DE_DESHACER - 1)), { cartera: actual.presente, accion: "Recargar la versión del disco" }],
-        presente: delDisco,
-        futuro: []
-      }));
-      setFichero(en);
-      quitarError();
-      setGuardado("guardado");
-    } catch (causa) {
-      ponerError(causa);
-    }
-  }, [almacen, fichero, ponerError, quitarError]);
+    });
+  }, [almacen, enFila, fichero, ponerError, quitarError]);
 
   const guardarComoCopia = useCallback(async () => {
     if (!almacen || demo) return;
     window.clearTimeout(temporizador.current);
-    const actual = ultima.current;
-    const copia: Cartera = { ...actual, id: nuevoId(), nombre: `${actual.nombre} (copia)`, modificada: new Date().toISOString() };
     setGuardado("guardando");
-    try {
-      const { fichero: escrito } = await almacen.guardar(copia);
-      enDisco.current = copia;
-      copiaPendiente.current = false;
-      /* El «Deshacer» de antes era de la otra cartera: se empieza de cero con la nueva. */
-      setHistoria({ pasado: [], presente: copia, futuro: [] });
-      setFichero(escrito);
-      quitarError();
-      setGuardado("guardado");
-    } catch (causa) {
-      ponerError(causa);
-      setGuardado("error");
-    }
-  }, [almacen, demo, ponerError, quitarError]);
+    await enFila(async () => {
+      const actual = ultima.current;
+      const copia: Cartera = { ...actual, id: nuevoId(), nombre: `${actual.nombre} (copia)`, modificada: new Date().toISOString() };
+      try {
+        const { fichero: escrito } = await almacen.guardar(copia);
+        enDisco.current = copia;
+        ficheroEscrito.current = escrito;
+        copiaPendiente.current = false;
+        /* El «Deshacer» de antes era de la otra cartera: se empieza de cero con la nueva. */
+        setHistoria({ pasado: [], presente: copia, futuro: [] });
+        setFichero(escrito);
+        quitarError();
+        setGuardado("guardado");
+      } catch (causa) {
+        ponerError(causa);
+        setGuardado("error");
+      }
+    });
+  }, [almacen, demo, enFila, ponerError, quitarError]);
 
   const prepararSalida = useCallback(async (): Promise<boolean> => {
     if (demo || cerrada.current) return false;

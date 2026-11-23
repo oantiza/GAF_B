@@ -15,8 +15,8 @@ import {
     type FicheroDePlanes,
     type PlanDelExtractor
 } from '../src/ingestion/baseNueva/planes';
-import { coleccionesRaizDeclaradas, raicesDelDueno, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
-import { entraEnLaParte, PARTES_QUE_NO_PISAN } from '../src/ingestion/baseNueva/partesDeLaSubida';
+import { coleccionesRaizDeclaradas, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
+import { entraEnLaParte, PARTES_QUE_NO_PISAN, raicesDeLaSubida } from '../src/ingestion/baseNueva/partesDeLaSubida';
 import { validarEscritura } from '../src/config/baseNueva/validadores';
 
 /**
@@ -228,14 +228,14 @@ describe('planes de pensiones y EPSV: un catalogo aparte', () => {
         /* Un refresco de instrumentos (`--parte catalogo`) no debe llevarse los planes, que son de otro
            origen y se refrescan por su propia decision; y `--parte planes` no pisa nada de la aplicacion. */
         /* Desde el 16-11-2026 (PLA-4) la regla vive en `partesDeLaSubida.ts` y se prueba ejecutándola, no leyendo el fuente. */
-        const deLaApp = raicesDelDueno('app');
-        expect(entraEnLaParte('planes', COLECCION_PLANES, deLaApp)).toBe(true);
-        expect(entraEnLaParte('catalogo', COLECCION_PLANES, deLaApp)).toBe(false);
-        expect(entraEnLaParte('planes', 'instruments', deLaApp)).toBe(false);
+        const raices = raicesDeLaSubida();
+        expect(entraEnLaParte('planes', COLECCION_PLANES, raices)).toBe(true);
+        expect(entraEnLaParte('catalogo', COLECCION_PLANES, raices)).toBe(false);
+        expect(entraEnLaParte('planes', 'instruments', raices)).toBe(false);
         expect(PARTES_QUE_NO_PISAN).toEqual(['catalogo', 'planes']);
         /* Y el guion usa esa regla, no una suya. */
         const subida = readFileSync(join(__dirname, '..', 'scripts', 'subirALaNube.ts'), 'utf-8');
-        expect(subida).toContain('entraEnLaParte(parte, raiz, RAICES_DE_LA_APP)');
+        expect(subida).toContain('entraEnLaParte(parte, raiz, RAICES)');
     });
 
     it('solo lo escribe la plataforma', () => {

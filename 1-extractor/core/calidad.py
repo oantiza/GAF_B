@@ -7,6 +7,9 @@ adaptados al esquema propio.
 from __future__ import annotations
 
 import datetime as dt
+import functools
+import json
+from pathlib import Path
 
 PAT_RF = ("rf ", "renta fija", "deuda", "bond", "crédit", "credit",
           "high yield", "monetario", "money", "fixed", "yield",
@@ -41,6 +44,88 @@ ESENCIALES_ACCION_VENTANA = (
 )
 
 
+# La tolerancia de la suma del reparto, en puntos porcentuales: la de la
+# plataforma (`TOLERANCIA_DEL_REPARTO = 0.01` en
+# `2-plataforma-datos/src/config/baseNueva/vocabulario.ts`, en fracción). No
+# está en ningún contrato, así que aquí va escrita, y
+# `tests/test_calidad_reparto.py` falla si las dos se separan.
+TOLERANCIA_DEL_REPARTO_PCT = 1.0
+
+# El contrato que dice qué peso admite cada clase del reparto. Se lee de la
+# plataforma, que es quien lo hace cumplir, y no se copia aquí: dos rangos
+# son dos verdades. Mismo repositorio desde el 10-11-2026.
+CONTRATO_DE_EXPOSICION = (Path(__file__).resolve().parents[2] / "2-plataforma-datos"
+                          / "contracts" / "base-nueva"
+                          / "instrument-declared-exposure.v2.schema.json")
+
+# Las clases del extractor en las cuatro del canónico, como las agrega
+# `adaptador_bdb.convierte` en `portfolio_exposure_v2.asset_mix`: lo que mira
+# la plataforma es la clase agregada, no cada una del proveedor.
+CLASES_DE_LA_PLATAFORMA = (
+    ("rv", ("rv",)),
+    ("rf", ("rf",)),
+    ("liquidez", ("liquidez",)),
+    ("otros", ("otros", "convertibles", "preferentes")),
+)
+
+
+@functools.lru_cache(maxsize=1)
+def rango_de_clase_pct() -> tuple[float, float]:
+    """Los topes de una clase, en por ciento, del contrato.
+
+    Es `$defs.peso_de_clase` de `instrument-declared-exposure.v2`: desde la
+    decisión C-29 (21-11-2026), de -5 a 6 en fracción, que aquí son -500 y
+    600. Hasta ese día era -1 a 101 (decisión A-63).
+    """
+    try:
+        esquema = json.loads(CONTRATO_DE_EXPOSICION.read_bytes().decode("utf-8"))
+        peso = esquema["$defs"]["peso_de_clase"]
+        return float(peso["minimum"]) * 100, float(peso["maximum"]) * 100
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        raise RuntimeError(
+            f"no se puede leer el rango de clase del contrato de la plataforma "
+            f"({CONTRATO_DE_EXPOSICION}): {type(e).__name__}: {e}") from e
+
+
+def pesos_de_la_plataforma(aloc: dict) -> list[tuple[str, float]]:
+    """El peso neto de cada clase agregada, en por ciento, como lo verá la
+    plataforma. Las clases sin dato no salen."""
+    pesos: list[tuple[str, float]] = []
+    for clase, del_proveedor in CLASES_DE_LA_PLATAFORMA:
+        netos = [v.get("neto") for k, v in aloc.items()
+                 if k in del_proveedor and isinstance(v, dict)
+                 and isinstance(v.get("neto"), (int, float))]
+        if netos:
+            pesos.append((clase, round(sum(netos), 4)))
+    return pesos
+
+
+def clases_fuera_de_rango(aloc: dict) -> list[tuple[str, float]]:
+    """Las clases agregadas por las que la base nueva no escribirá el reparto.
+
+    Desde la decisión C-29 (21-11-2026) la plataforma acepta el reparto NETO
+    del proveedor si suma 100: una clase negativa (un corto, liquidez
+    prestada) o por encima de 100 (apalancamiento) no es un error. Lo que se
+    avisa es lo que se quedará sin reparto por una clase:
+
+    - una clase fuera de los topes del contrato (-500 a 600), sume lo que
+      sume: ya no es un reparto neto sino un error de unidades;
+    - una clase fuera de 0-100, más allá de la tolerancia, cuando el reparto
+      NO suma 100: no es un reparto neto, porque no cuadra.
+    """
+    minimo, maximo = rango_de_clase_pct()
+    pesos = pesos_de_la_plataforma(aloc)
+    suma_cuadra = abs(sum(p for _, p in pesos) - 100) <= TOLERANCIA_DEL_REPARTO_PCT
+    fuera: list[tuple[str, float]] = []
+    for clase, peso in pesos:
+        if not minimo <= peso <= maximo:
+            fuera.append((clase, peso))
+        elif not suma_cuadra and not (-TOLERANCIA_DEL_REPARTO_PCT <= peso
+                                      <= 100 + TOLERANCIA_DEL_REPARTO_PCT):
+            fuera.append((clase, peso))
+    return fuera
+
+
 def _g(d, *ruta):
     for k in ruta:
         if not isinstance(d, dict) or k not in d:
@@ -63,14 +148,28 @@ def aplica(d: dict) -> None:
 
     # --- asset allocation: la suma neta debe rondar 100
     # Morningstar a veces solo informa algunas clases: exigimos >=3 clases
-    # con dato y un desvío grande para considerarlo sospechoso de verdad.
+    # con dato. La banda es la de la plataforma, 100 ± 1 (21-11-2026): con la
+    # de antes, 88-112, pasaban aquí repartos que la base nueva no acepta.
+    # Medido ese día: el cambio no marca hoy a ningún fondo (el mayor desvío
+    # es de 0,17 puntos).
     aloc = _g(d, "cartera", "asignacion_activos") or {}
     netos = [v.get("neto") for v in aloc.values()
              if isinstance(v, dict) and isinstance(v.get("neto"), (int, float))]
     if len(netos) >= 3:
         suma = sum(netos)
-        if not 88 <= suma <= 112:
+        if abs(suma - 100) > TOLERANCIA_DEL_REPARTO_PCT:
             flags.append(f"asignacion_activos_sospechosa({suma:.0f})")
+
+    # --- una clase por la que la plataforma no escribirá el reparto.
+    # Desde la decisión C-29 (21-11-2026) un reparto neto que suma 100 no se
+    # avisa: ES0116848005 trae renta variable -101 % y liquidez +124 %, suma
+    # 100 y la base nueva lo escribe tal cual. Se avisa la clase fuera de los
+    # topes del contrato y la que se sale de 0-100 en un reparto que no suma.
+    # Es informativa: no saca al fondo de la selección de calidad.
+    fuera = clases_fuera_de_rango(aloc)
+    if fuera:
+        detalle = ",".join(f"{clase}={valor:g}" for clase, valor in fuera)
+        flags.append(f"info_clase_fuera_de_rango({detalle})")
 
     # --- patrimonio fuera de escala (unidades mezcladas)
     # umbral 1e6 MEUR = 1 billón EUR: imposible, delata EUR sin escalar
@@ -140,6 +239,22 @@ def aplica(d: dict) -> None:
     d["calidad"] = {"score": score, "bucket": bucket,
                     "esenciales": f"{presentes}/{len(esenciales)}",
                     "flags": flags}
+
+
+def kid_en_uso_sin_fecha(d: dict) -> dict | None:
+    """El KID que la ficha usa pero del que no consta la fecha de elaboración (C-30, 21-11-2026).
+
+    «En uso» es que la ficha lleve el documento (`kid_url` o `kid_sha256`): de ahí salen su
+    SRI y sus costes. Sin `kid_fecha` el extractor no puede aplicar la caducidad de
+    `KID_MAX_DIAS` y acepta el documento sin mirar de cuándo es. Si una gestora cambia la
+    maquetación de su PDF, `RE_FECHA_DOC` deja de leerla y esto es lo que lo caza. Es un
+    aviso, no un bloqueo, y no entra en las flags ni en el score. Devuelve None si no
+    aplica (no hay KID, o la fecha consta).
+    """
+    docs = _g(d, "documentos_oficiales") or {}
+    if not (docs.get("kid_url") or docs.get("kid_sha256")) or docs.get("kid_fecha"):
+        return None
+    return {"fuente": docs.get("kid_fuente") or "cnmv/amf", "url": docs.get("kid_url")}
 
 
 DIAS_VL_ANTIGUO = 7   # días naturales: cubre fines de semana y festivos de un VL diario

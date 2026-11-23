@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -149,3 +149,32 @@ def test_invalid_or_excessive_ranges_return_a_stable_contract(monkeypatch):
     assert reversed_result["count"] == 0
     assert long_result["source"] == "INVALID_REQUEST"
     assert "31 dias" in long_result["note"]
+
+
+# --- Auditoria 20-11-2026 (P2-10): la descarga vieja dice su antiguedad ---------------------------------------------
+
+def test_stale_cache_says_how_old_the_download_is(monkeypatch):
+    _reset(monkeypatch)
+    monkeypatch.setattr(economic_calendar, "_read_url", lambda _url: _feed("2026-07-10"))
+    economic_calendar.get_economic_calendar({"from": "2026-07-10", "to": "2026-07-10"})  # llena la cache en NOW
+    # 40 minutos despues (cache caducada, 15 min) la fuente cae: se sirve la guardada, y se dice de cuando es.
+    monkeypatch.setattr(economic_calendar, "_now_madrid", lambda: NOW + timedelta(minutes=40))
+    monkeypatch.setattr(economic_calendar, "_read_url", lambda _url: (_ for _ in ()).throw(OSError("429")))
+
+    result = economic_calendar.get_economic_calendar({"from": "2026-07-10", "to": "2026-07-10"})
+
+    assert result["source"].endswith("_STALE_CACHE")
+    assert result["count"] == 1
+    assert "hace 40 min" in result["note"]
+
+
+def test_stale_cache_hours_over_two_hours(monkeypatch):
+    _reset(monkeypatch)
+    monkeypatch.setattr(economic_calendar, "_read_url", lambda _url: _feed("2026-07-10"))
+    economic_calendar.get_economic_calendar({"from": "2026-07-10", "to": "2026-07-10"})
+    monkeypatch.setattr(economic_calendar, "_now_madrid", lambda: NOW + timedelta(hours=3, minutes=5))
+    monkeypatch.setattr(economic_calendar, "_read_url", lambda _url: (_ for _ in ()).throw(OSError("429")))
+
+    result = economic_calendar.get_economic_calendar({"from": "2026-07-10", "to": "2026-07-10"})
+
+    assert "hace 3 h" in result["note"]  # 185 min // 60

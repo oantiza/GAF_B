@@ -28,6 +28,16 @@ export interface WeeklyReportResponse {
   note?: string;
 }
 
+/** Una fuente se enlaza desde la pantalla: solo http: o https:, nunca javascript:, data: ni otro esquema. */
+function esDireccionWeb(url: string): boolean {
+  try {
+    const protocolo = new URL(url).protocol;
+    return protocolo === "http:" || protocolo === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function parseViewValue(value: unknown, field: string): "Positiva" | "Neutral" | "Negativa" {
   return requireOneOf(value, ["Positiva", "Neutral", "Negativa"] as const, field);
 }
@@ -69,12 +79,11 @@ function parseWeeklyReport(raw: unknown): WeeklyReport | null {
     date: requireString(report.date, "report.date"),
     author: requireString(report.author, "report.author"),
     provider: requireOptionalString(report.provider, "report.provider"),
-    sources: report.sources === undefined ? undefined : requireArray(report.sources, "report.sources").map((item, index) => {
+    /* Una fuente con una dirección que no es web se descarta sola: una fuente mala del modelo no deja sin informe. */
+    sources: report.sources === undefined ? undefined : requireArray(report.sources, "report.sources").flatMap((item, index) => {
       const source = requireObject(item, `report.sources[${index}]`);
-      return {
-        title: requireString(source.title, `report.sources[${index}].title`),
-        url: requireString(source.url, `report.sources[${index}].url`)
-      };
+      const url = requireString(source.url, `report.sources[${index}].url`);
+      return esDireccionWeb(url) ? [{ title: requireString(source.title, `report.sources[${index}].title`), url }] : [];
     }),
     generation: generation ? {
       generated_at: requireOptionalString(generation.generated_at, "report.generation.generated_at"),

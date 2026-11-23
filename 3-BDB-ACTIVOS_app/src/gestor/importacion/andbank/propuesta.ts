@@ -797,7 +797,12 @@ export function proponer(entrada: EntradaDeLaPropuesta): Propuesta {
             titulos: aTexto(posicion.titulos!),
             valor: aTexto(posicion.valor),
             /* GES-10: cada precio, con la fecha de su cotización; la del extracto es la mayor de todas. */
-            ...(posicion.fechaDeCotizacion ? { fecha: posicion.fechaDeCotizacion } : {})
+            ...(posicion.fechaDeCotizacion ? { fecha: posicion.fechaDeCotizacion } : {}),
+            /* A-205: el precio de mercado en la divisa del activo, que el extracto trae, con esa divisa. Los títulos de esta fila ya
+               se han comprobado contra él (títulos × precio = valor de mercado en su divisa, `posiciones.ts`). */
+            ...(posicion.precioDeMercado !== undefined && posicion.precioDeMercado.gt(0) && posicion.divisa
+              ? { precio: aTexto(posicion.precioDeMercado), divisa: posicion.divisa }
+              : {})
           })),
         efectivo: []
       });

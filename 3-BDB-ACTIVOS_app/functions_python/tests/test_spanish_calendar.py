@@ -57,7 +57,7 @@ def test_collect_distinguishes_provider_failure_from_missing_configuration():
     )
 
     assert failed["source"] == "ERROR"
-    assert "provider down" in failed["note"]
+    assert "provider down" not in failed["note"] and "YAHOO" in failed["note"]  # el detalle va al registro
     assert unavailable["source"] == "NOT_CONFIGURED"
 
 
@@ -269,3 +269,54 @@ def test_get_earnings_adds_schema_count_and_requested_range(monkeypatch):
     assert result["status"] == "OK"
     assert result["from"] == "2026-07-10"
     assert result["to"] == "2026-08-24"
+
+
+# --- Auditoria 20-11-2026 (P2-10) ----------------------------------------------------------------------------------
+
+def test_la_cache_no_retiene_el_ticker_de_yfinance(monkeypatch):
+    class T:
+        calendar = {"Earnings Date": "2026-07-20"}
+
+    spanish_calendar._CACHE.clear()
+    monkeypatch.setattr(spanish_calendar, "IBEX35", ["AAA.MC"])
+    monkeypatch.setattr(spanish_calendar, "_yahoo_ticker", lambda _s: T())
+    spanish_calendar._yahoo_earnings("2026-07-10", "2026-08-24")
+    entrada = spanish_calendar._CACHE[("cal", "AAA.MC")][1]
+    assert set(entrada) == {"cal"}  # solo el calendario, ningun objeto de la libreria
+    spanish_calendar._CACHE.clear()
+
+
+def test_la_cache_aguanta_escrituras_a_la_vez_sin_romperse(monkeypatch):
+    import threading
+
+    spanish_calendar._CACHE.clear()
+    monkeypatch.setattr(spanish_calendar, "_CACHE_MAX_ENTRIES", 8)
+    errores = []
+
+    def escribe(inicio):
+        try:
+            for i in range(inicio, inicio + 400):
+                spanish_calendar._cache_put(("k", i), i)
+                spanish_calendar._cache_get(("k", i))
+        except Exception as exc:  # noqa: BLE001
+            errores.append(exc)
+
+    hilos = [threading.Thread(target=escribe, args=(n * 1000,)) for n in range(8)]
+    for hilo in hilos:
+        hilo.start()
+    for hilo in hilos:
+        hilo.join()
+    assert errores == []
+    assert len(spanish_calendar._CACHE) <= 8
+    spanish_calendar._CACHE.clear()
+
+
+def test_el_fallo_de_una_fuente_no_llega_a_la_nota_con_su_detalle():
+    secreto = "https://eodhd.com/api/calendar?api_token=SECRETO"
+    resultado = spanish_calendar._collect(
+        [(lambda: (_ for _ in ()).throw(OSError(secreto)), "EODHD")],
+        sort_key=lambda item: item["id"],
+        hint="sin fuente",
+    )
+    assert resultado["status"] == "SOURCE_NOT_RESPONDING"
+    assert "SECRETO" not in resultado["note"] and "EODHD" in resultado["note"]

@@ -124,10 +124,10 @@ function primerDia(revision: Revision, elegidas: ReadonlySet<string>, extracto: 
  * Las posiciones iniciales que harían cuadrar los títulos: por cada posición de la que el
  * extracto declara MÁS títulos que el libro, una entrada de títulos por la diferencia.
  *
- * El precio es el valor declarado entre los títulos declarados (y entre el multiplicador, en
- * un bono). El extracto da ese valor en la divisa base de la cartera, así que solo sirve como
- * precio si el activo cotiza en ella; si no, o si el extracto no da el valor, no se propone y
- * se dice por qué.
+ * El precio es el que el extracto da en la divisa del activo, si lo da (A-205). Si no, el valor
+ * declarado entre los títulos declarados (y entre el multiplicador, en un bono): el extracto da
+ * ese valor en la divisa base de la cartera, así que solo sirve como precio si el activo cotiza
+ * en ella; si no, o si el extracto no da ni precio ni valor, no se propone y se dice por qué.
  */
 export function proponerPosicionesIniciales(
   comprobacion: Comprobacion,
@@ -161,16 +161,18 @@ export function proponerPosicionesIniciales(
         continue;
       }
       const declarados = d(posicion.titulos);
-      if (!posicion.valor || declarados.lte(0)) {
+      const multiplicador = d(activo.multiplicador ?? "1");
+      /* A-205: el precio que el extracto da en la divisa del activo vale tal cual, también si no es la de la cartera. */
+      const enSuDivisa = posicion.precio !== undefined && posicion.divisa === activo.divisa && d(posicion.precio).gt(0) ? d(posicion.precio) : undefined;
+      if (!enSuDivisa && (!posicion.valor || declarados.lte(0))) {
         sinProponer.push(`${nombre}: el extracto no da su valor, así que no se sabe a qué precio entraron los títulos. Añádela a mano con su precio de coste.`);
         continue;
       }
-      if (activo.divisa !== cartera.divisaBase) {
+      if (!enSuDivisa && activo.divisa !== cartera.divisaBase) {
         sinProponer.push(`${nombre}: el extracto da su valor en ${cartera.divisaBase} y el activo cotiza en ${activo.divisa}, así que no se sabe su precio. Añádela a mano con su precio de coste.`);
         continue;
       }
-      const multiplicador = d(activo.multiplicador ?? "1");
-      const precio = aTexto(redondear(d(posicion.valor).div(declarados.times(multiplicador)), 6));
+      const precio = aTexto(redondear(enSuDivisa ? enSuDivisa.div(multiplicador) : d(posicion.valor!).div(declarados.times(multiplicador)), 6));
       const dia = sumarDias(primerDia(revision, elegidas, extracto), -1);
       const [movimiento] = posicionesInicialesQueFaltan([{ activoId: activo.id, titulos: aTexto(diferencia.diferencia.abs()), precio }], dia);
       if (!movimiento) continue;

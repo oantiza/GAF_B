@@ -18,7 +18,8 @@ export interface HistoryExtension {
 export interface PortfolioHorizon {
   window: AnalysisWindow; years: 3 | 5; referenceVersion: string; backtest: BacktestAnualizado;
   frontier: FrontierViewModel | null; frontierUnavailableReason?: string;
-  equalWeight: BacktestAnualizado; maxSharpe: BacktestAnualizado | null;
+  /** Pesos iguales entre lo que se puede comprar, con la misma regla que la frontera. Vacía si no se puede comprar nada. */
+  equalWeight: BacktestAnualizado | null; maxSharpe: BacktestAnualizado | null;
   coverageWeightPercent: number; extensions: HistoryExtension[]; methodology: string;
   /** La aportación al riesgo de cada posición: la de la frontera si la hay, y si no, la que la simulación manda aparte (más de 40 activos). */
   riskContributions?: PortfolioRiskContribution[] | null;
@@ -59,7 +60,7 @@ export function parsePortfolioHorizon(raw: unknown, window: AnalysisWindow): Por
     throw new Error("El análisis recibido no corresponde al periodo elegido.");
   }
   const backtest = exigeAnualizado(parseBacktestResponse(data.backtest), "backtest");
-  const equalWeight = exigeAnualizado(parseBacktestResponse(data.equal_weight), "equal_weight");
+  const equalWeight = data.equal_weight ? exigeAnualizado(parseBacktestResponse(data.equal_weight), "equal_weight") : null;
   const maxSharpe = data.max_sharpe ? exigeAnualizado(parseBacktestResponse(data.max_sharpe), "max_sharpe") : null;
   const frontier = data.frontier ? buildFrontierViewModel(parsePortfolioFrontierResponse(data.frontier)) : null;
   const first = backtest.coverage?.first_date;
@@ -101,10 +102,13 @@ export function parsePortfolioHorizon(raw: unknown, window: AnalysisWindow): Por
   /* Ninguna cartera propuesta lleva peso en lo que no se puede comprar: si llegara, la respuesta no es de fiar. */
   const propuestas = frontier ? [frontier.maxSharpe, frontier.minVolatility, ...(frontier.target ? [frontier.target] : []), ...(frontier.targetReturn ? [frontier.targetReturn] : [])] : [];
   for (const { assetId } of frontierNotSelectable) {
-    if (propuestas.some((p) => (p.pesosCompletos?.[assetId] ?? 0) > 1e-9) || (maxSharpe?.weights_normalized[assetId] ?? 0) > 1e-9) {
+    if (propuestas.some((p) => (p.pesosCompletos?.[assetId] ?? 0) > 1e-9) || (maxSharpe?.weights_normalized[assetId] ?? 0) > 1e-9
+      || (equalWeight?.weights_normalized[assetId] ?? 0) > 1e-9) {
       throw new Error("La frontera propone peso en un activo que no se puede comprar.");
     }
   }
+  /* Sin equiponderada solo se responde cuando no queda nada que se pueda comprar: si no, falta algo que debía venir. */
+  if (!equalWeight && frontierNotSelectable.length !== backtest.asset_ids.length) throw new Error("Falta la cartera equiponderada.");
   const riskContributions = frontier ? frontier.riskContributions : aparte?.riskContributions;
   const riskContributionsMeta = frontier ? frontier.riskContributionsMeta : aparte?.riskContributionsMeta;
   return { window, years: window === "3Y" ? 3 : 5, referenceVersion: requireString(data.reference_version, "reference_version"),

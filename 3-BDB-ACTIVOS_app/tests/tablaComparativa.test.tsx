@@ -257,3 +257,40 @@ describe("MAR-25 · el marco de la tabla comparativa", () => {
     expect(despues.split("Una nota repetida.").length - 1).toBe(2);
   });
 });
+
+describe("la marca de cada activo (Óscar, 20-11-2026: «Marcar activos en el Comparador»)", () => {
+  test("con marca, la cabecera de su columna lleva su número y su color delante del nombre; sin marca, nada", () => {
+    const html = renderToStaticMarkup(
+      <TablaComparativa
+        columnas={[{ ...FONDO, marca: { numero: 1, color: "#123456" } }, { ...OTRO_FONDO, marca: { numero: 2, color: "#654321" } }, ACCION]}
+        filas={FILAS}
+        titulo="Comparados"
+      />
+    );
+    const cabecera = html.slice(html.indexOf("<thead>"), html.indexOf("</thead>"));
+    expect(cabecera.match(/class="marca-de-activo"/g)?.length).toBe(2);
+    expect(cabecera).toMatch(/background:#123456[^>]*><\/span><span>1<\/span><\/span>Un fondo/);
+    expect(cabecera).toMatch(/background:#654321[^>]*><\/span><span>2<\/span><\/span>Otro fondo/);
+    /* La acción no lleva marca: la pieza no la inventa. */
+    expect(cabecera).toMatch(/scope="col">Una acción/);
+  });
+});
+
+describe("el signo de una rentabilidad (Óscar, 20-11-2026: verde y rojo en la tabla comparada)", () => {
+  test("una celda con signo lleva el color de la pieza Cifra; sin signo, o neutra, ninguno", () => {
+    const filas: FilaComparada[] = [
+      {
+        id: "r",
+        titulo: "Rentabilidad",
+        celda: (c) =>
+          c.id === "f1" ? { texto: "+1,82 %", signo: "sube" } : c.id === "f2" ? { texto: "−3,10 %", signo: "baja" } : { texto: "+0,00 %", signo: "neutro" }
+      },
+      { id: "v", titulo: "Volatilidad", celda: () => ({ texto: "9,40 %" }) }
+    ];
+    const html = renderToStaticMarkup(<TablaComparativa columnas={[FONDO, OTRO_FONDO, ACCION]} filas={filas} titulo="Comparados" />);
+    expect(html).toContain('<span class="cifra cifra--sube">+1,82 %</span>');
+    expect(html).toContain('<span class="cifra cifra--baja">−3,10 %</span>');
+    expect(html).toContain("<span>+0,00 %</span>");
+    expect(html).toContain("<span>9,40 %</span>");
+  });
+});

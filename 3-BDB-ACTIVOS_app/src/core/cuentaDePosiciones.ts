@@ -3,8 +3,9 @@ import { numero, oFalta, peso } from "./formato";
 
 /**
  * La cuenta de posiciones que declara el proveedor, solo si no la desmiente lo que se ha recibido de su cartera (pantalla-1 de las
- * puertas finales, 06-11-2026). Es la única regla, y la siguen Posiciones y el informe interno, que la comprueban con la cartera completa.
- * La ficha, que solo recibe 25 líneas, no escribe la cuenta desde la decisión 121 hasta que el dato guarde el total (ver `componerFicha`).
+ * puertas finales, 06-11-2026). Es la única regla, y la siguen Posiciones y el informe interno, que la comprueban con la cartera completa,
+ * y la ficha, que la comprueba con sus 25 líneas: dejó de escribirla con la decisión 121 y la volvió a escribir el 20-11-2026, con el total
+ * de títulos (`securities_count`) en vez de `positions_count` (ver `componerFicha`).
  *
  * **Una cuenta menor que los títulos que han llegado es falsa por construcción, y no se escribe**, como el peso de las diez mayores
  * que no cuadra con sus filas (`diezMayoresQueCuadran`). FON FINECO PATRIMONIO PERMANENTE declara 1 posición y su ficha recibe 25

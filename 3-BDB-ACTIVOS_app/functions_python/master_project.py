@@ -101,7 +101,7 @@ def exigir_proyecto_permitido(valor, de_donde=VARIABLE):
     """Devuelve `valor` si es uno de los dos de este proyecto. Si no, aborta nombrandolo.
 
     Es la misma comprobacion para el id de la maestra y para cualquier otro proyecto que
-    un programa reciba de fuera, como el `--project` de `scripts/set_admin.py`.
+    un programa reciba de fuera, como el `--project` de `scripts/appcheck_report.py`.
     """
     valor = (valor or "").strip()
     if PROYECTO_DE_BDB in valor.lower():
@@ -139,6 +139,55 @@ def exigir_arranque_sin_bdb(entorno=None):
                 "%s nombra el proyecto de BDB: esta en uso, y esta aplicacion no arranca con "
                 "el. Si ha venido de un .env, ese fichero es de BDB y se ha colado." % nombre
             )
+
+
+def exigir_emulador_en_local(entorno=None):
+    """Aborta si las Functions corren en el emulador sin el emulador de Firestore. Lo llama
+    `main.py`, antes de inicializar nada.
+
+    Desde el 21-11-2026 el desarrollo local usa el proyecto de la base nueva, que es el
+    REAL (`bdb-gestor-de-activos`): lo unico que separa una escritura local de la nube es
+    que el cliente hable con el emulador. El emulador de Functions pone
+    `FUNCTIONS_EMULATOR=true`, pero no `FIRESTORE_EMULATOR_HOST` si Firestore corre en otro
+    proceso -el de la base nueva arranca aparte, desde `4-base-nueva`-. Sin esa variable, y
+    con una credencial de Google en la maquina, el cliente por defecto iria a la nube.
+
+    En la nube `FUNCTIONS_EMULATOR` no existe, y en las pruebas tampoco: no cambia nada ahi.
+    """
+    entorno = os.environ if entorno is None else entorno
+    if (entorno.get("FUNCTIONS_EMULATOR") or "").strip().lower() != "true":
+        return
+    if not (entorno.get("FIRESTORE_EMULATOR_HOST") or "").strip():
+        raise RuntimeError(
+            "Las Functions corren en el emulador sin FIRESTORE_EMULATOR_HOST. El proyecto local "
+            "es el real (%s): sin esa variable hablarian con la nube. Arrancalas con "
+            "FIRESTORE_EMULATOR_HOST=127.0.0.1:8092, como dice la habilidad arrancar-entorno."
+            % PROYECTO_BASE_NUEVA
+        )
+
+
+class BaseNuevaRequerida(RuntimeError):
+    """Lo que se pide solo lo sirve la base nueva, y el id declarado es otro."""
+
+
+def exigir_base_nueva():
+    """El id de la maestra si es la base nueva; si es otro permitido, aborta diciendolo.
+
+    Desde el 21-11-2026 (decisiones 30 a 39 del censo `CENSO_BASE_VIEJA_2026-11-21.md`) las Functions no
+    tienen codigo para la base de siempre: sus lectores, su almacen de carteras y sus escritores se
+    borraron (etiqueta `referencia-base-vieja-2026-11-21`). `gestor-activos-local` sigue permitido en
+    `master_project_id()` (decision 32): es el defecto seguro del `.env`, con el que un guion lanzado a
+    mano falla al conectar. Pero con el no hay nada que leer, y antes de abrir un cliente contra el se
+    para aqui, nombrandolo, en vez de devolver vacios.
+    """
+    valor = master_project_id()
+    if valor != PROYECTO_BASE_NUEVA:
+        raise BaseNuevaRequerida(
+            "%s dice %r, y las Functions solo leen la base nueva (%s): el codigo de la base de siempre "
+            "se borro el 21-11-2026. Arrancalas con %s=%s y FIRESTORE_EMULATOR_HOST=127.0.0.1:8092, como "
+            "dice la habilidad arrancar-entorno." % (VARIABLE, valor, PROYECTO_BASE_NUEVA, VARIABLE, PROYECTO_BASE_NUEVA)
+        )
+    return valor
 
 
 def master_project_id():

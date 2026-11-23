@@ -39,8 +39,9 @@ async function montar(extra: Record<string, unknown> = {}) {
   });
 }
 
-/* Rediseño (14-11-2026): la propuesta de mejora se descarga sin diálogo, así que su botón dice «Descargar»; su nombre accesible, cuál. */
-const botonDeLaPropuesta = () => host.querySelector('button[aria-label="Descargar: Propuesta de mejora"]') as HTMLButtonElement;
+/* La propuesta de mejora se descarga sin diálogo; desde el 21-11-2026 su botón dice «Preparar», como los otros cinco (I3), y su
+   nombre accesible, cuál. */
+const botonDeLaPropuesta = () => host.querySelector('button[aria-label="Preparar: Propuesta de mejora"]') as HTMLButtonElement;
 const guardarResultado = (proposals: unknown[]) =>
   saveImprovementResult(POSICIONES, { response: { status: proposals.length ? "PROPOSAL" : "NO_IMPROVEMENT", proposals } as never, proposalIndex: 0, assets: {}, equivalence: {}, skipped: [] });
 
@@ -70,7 +71,7 @@ describe("Informes · el informe de cliente con 0 % medido (decisión 105)", () 
   const dialogo = () => document.querySelector('[role="dialog"]') as HTMLElement;
   /* En la lista, «Preparar» abre el diálogo; dentro, «Descargar el informe». */
   const abrir = async () => {
-    await act(async () => (host.querySelector('button[aria-label="Preparar: Informe para el cliente"]') as HTMLButtonElement).click());
+    await act(async () => (host.querySelector('button[aria-label="Preparar: Informe de la propuesta"]') as HTMLButtonElement).click());
   };
   const abrirYPedir = async () => {
     await abrir();

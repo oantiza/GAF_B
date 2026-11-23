@@ -142,8 +142,11 @@ Están escritas donde gobiernan, no juntas en una lista:
 | Una cifra se **retira** con fecha, y lo retirado consta | §10 del método |
 | Un campo **presente donde no aplica** es un error | decisión 17 |
 
-Las cuatro están **decididas y no construidas**, y cada una dice en qué estado está. Son reglas para
-el futuro: la segunda ya no bloquea nada, porque el Sharpe de las acciones se oculta y no se retira.
+Cada una dice en qué estado está. Desde el 20/21-11-2026 la primera se cumple donde se ordena, se compara y se
+dibuja (el §3 del método dice dónde) y la cuarta tiene ya su lectura en la auditoría de la base nueva, como informe
+y no como bloqueo (C-17); la segunda está construida desde el 21-11-2026 (la cobertura publica la huella de su lista de campos,
+`quality/latest.applicable_paths_fingerprint`; decisión 16), y la tercera, en sus dos casos de hoy: las cifras frente al
+índice que se retiran escriben la fecha de la pasada que las quita (§10 del método); el «desde cuándo» no consta.
 
 ## Estructura
 
@@ -177,22 +180,26 @@ que dejaron de usarse (`-extractor`, `-datos`, `-app`) se borraron de GitHub el 
 con su historia comprobada dentro del principal y en esos `bundle`. Cómo se hizo y cómo
 se dio por bueno, en `PLAN_UNIFICAR_REPOSITORIOS_2026-11-10.md`.
 
-## Bases de datos: son dos
+## Bases de datos: son dos, y el desarrollo usa una
 
 **La de siempre**, `gestor-activos-local`: un emulador de Firestore sembrado desde una copia
 verificada de la maestra de BDB, 25.394 documentos, 15 colecciones, 1.097 activos. No persiste
-entre arranques; repoblarla tarda segundos. Es la que lee la app de hoy.
+entre arranques; repoblarla tarda segundos. **Desde el 21-11-2026 ya no la usa el desarrollo local**
+(decisión de Óscar, «A, a la base nueva»): no se arranca, y el código que la leía se borró el mismo día con su censo
+(`CENSO_BASE_VIEJA_2026-11-21.md`, decisión C-32); el estado anterior queda en la etiqueta `referencia-base-vieja-2026-11-21`.
 
 **La nueva**, `bdb-gestor-de-activos`: tiene proyecto propio, emulador propio (Firestore 8092, hub
 4402) y **persiste en disco**, en `4-base-nueva/datos/`, que no va al repositorio. Son 50.517 documentos, 48.265 de
 ellos de sus 1.334 instrumentos (contados el 20-11-2026 con `npm run audit:base-nueva`), escritos por `2-plataforma-datos` y verificados contra sus contratos.
 
 **Desde el 03-11-2026 está en producción:** la aplicación publicada en
-`bdb-gestor-de-activos.web.app` lee esa base en la nube, con 23 Functions de las 46
+`bdb-gestor-de-activos.web.app` lee esa base en la nube, con 23 Functions de las 26 declaradas
 (`3-BDB-ACTIVOS_app/scripts/desplegarFunciones.mjs`; eran 34 hasta el 15-11-2026, cuando salieron de la lista once
-que la web publicada no llamaba). Óscar entró y funciona. El `.env.local` de la app
-sigue en `gestor-activos-local`, así que el desarrollo local sigue usando la base de siempre, y la
-compilación publicada sale de `4-base-nueva/compilar-sitio.mjs`.
+que la web publicada no llamaba, y 46 declaradas hasta el 21-11-2026, cuando se borró el código de la base vieja, C-32). Óscar entró y funciona. **Desde el 21-11-2026 el desarrollo local usa
+también esta base**, contra su emulador: el `.env.local` de la app apunta al proyecto `bdb-gestor-de-activos` con
+Firestore en el 8092, y las Functions locales se arrancan con ese proyecto y `FIRESTORE_EMULATOR_HOST=127.0.0.1:8092`
+—sin esa variable no arrancan (`master_project.exigir_emulador_en_local`)—. Así lo que se prueba en local pasa por el
+mismo lector y las mismas reglas que producción. La compilación publicada sale de `4-base-nueva/compilar-sitio.mjs`.
 Desde el 15-11-2026 la base de la nube tiene copias (recuperación a un momento anterior, protección contra el
 borrado y una copia diaria); falta el ensayo de restauración, y está en `4-base-nueva/README.md`.
 
@@ -228,7 +235,7 @@ De ahí las tres cosas que se rompen fácil:
   `2-plataforma-datos/src/config/projectAllowlist.ts`, y `obtenerDb` impone el emulador en
   código. Comprobado: sin `FIRESTORE_EMULATOR_HOST` en el entorno sigue yendo al emulador.
 - **El id real NO entra en `ALLOWED_PROJECT_IDS`.** Ese conjunto lo consultan
-  las comprobaciones que luego conectan sin exigir emulador (seis, contadas el 20-11-2026, tras el borrado del código heredado del 17-11); con un proyecto real dentro,
+  las comprobaciones que luego conectan sin exigir emulador (seis el 20-11-2026; desde el borrado de la base vieja del 21-11-2026, C-32, ninguna: el conjunto se conserva como pareja del defecto seguro de `master_project.py`); con un proyecto real dentro,
   escribirían en la nube en cuanto exista una clave de servicio. Los dos proyectos están en el
   mismo fichero pero **separados por papel**, y hay una prueba que falla si se juntan.
 - **La persistencia solo guarda en una salida ordenada**: tras una pasada que importe,
@@ -254,7 +261,7 @@ Arranque, verificación y la trampa del chequeo de puertos, en la habilidad
   (13-11), el color (14-11), el aspecto «Nuevo» (15-11) y, sobre todos ellos en lo que es
   aspecto, **la dirección A, «Banca privada, puesta al día»**, que eligió el 17-11-2026
   entre tres (su apartado 14) y que está en producción desde el 19-11-2026 (entró con
-  `88061872`; desde la noche del 20-11-2026 la web sale de `90ed797e`, y el commit que sirve en cada
+  `88061872`; desde la mañana del 23-11-2026 la web sale de `775cfdc7` (la fase 2 de la auditoría consolidada del 22-11, las cinco decisiones de Óscar; web comprobada byte a byte, 209 de 209) y las Functions de `89161831` (la fase 1, quince cifras erróneas corregidas; 23 Functions con su registro de despliegue; la fase 2 no las toca), y el commit que sirve en cada
   momento lo dice su `version.json`). Los valores viven en
   `3-BDB-ACTIVOS_app/src/styles/tokens.css`. La dirección A no es la «A + B» que eligió el
   02-11 (`3-BDB-ACTIVOS_app/docs/rediseno-2026-11/DIRECCION_ELEGIDA_2026-11-02.md`):
@@ -363,8 +370,8 @@ Arranque, verificación y la trampa del chequeo de puertos, en la habilidad
   obligatorio, los gates, las reglas de propiedad de `metrics/latest` y la allowlist de
   proyecto, que desde el 30-10-2026 vive en **una sola constante**
   (`2-plataforma-datos/src/config/projectAllowlist.ts`) que dice `gestor-activos-local` y
-  que importan todas las comprobaciones: el código de aquí no puede escribir en el
-  proyecto de BDB aunque las variables de entorno se equivoquen.
+  que importaban las comprobaciones de la base vieja (borradas el 21-11-2026, C-32; la constante se conserva): el código
+  de aquí no puede escribir en el proyecto de BDB aunque las variables de entorno se equivoquen.
 - **Cómo se trabaja con Oscar:** él toma las decisiones, pero espera trabajo conjunto
   y proactivo. Propón ideas y soluciones por iniciativa propia; analiza de verdad las
   que él proponga en vez de limitarte a aplicarlas; y avísale de errores y
@@ -446,7 +453,7 @@ se retiró el 29-10-2026 y sigue en la historia de Git si hiciera falta.
 - `PLAN_UNIFICAR_REPOSITORIOS_2026-11-10.md` — cómo se unificaron los cuatro repositorios en uno el 10-11-2026: las
   condiciones, el método (se conservan los hashes), cada sitio del código que usaba Git con lo que le pasó, y cómo se
   dio por bueno. **Ejecutado**: queda como registro, con lo que sigue a decisión de Óscar al final.
-- `PREGUNTAS_CUMPLIMIENTO_2026-11-11.md` — las preguntas que el programa no puede decidir solo —catorce, y una decimoquinta de Jubilación añadida el 13-11—, aprobadas por
+- `PREGUNTAS_CUMPLIMIENTO_2026-11-11.md` — las preguntas que el programa no puede decidir solo —catorce, una decimoquinta de Jubilación añadida el 13-11, una decimosexta, sobre la EPSV en renta, el 21-11, y tres más de la EPSV vasca el 22-11—, aprobadas por
   Óscar para enviarlas a cumplimiento, y donde se anotan las respuestas. De la sexta depende la decisión C-25, que deja
   por ahora sin ficha de cliente.
 - `AUDITORIA_BACKEND_2026-11-15.md` — los 32 hallazgos de la auditoría del backend, cada uno con su estado y su decisión

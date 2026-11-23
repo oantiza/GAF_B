@@ -2,7 +2,7 @@
 """
 Ola A3 (A3.2): tests de los guardas _require_auth y _require_admin.
 
-Son la única puerta de las 40 callables: cada rama (sin sesión, email sin
+Son la única puerta de las 23 callables: cada rama (sin sesión, email sin
 verificar, rate limit, claim admin; la allowlist ADMIN_UIDS se retiró en S-08) queda fijada aquí.
 
 Run: `python -m pytest functions_python/tests/test_auth_gates.py -q`
@@ -164,12 +164,9 @@ def test_admin_sin_email_verificado_tambien_se_bloquea():
 
 # --- ALTA-04 (auditoria 16-10-2026): limite de frecuencia en las de administracion ---
 
-ADMIN_CALLABLES = {
-    "admin_publish_report", "get_system_status", "admin_fund_quality", "admin_db_status",
-    "admin_list_assets", "admin_asset_detail", "admin_refresh_all_stale", "admin_backfill_candidates",
-    "admin_backfill_history", "admin_ingest_asset", "admin_reconcile_search_index",
-    "admin_recompute_metric", "admin_refresh_prices",
-}
+# Eran trece. Desde el 21-11-2026 queda una: las otras doce (`get_system_status` y once `admin_*`) trabajaban con la
+# base vieja y se borraron con ella (decision 31 del censo CENSO_BASE_VIEJA_2026-11-21.md).
+ADMIN_CALLABLES = {"admin_publish_report"}
 
 
 def _admin_gate_calls():
@@ -186,18 +183,13 @@ def _admin_gate_calls():
     return out
 
 
-def test_las_trece_callables_de_admin_nombran_operacion_y_limite():
+def test_las_callables_de_admin_nombran_operacion_y_limite():
     calls = _admin_gate_calls()
     assert set(calls) == ADMIN_CALLABLES
     for name, kwargs in calls.items():
         assert kwargs.get("operation") == name, name
         limit = kwargs.get("limit_per_minute")
         assert isinstance(limit, int) and 1 <= limit <= 60, (name, limit)
-    # Segunda pasada (17-10-2026): el estado y el inventario de historicos se recargan al
-    # cambiar de pestana y tras cada «Cargar» fila a fila (AdminBackfill.loadInventory);
-    # con 6 y 4 por minuto se cortaba un uso legitimo.
-    assert calls["admin_db_status"]["limit_per_minute"] >= 30
-    assert calls["admin_backfill_candidates"]["limit_per_minute"] >= 30
 
 
 def test_admin_con_limite_pasa_por_el_limiter(monkeypatch):
@@ -209,23 +201,24 @@ def test_admin_con_limite_pasa_por_el_limiter(monkeypatch):
 
     monkeypatch.setattr(main, "RATE_LIMITER", Limiter())
     req = FakeReq(auth=FakeAuth(uid="jefe", token={"email_verified": True, "admin": True}))
-    assert main._require_admin(req, operation="admin_db_status", limit_per_minute=6) == "jefe"
-    assert seen == [("jefe", "admin_db_status", 6)]
+    assert main._require_admin(req, operation="admin_publish_report", limit_per_minute=2) == "jefe"
+    assert seen == [("jefe", "admin_publish_report", 2)]
 
 
-def test_admin_db_status_agota_su_limite_con_resource_exhausted(monkeypatch):
+def test_admin_publish_report_agota_su_limite_con_resource_exhausted(monkeypatch):
     from rate_limit import UserRateLimiter
     monkeypatch.setattr(main, "RATE_LIMITER", UserRateLimiter())
-    monkeypatch.setattr(main.admin_panel, "db_status", lambda sample=0: {"assets": 0})
+    monkeypatch.setattr(main, "publish_strategy_report_service", lambda *a, **k: {"status": "PUBLISHED"})
     real_require_auth = main._require_auth
 
     def un_solo_intento(req, *, operation=None, limit_per_minute=None):
         return real_require_auth(req, operation=operation, limit_per_minute=1 if limit_per_minute else None)
 
     monkeypatch.setattr(main, "_require_auth", un_solo_intento)
-    req = FakeReq(auth=FakeAuth(uid="jefe", token={"email_verified": True, "admin": True}))
-    callable_body = inspect.unwrap(main.admin_db_status)
-    assert callable_body(req)["assets"] == 0
+    req = FakeReq(auth=FakeAuth(uid="jefe", token={"email_verified": True, "admin": True}),
+                  data={"type": "DAILY_REPORT"})
+    callable_body = inspect.unwrap(main.admin_publish_report)
+    assert callable_body(req)["status"] == "PUBLISHED"
     with pytest.raises(https_fn.HttpsError) as err:
         callable_body(req)
     assert err.value.code == https_fn.FunctionsErrorCode.RESOURCE_EXHAUSTED

@@ -111,6 +111,11 @@ export interface DefinicionDeMovimiento {
   descripcion: string;
   campos: CampoDelTipo[];
   /**
+   * Si el movimiento admite un concepto para el cliente (`Movimiento.conceptoCliente`): los cargos del servicio, que el informe
+   * de costes del cliente nombra uno a uno. Solo la comisión o gasto y el otro cargo o abono.
+   */
+  conConceptoParaElCliente?: boolean;
+  /**
    * Sentido del `importe` en la cuenta de efectivo: −1 carga, +1 abona, 0 no toca el
    * efectivo, «libre» admite los dos signos (intereses, otro cargo o abono).
    */

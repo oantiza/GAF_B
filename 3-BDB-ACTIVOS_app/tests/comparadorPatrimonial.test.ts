@@ -96,7 +96,23 @@ describe("las fechas que no cuadran", () => {
     ).toBe("2031-01-01");
     const mismoDia = resultadoPatrimonial([fila(1, "2020-01-01", 1000), fila(2, "2021-01-01", 100)], 1200, "2021-01-01");
     expect(mismoDia.posterior).toBeNull();
+    expect(mismoDia.sinPlazo).toBe(false);
     expect(mismoDia.tir).not.toBeNull();
+  });
+
+  test("si todas las aportaciones son del día final no hay TIR, y se dice (H2-09 / N-2)", () => {
+    /* Antes: con el valor final igual a lo aportado, 202,5 % (el punto medio de la bisección, (−0,95 + 5) / 2). */
+    for (const valorFinal of [1000, 1050]) {
+      const resultado = resultadoPatrimonial([fila(1, "2026-11-22", 1000)], valorFinal, "2026-11-22");
+      expect(resultado.tir).toBeNull();
+      expect(resultado.sinPlazo).toBe(true);
+      expect(resultado.start).toBe("");
+      expect(resultado.years).toBe(0);
+      expect(resultado.capital).toBe(1000);
+    }
+    expect(
+      resultadoPatrimonial([fila(1, "2026-11-22", 600), fila(2, "2026-11-22", 400)], 1000, "2026-11-22").sinPlazo
+    ).toBe(true);
   });
 });
 

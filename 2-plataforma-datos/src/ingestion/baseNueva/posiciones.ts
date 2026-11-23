@@ -67,8 +67,16 @@ function texto(valor: unknown): string | undefined {
     return limpio === '' ? undefined : limpio;
 }
 
+/**
+ * El peso en fracción, solo de un número o de un texto que diga un número. `Number(null)`,
+ * `Number('')`, `Number('  ')` y `Number([])` valen 0, y `Number(true)` vale 1: sin esta
+ * criba una línea sin peso entraba con peso 0 —o del 1 %— en vez de contarse como descartada.
+ */
 function fraccion(valor: unknown): number | undefined {
-    const n = typeof valor === 'number' ? valor : Number(valor);
+    let n: number;
+    if (typeof valor === 'number') n = valor;
+    else if (typeof valor === 'string' && valor.trim() !== '') n = Number(valor);
+    else return undefined;
     return Number.isFinite(n) ? n / 100 : undefined;
 }
 

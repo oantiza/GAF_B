@@ -291,9 +291,9 @@ describe("la cartera de la ficha", () => {
     expect(procedencia).toContain("diez mayores 27,8\u00a0%");
   });
 
-  test("si no cuadra no se dice, y las líneas siguen; la cuenta no se escribe hasta que el dato guarde el total (decisión 121)", () => {
-    const { procedencia } = cartera({ positions_count: 2376, top10_weight: 0.2371, top: [{ name: "EUROPEAN MONETARY UNION EURO Purchased", weight: 0.3036, holding_type_code: "CU" }] });
-    expect(procedencia).toBe("Declarada por el proveedor · 30/09/2026");
+  test("si no cuadra no se dice, y las líneas siguen; la cuenta sale de `securities_count`, no de `positions_count` (Óscar, 20-11-2026)", () => {
+    const { procedencia } = cartera({ positions_count: 2376, securities_count: 2376, top10_weight: 0.2371, top: [{ name: "EUROPEAN MONETARY UNION EURO Purchased", weight: 0.3036, holding_type_code: "CU" }] });
+    expect(procedencia).toBe("Declarada por el proveedor · 30/09/2026 · 2.376 posiciones");
     expect(procedencia).not.toContain("diez mayores");
     expect(tablaDe([{ name: "EUROPEAN MONETARY UNION EURO Purchased", weight: 0.3036, holding_type_code: "CU" }])?.filas).toHaveLength(1);
   });
@@ -384,7 +384,7 @@ describe("una magnitud, una fuente", () => {
       instrumento({ bloques: { "computed/metrics": NUESTRAS, "declared/provider_returns": RENDIMIENTOS_DEL_PROVEEDOR } })
     );
     const resumen = rentabilidadesDelResumen(ficha);
-    expect(resumen?.columnas).toEqual(["En el año", "1 año", "3 años", "5 años", "10 años"]);
+    expect(resumen?.columnas).toEqual(["YTD", "1 año", "3 años", "5 años", "10 años"]);
     /* A mano, de NUESTRAS: ytd_return 0,1602 → +16,02 %; annualized_return 0,1596, 0,2023, 0,1137 y 0,1279. Las del
        proveedor (+11,75 % en el año, +15,25 % a un año…) no salen: donde hay cifra nuestra, manda la nuestra. */
     expect(resumen?.celdas).toEqual(["+16,02 %", "+15,96 %", "+20,23 %", "+11,37 %", "+12,79 %"]);

@@ -15,9 +15,15 @@ puntuación por pilares, siempre frente a los fondos de ese mismo bloque y por s
 - Consistencia (20 %): la parte de los meses de los últimos 5 años en que su rentabilidad a 12 meses supera la mediana de su bloque.
 - Coste (10 %): gasto corriente del KID.
 
-Las medidas de rentabilidad, riesgo y consistencia se calculan aquí, con la serie que usa el motor (la misma que Simular, con sus
-recortes del histórico) llevada a fin de mes, y con el €STR de cada mes como tipo sin riesgo: todas con el mismo estimador. El
-ratio de información y el alfa NO entran: los tienen la mitad de los fondos y medidos contra referencias distintas.
+El Sharpe a 3 y 5 años, el Sortino a 5 y la volatilidad a 5 son **los de la ficha** (`computed/metrics`, método propio
+mensual, `METODO_PROPIO_METRICAS_2026-11-01.md`): media del exceso mensual sobre el €STR × 12 entre su desviación × √12. Hasta el
+20-11-2026 se calculaban aquí con otro estimador (rentabilidad geométrica anual menos €STR medio, entre la volatilidad de las
+rentabilidades brutas), y el método prohíbe ordenar cifras de estimador distinto: el asesor veía en la ficha un orden y el
+borrador elegía con otro. Solo cuenta la cifra publicada con el método mensual y cerrada en el mismo mes que la ventana del
+borrador; otra, de otro mes o de otro método, cuenta como que falta (el percentil la deja en el centro), y la respuesta dice
+cuántos candidatos tienen alguna así. La consistencia sí se calcula aquí, con la serie que usa el motor (la misma que Simular,
+con sus recortes del histórico) llevada a fin de mes: la ficha no la publica. El ratio de información y el alfa NO entran: los
+tienen la mitad de los fondos y medidos contra referencias distintas.
 
 **Lo que no promete.** La prueba fuera de muestra (octubre de 2021, 2022 y 2023, tres años después) dejó a los elegidos de todas las
 reglas cerca de la mitad de su grupo: ninguna elige de forma fiable los fondos que irán mejor. Es un borrador para empezar, con su
@@ -25,7 +31,9 @@ aviso, y no una recomendación.
 
 **Qué entra.** Solo fondos (los ETF no se traspasan); por defecto, solo gestión activa (`incluir_indexados` los deja entrar); en
 euros, de acumulación, con gasto corriente, con 100 M o más de patrimonio, con fecha de lanzamiento, que el motor no excluya y con 5
-años completos de serie. Ningún fondo por encima del 25 % ni por debajo del 5 %. El número de fondos lo pide el asesor; cada nivel
+años completos de serie. El patrimonio se compara en euros: el que viene en otra divisa se convierte con el cambio del BCE de
+su fecha (el mismo con el que se pasan a euros las series, decisión 10), y el que no dice su divisa, o no tiene cambio, se queda
+fuera con su motivo. Ningún fondo por encima del 25 % ni por debajo del 5 %. El número de fondos lo pide el asesor; cada nivel
 tiene un mínimo (`minimo_de_fondos`) para no saltarse el tope ni deformar el riesgo del nivel juntando partes distintas.
 
 Solo con la base nueva: la vieja no guarda el patrimonio de los fondos.
@@ -37,10 +45,11 @@ import math
 import statistics
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-METODO = "GENERADOR_V1"
+METODO = "GENERADOR_V2"
 
 RENTA_VARIABLE_POR_NIVEL = {1: 0, 2: 10, 3: 20, 4: 30, 5: 40, 6: 50, 7: 60, 8: 70, 9: 85, 10: 100}
 NOMBRE_DEL_NIVEL = {1: "Preservación", 2: "Prudente", 3: "Moderado bajo", 4: "Moderado", 5: "Equilibrado",
@@ -64,6 +73,9 @@ TOPE_POR_FONDO = 0.25
 MINIMO_POR_POSICION = 0.05
 PATRIMONIO_MINIMO = 100e6
 MESES = 60
+# Lo que se lee de la serie de cada candidato: el motor la recorta a 10 años y el borrador usa 61 meses de ella (`MESES + 1`).
+VENTANA_DE_LECTURA = "10Y"
+LECTURAS_EN_PARALELO = 6
 PESOS = {"calidad": 0.40, "solidez": 0.30, "consistencia": 0.20, "coste": 0.10}
 FONDOS_POR_DEFECTO = 8
 FONDOS_MAXIMOS = 30
@@ -207,26 +219,24 @@ def fin_de_mes(valores: Dict[date, float]) -> Dict[str, float]:
     return salida
 
 
-def medidas(serie: Dict[str, float], meses: List[str], tipo_mensual: Callable[[str], float]) -> Optional[dict]:
-    """Rentabilidad anualizada, volatilidad, Sharpe y Sortino sobre los meses dados (fin de mes a fin de mes)."""
-    if any(mes not in serie for mes in meses) or len(meses) < 25:
-        return None
-    rentas = [serie[meses[k]] / serie[meses[k - 1]] - 1 for k in range(1, len(meses))]
-    tipos = [tipo_mensual(meses[k]) / 12 for k in range(1, len(meses))]
-    n = len(rentas)
-    valor = 1.0
-    for renta in rentas:
-        valor *= 1 + renta
-    anual = valor ** (12 / n) - 1
-    volatilidad = statistics.stdev(rentas) * math.sqrt(12)
-    tipo_anual = sum(tipos) / n * 12
-    abajo = math.sqrt(sum(min(0.0, r - t) ** 2 for r, t in zip(rentas, tipos)) / n) * math.sqrt(12)
-    return {
-        "anual": anual,
-        "volatilidad": volatilidad,
-        "sharpe": (anual - tipo_anual) / volatilidad if volatilidad > 0 else None,
-        "sortino": (anual - tipo_anual) / abajo if abajo > 0 else None,
-    }
+# Las cifras de la ficha con las que se puntua la calidad: nombre en el borrador -> (campo de `computed/metrics`, ventana).
+CIFRAS_DE_LA_FICHA = {"sharpe_3a": ("sharpe", "3y"), "sharpe_5a": ("sharpe", "5y"),
+                      "sortino_5a": ("sortino", "5y"), "volatilidad_5a": ("volatility", "5y")}
+METODO_DE_LA_FICHA = "EXTRACTOR_MONTHLY_"
+
+
+def cifras_de_la_ficha(metricas: Optional[dict], ultimo_mes: str) -> Dict[str, Optional[float]]:
+    """Las cifras publicadas que puntuan la calidad, o None en cada una que no sirva.
+
+    Sirve la del método mensual propio cerrada en el mes del borrador: una cifra de otro mes mide otra ventana, y comparar
+    ventanas distintas es tan incoherente como comparar estimadores distintos."""
+    metricas = metricas or {}
+    vale = str(metricas.get("method") or "").startswith(METODO_DE_LA_FICHA) and str(metricas.get("as_of") or "")[:7] == ultimo_mes
+    salida: Dict[str, Optional[float]] = {}
+    for nombre, (campo, ventana) in CIFRAS_DE_LA_FICHA.items():
+        valor = (metricas.get(campo) or {}).get(ventana) if vale else None
+        salida[nombre] = float(valor) if isinstance(valor, (int, float)) and not isinstance(valor, bool) and math.isfinite(valor) else None
+    return salida
 
 
 def consistencia(series: Dict[str, Dict[str, float]], meses: List[str]) -> Dict[str, Optional[float]]:
@@ -254,10 +264,11 @@ def percentil(valores: Iterable[Optional[float]], valor: Optional[float], mayor_
     return (peores + iguales / 2) / (len(lista) - 1)
 
 
-def puntuar(fondos: List[dict], meses: List[str], tipo_mensual: Callable[[str], float]) -> Dict[str, dict]:
-    """Los cuatro pilares y la nota de cada fondo, frente a los demás de la lista (que son los de un mismo bloque)."""
-    cinco = {f["asset_id"]: medidas(f["serie"], meses, tipo_mensual) for f in fondos}
-    tres = {f["asset_id"]: medidas(f["serie"], meses[-37:], tipo_mensual) for f in fondos}
+def puntuar(fondos: List[dict], meses: List[str]) -> Dict[str, dict]:
+    """Los cuatro pilares y la nota de cada fondo, frente a los demás de la lista (que son los de un mismo bloque).
+
+    La calidad sale de las cifras de la ficha (`fondo["ficha"]`, de `cifras_de_la_ficha`)."""
+    ficha = {f["asset_id"]: f.get("ficha") or {} for f in fondos}
     sostenida = consistencia({f["asset_id"]: f["serie"] for f in fondos}, meses)
     ids = [f["asset_id"] for f in fondos]
     por_id = {f["asset_id"]: f for f in fondos}
@@ -268,9 +279,8 @@ def puntuar(fondos: List[dict], meses: List[str], tipo_mensual: Callable[[str], 
     salida = {}
     for i in ids:
         calidad = statistics.mean([
-            percentil(columna(lambda j: tres[j] and tres[j]["sharpe"]), tres[i] and tres[i]["sharpe"], True),
-            percentil(columna(lambda j: cinco[j] and cinco[j]["sharpe"]), cinco[i] and cinco[i]["sharpe"], True),
-            percentil(columna(lambda j: cinco[j] and cinco[j]["sortino"]), cinco[i] and cinco[i]["sortino"], True),
+            percentil(columna(lambda j, c=campo: ficha[j].get(c)), ficha[i].get(campo), True)
+            for campo in ("sharpe_3a", "sharpe_5a", "sortino_5a")
         ])
         solidez = statistics.mean([
             percentil(columna(lambda j: por_id[j]["patrimonio"]), por_id[i]["patrimonio"], True),
@@ -283,8 +293,7 @@ def puntuar(fondos: List[dict], meses: List[str], tipo_mensual: Callable[[str], 
             "pilares": {clave: round(valor, 4) for clave, valor in pilares.items()},
             "nota": round(sum(PESOS[clave] * valor for clave, valor in pilares.items()), 4),
             "medidas": {
-                "sharpe_3a": tres[i] and tres[i]["sharpe"], "sharpe_5a": cinco[i] and cinco[i]["sharpe"],
-                "sortino_5a": cinco[i] and cinco[i]["sortino"], "volatilidad_5a": cinco[i] and cinco[i]["volatilidad"],
+                **{campo: ficha[i].get(campo) for campo in CIFRAS_DE_LA_FICHA},
                 "meses_por_encima_de_la_mediana": sostenida[i],
             },
         }
@@ -320,7 +329,7 @@ def _elegir(ordenados: List[dict], cuantos: int) -> List[dict]:
 # ─────────────────────────────────────────────────────── el borrador ───────────────────────────────────────────────────────
 
 def componer(nivel: int, num_fondos: int, incluir_indexados: bool, elegibles: List[dict], ultimo_mes: str,
-             tipo_mensual: Callable[[str], float], fuera: Dict[str, int]) -> dict:
+             fuera: Dict[str, int]) -> dict:
     """El borrador con los fondos ya elegibles (cada uno con su `serie` a fin de mes). Puro: no lee ninguna base."""
     meses = meses_hasta(ultimo_mes, MESES + 1)
     por_bloque: Dict[str, List[dict]] = {bloque: [] for bloque in BLOQUES}
@@ -330,7 +339,7 @@ def componer(nivel: int, num_fondos: int, incluir_indexados: bool, elegibles: Li
     notas: Dict[str, dict] = {}
     for bloque, fondos in por_bloque.items():
         if fondos:
-            notas.update(puntuar(fondos, meses, tipo_mensual))
+            notas.update(puntuar(fondos, meses))
     disponibles = {bloque: len(fondos) for bloque, fondos in por_bloque.items()}
     minimo, maximo = limites_de_fondos(nivel, disponibles)
     base = {
@@ -346,6 +355,11 @@ def componer(nivel: int, num_fondos: int, incluir_indexados: bool, elegibles: Li
         "pesos": dict(PESOS),
         "candidatos_por_bloque": disponibles,
         "fuera_por_motivo": fuera,
+        # De dónde sale la calidad, y cuántos candidatos no tienen alguna de sus cifras en la ficha de este mes.
+        "calidad_desde": f"computed/metrics de la ficha, método mensual propio, cerrado en {ultimo_mes}",
+        "candidatos_sin_cifra_de_la_ficha": sum(
+            1 for fondos in por_bloque.values() for f in fondos
+            if any((f.get("ficha") or {}).get(c) is None for c in ("sharpe_3a", "sharpe_5a", "sortino_5a"))),
     }
     reparto, _ = repartir(nivel, num_fondos, disponibles)
     if reparto is None:
@@ -386,13 +400,20 @@ def componer(nivel: int, num_fondos: int, incluir_indexados: bool, elegibles: Li
 
 
 def _cuadrar_a_cien(posiciones: List[dict]) -> None:
-    """Los pesos van redondeados a dos decimales; la diferencia con 100 se lleva a la mayor posición, para que sumen 100 exactos."""
+    """Los pesos van redondeados a dos decimales; la diferencia con 100 se lleva a la mayor posición a la que le cabe, para que
+    sumen 100 exactos sin pasar del 25 % ni bajar del 5 % (P2-07: llevarla siempre a la mayor dejaba un 25,01 %).
+
+    Si a ninguna le cabe no se rompe el tope en silencio: no hay borrador."""
     if not posiciones:
         return
     diferencia = round(100 - sum(p["peso_pct"] for p in posiciones), 2)
     if diferencia:
-        mayor = max(posiciones, key=lambda p: p["peso_pct"])
-        mayor["peso_pct"] = round(mayor["peso_pct"] + diferencia, 2)
+        tope, suelo = round(TOPE_POR_FONDO * 100, 2), round(MINIMO_POR_POSICION * 100, 2)
+        caben = [p for p in posiciones if suelo <= round(p["peso_pct"] + diferencia, 2) <= tope]
+        if not caben:
+            raise GeneradorNoDisponible("Los pesos no se pueden cuadrar a 100 sin pasar del 25 % o bajar del 5 % en algún fondo.")
+        elegida = max(caben, key=lambda p: p["peso_pct"])
+        elegida["peso_pct"] = round(elegida["peso_pct"] + diferencia, 2)
 
 
 # ───────────────────────────────────────────────────── lectura de la base ─────────────────────────────────────────────────────
@@ -411,8 +432,35 @@ def _anios_desde(fecha: Optional[str], hasta: str) -> Optional[float]:
         return None
 
 
-def cargar_elegibles(lector_de_activos, lector_de_series, estr_diaria: List[Tuple[date, float]]) -> Tuple[List[dict], str, Callable[[str], float], Dict[str, int]]:
-    """Los fondos que pueden entrar (indexados incluidos, marcados), el último mes común, el €STR mensual y cuántos quedan fuera por cada motivo.
+def patrimonio_en_euros(tamano: dict, cambios_de: Callable[[str], list]) -> Tuple[Optional[float], Optional[str]]:
+    """(patrimonio en euros, None) o (None, motivo por el que no se puede comparar con los 100 M).
+
+    `cambios_de(divisa)` da [(fecha, divisa por euro), ...] del BCE, en orden: los mismos con los que se pasan a euros las
+    series (decisión 10). Se usa el último en o antes de la fecha del patrimonio, con la tolerancia de los festivos de TARGET;
+    sin cambio no se inventa uno. Una divisa en centésimos (GBX) se pide con su divisa mayor, y se escala."""
+    from readmodel.lector_base_nueva import MONEDAS_MENORES, TOLERANCIA_CAMBIO_DIAS
+    aum = tamano.get("aum")
+    divisa = tamano.get("currency")
+    if not isinstance(aum, (int, float)) or isinstance(aum, bool) or not math.isfinite(aum):
+        return None, "sin patrimonio"
+    if not isinstance(divisa, str) or not divisa.strip():
+        return None, "patrimonio sin divisa"
+    if divisa == "EUR":
+        return float(aum), None
+    fecha = str(tamano.get("as_of") or "")[:10]
+    try:
+        dia = date.fromisoformat(fecha)
+    except ValueError:
+        return None, "patrimonio en otra divisa sin fecha"
+    moneda, escala = MONEDAS_MENORES.get(divisa, (divisa, 1.0))
+    cambios = [(c, v) for c, v in (cambios_de(moneda) or []) if c <= fecha]
+    if not cambios or not cambios[-1][1] or (dia - date.fromisoformat(cambios[-1][0])).days > TOLERANCIA_CAMBIO_DIAS:
+        return None, "patrimonio en otra divisa sin cambio del BCE"
+    return float(aum) * escala / cambios[-1][1], None
+
+
+def cargar_elegibles(lector_de_activos, lector_de_series) -> Tuple[List[dict], str, Dict[str, int]]:
+    """Los fondos que pueden entrar (indexados incluidos, marcados), el último mes común y cuántos quedan fuera por cada motivo.
 
     Lee la base nueva: las tarjetas de todos los fondos, las raíces de los de las categorías de los bloques, y la serie de los que
     pasan los filtros. Se guarda 15 minutos en memoria: el catálogo no cambia entre dos borradores.
@@ -451,24 +499,47 @@ def cargar_elegibles(lector_de_activos, lector_de_series, estr_diaria: List[Tupl
             descartar("reparte"); continue
         if not isinstance(costes.get("ongoing_charge"), (int, float)):
             descartar("sin gasto corriente"); continue
-        if not isinstance(tamano.get("aum"), (int, float)) or tamano["aum"] < PATRIMONIO_MINIMO:
+        en_euros, sin_euros = patrimonio_en_euros(tamano, lector_de_series.get_ecb_fx_points)
+        if sin_euros:
+            descartar(sin_euros); continue
+        if en_euros < PATRIMONIO_MINIMO:
             descartar("menos de 100 M de patrimonio"); continue
-        preliminares.append({
+        fondo = {
             "asset_id": asset_id, "nombre": nombre, "bloque": bloque, "indexado": es_indexado(nombre),
             "gasto_corriente_pct": round(costes["ongoing_charge"] * 100, 4),
-            "patrimonio": float(tamano["aum"]), "patrimonio_divisa": tamano.get("currency"),
-        })
+            "patrimonio": en_euros, "patrimonio_divisa": "EUR", "metricas": metricas,
+        }
+        if tamano.get("currency") != "EUR":
+            fondo["patrimonio_en_origen"] = {"valor": float(tamano["aum"]), "divisa": tamano["currency"]}
+        preliminares.append(fondo)
     raices = lector_de_series.get_assets_many([f["asset_id"] for f in preliminares])
-    con_serie = []
+    aptos = []
     for fondo in preliminares:
         raiz = raices.get(fondo["asset_id"])
         motivo = _root_exclusion_reason(raiz, "EUR", fondo["asset_id"], reader=lector_de_series) if raiz else "PRICE_SERIES_MISSING"
         if motivo:
             descartar("el motor lo excluye"); continue
         fondo["lanzamiento"] = ((raiz or {}).get("product") or {}).get("inception_date")
+        aptos.append((fondo, raiz))
+
+    # P1-12: la serie de cada fondo se leia de uno en uno. Se leen hasta seis a la vez, y los resultados se recorren en el orden de
+    # siempre, asi que lo que sale y lo que se descarta no cambia. No se acorta lo que se lee: la ventana "10Y" solo recorta en
+    # memoria lo que `get_price_series` ya trajo entero (la subcoleccion `price_series`, un documento por año) y que comparte la
+    # cache de series con Simular y el backtest; leer menos años aqui dejaria en esa cache una serie corta para los demas.
+    def _leer_serie(par):
         try:
-            valores = _load_window_values(lector_de_series, fondo["asset_id"], raiz, "10Y")
-        except PriceSeriesProblem:
+            return _load_window_values(lector_de_series, par[0]["asset_id"], par[1], VENTANA_DE_LECTURA)
+        except PriceSeriesProblem as problema:
+            return problema
+
+    if len(aptos) > 1:
+        with ThreadPoolExecutor(max_workers=min(LECTURAS_EN_PARALELO, len(aptos))) as pool:
+            leidas = list(pool.map(_leer_serie, aptos))
+    else:
+        leidas = [_leer_serie(par) for par in aptos]
+    con_serie = []
+    for (fondo, _raiz), valores in zip(aptos, leidas):
+        if isinstance(valores, PriceSeriesProblem):
             descartar("sin serie utilizable"); continue
         fondo["serie"] = fin_de_mes(valores)
         # El mes de su último dato puede estar a medias (hoy es día 6): cuenta hasta el anterior, que está completo.
@@ -478,6 +549,8 @@ def cargar_elegibles(lector_de_activos, lector_de_series, estr_diaria: List[Tupl
         raise GeneradorNoDisponible("Ningún fondo de los bloques pasa los filtros.")
     # El último mes completo que tienen la mayoría: un fondo con la serie atrasada no puede fijar la ventana de todos.
     ultimos = [f["ultimo_mes_completo"] for f in con_serie if f.get("ultimo_mes_completo")]
+    if not ultimos:
+        raise GeneradorNoDisponible("Ningún fondo de los bloques tiene un mes completo de serie.")
     ultimo_mes = max(set(ultimos), key=lambda mes: (ultimos.count(mes), mes))
     meses = meses_hasta(ultimo_mes, MESES + 1)
     elegibles = []
@@ -490,34 +563,19 @@ def cargar_elegibles(lector_de_activos, lector_de_series, estr_diaria: List[Tupl
         if any(mes not in fondo["serie"] for mes in meses):
             descartar("sin 5 años completos de serie"); continue
         fondo["serie"] = {mes: fondo["serie"][mes] for mes in meses}
+        fondo["ficha"] = cifras_de_la_ficha(fondo.pop("metricas", None), ultimo_mes)
         elegibles.append(fondo)
-    tipo_mensual = estr_mensual(estr_diaria)
-    resultado = (elegibles, ultimo_mes, tipo_mensual, fuera)
+    resultado = (elegibles, ultimo_mes, fuera)
     with _CERROJO:
         _GUARDADO["elegibles"] = (ahora, resultado)
     return resultado
 
 
-def estr_mensual(estr_diaria: List[Tuple[date, float]]) -> Callable[[str], float]:
-    """El €STR medio de cada mes, en tanto por uno. Antes de octubre de 2019 no hay €STR: se usa su primer mes."""
-    por_mes: Dict[str, List[float]] = {}
-    for dia, valor in estr_diaria:
-        por_mes.setdefault(f"{dia.year:04d}-{dia.month:02d}", []).append(valor / 100)
-    if not por_mes:
-        raise GeneradorNoDisponible("No hay €STR guardado: sin tipo sin riesgo no se puede medir el Sharpe.")
-    medias = {mes: sum(v) / len(v) for mes, v in por_mes.items()}
-    primero, ultimo = medias[min(medias)], medias[max(medias)]
-
-    def tipo(mes: str) -> float:
-        if mes in medias:
-            return medias[mes]
-        return primero if mes < min(medias) else ultimo
-    return tipo
-
-
-def generar_borrador(lector_de_activos, lector_de_series, estr_diaria, datos: dict) -> dict:
+def generar_borrador(lector_de_activos, lector_de_series, datos: dict) -> dict:
     """Lo que llama la función invocable: valida la petición, lee lo que haga falta y compone."""
     try:
+        if isinstance(datos.get("nivel"), bool):  # `int(True)` es 1: un booleano no es un nivel
+            raise TypeError
         nivel = int(datos.get("nivel"))
     except (TypeError, ValueError):
         raise GeneradorNoDisponible("Falta el nivel de riesgo, del 1 al 10.")
@@ -525,11 +583,13 @@ def generar_borrador(lector_de_activos, lector_de_series, estr_diaria, datos: di
         raise GeneradorNoDisponible("El nivel de riesgo va del 1 al 10.")
     pedidos = datos.get("num_fondos")
     try:
+        if isinstance(pedidos, bool):
+            raise TypeError
         num_fondos = FONDOS_POR_DEFECTO if pedidos is None else int(pedidos)
     except (TypeError, ValueError):
         raise GeneradorNoDisponible("El número de fondos tiene que ser un número entero.")
     if not 1 <= num_fondos <= FONDOS_MAXIMOS:
         raise GeneradorNoDisponible(f"El número de fondos va de 1 a {FONDOS_MAXIMOS}.")
     incluir_indexados = datos.get("incluir_indexados") is True
-    elegibles, ultimo_mes, tipo_mensual, fuera = cargar_elegibles(lector_de_activos, lector_de_series, estr_diaria)
-    return componer(nivel, num_fondos, incluir_indexados, elegibles, ultimo_mes, tipo_mensual, fuera)
+    elegibles, ultimo_mes, fuera = cargar_elegibles(lector_de_activos, lector_de_series)
+    return componer(nivel, num_fondos, incluir_indexados, elegibles, ultimo_mes, fuera)

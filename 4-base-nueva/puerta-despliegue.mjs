@@ -40,7 +40,7 @@ const PROYECTO_DE_BDB = "bbdd-activos-financieros";
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const CABECERAS = [
   "Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy",
-  "Permissions-Policy", "Cross-Origin-Opener-Policy", "Cache-Control",
+  "Permissions-Policy", "Cross-Origin-Opener-Policy", "Strict-Transport-Security", "Cache-Control",
 ];
 
 function rechaza(...lineas) {

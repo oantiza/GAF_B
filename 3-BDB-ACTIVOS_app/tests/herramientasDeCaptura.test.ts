@@ -917,7 +917,7 @@ describe("el cierre del recorrido: el informe, el resumen y el código de salida
   });
 
   describe("el Modo cliente", () => {
-    const PEDIDAS = [{ id: "mercado" }, { id: "informes-modo-cliente", modoCliente: { debeLeerse: "Informe para el cliente" } }];
+    const PEDIDAS = [{ id: "mercado" }, { id: "informes-modo-cliente", modoCliente: { debeLeerse: "Informe de la propuesta" } }];
     const enModoCliente = (fallos: string[], cambios: Record<string, unknown> = {}) => fila({ id: "informes-modo-cliente", modoCliente: fallos, ...cambios });
 
     test("medido en todos los anchos y sin fallos, lo dice contando pantallas y anchos, no filas", () => {
@@ -1233,9 +1233,9 @@ describe("el Modo cliente, mirado con la página entera", () => {
   };
 
   test("con el interruptor encendido, lo que tiene que leerse a la vista y nada del asesor, no hay nada que decir", () => {
-    montar(true, "<h1>Informes</h1><p>Informe para el cliente</p>");
-    const comprobacion = comprobar("Informe para el cliente");
-    expect(comprobacion).toEqual({ activo: true, fugas: [], internos: 0, seLee: true, debeLeerse: "Informe para el cliente" });
+    montar(true, "<h1>Informes</h1><p>Informe de la propuesta</p>");
+    const comprobacion = comprobar("Informe de la propuesta");
+    expect(comprobacion).toEqual({ activo: true, fugas: [], internos: 0, seLee: true, debeLeerse: "Informe de la propuesta" });
     expect(fallosDelModoCliente(comprobacion)).toEqual([]);
     /* Una pantalla que no se mide en Modo cliente no dice nada. */
     expect(fallosDelModoCliente(null)).toEqual([]);
@@ -1260,7 +1260,7 @@ describe("el Modo cliente, mirado con la página entera", () => {
 
   test("si no se lee lo que la pantalla tiene que enseñar, no se midió nada: no puede dar limpio una pantalla vacía", () => {
     montar(true, "<p>Cargando…</p>");
-    expect(fallosDelModoCliente(comprobar("Informe para el cliente"))).toEqual(["no se lee «Informe para el cliente»: la pantalla no llegó a pintarse y no se midió lo que ve el cliente"]);
+    expect(fallosDelModoCliente(comprobar("Informe de la propuesta"))).toEqual(["no se lee «Informe de la propuesta»: la pantalla no llegó a pintarse y no se midió lo que ve el cliente"]);
   });
 
   test("si el modo no llegó a encenderse, lo primero que se dice es que no se midió lo que ve el cliente", () => {
@@ -1273,11 +1273,11 @@ describe("el Modo cliente, mirado con la página entera", () => {
 
   test("el recorrido mide en Modo cliente lo que el asesor enseña, con los paneles abiertos y algo que tiene que leerse", () => {
     /* Lo que tiene que leerse vive en el contenido de la pantalla, no en su cabecera, que se pinta antes de que
-       lleguen los datos: con el botón «Informe para el cliente» de la cabecera de Análisis, una pestaña que se quedara
+       lleguen los datos: con el botón «Informe de la propuesta» de la cabecera de Análisis, una pestaña que se quedara
        calculando daba limpio sin haberse medido. En Optimizar y en Análisis sale además de esos datos; en Informes es
        el nombre fijo de un documento de la lista. Cada texto, con el fichero del contenido que lo pinta. */
     for (const [id, ruta, debeLeerse, loPinta] of [
-      ["informes-modo-cliente", "/cartera/informes", "Informe para el cliente", "src/components/PortfolioReport.tsx"],
+      ["informes-modo-cliente", "/cartera/informes", "Informe de la propuesta", "src/components/PortfolioReport.tsx"],
       ["diseno-optimizar-modo-cliente", "/cartera/optimizacion", "Comprobación previa", "src/components/OptimizationPreviewPanel.tsx"],
       ["analisis-exposicion-modo-cliente", "/analisis#pestana=exposicion", "Divisa de la clase", "src/pages/XrayPage.tsx"],
       ["analisis-datos-modo-cliente", "/analisis#pestana=datos", "Qué conviene mirar", "src/components/SaludYControl.tsx"]

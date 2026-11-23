@@ -1,3 +1,12 @@
+/*
+ * Humo de las reglas de las retrocesiones contra un emulador de Firestore y de Auth, con un proyecto `demo-`.
+ *
+ * Desde el 21-11-2026 (decisión 35 del censo `CENSO_BASE_VIEJA_2026-11-21.md`) las reglas son las de producción,
+ * `4-base-nueva/firestore.rules`: el emulador se arranca con la configuración de esa carpeta (lo hace
+ * `testCommercialRetroEmulators.mjs`, desde la CI). Hasta ese día eran las de la base vieja, que no se desplegaban.
+ * Por eso el activo se siembra en `instruments/` y no en `assets/`, y las colecciones `av_*`, que la base nueva no
+ * tiene, quedan cerradas también para el administrador.
+ */
 import { Socket } from "node:net";
 import { initializeApp, deleteApp } from "firebase/app";
 import {
@@ -87,8 +96,8 @@ async function expectAllowed(label, action) {
   }
 }
 
-async function seedMasterAsset({ host, port }, projectId, isin) {
-  const url = `http://${host}:${port}/v1/projects/${projectId}/databases/(default)/documents/assets/${isin}`;
+async function seedInstrument({ host, port }, projectId, isin) {
+  const url = `http://${host}:${port}/v1/projects/${projectId}/databases/(default)/documents/instruments/${isin}`;
   const response = await fetch(url, {
     method: "PATCH",
     headers: {
@@ -98,7 +107,7 @@ async function seedMasterAsset({ host, port }, projectId, isin) {
     body: JSON.stringify({ fields: { asset_id: { stringValue: isin } } }),
   });
   if (!response.ok) {
-    throw new Error(`SMOKE_FAIL: no se pudo sembrar el activo maestro (${response.status}).`);
+    throw new Error(`SMOKE_FAIL: no se pudo sembrar el instrumento (${response.status}).`);
   }
 }
 
@@ -136,7 +145,7 @@ async function main() {
 
   connectAuthEmulator(auth, `http://${authTarget.host}:${authTarget.port}`, { disableWarnings: true });
   connectFirestoreEmulator(db, firestoreTarget.host, firestoreTarget.port);
-  await seedMasterAsset(firestoreTarget, projectId, "IE00B4L5Y983");
+  await seedInstrument(firestoreTarget, projectId, "IE00B4L5Y983");
 
   const email = `noadmin-${Date.now()}@example.com`;
   await createUserWithEmailAndPassword(auth, email, "password-123456");
@@ -161,6 +170,34 @@ async function main() {
   const adminEmail = `${adminUid}@example.com`;
   const customToken = createAuthEmulatorCustomToken(adminUid, { admin: true, email: adminEmail });
   await signInWithCustomToken(auth, customToken);
+  // P1-10 (auditoría integral del 20-11-2026): el claim no sustituye al correo verificado, como en
+  // producción. Hasta verificarlo, el administrador no escribe nada.
+  const avRef = doc(db, "av_watchlist", `smoke-${Date.now()}`);
+  await expectPermissionDenied("admin con correo sin verificar escribe commercial_retro", () =>
+    setDoc(retroRef, {
+      isin: "IE00B4L5Y983",
+      retro_pct: 0.45,
+      as_of_date: "2026-06-30",
+      source: "SMOKE",
+      updated_at: serverTimestamp(),
+      updated_by: adminUid,
+    })
+  );
+  // S-08 (auditoría 29-09): av_* no se abre a nadie; en la base nueva lo cierra el comodín final.
+  await expectPermissionDenied("admin con correo sin verificar escribe av_watchlist", () => setDoc(avRef, { ticker: "SAN" }));
+  await markEmailVerified(authTarget, projectId, adminUid, adminEmail);
+  await auth.currentUser.getIdToken(true);
+  // P1-10: `updated_by` va firmado por la sesión; la autoría de otro no entra.
+  await expectPermissionDenied("admin escribe commercial_retro con la firma de otro", () =>
+    setDoc(retroRef, {
+      isin: "IE00B4L5Y983",
+      retro_pct: 0.45,
+      as_of_date: "2026-06-30",
+      source: "SMOKE",
+      updated_at: serverTimestamp(),
+      updated_by: "otro@example.com",
+    })
+  );
   await expectAllowed("usuario con claim admin escribe commercial_retro", () =>
     setDoc(retroRef, {
       isin: "IE00B4L5Y983",
@@ -172,7 +209,7 @@ async function main() {
     })
   );
   const isins = Array.from({ length: 21 }, (_, i) => `LU${String(i).padStart(10, "0")}`);
-  await Promise.all(isins.map((isin) => seedMasterAsset(firestoreTarget, projectId, isin)));
+  await Promise.all(isins.map((isin) => seedInstrument(firestoreTarget, projectId, isin)));
   const commit = async (ids) => {
     const batch = writeBatch(db);
     ids.forEach((isin) => batch.set(doc(db, "commercial_retro", isin), {
@@ -186,8 +223,7 @@ async function main() {
 
   // ALTA-06 (auditoría 16-10-2026): la foto de importación nace con las claves del cliente,
   // firmada por quien la crea, y después solo cambian el avance y el deshacer. Se firma
-  // como commercialRetroStore (`user.email ?? user.uid`): el emulador no pasa el claim
-  // `email` de un token personalizado, así que aquí firma el uid hasta verificar el correo.
+  // como commercialRetroStore (`user.email ?? user.uid`); las dos ramas de la firma valen.
   const signer = () => auth.currentUser.email ?? auth.currentUser.uid;
   const receipt = (importId, extra = {}) => ({
     import_id: importId,
@@ -215,6 +251,13 @@ async function main() {
     setDoc(doc(db, "commercial_retro_imports", `${importId}-y`), receipt(`${importId}-y`, { created_by: "otro@example.com" })));
   await expectPermissionDenied("foto de importación con fecha de creación del cliente", () =>
     setDoc(doc(db, "commercial_retro_imports", `${importId}-z`), receipt(`${importId}-z`, { created_at: new Date() })));
+  // P1-10 (auditoría integral del 20-11-2026): cada campo con su tipo y su tope.
+  await expectPermissionDenied("foto de importación con un nombre de fichero de 256", () =>
+    setDoc(doc(db, "commercial_retro_imports", `${importId}-n`), receipt(`${importId}-n`, { file_name: "x".repeat(256) })));
+  await expectPermissionDenied("foto de importación con un recuento desconocido", () =>
+    setDoc(doc(db, "commercial_retro_imports", `${importId}-c`), receipt(`${importId}-c`, { counts: { CREATE: 1, HACK: 1 } })));
+  await expectPermissionDenied("foto de importación con `applied` y `previous` distintos", () =>
+    setDoc(doc(db, "commercial_retro_imports", `${importId}-a`), receipt(`${importId}-a`, { applied: { OTRO: "DELETE" } })));
   await expectAllowed("foto de importación como la crea el cliente", () => setDoc(importRef, receipt(importId)));
   await expectPermissionDenied("reescribir `previous` de la foto", () =>
     updateDoc(importRef, { previous: { IE00B4L5Y983: { retro_pct: 9, as_of_date: "2026-01-01", source: "X" } } }));
@@ -227,6 +270,7 @@ async function main() {
       status: "applied",
     }));
   await expectAllowed("anotar el error de un lote", () => updateDoc(importRef, { error: "SMOKE" }));
+  await expectPermissionDenied("anotar un error de más de 2.000 caracteres", () => updateDoc(importRef, { error: "e".repeat(2001) }));
   await expectPermissionDenied("reescribir `applied` de una foto aplicada", () =>
     updateDoc(importRef, { applied: { IE00B4L5Y983: "DELETE" } }));
   // Segunda pasada (17-10-2026): con la foto en `applied`, applied_* tampoco cambian, y el
@@ -281,11 +325,6 @@ async function main() {
     updateDoc(twoBatchRef, { undone_isins: ["A", "B"], status: "undone", undone_at: serverTimestamp(), undone_by: signer() }));
   await expectPermissionDenied("undone: borrar undone_by", () => updateDoc(twoBatchRef, { undone_by: deleteField() }));
 
-  // S-08 (auditoría 29-09): av_* exige claim admin + correo verificado (antes, lista de correos).
-  const avRef = doc(db, "av_watchlist", `smoke-${Date.now()}`);
-  await expectPermissionDenied("admin con correo sin verificar escribe av_watchlist", () => setDoc(avRef, { ticker: "SAN" }));
-  await markEmailVerified(authTarget, projectId, adminUid, adminEmail);
-  await auth.currentUser.getIdToken(true);
   // Con correo en el token, la foto se firma con el correo (rama `request.auth.token.email`).
   const emailImportId = `smoke-email-${Date.now()}`;
   await expectAllowed("foto de importación firmada con el correo del token", () =>
@@ -301,8 +340,10 @@ async function main() {
   await expectAllowed("deshacer parcial (solo undone_isins)", () => updateDoc(emailImportRef, { undone_isins: ["IE00B4L5Y983"] }));
   await expectAllowed("cerrar el deshacer firmado con el correo del token", () =>
     updateDoc(emailImportRef, { status: "undone", undone_at: serverTimestamp(), undone_by: adminEmail }));
-  await expectAllowed("admin con correo verificado escribe av_watchlist", () => setDoc(avRef, { ticker: "SAN" }));
-  await expectAllowed("admin con correo verificado lee av_watchlist", () => getDocFromServer(avRef));
+  await expectPermissionDenied("admin con correo verificado escribe av_watchlist", () => setDoc(avRef, { ticker: "SAN" }));
+  await expectPermissionDenied("admin con correo verificado lee av_watchlist", () => getDocFromServer(avRef));
+  // La maestra de la base vieja no existe aquí: ni el administrador la lee.
+  await expectPermissionDenied("admin con correo verificado lee assets/", () => getDocFromServer(doc(db, "assets", "IE00B4L5Y983")));
   await signOut(auth);
   await createUserWithEmailAndPassword(auth, `noadmin-av-${Date.now()}@example.com`, "password-123456");
   await expectPermissionDenied("usuario sin claim lee av_watchlist", () => getDocFromServer(avRef));

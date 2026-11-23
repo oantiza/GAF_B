@@ -1,106 +1,60 @@
-# `contracts/` - Fuente de verdad del esquema BDB
+# `contracts/` - Fuente de verdad del esquema
 
-*Creado 2026-06-28. Actualizado 2026-07-02.*
+*Creado 2026-06-28. Actualizado 2026-11-21, al borrar los contratos de la maestra vieja.*
 
-Este directorio es la **fuente de verdad** de la forma de datos en BDB. La plataforma escribe
-Firestore validando contra `master/`; la app consume read-models validados y mantiene una cache de
-schemas en `functions_python/contracts_cache/`.
+Este directorio es la **fuente de verdad** de la forma de los datos. La plataforma escribe la base nueva validando
+contra `base-nueva/`; el extractor guarda una copia de `canonical/` en `1-extractor/contracts_cache/`, y las Functions,
+una de `read/` en `3-BDB-ACTIVOS_app/functions_python/contracts_cache/`.
 
 ## Capas
 
 ```text
 contracts/
-├── canonical/   salida del extractor = entrada del loader
-├── master/      forma persistida en Firestore
-├── read/        contratos de read-model para consumidores internos
-└── public/      payloads publicos futuros, diferidos hasta segundo consumidor real
+├── canonical/   salida del extractor = entrada de la plataforma
+├── base-nueva/  forma persistida en la base nueva (bdb-gestor-de-activos); su README la explica
+└── read/        la forma de lectura que el servidor da a la app
 ```
 
-## Catálogo Vigente
+## Catálogo vigente
 
-| Contrato | Ruta / uso | Estado |
+| Contrato | Ruta / uso | Quién lo lee |
 |---|---|---|
-| `canonical/fondosdb-fund.v1` | `export_bdb/{ISIN}.json` para fondos | activo |
-| `canonical/fondosdb-stock.v1` | `export_bdb/{ISIN}.json` para acciones | activo |
-| `canonical/fondosdb-holdings.v1` | holdings del extractor (`procedencia` opcional por linea desde el 14-10-2026) | activo |
-| `master/asset.v1.3` | `assets/{asset_id}` para fondo/ETF/indice maestro (anade `classification.official_benchmark`) | activo |
-| `master/asset.v1.2` | forma anterior; todo documento v1.2 valida en v1.3 | historico |
-| `master/asset.v1.1` | forma anterior; valida en v1.2 | historico |
-| `master/asset-stock.v1.1` | `assets/{asset_id}` para acciones (dueno por bloque, provenance) | activo |
-| `master/asset-stock.v1` | forma anterior; valida en v1.1 | historico |
-| `master/holdings.v1.2` | `holdings/latest` y modo CHUNKED, con `provenance` opcional (fuente, fecha de obtencion, cobertura) | activo |
-| `master/holdings.v1.1` | forma anterior; todo documento v1.1 valida en v1.2 | historico |
-| `master/price-series.v1.1` | `assets/{id}/price_series/{series_id}` | activo |
-| `master/metrics.v1.3` | `assets/{id}/metrics/latest` (risk_score_source admite SRI_KID) | activo |
-| `master/metrics.v1.1`, `v1.2` | formas anteriores; validan en v1.3 | historico |
-| `master/listing.v1` | `assets/{id}/listings/{listing_id}` | activo |
-| `master/search-index.v1` | `meta/search_index` | activo |
-| `read/asset-for-bdb.v1` | payload de lectura consumido por BDB-ACTIVOS | activo |
+| `canonical/fondosdb-fund.v1` | `export_bdb/{ISIN}.json` para fondos | el extractor (`core/contratos.py`, copia en `contracts_cache`) |
+| `canonical/fondosdb-stock.v1` | `export_bdb/{ISIN}.json` para acciones | ídem |
+| `canonical/fondosdb-holdings.v1` | holdings del extractor (`procedencia` opcional por línea desde el 14-10-2026) | ídem |
+| `base-nueva/*.v2` | `instruments/…`, `computed/…`, carteras, planes y el resto de la base nueva | la plataforma (`src/config/baseNueva/validadores.ts`, `src/loader/baseNuevaWriter.ts`) |
+| `read/asset-for-bdb.v1` | payload de lectura que las Functions dan a la app (decisión A-203) | las Functions, por su `contracts_cache` (`npm run check:contracts` de la app) |
 
-Se conservan versiones `v1` anteriores cuando documentan forma ya producida; los flujos nuevos deben
-preferir las versiones `v1.1` cuando existan.
+**`master/` ya no existe.** Eran los contratos de la maestra vieja (`assets/…`, `metrics/latest`, `meta/search_index`)
+contra los que validaba el cargador heredado; se borraron con él el 21-11-2026 (decisión 36, censo
+`CENSO_BASE_VIEJA_2026-11-21.md` de la raíz), y la caché de las Functions dejó de copiarlos. El estado anterior está en
+la etiqueta de Git `referencia-base-vieja-2026-11-21`.
 
-## Dueno de cada bloque (`x-owner`)
+## Dos artefactos de export del extractor
 
-Desde `asset.v1.2` (hoy `v1.3`) y `asset-stock.v1.1` cada propiedad raiz declara su dueno, y el republish lo lee del
-contrato (`src/loader/ownership.ts`) en vez de llevar listas propias:
+El extractor produce dos familias de salida, y el mapper de la base nueva (`src/ingestion/baseNueva/mapper.ts`) lee
+las dos para cada activo. Importa no mezclarlas:
 
-- `plataforma`: lo reescribe el republish desde el canonico.
-- `app`: lo escribe 3-BDB-ACTIVOS_app; el republish lo conserva (`holdings_summary`, `performance.valuation`
-  via `x-owner-exceptions`).
-- `legado`: sin escritor vigente; se conserva y solo cambia por migracion.
-- `metadatos`: `asset_id`, `schema_version`, `updated_at`.
+- **Canónico BDB:** `export_bdb/{ISIN}.json`. La forma normalizada, campos `ms.*` y señales de calidad; valida contra
+  `canonical/`.
+- **Universal ES:** `export/*.ndjson`, especialmente `export/fondos.ndjson`. La salida universal en español con
+  bloques como `riesgo`, `rentabilidad` y otros passthroughs. La app no la consume directamente.
 
-`x-owner-by-source` declara documentos enteros de la app (acciones/ETF `EODHD`, altas `MANUAL_DOCUMENTARY`).
-`x-obsolete-root-keys` lista las unicas claves raiz que el republish puede borrar; cualquier otra clave no
-declarada bloquea la reescritura de ese documento (conflicto de dueno) en vez de borrarse en silencio.
-Los bloqueos de seleccion del equipo no viven en la maestra: estan en la app (`asset_selection_controls.json`).
-
-## Dos Artefactos de Export del Extractor
-
-El extractor produce dos familias de salida. Importa no mezclarlas:
-
-- **Canónico BDB:** `export_bdb/{ISIN}.json`.
-  Contiene la forma normalizada para BDB, campos `ms.*`, señales de calidad y datos preparados para el
-  mapper. Es el input principal de `load:fondosdb`, `republish:fondosdb` y `audit:consistency`.
-  La plataforma lo usa para construir raiz, holdings, `metrics/latest` y `meta/search_index`.
-- **Universal ES:** `export/*.ndjson`, especialmente `export/fondos.ndjson`.
-  Mantiene la salida universal en español con bloques como `riesgo`, `rentabilidad` y otros passthroughs.
-  El loader puede consultarlo como apoyo de mapping cuando necesita esos campos universales; la app no lo
-  consume directamente.
-
-## Política de Versionado
+## Política de versionado
 
 - `v1` describe forma existente; `v1.1` añade campos compatibles.
-- Un cambio incompatible exige `v2`, nunca editar silenciosamente un contrato vigente.
+- Un cambio incompatible exige versión nueva, nunca editar silenciosamente un contrato vigente.
 - `schema_version` y `updated_at` son metadata de contrato cuando el schema los define.
 - Fechas/hora persistidas como string: ISO-8601 UTC con sufijo `Z`.
 - Fechas puras: `YYYY-MM-DD`.
 
-## Política de Validación
+## Gate de escritura
 
-- Nadie escribe maestra sin validar contra `master/`.
-- Nadie consume payload live sin validar forma minima en su frontera.
-- `canonical/` es permisivo con campos adicionales porque el upstream puede crecer.
-- `master/` es estricto en bloques bajo control de plataforma.
-- Los bloques passthrough se mantienen abiertos solo donde el contrato lo explicita.
-
-## Invariantes Relevantes
-
-- `metrics/latest` es el documento vivo de metricas normalizadas, no un array embebido en root.
-- `price_series` se lee concatenando buckets y deduplicando por `points[].date`.
-- `meta/search_index` se reconstruye desde plataforma y valida con `search-index.v1`.
-- Holdings pueden vivir como `SINGLE_DOCUMENT` o como manifest + chunks.
-- No se escriben claves `null` cuando el contrato espera omision; esto evita drift y fallos de
-  herramientas que no serializan bien `nullValue`.
-
-## Gate de Escritura
-
-Los writers de plataforma solo pueden escribir con:
+El escritor de la base nueva (`src/loader/baseNuevaWriter.ts`) solo escribe con:
 
 ```text
 BDB_DATA_PLATFORM_ENABLE_MASTER_WRITES=YES_I_UNDERSTAND_MASTER_DB_WRITES
 ```
 
-Sin ese gate, cualquier `--write` debe abortar. `audit:consistency`, previews y validaciones son
-read-only y no deben ejecutarse con el gate activo.
+Sin ese gate, cualquier `--write` aborta. El resto de sus barreras (destino fijo, emulador impuesto, forma y dueño)
+están en la cabecera de ese fichero.

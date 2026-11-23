@@ -83,7 +83,12 @@ try {
             ''
         ].join('\n')
     );
+    /* P2-09 (21-11-2026): las dos puertas de `npm run build`, que esta compilación se saltaba por llamar a Vite
+       directamente. Los tipos antes, sobre el mismo commit; el presupuesto de la entrada después, sobre `dist`, y
+       las dos antes de tocar `sitio/`: si una falla, el sitio que hay se queda como estaba. */
+    ejecutar('npm', ['run', 'typecheck'], copia);
     ejecutar('npx', ['vite', 'build', '--mode', 'nube'], copia);
+    ejecutar('npm', ['run', 'check:bundle'], copia);
     rmSync(SITIO, { recursive: true, force: true });
     cpSync(join(copia, 'dist'), SITIO, { recursive: true });
 } finally {

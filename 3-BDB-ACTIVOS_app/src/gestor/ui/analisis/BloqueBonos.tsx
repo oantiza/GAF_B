@@ -2,6 +2,7 @@
  * Bloque 9: los bonos de la cartera, con lo que el cliente va a cobrar de ellos. Solo sale
  * si hay alguno. Los importes van en la divisa de cada bono.
  */
+import { Ausencia } from "../../../components/ui/Ausencia";
 import { Panel } from "../../../components/ui/Panel";
 import type { Analisis } from "../../motor/analisis";
 import { escrito } from "../textos";
@@ -19,7 +20,9 @@ export function BloqueBonos({ analisis }: { analisis: Analisis }) {
               <h3 className="gestor-subtitulo">{bono.activo.nombre}</h3>
               <div className="rows">
                 <FilaDeDato rotulo="Nominal">{escrito.importe(bono.nominal, divisa)}</FilaDeDato>
-                <FilaDeDato nota="Lo devengado desde el último cupón: se cobra en el próximo" rotulo="Cupón corrido">{escrito.importe(bono.cuponCorrido, divisa)}</FilaDeDato>
+                <FilaDeDato nota={bono.cuponCorrido === null ? "Sin precio, el bono no tiene valor y no se da su cupón corrido" : "Lo devengado desde el último cupón: se cobra en el próximo"} rotulo="Cupón corrido">
+                  {bono.cuponCorrido === null ? <Ausencia clase="falta" /> : escrito.importe(bono.cuponCorrido, divisa)}
+                </FilaDeDato>
                 <FilaDeDato nota={bono.vencido ? "Vencido: comprueba que se ha apuntado la devolución del nominal." : undefined} rotulo="Vencimiento">
                   {escrito.fecha(bono.vencimiento)}
                 </FilaDeDato>

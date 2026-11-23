@@ -2,7 +2,8 @@
 
 Aquí vive el **proyecto Firebase propio** de la base nueva, `bdb-gestor-de-activos`, con su
 emulador, sus puertos y su persistencia en disco. No es una carpeta de código: es la
-infraestructura que `2-plataforma-datos` escribe y que el frontend nuevo leerá.
+infraestructura que `2-plataforma-datos` escribe y que la aplicación lee: la publicada en
+`bdb-gestor-de-activos.web.app` la lee en la nube desde el 03-11-2026, y su sitio sale de `compilar-sitio.mjs`.
 
 Nació el 01-11-2026 con la fase F0 del `PLAN_EJECUCION_2026-11-01.md`.
 
@@ -123,8 +124,9 @@ escritas el 16-11-2026 y probadas en `probar-refresco.mjs` con casos simulados, 
 
 ## Lo que aquí no hay
 
-- **No hay emulador de Auth.** Lo tendrá cuando el frontend nuevo entre aquí, y entonces este
-  `firebase.json` ganará su puerto. En la **nube** sí hay Auth, con un usuario desde el
+- **No hay emulador de Auth en este `firebase.json`.** El frontend nuevo ya está en producción desde el 03-11-2026
+  y lee esta base en la nube; en local el desarrollo sigue usando el Auth de la base de siempre (9097, `arrancar-entorno`),
+  así que este fichero no ha necesitado puerto de Auth. En la **nube** sí hay Auth, con un usuario desde el
   03-11-2026 —el del asesor, y es el uid que las 18 carteras nombran en su `advisor_id`—; la
   frase de antes decía que la base nueva «no tiene usuarios todavía» y dejó de ser verdad ese
   día. `probar-reglas.mjs` no necesita el emulador de Auth porque forja un token sin firma,
@@ -159,6 +161,9 @@ npx firebase deploy --only firestore,hosting
 
 La puerta también rechaza el despliegue si el sitio saldría sin sus cabeceras de seguridad, o si la
 CSP no nombra el dominio de acceso de este proyecto. Son las de la app, cambiando solo ese dominio.
+Desde el 21-11-2026 (P2-08 de la auditoría integral del 20-11) son ocho, con `Strict-Transport-Security` —el
+mismo valor que Hosting ya servía por su cuenta—, y `connect-src` nombra un origen por servicio en vez de
+comodines; de dónde sale cada uno está en `3-BDB-ACTIVOS_app/tests/firebaseHostingSecurity.test.ts`.
 
 `node probar-puerta.mjs` comprueba todo esto sin desplegar nada. Y `firebase
 deploy` sigue denegado en `.claude/settings.json` para los agentes: la puerta es para cuando

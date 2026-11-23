@@ -150,6 +150,41 @@ describe("crisis pasadas: lo que se imprime", () => {
     expect(crisis[1].cifra).toBe("−5,00\u00a0%");
   });
 
+  /* N03 (Óscar, 22-11-2026): una posición con un hueco de más de catorce días entre dos precios dentro de la crisis se aparta
+     (`GAP_IN_WINDOW`). Sí tenía precio al inicio, así que no se dice eso: se dice lo que le falta. */
+  describe("la posición que no cotizó durante parte de la crisis (N03)", () => {
+    const conHueco = (motivos: BacktestStressScenario["excluded_assets"]) =>
+      crisisPasadas([{ ...sinDato("COVID", "NO_ELIGIBLE_ASSETS"), excluded_assets: motivos }, escenario({ id: "RATES_2022", drawdown_pct: -5 })], posicionDe).crisis[0];
+
+    test("sola en la cartera: «Sin datos», y por qué", () => {
+      const crisis = conHueco([{ asset_id: "A", reason: "GAP_IN_WINDOW" }]);
+      expect(crisis).toMatchObject({ cifra: null, tramo: null, ausencia: "Sin datos" });
+      expect(crisis.sinDato).toBe("La posición no tiene cotizaciones durante parte de esta crisis (del 19/02/2020 al 23/03/2020), y sin ellas no se puede medir su caída.");
+      expect(crisis.sinDato).not.toContain("al inicio");
+    });
+
+    test("todas con hueco, en plural", () => {
+      expect(conHueco([{ asset_id: "A", reason: "GAP_IN_WINDOW" }, { asset_id: "B", reason: "GAP_IN_WINDOW" }]).sinDato)
+        .toBe("Las posiciones no tienen cotizaciones durante parte de esta crisis (del 19/02/2020 al 23/03/2020), y sin ellas no se puede medir su caída.");
+    });
+
+    test("con una sin precio al inicio y otra con hueco, ninguna de las dos frases sería cierta para las dos", () => {
+      expect(conHueco([{ asset_id: "A", reason: "NO_DATA_AT_WINDOW_START" }, { asset_id: "B", reason: "GAP_IN_WINDOW" }]).sinDato)
+        .toBe("Ninguna posición tenía precios válidos durante toda esta crisis (del 19/02/2020 al 23/03/2020).");
+    });
+
+    test("la mitad con hueco: no llega al 60 % y se nombra lo que queda fuera", () => {
+      const [crisis] = crisisPasadas([escenario({
+        id: "COVID", drawdown_pct: -30, representative: false, coverage: { weight_pct: 50, included_assets: 1, total_assets: 2 },
+        included_assets: ["B"], excluded_assets: [{ asset_id: "IE00B3XXRP09", reason: "GAP_IN_WINDOW" }]
+      })], posicionDe).crisis;
+      expect(crisis.cifra).toBeNull();
+      expect(crisis.ausencia).toBe("Falta el dato");
+      expect(crisis.sinDato).toBe("Mide el 50,0 % de la cartera, y hace falta al menos el 60 %.");
+      expect(crisis.fuera).toBe("Fuera: Vanguard S&P 500 UCITS ETF (12,0 %)");
+    });
+  });
+
   test("cada motivo sin datos dice lo suyo", () => {
     const motivo = (reason: BacktestStressScenario["reason"]) =>
       crisisPasadas([sinDato("COVID", reason), escenario({ id: "RATES_2022" })], posicionDe).crisis[0].sinDato;

@@ -383,7 +383,8 @@ describe("modelo del informe interno", () => {
         years,
         backtest: { metrics: { sharpe: actual } },
         maxSharpe: { metrics: { sharpe: maximo } },
-        frontier: { methodologyV2: { weightBounds: tope === undefined ? undefined : [0, tope] } }
+        /* Cuatro activos en el cálculo: con más de tres, el motor regulariza también las rentabilidades (`estimate_returns`). */
+        frontier: { maxSharpe: { pesosCompletos: { A: 0.25, B: 0.25, C: 0.25, D: 0.25 } }, methodologyV2: { weightBounds: tope === undefined ? undefined : [0, tope] } }
       }
     }) as unknown as Parameters<typeof notaDelMaximoSharpe>[0][number];
 
@@ -1456,6 +1457,40 @@ describe("decisión 80: las erratas y lo que afirmaba de más en el interno", ()
     expect(texto).not.toContain("Exposición: RV 0 % · RF 100 % · liquidez 0 %");
     /* Los que sí la traen, como siempre. */
     expect(texto).toContain("Exposición: RV 100 % · RF 0 % · liquidez 0 %");
+  }, 60000);
+
+  test("un fondo sin reparto declarado ya no se reparte por su clase: su fila de la mezcla dice que falta, y su ficha también (A-203)", async () => {
+    /* El mismo DEMO_B (30 %, renta fija), llegando como manda el servidor desde el 21-11-2026: solo la marca, sin cifras. */
+    const sinReparto = [assets[0], asset("DEMO_B", 1, { pms_exposure: { equity: 0, fixed_income: 0, cash: 0, alternative: 0, other: 0, source: "NOT_AVAILABLE" } }), assets[2]];
+    const entrada = await baseInput({ assets: sinReparto });
+    const m = buildInternalReportModelWithLabels(entrada);
+    /* 50 + 20 traen su vector, de renta variable: 70 %. Los 30 de DEMO_B no son renta fija: faltan. */
+    expect(m.allocation.underlyingMixCoverage).toBeCloseTo(0.7, 10);
+    expect(m.allocation.underlyingMixSinReparto).toBeCloseTo(0.3, 10);
+    const mix = Object.fromEntries(m.allocation.underlyingMix.map((b) => [b.key, b.weight]));
+    expect(mix.equity).toBeCloseTo(0.7, 10);
+    expect(mix.fixed_income).toBeUndefined();
+    expect(mix.sin_reparto).toBeCloseTo(0.3, 10);
+    expect(m.positions.find((p) => p.assetId === "DEMO_B")).toMatchObject({ equity: null, fixedIncome: null, cash: null, otherExposure: null, exposicionSinDato: true });
+    const texto = await textoDe(entrada);
+    expect(texto).toContain("(cobertura 70 %; el 30,0 % no declara su reparto)");
+    expect(texto).toContain("Cobertura: 70 % del peso con vector de exposición; el 30,0 % no declara su reparto (falta el dato).");
+    expect(texto).not.toContain("el resto se reparte por su clase económica");
+    expect(texto).toContain("Exposición: Falta el dato");
+    expect(texto).not.toContain("Exposición: RV 0 % · RF 0 % · liquidez 0 %");
+    expect(texto).not.toMatch(/Exposición: por su clase \(Renta (fi)?ja\)/);
+  }, 60000);
+
+  test("ese fondo tampoco entra en los sectores ni en las regiones, y el papel lo dice bajo los dos (A-211, con el sí de Óscar)", async () => {
+    const sinReparto = [assets[0], asset("DEMO_B", 1, { pms_exposure: { equity: 0, fixed_income: 0, cash: 0, alternative: 0, other: 0, source: "NOT_AVAILABLE" } }), assets[2]];
+    const entrada = await baseInput({ assets: sinReparto });
+    /* DEMO_B pesa el 30 % de la cartera: 0,3. */
+    expect(buildInternalReportModelWithLabels(entrada).allocation.equityLookthroughSinReparto).toBeCloseTo(0.3, 10);
+    const texto = (await textoDe(entrada)).replace(/\s+/g, " ");
+    const frase = "Falta el dato: el 30,0 % de la cartera no declara su reparto de activos, y no se sabe qué parte es renta variable; no entra en este reparto.";
+    expect(texto.split(frase)).toHaveLength(3);
+    /* Con todos los repartos declarados no sale. */
+    expect((await textoDe(await baseInput())).replace(/\s+/g, " ")).not.toContain("no declara su reparto de activos");
   }, 60000);
 
   test("TER ya no se escribe en ningún sitio: es el coste corriente", async () => {

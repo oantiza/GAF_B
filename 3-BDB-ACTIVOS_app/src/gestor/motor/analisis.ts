@@ -78,7 +78,9 @@ export function fechaDeInicioDelPeriodo(analisis: Pick<Analisis, "periodo" | "va
  * `peso`, `latente`, `latentePct`, `resultadoDelPeriodo` y `contribucion` son `null`. Antes eran 0, 0, 0, −coste, −100 %,
  * −lo pagado y los puntos de haberlo perdido: una posición comprada por 1.000 € salía como perdida entera. El motor la sigue
  * contando como cero en el patrimonio y en la rentabilidad (`valoracion.ts`): por eso el patrimonio no la incluye, y
- * `Analisis.sinPrecio` dice cuáles son para que cada total lo diga (`sinPrecio.ts`).
+ * `Analisis.sinPrecio` dice cuáles son para que cada total lo diga (`sinPrecio.ts`). Va igual la que tiene precio y está en
+ * otra divisa sin tipo de cambio a la fecha (22-11-2026): sin cambio no tiene valor en la base, y su fuente es también
+ * `FUENTE.sinPrecio`.
  */
 export interface PosicionAnalizada {
   activo: Activo;
@@ -155,6 +157,8 @@ export interface CosteDeUnMovimiento {
   /** Clave del registro de tipos del movimiento («comision», «compra»…). */
   tipo: string;
   activoId?: string;
+  /** El concepto para el cliente del movimiento, si el asesor lo escribió: el nombre del cargo en el informe de costes. */
+  concepto?: string;
   nota?: string;
   importe: number;
 }
@@ -196,8 +200,32 @@ export interface IngresosYCostes {
   porProducto: GastosCorrientesDeUnProducto[];
   /** Nombres de las posiciones del periodo cuyos gastos corrientes no se conocen (y no son una acción ni un bono). */
   productosSinGastosCorrientes: string[];
-  /** Valor de las posiciones para las que se conoce el TER, sobre el total invertido medio (0 a 1). */
+  /**
+   * Nombres de los fondos y demás productos con gastos corrientes que no tienen precio a la fecha y no valieron nada en todo el
+   * periodo: su valor medio es cero, así que no entran en la estimación ni en `coberturaDeGastosCorrientes`, y la cobertura no
+   * los cuenta como cero sino que dice que faltan (`sinPrecio.ts`).
+   */
+  sinPrecioFueraDeLosGastosCorrientes: string[];
+  /**
+   * Nombres de los fondos y demás productos con gastos corrientes que tuvieron títulos sin valor (sin precio o sin cambio)
+   * solo una parte del periodo: su coste corriente se estima con los días en que sí valieron, así que la cifra es parcial y
+   * `gastosCorrientesCompletos` es `false` (H2-02, auditoría del 22-11-2026: un fondo de 100.000 € sin cambio 354 de 364
+   * días daba 27 € de coste dado por completo, en vez de unos 1.000 €).
+   */
+  valoradosSoloParteDelPeriodo: string[];
+  /**
+   * Valor medio de los fondos, ETF y demás productos con gastos corrientes cuyo TER se conoce, sobre el valor medio de todos
+   * ellos (0 a 1). Las acciones y los bonos no entran ni arriba ni abajo: no tienen gastos corrientes, y contarlos como
+   * conocidos hacía pasar por casi completa una cartera de acciones con un fondo pequeño sin TER (P2-07, 22-11-2026). Los
+   * productos sin precio tampoco entran (no se sabe lo que valen): los nombra `sinPrecioFueraDeLosGastosCorrientes`. Es 1
+   * cuando no hay ninguno con valor que medir.
+   */
   coberturaDeGastosCorrientes: number;
+  /**
+   * Si el coste corriente se conoce de todos los productos que lo tienen: `gastosCorrientes` no es `null` y no falta ninguno,
+   * ni por no conocerse su TER ni por no tener precio. Sin umbral: un producto que falta, por pequeño que sea, falta.
+   */
+  gastosCorrientesCompletos: boolean;
   /** Patrimonio medio del periodo: la base de los porcentajes. */
   patrimonioMedio: number;
   /** Costes explícitos (operación + servicio) y totales (con gastos corrientes), sobre el patrimonio medio. */
@@ -211,8 +239,11 @@ export interface IngresosYCostes {
 export interface BonoAnalizado {
   activo: Activo;
   nominal: number;
-  /** Cupón corrido a la fecha, en la divisa del bono. */
-  cuponCorrido: number;
+  /**
+   * Cupón corrido a la fecha, en la divisa del bono. `null` si el bono no tiene precio: desde la A-193 la posición vale cero
+   * entero —no vale su cupón corrido—, y esta cifra no se da donde el valor no se conoce.
+   */
+  cuponCorrido: number | null;
   vencimiento: Dia;
   vencido: boolean;
   /** Próximos cobros en dos años: cupones y devolución del nominal, en la divisa del bono. */
@@ -411,7 +442,7 @@ export function analizar(preparado: Preparado, periodo: Periodo, referencia?: Re
   const porMovimiento = (lineas: Map<string, CosteDeUnMovimiento>, apunte: Apunte, importe: number) => {
     const linea = lineas.get(apunte.movimiento.id);
     if (linea) linea.importe += importe;
-    else lineas.set(apunte.movimiento.id, { fecha: apunte.fecha, movimientoId: apunte.movimiento.id, tipo: apunte.movimiento.tipo, activoId: apunte.movimiento.activoId, nota: apunte.movimiento.nota?.trim() || undefined, importe });
+    else lineas.set(apunte.movimiento.id, { fecha: apunte.fecha, movimientoId: apunte.movimiento.id, tipo: apunte.movimiento.tipo, activoId: apunte.movimiento.activoId, concepto: apunte.movimiento.conceptoCliente?.trim() || undefined, nota: apunte.movimiento.nota?.trim() || undefined, importe });
   };
   const deOperacion = new Map<string, CosteDeUnMovimiento>();
   const delServicio = new Map<string, CosteDeUnMovimiento>();
@@ -441,29 +472,50 @@ export function analizar(preparado: Preparado, periodo: Periodo, referencia?: Re
   let invertidoMedio = 0;
   const porProducto: GastosCorrientesDeUnProducto[] = [];
   const productosSinGastosCorrientes: string[] = [];
+  const sinPrecioFueraDeLosGastosCorrientes: string[] = [];
+  const valoradosSoloParteDelPeriodo: string[] = [];
   if (tramo) {
     const dias = tramo.i1 - tramo.i0;
     for (let i = tramo.i0 + 1; i <= tramo.i1; i += 1) patrimonioMedio += valoracion.valor[i];
     patrimonioMedio /= dias;
     for (const serieDelActivo of valoracion.porActivo.values()) {
-      let medio = 0;
-      for (let i = tramo.i0 + 1; i <= tramo.i1; i += 1) medio += serieDelActivo.valor[i];
-      medio /= dias;
-      if (medio <= 0) continue;
-      invertidoMedio += medio;
       const activo = porId.get(serieDelActivo.activoId);
-      const ter = fichas.get(serieDelActivo.activoId)?.gastosCorrientes ?? (activo?.clasificacion?.gastosCorrientes ? Number(activo.clasificacion.gastosCorrientes) : undefined);
-      /* Una acción o un bono no tienen gastos corrientes: cuentan como conocidos, y son cero. */
+      /* Una acción o un bono no tienen gastos corrientes: no son parte de lo que se mide, ni como conocidos ni como
+         desconocidos (P2-07: antes contaban como conocidos y tapaban un fondo sin TER). */
       const sinGastosPorNaturaleza = activo?.tipo === "ACCION" || activo?.tipo === "BONO";
+      let medio = 0;
+      /* Los días en que tuvo títulos y no tuvo valor (sin precio o sin cambio): su coste corriente de esos días no se puede
+         estimar (H2-02). Antes solo se miraba si le faltaba el precio a la fecha final, y un fondo sin cambio casi todo el año,
+         o vendido antes del final sin haber valido nada, daba un coste corriente parcial, o cero, como si fuera completo. */
+      let diasSinValor = 0;
+      for (let i = tramo.i0 + 1; i <= tramo.i1; i += 1) {
+        medio += serieDelActivo.valor[i];
+        if (serieDelActivo.titulos[i] > 0 && serieDelActivo.fuente[i] === FUENTE.sinPrecio) diasSinValor += 1;
+      }
+      medio /= dias;
+      if (medio <= 0) {
+        const posicion = sinPrecio.find((candidata) => candidata.activo.id === serieDelActivo.activoId);
+        if ((posicion || diasSinValor > 0) && !sinGastosPorNaturaleza) sinPrecioFueraDeLosGastosCorrientes.push(activo?.nombre ?? posicion?.activo.nombre ?? serieDelActivo.activoId);
+        continue;
+      }
+      if (diasSinValor > 0 && !sinGastosPorNaturaleza) valoradosSoloParteDelPeriodo.push(activo?.nombre ?? serieDelActivo.activoId);
+      const ter = fichas.get(serieDelActivo.activoId)?.gastosCorrientes ?? (activo?.clasificacion?.gastosCorrientes ? Number(activo.clasificacion.gastosCorrientes) : undefined);
       if (ter !== undefined && Number.isFinite(ter)) {
         porProducto.push({ activoId: serieDelActivo.activoId, nombre: activo?.nombre ?? serieDelActivo.activoId, gastosCorrientes: ter, valorMedio: medio, coste: medio * ter * (dias / DIAS_POR_ANIO) });
         conGastos += medio;
-      } else if (sinGastosPorNaturaleza) conGastos += medio;
-      else productosSinGastosCorrientes.push(activo?.nombre ?? serieDelActivo.activoId);
+        invertidoMedio += medio;
+      } else if (!sinGastosPorNaturaleza) {
+        productosSinGastosCorrientes.push(activo?.nombre ?? serieDelActivo.activoId);
+        invertidoMedio += medio;
+      }
     }
   }
   porProducto.sort((a, b) => b.coste - a.coste || a.nombre.localeCompare(b.nombre, "es"));
-  const gastosCorrientes = porProducto.reduce((suma, producto) => suma + producto.coste, 0);
+  const sumaDeLosProductos = porProducto.reduce((suma, producto) => suma + producto.coste, 0);
+  /* No hay cifra si hay productos con gastos corrientes y de ninguno se conoce: ni su TER ni, sin precio, su valor. */
+  const faltaAlguno = productosSinGastosCorrientes.length > 0 || sinPrecioFueraDeLosGastosCorrientes.length > 0 || valoradosSoloParteDelPeriodo.length > 0;
+  const gastosCorrientes = porProducto.length === 0 && faltaAlguno ? null : sumaDeLosProductos;
+  const gastosCorrientesCompletos = gastosCorrientes !== null && !faltaAlguno;
   const coberturaDeGastosCorrientes = invertidoMedio > 0 ? conGastos / invertidoMedio : 1;
   const impuestos = impuestosSueltos + ingresos.dividendo.retencion + ingresos.cupon.retencion + ingresos.interes.retencion;
   const costesExplicitos = costesDeOperacion + costesDelServicio;
@@ -481,15 +533,18 @@ export function analizar(preparado: Preparado, periodo: Periodo, referencia?: Re
     costesPorOperacion,
     impuestos,
     impuestosApuntados: impuestosSueltos,
-    gastosCorrientes: invertidoMedio > 0 && conGastos === 0 ? null : gastosCorrientes,
+    gastosCorrientes,
     porProducto,
     productosSinGastosCorrientes,
+    sinPrecioFueraDeLosGastosCorrientes,
+    valoradosSoloParteDelPeriodo,
     coberturaDeGastosCorrientes,
+    gastosCorrientesCompletos,
     patrimonioMedio,
     costesExplicitos,
     costesExplicitosPct: sobreElMedio(costesExplicitos),
-    costesTotales: costesExplicitos + gastosCorrientes,
-    costesTotalesPct: sobreElMedio(costesExplicitos + gastosCorrientes),
+    costesTotales: costesExplicitos + sumaDeLosProductos,
+    costesTotalesPct: sobreElMedio(costesExplicitos + sumaDeLosProductos),
     ingresosPct: sobreElMedio(ingresosNetos)
   };
 
@@ -520,7 +575,7 @@ export function analizar(preparado: Preparado, periodo: Periodo, referencia?: Re
       return {
         activo: posicion.activo,
         nominal,
-        cuponCorrido: nominal * cuponCorrido(bono, hasta),
+        cuponCorrido: posicion.valor === null ? null : nominal * cuponCorrido(bono, hasta),
         vencimiento: bono.vencimiento,
         vencido: bono.vencimiento <= hasta,
         proximos: calendarioDelBono(bono, sumarDias(hasta, 1), sumarAnios(hasta, 2)).map((pago) => ({ fecha: pago.fecha, clase: pago.clase, importe: nominal * pago.fraccion }))

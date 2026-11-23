@@ -14,6 +14,7 @@ import { demoResponse } from "../src/adapters/demoBackend";
 import { fetchPortfolioHorizon } from "../src/adapters/portfolioHorizon";
 import { parseBacktestResponse, type BacktestStressScenario } from "../src/adapters/backtestPortfolioBackend";
 import { HistoricalStressCards } from "../src/components/HistoricalStressCards";
+import { LO_QUE_NO_ES_LA_CIFRA_DE_UNA_CRISIS } from "../src/core/crisisPasadas";
 import { createInternalPortfolioReportPdfBlob } from "../src/reports/internalPortfolioReportPdf";
 import type { InternalReportInput } from "../src/core/internalPortfolioReport";
 import type { BdbAssetDetail, BdbPortfolioReport } from "../src/types/bdbAssets";
@@ -45,6 +46,15 @@ function sinMaximo(escenario: BacktestStressScenario): BacktestStressScenario {
 }
 /** Y lo que medían en la historia común: del primer día al mínimo. */
 const HISTORIA_ANTES = sinMaximo({ ...HISTORIA, drawdown_pct: -8.411652, duration_days: 482, recovery_date: "2020-04-07", recovery_days: 15 });
+
+describe("la frase del informe de cliente sobre lo que no entra en una crisis (A-206)", () => {
+  /* Y desde N03 (22-11-2026), la que tiene un hueco dentro de la crisis: «sin cotizaciones durante parte de ella». */
+  test("cubre también la serie parada y la que tiene un hueco dentro de la crisis", () => {
+    expect(LO_QUE_NO_ES_LA_CIFRA_DE_UNA_CRISIS).toContain(
+      "Las posiciones sin precios válidos al inicio de cada crisis, sin cotizaciones durante parte de ella o sin precios recientes no entran: la cifra mide el resto"
+    );
+  });
+});
 
 describe("el adaptador", () => {
   const respuesta = (escenarios: object[]) => ({
@@ -137,6 +147,18 @@ describe("el 6.2 del interno", () => {
     /* La frase de lectura ordena solo lo que se mide igual: la historia común, más honda, no entra en la cuenta de las crisis. */
     expect(todo).toContain("El escenario histórico más duro para esta composición es COVID-19: −22,17 %.");
     expect(todo).not.toContain("es Historia común");
+  }, 60_000);
+
+  test("una crisis en la que la cartera no bajó dice «sin caída», no «sin datos de recuperación» (A-206)", async () => {
+    /* Como lo manda el servidor desde P1-06: NO_DRAWDOWN, caída 0 y nada que recuperar. */
+    const sinCaida: BacktestStressScenario = { ...TIPOS, drawdown_pct: 0, recovery_status: "NO_DRAWDOWN", recovery_date: null, recovery_days: null, remaining_to_recover_pct: 0, trough_date: "2022-01-04" };
+    const todo = await texto([COVID, sinCaida]);
+    const estres = todo.slice(todo.indexOf("Escenarios de estrés históricos"));
+    expect(estres).toContain("del 04/01/2022 al 04/01/2022 · sin caída · cobertura 100 %");
+    expect(estres).not.toContain("sin datos de recuperación");
+    /* Lo que de verdad no trae recuperación lo sigue diciendo. */
+    const sinDatos = await texto([{ ...COVID, recovery_status: "NO_DATA", recovery_date: null, recovery_days: null }]);
+    expect(sinDatos.slice(sinDatos.indexOf("Escenarios de estrés históricos"))).toContain("· sin datos de recuperación ·");
   }, 60_000);
 
   test("sin máximo, lo de antes: el primer día y el mínimo, y la historia común compite como entonces", async () => {

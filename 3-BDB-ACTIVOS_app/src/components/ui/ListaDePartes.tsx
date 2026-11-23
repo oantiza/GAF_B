@@ -15,6 +15,8 @@ import { Cifra } from "./Cifra";
  *   posiciones) no lo llevan.
  * - `apagada` la pinta en el gris de la referencia: es «Resto», «Otros», «Sin clasificar».
  * - Una fracción que falta se dice con `Ausencia` («Falta el dato») y su carril queda vacío.
+ * - Una fracción negativa —la clase corta de un reparto neto (C-29, 21-11-2026)— se escribe con su signo («−1,4 %») y no lleva
+ *   barra: una barra no puede ser negativa. Una por encima de 1 llena el carril, y su cifra dice cuánto pasa.
  *
  * ```tsx
  * <ListaDePartes etiqueta="Por clase de activo" partes={[
@@ -63,7 +65,9 @@ export function ListaDePartes({ partes, etiqueta, className = "" }: ListaDeParte
             {parte.apunte ? <span className="partes__apunte">{parte.apunte}</span> : null}
           </span>
           <span aria-hidden="true" className="partes__carril">
-            <span className="partes__barra" style={{ width: anchoDe(parte.fraccion) }} />
+            {typeof parte.fraccion === "number" && parte.fraccion > 0 ? (
+              <span className="partes__barra" style={{ width: anchoDe(parte.fraccion) }} />
+            ) : null}
           </span>
           <span className="partes__cifra">
             <Cifra tipo="peso" valor={parte.fraccion} />

@@ -550,3 +550,42 @@ describe("una clase con cobertura de divisa frente a su índice (decisión 30 de
     expect(ids).not.toContain("contra-indice");
   });
 });
+
+describe("una referencia que es otra clase del mismo fondo (decisión C-28 del 21-11-2026)", () => {
+  const MISMO_FONDO = { relative_absence: "SAME_FUND_REFERENCE" };
+  const conProveedor = (m: Record<string, unknown>) => {
+    const base = instrumento({ volatility: { "1y": 0.14 }, ...m });
+    return {
+      ...base,
+      bloques: {
+        ...base.bloques,
+        "declared/provider_risk": { as_of: "2026-10-31", beta: { "1y": { vs_benchmark: 0.97 } }, provider_alpha: { "1y": { vs_benchmark: 0.005 } } }
+      }
+    };
+  };
+
+  test("con cifra del proveedor, su sección se queda y el motivo va en su nota, solo en modo interno", () => {
+    const interna = componerFicha(conProveedor(MISMO_FONDO)).secciones;
+    expect(interna.map((s) => s.id)).not.toContain("contra-indice-propio");
+    const delProveedor = interna.find((s) => s.id === "contra-indice");
+    expect(delProveedor?.nota).toContain("otra clase de este mismo fondo");
+    expect(delProveedor?.nota).not.toContain("SAME_FUND_REFERENCE");
+    const cliente = componerFicha(conProveedor(MISMO_FONDO), undefined, { modoCliente: true }).secciones;
+    expect(cliente.map((s) => s.id)).toContain("contra-indice");
+    expect(cliente.find((s) => s.id === "contra-indice")?.nota ?? "").not.toContain("mismo fondo");
+  });
+
+  test("sin cifra del proveedor, el motivo ocupa la sección en modo interno, con la retirada si consta", () => {
+    const retirada = {
+      ...MISMO_FONDO,
+      relative_withdrawal: { withdrawn_on: "2026-11-21", decision: "C-28", benchmark_name: "MSCI World", last_as_of: "2026-10-31" }
+    };
+    const s = componerFicha(instrumento({ volatility: { "1y": 0.14 }, ...retirada })).secciones.find((x) => x.id === "contra-indice-propio");
+    expect(s?.procedencia?.[0]?.texto).toBe("Sin referencia");
+    expect(s?.nota).toContain("otra clase de este mismo fondo");
+    expect(s?.nota).toContain("publicábamos sus cifras contra MSCI World");
+    expect(s?.nota).not.toContain("SAME_FUND_REFERENCE");
+    const cliente = componerFicha(instrumento({ volatility: { "1y": 0.14 }, ...retirada }), undefined, { modoCliente: true }).secciones;
+    expect(cliente.map((x) => x.id)).not.toContain("contra-indice-propio");
+  });
+});

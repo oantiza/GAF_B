@@ -122,7 +122,7 @@ export function DialogoDelInformeDeCliente({
       <DialogHeader
         eyebrow={nombre.trim() || "Propuesta sin nombre"}
         onClose={ocupado ? undefined : alCerrar}
-        title="Informe para el cliente"
+        title="Informe de la propuesta"
         titleId={idDelTitulo}
       />
       <DialogBody className="stack stack--3">

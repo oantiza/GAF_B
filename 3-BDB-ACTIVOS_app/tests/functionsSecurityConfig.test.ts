@@ -18,7 +18,7 @@ describe("Cloud Functions security configuration", () => {
   it("caps global and optimizer scale", () => {
     expect(main).toContain("max_instances=5");
     expect(main).toContain("memory=options.MemoryOption.GB_1, max_instances=5");
-    expect(main).toContain('_cap_list(req.data, "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")');
+    expect(main).toContain('_cap_list(_datos(req), "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")');
   });
 
   it("supports staged App Check enforcement and logs missing tokens", () => {
@@ -65,6 +65,16 @@ describe("Cloud Functions security configuration", () => {
     expect(main).toContain("bdb-functions-reader@");
     expect(main).toContain("bdb-functions-writer@");
     expect(main).toContain("service_account=READER_SERVICE_ACCOUNT");
-    expect(main.match(/service_account=WRITER_SERVICE_ACCOUNT/g)?.length ?? 0).toBeGreaterThanOrEqual(10);
+    /* Desde el borrado de la base vieja (21-11-2026, C-32) escriben exactamente estas seis: las carteras y los
+       informes. Una más con la identidad de escritura es una decisión, no un descuido. */
+    const conEscritura = [...main.matchAll(/service_account=WRITER_SERVICE_ACCOUNT[\s\S]*?\ndef ([a-z_]+)/g)].map((m) => m[1]).sort();
+    expect(conEscritura).toEqual([
+      "admin_publish_report",
+      "delete_portfolio",
+      "save_portfolio",
+      "scheduled_publish_daily_report",
+      "scheduled_publish_weekly_report",
+      "scheduled_recover_strategy_reports"
+    ]);
   });
 });

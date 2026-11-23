@@ -78,7 +78,7 @@ const MOVIMIENTO: Esquema = {
   claves: [
     "id", "tipo", "fechaOperacion", "fechaValor", "fechaEx", "activoId", "titulos", "precio", "divisa", "importe",
     "comision", "gastos", "retencion", "cuponCorrido", "cambio", "valor", "destino", "razon",
-    "serieAjustada", "nota", "origen"
+    "serieAjustada", "conceptoCliente", "nota", "origen"
   ],
   campos: {
     destino: { claves: ["activoId", "titulos", "precio", "divisa", "importe", "fecha"] },
@@ -89,7 +89,7 @@ const MOVIMIENTO: Esquema = {
 const EXTRACTO: Esquema = {
   claves: ["id", "fecha", "entidad", "documento", "importacionId", "posiciones", "efectivo"],
   campos: {
-    posiciones: { elemento: { claves: ["activoId", "isin", "nombre", "titulos", "valor", "fecha"] } },
+    posiciones: { elemento: { claves: ["activoId", "isin", "nombre", "titulos", "valor", "precio", "divisa", "fecha"] } },
     efectivo: { elemento: { claves: ["divisa", "saldo"] } }
   }
 };
@@ -314,6 +314,7 @@ function validarCartera(valor: unknown, guardado: string | undefined): Cartera {
     if (!esDia(movimiento.fechaOperacion)) falla(`${quien} tiene una fecha de operación que no es un día válido.`);
     diaOpcional(movimiento, "fechaValor", `${quien} tiene una fecha valor que no es un día válido.`);
     diaOpcional(movimiento, "fechaEx", `${quien} tiene una fecha ex-dividendo que no es un día válido.`);
+    if (movimiento.conceptoCliente !== undefined && typeof movimiento.conceptoCliente !== "string") falla(`${quien} tiene un concepto para el cliente que no es un texto.`);
     decimales(movimiento, ["titulos", "precio", "importe", "comision", "gastos", "retencion", "cuponCorrido", "cambio", "valor", "razon"], quien);
     if (movimiento.destino !== undefined) {
       if (!esObjeto(movimiento.destino)) falla(`${quien} tiene un destino que no tiene la forma esperada.`);
@@ -338,7 +339,8 @@ function validarCartera(valor: unknown, guardado: string | undefined): Cartera {
     if (!esDia(extracto.fecha)) falla(`${quien} no tiene una fecha válida.`);
     const posiciones = lista(extracto, "posiciones", `posiciones del extracto ${i + 1}`, `La posición del extracto ${i + 1} número`);
     posiciones.forEach((posicion, j) => {
-      decimales(posicion, ["titulos", "valor"], `La posición ${j + 1} del extracto ${i + 1}`);
+      decimales(posicion, ["titulos", "valor", "precio"], `La posición ${j + 1} del extracto ${i + 1}`);
+      if (posicion.divisa !== undefined && !esTextoConContenido(posicion.divisa)) falla(`La posición ${j + 1} del extracto ${i + 1} tiene una divisa que no es un texto.`);
       diaOpcional(posicion, "fecha", `La posición ${j + 1} del extracto ${i + 1} tiene una fecha de cotización que no es un día válido.`);
     });
     const efectivo = lista(extracto, "efectivo", `saldos de efectivo del extracto ${i + 1}`, `El saldo del extracto ${i + 1} número`);

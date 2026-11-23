@@ -4,7 +4,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { evaluaPuerta, PROYECTO_DE_DESTINO, VARIABLE_DE_LA_PUERTA } from "../scripts/puertaFunciones.mjs";
-import { liberacionesQueFaltan, motivosParaNoDesplegar, PROYECTO } from "../scripts/desplegarFunciones.mjs";
+import {
+  ESCRITURAS_VIEJAS,
+  liberacionesQueFaltan,
+  motivosParaNoDesplegar,
+  PROYECTO,
+  valorEfectivo,
+  valorEnElEntorno
+} from "../scripts/desplegarFunciones.mjs";
 
 const main = readFileSync("functions_python/main.py", "utf8");
 const guion = readFileSync("scripts/desplegarFunciones.mjs", "utf8");
@@ -41,6 +48,21 @@ describe("el despliegue acotado de Functions", () => {
       expect(lista, retirada).not.toContain(retirada);
     }
     expect(lista).toHaveLength(23);
+  });
+
+  test("main.py declara 26 y solo se quedan fuera las tres programadas de informes (21-11-2026)", () => {
+    /* Hasta el 21-11-2026 eran 46: las 20 de la base vieja se borraron del código (decisión 31 del censo de la base vieja). */
+    const declaradas = [...main.matchAll(/^@(?:https_fn\.on_call|scheduler_fn\.on_schedule)\([\s\S]*?\ndef ([a-z_0-9]+)\(/gm)].map((m) => m[1]);
+    expect(declaradas).toHaveLength(26);
+    expect(new Set(declaradas).size).toBe(26);
+    for (const nombre of lista) expect(declaradas, nombre).toContain(nombre);
+    expect(declaradas.filter((n) => !lista.includes(n)).sort()).toEqual([
+      "scheduled_publish_daily_report", "scheduled_publish_weekly_report", "scheduled_recover_strategy_reports",
+    ]);
+    for (const borrada of ["get_system_status", "admin_db_status", "admin_refresh_prices", "scheduled_refresh_prices", "scheduled_integrity_check"]) {
+      expect(declaradas, borrada).not.toContain(borrada);
+    }
+    expect(evaluaPuerta({}).mensaje).toContain("sube las 23 funciones permitidas y no las 26");
   });
 
   test("su configuración no puede tocar reglas ni sitio", () => {
@@ -143,5 +165,89 @@ describe("la línea que libera lo reparado (decisión 58)", () => {
 
   test("sin el fichero de entorno, el motivo es ese y no este", () => {
     expect(motivoConElEntorno(null)).toBeUndefined();
+  });
+});
+
+describe("las escrituras viejas, leídas en los dos ficheros que carga la CLI (P2-09, 21-11-2026)", () => {
+  const ABRE = "YES_I_UNDERSTAND_MASTER_DB_WRITES";
+  const liberacion = `${variable}=${isins.join(",")}\n`;
+  /* Todos los motivos con un `.env` común y un `.env.<proyecto>` de prueba: los de verdad no están en Git. */
+  function motivosCon(comun: string | null, delProyecto: string | null): string[] {
+    const app = mkdtempSync(join(tmpdir(), "desplegar-"));
+    try {
+      mkdirSync(join(app, "functions_python"));
+      writeFileSync(join(app, "functions_python", "main.py"), main);
+      writeFileSync(join(app, "functions_python", "verified_price_repair_releases.json"), JSON.stringify({ variable, isins }));
+      if (comun !== null) writeFileSync(join(app, "functions_python", ".env"), comun);
+      if (delProyecto !== null) writeFileSync(join(app, "functions_python", `.env.${PROYECTO}`), delProyecto);
+      /* La carpeta no es un repositorio: ese motivo es de la prueba, no del entorno. */
+      return motivosParaNoDesplegar(app).filter((motivo: string) => !motivo.includes("Git"));
+    } finally {
+      rmSync(app, { recursive: true, force: true });
+    }
+  }
+  const proyectoBueno = `MASTER_PROJECT_ID=${PROYECTO}\n${liberacion}`;
+  const abre = (motivos: string[]) => motivos.some((motivo) => motivo.includes(ESCRITURAS_VIEJAS));
+
+  test("con los dos ficheros como los de hoy, no hay motivo", () => {
+    expect(motivosCon("MASTER_PROJECT_ID=gestor-activos-local\n", proyectoBueno)).toEqual([]);
+  });
+
+  test("abiertas en `.env`, que antes no se miraba, no se despliega", () => {
+    expect(abre(motivosCon(`${ESCRITURAS_VIEJAS}=${ABRE}\n`, proyectoBueno))).toBe(true);
+  });
+
+  test("con `export`, espacios o comillas, también se ven", () => {
+    expect(abre(motivosCon(null, `${proyectoBueno}export ${ESCRITURAS_VIEJAS} = "${ABRE}"\n`))).toBe(true);
+    expect(abre(motivosCon(null, `${proyectoBueno}  ${ESCRITURAS_VIEJAS}=${ABRE}\r\n`))).toBe(true);
+  });
+
+  test("gana la última línea y el fichero del proyecto manda sobre el común, como en la CLI", () => {
+    expect(abre(motivosCon(null, `${proyectoBueno}${ESCRITURAS_VIEJAS}=${ABRE}\n${ESCRITURAS_VIEJAS}=\n`))).toBe(false);
+    expect(abre(motivosCon(null, `${proyectoBueno}${ESCRITURAS_VIEJAS}=\n${ESCRITURAS_VIEJAS}=${ABRE}\n`))).toBe(true);
+    expect(abre(motivosCon(`${ESCRITURAS_VIEJAS}=${ABRE}\n`, `${proyectoBueno}${ESCRITURAS_VIEJAS}=\n`))).toBe(false);
+  });
+
+  test("vacía o comentada no abre nada, y cualquier otro valor no se despliega", () => {
+    expect(abre(motivosCon(`${ESCRITURAS_VIEJAS}=\n`, `${proyectoBueno}# ${ESCRITURAS_VIEJAS}=${ABRE}\n`))).toBe(false);
+    expect(abre(motivosCon(null, `${proyectoBueno}${ESCRITURAS_VIEJAS}=no\n`))).toBe(true);
+  });
+
+  test("el proyecto de la maestra es el que queda tras leer los dos", () => {
+    const sinProyecto = (motivos: string[]) => motivos.some((motivo) => motivo.includes("MASTER_PROJECT_ID"));
+    expect(sinProyecto(motivosCon(`MASTER_PROJECT_ID=${PROYECTO}\n`, liberacion))).toBe(false);
+    expect(sinProyecto(motivosCon("MASTER_PROJECT_ID=gestor-activos-local\n", liberacion))).toBe(true);
+    expect(sinProyecto(motivosCon(null, `MASTER_PROJECT_ID = "${PROYECTO}"\n${liberacion}`))).toBe(false);
+  });
+
+  test("un emulador declarado con `export` en cualquiera de los dos también para", () => {
+    expect(motivosCon("export FIRESTORE_EMULATOR_HOST=127.0.0.1:8092\n", proyectoBueno).join(" ")).toContain("FIRESTORE_EMULATOR_HOST");
+    expect(motivosCon("# FIRESTORE_EMULATOR_HOST=127.0.0.1:8092\n", proyectoBueno)).toEqual([]);
+  });
+
+  test("la lectura de un valor suelto", () => {
+    expect(valorEnElEntorno("A=1\nA=2\n", "A")).toBe("2");
+    expect(valorEnElEntorno("AB=1\n", "A")).toBeUndefined();
+    expect(valorEnElEntorno("A=\n", "A")).toBe("");
+    expect(valorEfectivo([undefined, "A=1\n", "B=2\n"], "A")).toBe("1");
+    expect(valorEfectivo(["A=1\n", "A='3' # el del proyecto\n"], "A")).toBe("3");
+  });
+  test("H3-04: los contratos se sincronizan antes de comprobar que Git está limpio, y solo con --despliega", () => {
+    /* Lee el fuente y no ejecuta el guion: ejecutarlo desplegaría. */
+    const cuerpo = guion.slice(guion.indexOf("async function main()"));
+    const sincroniza = cuerpo.indexOf('"scripts/syncContractsCache.mjs"]');
+    const comprueba = cuerpo.indexOf("motivosParaNoDesplegar(app)");
+    const despliega = cuerpo.indexOf('"firebase", "deploy"');
+    expect(sincroniza, "sincroniza los contratos").toBeGreaterThan(0);
+    expect(comprueba, "comprueba Git y el entorno").toBeGreaterThan(0);
+    expect(sincroniza).toBeLessThan(comprueba);
+    expect(comprueba).toBeLessThan(despliega);
+    /* Y sin --despliega no escribe nada: la sincronización cuelga de esa bandera. */
+    const bandera = cuerpo.lastIndexOf('process.argv.includes("--despliega")', sincroniza);
+    expect(bandera).toBeGreaterThanOrEqual(0);
+    expect(bandera).toBeLessThan(sincroniza);
+    expect(cuerpo.slice(bandera, sincroniza)).not.toContain("motivosParaNoDesplegar");
+    /* Ninguna sincronización queda después de la comprobación. */
+    expect(cuerpo.indexOf("syncContractsCache.mjs", comprueba)).toBe(-1);
   });
 });

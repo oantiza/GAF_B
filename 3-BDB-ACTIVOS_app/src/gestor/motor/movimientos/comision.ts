@@ -11,6 +11,7 @@ export const comision: DefinicionDeMovimiento = {
   descripcion: "Un cargo de la entidad: custodia, asesoramiento, mantenimiento. Resta rentabilidad. Se puede asociar a un activo.",
   orden: 60,
   signoDelEfectivo: -1,
+  conConceptoParaElCliente: true,
   campos: [
     { campo: "importe", obligatorio: true, rotulo: "Importe cargado" },
     { campo: "activo", obligatorio: false, ayuda: "Solo si el cargo es de un activo concreto." },

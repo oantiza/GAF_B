@@ -138,7 +138,12 @@ describe("la banda de los datos de la propuesta", () => {
     const texto = sinEspacios(banda()!.textContent);
     expect(texto).toContain("Posiciones2250.000 €");
     expect(texto).toContain("Suma de pesos100,0 %Cartera cuadrada");
-    expect(boton("Normalizar al 100 %")).toBeUndefined();
+    /* D1 (21-11-2026): «Normalizar» ya no aparece y desaparece: vive al pie de la tabla, desactivado y diciendo por qué. */
+    expect(banda()!.querySelector("button")).toBeNull();
+    const normalizar = host.querySelector<HTMLButtonElement>(".portfolio-table tfoot button");
+    expect(normalizar?.textContent).toBe("Normalizar al 100 %");
+    expect(normalizar?.disabled).toBe(true);
+    expect(normalizar?.title).toBe("La cartera ya suma 100 %: no hay nada que normalizar.");
   });
 
   test("si los pesos no suman 100, la suma va en ocre con lo que falta en pp y «Normalizar» a su lado", async () => {
@@ -146,7 +151,13 @@ describe("la banda de los datos de la propuesta", () => {
     const suma = banda()!.querySelector(".diseno-datos__suma--descuadre");
     expect(sinEspacios(suma?.textContent)).toContain("96,5 %");
     expect(sinEspacios(suma?.textContent)).toContain("Faltan 3,5 pp");
-    expect(suma?.querySelector("button")?.textContent).toBe("Normalizar al 100 %");
+    /* En Componer, «Normalizar» está al pie de la tabla, junto al total (D1, 21-11-2026); en los demás pasos, junto a la suma. */
+    expect(suma?.querySelector("button")).toBeNull();
+    const pie = host.querySelector(".portfolio-table tfoot tr");
+    expect(sinEspacios(pie?.textContent)).toMatch(/^TotalNormalizar al 100 %96,5 %/);
+    expect(pie?.querySelector("button")?.disabled).toBe(false);
+    await act(async () => pestana("Comprobar").click());
+    expect(banda()!.querySelector(".diseno-datos__suma--descuadre button")?.textContent).toBe("Normalizar al 100 %");
   });
 
   test("se queda a la vista en los cuatro pasos", async () => {

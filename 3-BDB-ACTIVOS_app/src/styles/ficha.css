@@ -270,8 +270,11 @@
   margin-top: var(--s-8);
 }
 
-/* En una sección ancha, una fila no llega de lado a lado: su cifra se quedaría lejos de su rótulo. */
-.ficha__seccion--ancha > .ficha__fila {
+/* En una sección ancha, una fila no llega de lado a lado: su cifra se quedaría lejos de su rótulo. Tampoco la variación
+   bajo el gráfico de la evolución, que a 2.560 quedaba a 962 px de su rótulo y a 78 px de la tarjeta vecina; deja de
+   caer bajo el final de la línea, y se aceptó (Óscar, 21-11-2026). */
+.ficha__seccion--ancha > .ficha__fila,
+.ficha__fila--bajo-grafico {
   max-width: 28em;
 }
 
@@ -491,6 +494,16 @@
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Por qué una ventana no aplica, bajo su «No aplica»: «La serie no llega a 10 años» (F3, 21-11-2026). Entero, en una
+   línea, como la lámina: la tabla se desplaza dentro de su marco si no cabe. */
+.ficha__celda-motivo {
+  display: block;
+  font-size: var(--texto-xxs);
+  font-weight: 400;
+  line-height: var(--lh-normal);
+  color: var(--tinta-3);
 }
 
 /* El título de una columna de cifras va sobre sus cifras. `.ficha__tabla th` pesa más que

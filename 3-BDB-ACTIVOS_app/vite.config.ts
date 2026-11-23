@@ -81,6 +81,10 @@ export default defineConfig({
     // Fija el reloj del simulador demo a un día laborable: ver tests/setupRelojDemo.ts.
     // Y corta la red: ninguna prueba llama de verdad a un emulador ni a nadie (tests/setupSinRed.ts).
     setupFiles: ["./tests/setupRelojDemo.ts", "./tests/setupSinRed.ts"],
+    // Las pruebas no dependen del `.env.local` de quien las lanza. Desde el 21-11-2026 ese fichero apunta el
+    // desarrollo a los emuladores del proyecto de la base nueva, y con él la lectura tomaba el camino del SDK
+    // (que en una prueba no tiene base): ninguna prueba habla con un emulador, así que van sin ellos.
+    env: { VITE_FIREBASE_USE_EMULATORS: "false" },
     // Solo la suite real: sin esto, vitest recoge copias sueltas de tests en
     // carpetas de trabajo (tmp/zNx/...) y el comando falla con 8 suites rotas
     // aunque los 443 tests pasen.

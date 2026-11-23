@@ -9,6 +9,7 @@
  * Todo lo demás está a un clic, en las otras pestañas.
  */
 import { useMemo } from "react";
+import { useModoCliente } from "../../../app/ClientModeContext";
 import { OaaLineChart, type OaaLineSeries } from "../../../charts/oaa";
 import { EmptyState } from "../../../components/ui/AsyncState";
 import { Button } from "../../../components/ui/Button";
@@ -16,6 +17,7 @@ import { Cifra } from "../../../components/ui/Cifra";
 import { ListaDePartes } from "../../../components/ui/ListaDePartes";
 import { Panel } from "../../../components/ui/Panel";
 import { TablaDeDatos } from "../../../components/tabla/TablaDeDatos";
+import { NOTA_DEL_REPARTO_NETO, tieneCortosOApalancamiento } from "../../../core/repartoNeto";
 import { textoDeAusencia } from "../../../core/textoDeAusencia";
 import type { ColumnaDeTabla } from "../../../types/tablaDeDatos";
 import { fechaDeInicioDelPeriodo } from "../../motor/analisis";
@@ -36,7 +38,7 @@ interface FilaDeUltimo {
 }
 
 /** Los últimos movimientos, como en el libro. El importe va en tinta, con su signo: una aportación no es una ganancia. */
-function columnasDeUltimos(cartera: Cartera): ColumnaDeTabla<FilaDeUltimo>[] {
+function columnasDeUltimos(cartera: Cartera, conNotas: boolean): ColumnaDeTabla<FilaDeUltimo>[] {
   const base = cartera.divisaBase;
   return [
     { id: "fecha", titulo: "Fecha", encabezaFila: true, celda: ({ movimiento }) => ({ texto: escrito.fecha(movimiento.fechaOperacion), valor: movimiento.fechaOperacion }) },
@@ -48,7 +50,8 @@ function columnasDeUltimos(cartera: Cartera): ColumnaDeTabla<FilaDeUltimo>[] {
         const activo = activoDe(cartera, movimiento.activoId)?.nombre;
         const destino = activoDe(cartera, movimiento.destino?.activoId)?.nombre;
         if (activo) return { texto: activo, apunte: destino ? `a ${destino}` : undefined };
-        return movimiento.nota ? { texto: movimiento.nota } : { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" };
+        /* La nota del asesor, solo fuera de Modo cliente (`SE_OCULTA.notasDelAsesor`). */
+        return conNotas && movimiento.nota ? { texto: movimiento.nota } : { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" };
       }
     },
     { id: "titulos", titulo: "Títulos", cifra: true, celda: ({ movimiento }) => (movimiento.titulos ? { texto: escrito.titulos(d(movimiento.titulos)), valor: aNumero(d(movimiento.titulos)) } : { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" }) },
@@ -74,6 +77,7 @@ export function VistaResumen({ datos }: { datos: DatosDeVista }) {
   const divisa = cartera.divisaBase;
   const rentabilidad = analisis.rentabilidad;
   const desglose = analisis.desglose?.cuadrado;
+  const seVenLasNotas = useModoCliente().seEnsena("notasDelAsesor");
 
   const evolucion = useMemo<OaaLineSeries[]>(() => {
     const puntos = aclarar(analisis.evolucion);
@@ -193,7 +197,7 @@ export function VistaResumen({ datos }: { datos: DatosDeVista }) {
           subtitulo={`${cartera.movimientos.length} ${cartera.movimientos.length === 1 ? "movimiento" : "movimientos"} en el libro`}
           titulo="Últimos movimientos"
         >
-          <TablaDeDatos columnas={columnasDeUltimos(cartera)} filas={ultimos} titulo="Últimos movimientos de la cartera" />
+          <TablaDeDatos columnas={columnasDeUltimos(cartera, seVenLasNotas)} filas={ultimos} titulo="Últimos movimientos de la cartera" />
           <p className="cmp-note">El importe de un movimiento es dinero que entra o sale de la cuenta, y va sin color: el verde y el rojo se reservan para lo que se gana o se pierde.</p>
         </Panel>
 
@@ -226,6 +230,8 @@ export function VistaResumen({ datos }: { datos: DatosDeVista }) {
           ) : null}
           {/* El reparto por clase es de lo que se puede valorar, como el de Análisis: una posición sin precio no entra. */}
           {noIncluye ? <p className="cmp-note">{noIncluye}</p> : null}
+          {/* C-29: con un fondo de reparto neto dentro, una clase puede salir en negativo o pasar del 100 %. */}
+          {tieneCortosOApalancamiento(clases.map((linea) => linea.peso)) ? <p className="cmp-note">{NOTA_DEL_REPARTO_NETO}</p> : null}
         </Panel>
       </div>
     </div>

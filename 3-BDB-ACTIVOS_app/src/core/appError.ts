@@ -108,6 +108,9 @@ const KIND_BY_OWN_MESSAGE = new Map<string, AppErrorKind>([
    falta. Ese texto es el principal; el genérico de `unavailable` hablaría de «servicio», y el título, de conexión. */
 const BASE_NO_DISPONIBLE = /^No se ha podido leer la base de activos/;
 
+/* El texto del servidor para un fallo del programa en Optimizar (`OptimizationInternalError`, functions_python). */
+const ERROR_INTERNO_PROPIO = /^Error interno del optimizador:/;
+
 /* El SDK de Functions añade el estado HTTP al final del texto que manda el servidor: « [503]», « [400]». Es del transporte, no
    del mensaje: detrás de un texto nuestro, ya claro, solo estorba. Se quita de los textos propios; en el detalle técnico de un
    fallo genérico se conserva, porque ahí sí identifica el fallo. */
@@ -167,6 +170,12 @@ export function toAppError(error: unknown, fallbackMessage = "No se pudo complet
   if (code.includes("failed-precondition")) {
     const propio = textoPropioDelServidor(original, code);
     if (propio) return new AppError("BACKEND", propio, { cause: error });
+  }
+  /* 20-11-2026: Optimizar distingue un fallo del programa («Error interno del optimizador…», con su referencia) de «no hay
+     solución». Ese texto dice que cambiar restricciones no lo arregla, y es el que lee el asesor; el genérico de `internal`
+     («Reinténtalo») no lo diría. */
+  if (code.includes("internal") && ERROR_INTERNO_PROPIO.test(sinEstadoHttp(original))) {
+    return new AppError("BACKEND", sinEstadoHttp(original), { cause: error });
   }
   const ownKind = typeof error === "string" ? KIND_BY_OWN_MESSAGE.get(original) : undefined;
   if (ownKind) {

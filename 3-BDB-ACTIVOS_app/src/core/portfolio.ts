@@ -14,6 +14,7 @@ import { QUALITY_FLAG_LABELS, readableBackendLabel } from "./labels";
 import { isWeightBalanced } from "./weightTolerance";
 import { concentrationBand } from "./concentration";
 import { categoriaLegible } from "./etiquetasDeReparto";
+import { sumaComoUnRepartoNeto } from "./repartoNeto";
 import type {
   BdbAdapterWarning,
   BdbAssetDataSourceKind,
@@ -214,18 +215,29 @@ export interface PmsExposureInput {
 }
 
 export interface PmsExposureDistribution {
-  /** Reparto por clases, normalizado: SIEMPRE suma 100 de lo invertido. */
+  /**
+   * Reparto por clases, en % de lo invertido. Suma 100 menos `sin_reparto_weight_percent` (A-203): lo que no tiene reparto no
+   * se reparte entre las demás.
+   */
   percent: Required<Omit<BdbPmsExposure, "source">>;
   /** % del peso invertido cuyo activo aporta vector PMS real. */
   covered_weight_percent: number;
-  /** % del peso invertido rellenado por clase económica (sin vector). */
+  /** % del peso invertido que cuenta por su clase económica: la inversión directa sin vector (una acción, un bono, el oro). */
   fallback_weight_percent: number;
+  /** % del peso invertido sin reparto: un fondo que no lo declara, o una posición sin clase (A-203). No cuenta en `percent`. */
+  sin_reparto_weight_percent: number;
   /** % del peso cubierto cuyo vector viene de PORTFOLIO_EXPOSURE (look-through real). */
   real_lookthrough_weight_percent: number;
 }
 
 const PMS_KEYS = ["equity", "fixed_income", "cash", "alternative", "real_asset", "other"] as const;
 type PmsKey = (typeof PMS_KEYS)[number];
+
+/**
+ * La marca del servidor para un activo sin reparto de activos (A-203, Óscar, 21-11-2026): un fondo o ETF que no lo declara, o
+ * una posición sin clase conocida. Va sin cifras: no se reparte por su clase, porque ese reparto no es suyo.
+ */
+export const SIN_REPARTO_DECLARADO = "NOT_AVAILABLE";
 
 const ECONOMIC_CLASS_TO_PMS: Record<string, PmsKey> = {
   EQUITY: "equity",
@@ -238,30 +250,27 @@ const ECONOMIC_CLASS_TO_PMS: Record<string, PmsKey> = {
   OTHER: "other"
 };
 
-/**
- * Cuánto puede salirse una clase de 0-1, y cuánto puede no sumar 1 el conjunto, para leer el reparto tal cual (decisión A-63 de
- * Óscar, 05-11-2026). Es lo que admite el contrato de `declared/exposure` en la base nueva, así que allí pasa todo; la base
- * vieja no se valida, y trae hasta bonos al 241 % con liquidez al −143 %.
+/*
+ * Cuándo se lee un reparto tal cual: si suma 1 con la tolerancia y ninguna clase pasa de los topes del contrato de
+ * `declared/exposure`, de −5 a 6 (decisión C-29 de Óscar, 21-11-2026; hasta ese día, un punto fuera de 0-1 por la A-63). Es el
+ * reparto neto del proveedor, con sus cortos y su apalancamiento: los bonos al 241 % con la liquidez al −143 % que trae la base
+ * vieja de FR0010230490 suman 1 y se leen así. Vive en `repartoNeto.ts`.
  */
-const TOLERANCIA_DE_UNA_CLASE = 0.01;
-const TOLERANCIA_DE_LA_SUMA = 0.01;
-
-function esUnRepartoNeto(valores: readonly number[]): boolean {
-  const suma = valores.reduce((total, valor) => total + valor, 0);
-  return (
-    Math.abs(suma - 1) <= TOLERANCIA_DE_LA_SUMA &&
-    valores.every((valor) => valor >= -TOLERANCIA_DE_UNA_CLASE && valor <= 1 + TOLERANCIA_DE_UNA_CLASE)
-  );
-}
+const esUnRepartoNeto = sumaComoUnRepartoNeto;
 
 export interface AssetPmsShares {
   /**
-   * Fracciones por clase que suman 1. No tienen por qué estar entre 0 y 1: el reparto del proveedor es neto de cortos, y una clase
-   * puede ser un poco negativa y otra pasar de 1. Quien la use como un peso que no puede ser negativo, que lo mire (`eqW <= 0`).
+   * Fracciones por clase que suman 1. No tienen por qué estar entre 0 y 1: el reparto del proveedor es neto de cortos y de
+   * apalancamiento (C-29), y una clase puede ser negativa (−2,43) y otra pasar de 1 (3,20). Quien la use como un peso que no puede
+   * ser negativo, que lo mire (`eqW <= 0`).
    */
   shares: Record<PmsKey, number>;
-  /** `vector`: del vector PMS del activo; `class`: relleno por su clase económica. */
-  source: "vector" | "class";
+  /**
+   * `vector`: del vector PMS del activo; `class`: por su clase económica, que es la inversión directa sin vector; `sin_reparto`: un
+   * fondo que no declara su reparto, o una posición sin clase (A-203). En `sin_reparto` las fracciones son las de su clase: la
+   * exposición agregada no las suma, y desde la A-211 tampoco las lecturas por dentro (`parteParaLaLectura`).
+   */
+  source: "vector" | "class" | "sin_reparto";
 }
 
 /**
@@ -271,9 +280,10 @@ export interface AssetPmsShares {
  * Es la misma definición de «peso en renta variable» para el reparto por clases,
  * el look-through de regiones y el de sectores.
  *
- * Un reparto neto se lee tal cual (decisión A-63): la renta fija de Lazard, −0,08 %, no se esconde ni se reparte entre las demás, y
- * con ella la bolsa es su 100,04 %, no un 99,96 %. Un vector fuera de eso, que solo trae la base vieja, no se deja describir así:
- * cuenta lo positivo, normalizado, como siempre.
+ * Un reparto neto se lee tal cual (decisiones A-63 y C-29): la renta fija de Lazard, −0,08 %, no se esconde ni se reparte entre las
+ * demás, y con ella la bolsa es su 100,04 %, no un 99,96 %; y la liquidez de ES0137396000, −242,6 %, tampoco: su bolsa es su
+ * 319,8 %, no el 93 % que daría normalizar lo positivo. Un vector que no suma 1, que solo trae la base vieja, no se deja describir
+ * así: cuenta lo positivo, normalizado, como siempre.
  */
 export function assetPmsShares(item: Pick<PmsExposureInput, "pms_exposure" | "economic_asset_class">): AssetPmsShares {
   const vector = item.pms_exposure;
@@ -290,8 +300,44 @@ export function assetPmsShares(item: Pick<PmsExposureInput, "pms_exposure" | "ec
     });
     return { shares, source: "vector" };
   }
-  shares[ECONOMIC_CLASS_TO_PMS[String(item.economic_asset_class || "").toUpperCase()] ?? "other"] = 1;
-  return { shares, source: "class" };
+  const clase = String(item.economic_asset_class || "").trim().toUpperCase();
+  shares[ECONOMIC_CLASS_TO_PMS[clase] ?? "other"] = 1;
+  const sinReparto = vector?.source === SIN_REPARTO_DECLARADO || !clase || clase === "UNKNOWN";
+  return { shares, source: sinReparto ? "sin_reparto" : "class" };
+}
+
+/**
+ * La parte de un activo en una clase, para pesarlo en una lectura por dentro (regiones, sectores, estilo y tamaño, perfil de renta
+ * fija): la de `assetPmsShares`, o `null` si no tiene reparto de activos —un fondo que no lo declara, o una posición sin clase—
+ * (A-211, Óscar, 21-11-2026). No se sabe qué parte de ese fondo es renta variable ni renta fija, y pesarlo por su clase —un fondo de
+ * bolsa, entero en las regiones de la renta variable— es justo el reparto que no se conoce, el mismo que la A-203 quitó de la
+ * exposición agregada. No aporta, y su peso se dice aparte (`pesoSinReparto`), en pantalla y en el papel. Un fondo con reparto neto
+ * (C-29) tiene reparto, y pesa por su clase neta.
+ */
+export function parteParaLaLectura(item: Pick<PmsExposureInput, "pms_exposure" | "economic_asset_class">, clase: "equity" | "fixed_income"): number | null {
+  const { shares, source } = assetPmsShares(item);
+  return source === "sin_reparto" ? null : shares[clase];
+}
+
+/**
+ * Qué parte de la cartera, de 0 a 100, no tiene reparto de activos y por eso no entra en las lecturas por dentro (A-211). Sobre
+ * la suma de los pesos positivos de todas sus posiciones, también las que no están en el catálogo: es «de la cartera».
+ */
+export function pesoSinReparto(
+  positions: readonly { asset_id: string; weight_percent: number }[],
+  assets: readonly (Pick<PmsExposureInput, "pms_exposure" | "economic_asset_class"> & { asset_id: string })[]
+): number {
+  const porId = new Map(assets.map((asset) => [asset.asset_id, asset]));
+  let total = 0;
+  let sinReparto = 0;
+  for (const position of positions) {
+    const weight = position.weight_percent || 0;
+    if (weight <= 0) continue;
+    total += weight;
+    const asset = porId.get(position.asset_id);
+    if (asset && assetPmsShares(asset).source === "sin_reparto") sinReparto += weight;
+  }
+  return total > 0 ? (sinReparto / total) * 100 : 0;
 }
 
 /**
@@ -305,6 +351,11 @@ export function assetPmsShares(item: Pick<PmsExposureInput, "pms_exposure" | "ec
  *      PDF) — nunca desaparece del reparto.
  *   3. El resultado se normaliza al 100% de lo invertido; la cobertura del
  *      vector real se devuelve aparte para poder decirla.
+ *
+ * A-203 (Óscar, 21-11-2026) cambia la 2 para los fondos: un fondo que no declara su reparto, o una posición sin clase, no se
+ * reparte por su clase —ese reparto no es suyo—. Su peso no entra en ninguna clase y se devuelve aparte
+ * (`sin_reparto_weight_percent`), y por eso `percent` suma 100 menos ese peso. La inversión directa sin vector (una acción, un
+ * bono, el oro) sigue contando por su clase, porque su clase es lo que es.
  */
 export function computePmsExposureDistribution(items: PmsExposureInput[]): PmsExposureDistribution | null {
   const acc: Record<PmsKey, number> = {
@@ -312,6 +363,7 @@ export function computePmsExposureDistribution(items: PmsExposureInput[]): PmsEx
   };
   let covered = 0;
   let fallback = 0;
+  let sinReparto = 0;
   let real = 0;
 
   for (const item of items) {
@@ -320,6 +372,10 @@ export function computePmsExposureDistribution(items: PmsExposureInput[]): PmsEx
       continue;
     }
     const { shares, source } = assetPmsShares(item);
+    if (source === "sin_reparto") {
+      sinReparto += weight;
+      continue;
+    }
     PMS_KEYS.forEach((key) => {
       acc[key] += weight * shares[key];
     });
@@ -334,7 +390,7 @@ export function computePmsExposureDistribution(items: PmsExposureInput[]): PmsEx
     }
   }
 
-  const total = covered + fallback;
+  const total = covered + fallback + sinReparto;
   if (total <= 0) {
     return null;
   }
@@ -350,6 +406,7 @@ export function computePmsExposureDistribution(items: PmsExposureInput[]): PmsEx
     percent,
     covered_weight_percent: (covered / total) * 100,
     fallback_weight_percent: (fallback / total) * 100,
+    sin_reparto_weight_percent: (sinReparto / total) * 100,
     real_lookthrough_weight_percent: covered > 0 ? (real / covered) * 100 : 0
   };
 }
@@ -374,6 +431,16 @@ function buildPortfolioXray(options: {
 
   // S6a (P5): reparto por clases por la vía canónica única.
   const pmsDistribution = computePmsExposureDistribution(investablePositions);
+  /* A-203: las posiciones sin reparto, con su nombre, para decir cuáles son. En % del peso invertido, como la cifra de al lado. */
+  const pesoInvertido = investablePositions.reduce((suma, position) => suma + clampPercent(position.weight_percent), 0);
+  const sinReparto = investablePositions
+    .filter((position) => clampPercent(position.weight_percent) > 0 && assetPmsShares(position).source === "sin_reparto")
+    .map((position) => ({
+      asset_id: position.asset_id,
+      display_name: position.display_name,
+      weight_percent: roundPercent((clampPercent(position.weight_percent) / pesoInvertido) * 100)
+    }))
+    .sort((a, b) => b.weight_percent - a.weight_percent || a.display_name.localeCompare(b.display_name, "es"));
 
   const positionConcentration = investablePositions
     .map((position) => ({
@@ -439,6 +506,9 @@ function buildPortfolioXray(options: {
     },
     pms_exposure_coverage_percent: roundPercent(pmsDistribution?.covered_weight_percent ?? 0),
     pms_exposure_fallback_percent: roundPercent(pmsDistribution?.fallback_weight_percent ?? 0),
+    ...(sinReparto.length > 0
+      ? { pms_exposure_sin_reparto_percent: roundPercent(pmsDistribution?.sin_reparto_weight_percent ?? 0), pms_exposure_sin_reparto: sinReparto }
+      : {}),
     coverage_complete_positions: investablePositions.filter((position) => position.coverage_status === "COMPLETE")
       .length,
     performance_preview_available: investablePositions.filter(

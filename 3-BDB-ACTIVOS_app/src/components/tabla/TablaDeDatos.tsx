@@ -513,34 +513,53 @@ export function TablaDeDatos<F extends FilaAgrupable>({
     </div>
       {/* Fuera del marco: es lo que se desplaza, y esto no debe irse de lado con las columnas. «Anterior» y «Siguiente»
           llevan borde, para que se vean como botones y el deshabilitado se distinga (dirección A, 18-11-2026). */}
-      {porPagina && paginas > 1 ? (
-        <nav aria-label={`Páginas de ${titulo.toLowerCase()}`} className="tabla__paginas">
-          <span>
-            {numero((actual - 1) * porPagina + 1)}–{numero(Math.min(actual * porPagina, soloFilas.length))} de{" "}
-            {numero(soloFilas.length)}
-          </span>
-          <Button
-            disabled={actual <= 1}
-            onClick={() => irALaPagina(actual - 1)}
-            size="sm"
-            variant="secondary"
-          >
-            Anterior
-          </Button>
-          <strong>
-            {actual} de {paginas}
-          </strong>
-          <Button
-            disabled={actual >= paginas}
-            onClick={() => irALaPagina(actual + 1)}
-            size="sm"
-            variant="secondary"
-          >
-            Siguiente
-          </Button>
-        </nav>
+      {porPagina ? (
+        <PaginasDeLaTabla actual={actual} irA={irALaPagina} porPagina={porPagina} titulo={titulo} total={soloFilas.length} />
       ) : null}
       {grupos ? <p className="tabla__aviso">{AVISO_DE_METODOS_DISTINTOS}</p> : null}
     </>
+  );
+}
+
+/**
+ * Las páginas de una lista larga: «26–50 de 376», «Anterior», «2 de 16» y «Siguiente». La pinta `TablaDeDatos` con `porPagina`, y la usa
+ * también una tabla escrita a mano que no puede pasar por ella —la de Retrocesiones de Sistema, que lleva campos en cada fila—, para que las
+ * dos paginen igual (Óscar, 20-11-2026). Con una sola página no pinta nada.
+ */
+export function PaginasDeLaTabla({ actual, irA, porPagina, titulo, total }: {
+  actual: number;
+  irA: (pagina: number) => void;
+  porPagina: number;
+  titulo: string;
+  total: number;
+}) {
+  const paginas = Math.max(1, Math.ceil(total / porPagina));
+  if (paginas <= 1) return null;
+  return (
+    <nav aria-label={`Páginas de ${titulo.toLowerCase()}`} className="tabla__paginas">
+      <span>
+        {numero((actual - 1) * porPagina + 1)}–{numero(Math.min(actual * porPagina, total))} de{" "}
+        {numero(total)}
+      </span>
+      <Button
+        disabled={actual <= 1}
+        onClick={() => irA(actual - 1)}
+        size="sm"
+        variant="secondary"
+      >
+        Anterior
+      </Button>
+      <strong>
+        {actual} de {paginas}
+      </strong>
+      <Button
+        disabled={actual >= paginas}
+        onClick={() => irA(actual + 1)}
+        size="sm"
+        variant="secondary"
+      >
+        Siguiente
+      </Button>
+    </nav>
   );
 }

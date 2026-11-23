@@ -116,3 +116,17 @@ test("sin cambios de búsqueda, «Cargar más» añade la página siguiente con 
   expect(loadMoreButton()).toBeUndefined();
   expect(container.querySelector('[role="alert"]')).toBeNull();
 });
+
+/* 20-11-2026: al llegar al máximo todas las filas se desactivan, y la lista, que se desplaza en vertical, se quedaba
+   sin nada que el teclado pudiera enfocar. La lista se enfoca ella, con un nombre que dice que se desplaza. */
+test("con el máximo alcanzado y todas las filas desactivadas, la lista sigue alcanzable con el teclado", async () => {
+  mocks.searchAssetsPage.mockResolvedValue({ results: [asset("A-1", "Uno"), asset("A-2", "Dos")], totalMatches: 2, nextCursor: null });
+  await act(async () => root.render(<AssetPicker sourceKind="LOCAL_MOCK" selectedIds={["X-1", "X-2"]} max={2} onPick={() => {}} />));
+  const lista = container.querySelector("ul.asset-picker-list") as HTMLUListElement;
+  expect(lista).toBeTruthy();
+  const filas = [...lista.querySelectorAll("button")];
+  expect(filas.length).toBe(2);
+  expect(filas.every((fila) => fila.disabled)).toBe(true);
+  expect(lista.tabIndex).toBe(0);
+  expect(lista.getAttribute("aria-label")).toBe("Activos encontrados (lista desplazable)");
+});

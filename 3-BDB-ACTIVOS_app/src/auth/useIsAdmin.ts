@@ -7,7 +7,7 @@ import { FIREBASE_CONFIGURED } from "../firebaseEnv";
  *
  * A3.5: la allowlist VITE_ADMIN_EMAILS desapareció — horneaba emails en el
  * bundle público y duplicaba una decisión que ya vive en el claim (se pone con
- * scripts/set_admin.py). El backend re-verifica en cada callable admin
+ * `npm run nube:administrador`, en 2-plataforma-datos). El backend re-verifica en cada callable admin
  * (_require_admin), así que este hook solo decide qué UI se monta.
  */
 export function useIsAdmin(): boolean {

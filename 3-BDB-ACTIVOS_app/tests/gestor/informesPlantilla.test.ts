@@ -39,8 +39,8 @@ const ASESOR: NonNullable<DatosDelInforme["asesor"]> = { nombre: "Laura Asesora 
 const preparadoPara = (d: DatosDelInforme) => (d.analisis.cartera.cliente ? `Preparado para ${d.analisis.cartera.cliente}` : null);
 
 const TEMA: Record<TipoDeInforme, { sello: string; documento: string; bajo: (datos: DatosDelInforme) => string | null }> = {
-  cliente: { sello: "CONFIDENCIAL", documento: "Informe de cartera", bajo: preparadoPara },
-  costes: { sello: "CONFIDENCIAL", documento: "Informe de costes", bajo: preparadoPara },
+  cliente: { sello: "CONFIDENCIAL", documento: "Informe de la cartera", bajo: preparadoPara },
+  costes: { sello: "CONFIDENCIAL", documento: "Costes de la cartera", bajo: preparadoPara },
   asesor: { sello: "USO INTERNO", documento: "Informe del asesor", bajo: () => "No entregar al cliente" }
 };
 

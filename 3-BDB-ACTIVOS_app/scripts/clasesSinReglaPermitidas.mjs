@@ -12,7 +12,6 @@
 
 // Nombran un bloque para quien lee el código: lo que pintan lo pintan sus hijos o la pieza.
 const ENVOLTORIOS = {
-  "admin-refresh-row": "contenedor de un botón de Sistema, nunca tuvo regla",
   "app-fallback": "mensaje de arranque de main.tsx, antes de que carguen las hojas",
   "backtest-comparison-layout": "columna de la simulación, nunca tuvo regla",
   "backtest-evolution-block": "bloque del gráfico; el estilo es de .backtest-block",
@@ -41,8 +40,6 @@ const TABLAS = {
   "asset-holdings-table": "general de <table>",
   "cmp-table": "general de <table>",
   "costs-retro-table": "general de <table>",
-  "ops-campos-table": "general de <table>",
-  "ops-plan-table": "general de <table>",
 };
 
 // Un elemento interior que no necesita más estilo que el que hereda.
@@ -67,8 +64,6 @@ const DEUDA = {
   // y una tabla más ancha que la columna puede empujar la página.
   "asset-holdings-table-wrapper": "0abcec9: sin overflow-x",
   "cmp-table-wrap": "0abcec9: sin overflow-x",
-  // La misma limpieza les quitó la letra de código: ISIN y notas salen en texto normal.
-  "system-data-missing": "0abcec9: sin la letra de código",
   // Y a estos, el aspecto de distintivo.
   "quality-chip": "0abcec9: sin aspecto de distintivo",
   // ff0f058 (03-11-2026), la limpieza de las notas. Lo que el lote de las notas no devolvió

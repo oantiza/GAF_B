@@ -11,11 +11,14 @@ import { fraseDeLaCifraApartada, fraseDeLaSerieValida, fraseDelHueco, partesDeLa
 import { operacionEnUnaCasilla } from "../core/portfolioCosts";
 import { NOTA_CANADA_Y_AFRICA, zonasDeUnReparto } from "../core/regionTaxonomy";
 import { textoDeAusencia } from "../core/textoDeAusencia";
+import { carteraPublicada } from "../core/carteraPublicada";
+import { cuentaQueCuadra, rotuloDePosiciones } from "../core/cuentaDePosiciones";
 import type { Documento, InstrumentoDeLaBase } from "./baseNuevaLectura";
 import { discrepanciaEnPalabras } from "./componerEstado";
 import { clasificacionDeTarjeta, NOMBRE_DEL_METODO } from "./componerLista";
 import { filaDeComisionDeSwap, filaDePoliticaDelEmisor, seccionAnchaDelEmisor, seccionDelEmisorJuntoAlPrecio } from "./fichaDelEmisor";
 import { seccionDelMercadoObjetivo } from "./fichaDelMercadoObjetivo";
+import { NOTA_DEL_REPARTO_NETO } from "../core/repartoNeto";
 import type {
   AptitudDeFicha,
   CajaDeFicha,
@@ -501,6 +504,25 @@ export const SIN_RELATIVAS_POR_DECISION: Record<string, (frase: string) => strin
   HEDGED_SHARE_CLASS: () =>
     "Es una clase con cobertura de divisa y su índice no la lleva: no la medimos contra él, porque la diferencia sería la cobertura y no la gestión."
 };
+
+/** `relative_absence = SAME_FUND_REFERENCE` (decisión C-28 del 21-11-2026): la única serie que tenemos de su índice es otra
+    clase del mismo fondo. No está en `SIN_RELATIVAS_POR_DECISION` a propósito: no ocupa el sitio de la sección del
+    proveedor, que sigue valiendo —mide contra el índice de su categoría—, y lo que cuenta es nuestro, así que solo se dice
+    en modo interno. */
+export const SIN_RELATIVAS_POR_LA_REFERENCIA =
+  "No lo medimos nosotros: la única serie que tenemos de su índice es otra clase de este mismo fondo, y contra ella saldría beta 1 y R² del 100 %, que no dice nada.";
+
+/** §10 del método: lo retirado consta, con la fecha. Quien entregó un informe antes tiene que poder reconocerlo. */
+function cuandoSeRetiraron(metricas: Documento | undefined): string {
+  const retirada = valorEn(metricas, "relative_withdrawal.withdrawn_on");
+  if (typeof retirada !== "string") return "";
+  const contraQue = valorEn(metricas, "relative_withdrawal.benchmark_name");
+  const ultimoDato = valorEn(metricas, "relative_withdrawal.last_as_of");
+  return (
+    ` Hasta el ${dia(retirada)} publicábamos sus cifras${contraQue ? ` contra ${String(contraQue)}` : ""}` +
+    `${typeof ultimoDato === "string" ? `, con dato a ${dia(ultimoDato)}` : ""}: un informe anterior puede llevarlas.`
+  );
+}
 
 /** Quién dice el motivo: el KID del fondo, o el nombre de su clase. */
 const QUIEN_DICE_EL_MOTIVO: Record<string, string> = {
@@ -1232,15 +1254,7 @@ export function componerFicha(
       const motivo = String(valorEn(metricas, "relative_absence"));
       const frase = fraseDelKid(valorEn(metricas, "relative_absence_evidence.kid_excerpt"));
       const comprobado = valorEn(metricas, "relative_absence_evidence.checked_on");
-      const retirada = valorEn(metricas, "relative_withdrawal.withdrawn_on");
-      const contraQue = valorEn(metricas, "relative_withdrawal.benchmark_name");
-      const ultimoDato = valorEn(metricas, "relative_withdrawal.last_as_of");
-      /* §10 del método: lo retirado consta, con la fecha. Quien entregó un informe antes tiene que poder reconocerlo. */
-      const cuandoSeRetiro =
-        seEnsena("calidadInterna", modoCliente) && typeof retirada === "string"
-          ? ` Hasta el ${dia(retirada)} publicábamos sus cifras${contraQue ? ` contra ${String(contraQue)}` : ""}` +
-            `${typeof ultimoDato === "string" ? `, con dato a ${dia(ultimoDato)}` : ""}: un informe anterior puede llevarlas.`
-          : "";
+      const cuandoSeRetiro = seEnsena("calidadInterna", modoCliente) ? cuandoSeRetiraron(metricas) : "";
       secciones.push({
         id: "contra-indice-propio",
         titulo: "Frente a su índice",
@@ -1267,6 +1281,19 @@ export function componerFicha(
         procedencia: [{ texto: "Sin referencia", fuerte: true }],
         filas: [],
         nota: "No hemos decidido todavía el índice de referencia de esta bolsa, y no la medimos contra el de otra plaza."
+      });
+    } else if (
+      seEnsena("calidadInterna", modoCliente) &&
+      valorEn(metricas, "relative_absence") === "SAME_FUND_REFERENCE" &&
+      !(hay("declared/provider_risk") && valorEn(bloques["declared/provider_risk"], "beta") !== undefined)
+    ) {
+      /* C-28: sin cifra del proveedor que la sustituya, el motivo ocupa la sección. Con ella, va en su nota (más abajo). */
+      secciones.push({
+        id: "contra-indice-propio",
+        titulo: "Frente a su índice",
+        procedencia: [{ texto: "Sin referencia", fuerte: true }],
+        filas: [],
+        nota: SIN_RELATIVAS_POR_LA_REFERENCIA + cuandoSeRetiraron(metricas)
       });
     }
   } else {
@@ -1423,8 +1450,9 @@ export function componerFicha(
     /* Lo que a la precisión escrita (un decimal, la de un peso) es cero no se pinta, sea del signo que sea: «−0,0 %» no dice ninguna cifra
        (decisión 113). Lo que se ve, tal cual, como −0,4 % (decisión A-63). */
     const seEscribe = Object.entries(mezcla).filter(([, peso]) => typeof peso === "number" && pesoDe(Math.abs(peso)) !== pesoDe(0));
-    /* El reparto es neto de cortos, y el contrato deja que una clase se salga de 0-100 hasta un punto (decisión A-63). Se enseña tal cual, con el porqué: lo
-       negativo es corto mayor que largo. La nota habla de lo que se lee: un −0,03 % que no se pinta, o un 100,0 %, no salen de 0-100 en esta tabla. */
+    /* El reparto es el neto del proveedor, que suma el 100 %: una clase puede ser negativa (un corto, liquidez prestada) o pasar del 100 %
+       (apalancamiento), de −500 % a 600 % (decisión C-29, 21-11-2026; hasta ese día, un punto por la A-63). Se enseña tal cual, con su signo y
+       con el porqué. La nota habla de lo que se lee: un −0,03 % que no se pinta, o un 100,0 %, no salen de 0-100 en esta tabla. */
     const fueraDeCeroACien = seEscribe.some(([, peso]) => peso < 0 || (peso > 1 && pesoDe(peso) !== pesoDe(1)));
     secciones.push({
       id: "composicion",
@@ -1434,23 +1462,26 @@ export function componerFicha(
         : fuente("Declarada por el proveedor", valorEn(bloques["declared/exposure"], "as_of")),
       filas: seEscribe.map(([clave, peso]) => ({ rotulo: ROTULOS[clave] ?? clave, valor: pesoDe(peso) })),
       nota: derivado
-        ? "Una acción es renta variable por definición, así que este 100 % no lo ha medido nadie: se deduce de lo que es."
+        ? esAccion
+          ? "Una acción es renta variable por definición, así que este 100 % no lo ha medido nadie: se deduce de lo que es."
+          : /* El ETC de materias primas (21-11-2026): la plataforma lo pone en «otros», donde van las materias primas. */
+            "Un producto de materias primas no tiene una cartera que repartir, así que este 100 % no lo ha medido nadie: se deduce de lo que es."
         : fueraDeCeroACien
-          ? "Reparto neto de cortos: por eso una clase puede salir en negativo y otra pasar del 100 %."
+          ? NOTA_DEL_REPARTO_NETO
           : undefined
     });
   } else if (!esAccion) {
     /* Un hueco no se esconde: sin esto, un fondo sin reparto se quedaba sin sección y solo lo decía «Entrar en una
-       radiografía». La clase de la ausencia sale de la calidad, como las demás filas. La nota vale para los 97 que hay, medidos
-       el 05-11-2026 con la tolerancia de la decisión A-63: 3 no publican nada y 94 traen alguna clase fuera de 0-100 por más de
-       un punto, hasta 243. */
+       radiografía». La clase de la ausencia sale de la calidad, como las demás filas. Desde la decisión C-29 (21-11-2026) un reparto
+       neto que suma el 100 % sí se escribe: medido sobre el canónico del 17-11, se quedan sin reparto los 3 fondos que no lo publican
+       (las cuatro clases a cero), y los 95 que traían una clase fuera de 0-100 lo recuperan. */
     secciones.push({
       id: "composicion",
       titulo: "Composición",
       procedencia: fuente("Sin reparto que cuadre", undefined),
       filas: [fila(contexto, "Reparto por clase de activo", "declared/exposure.asset_mix", texto)],
       nota: seEnsena("calidadInterna", modoCliente)
-        ? "El proveedor no lo publica, o trae alguna clase fuera de 0-100 % por más de un punto. No se completa con ceros ni se enseña uno anterior."
+        ? "El proveedor no lo publica, o lo que declara no suma el 100 %. No se completa con ceros ni se enseña uno anterior."
         : undefined
     });
   }
@@ -1465,6 +1496,12 @@ export function componerFicha(
     valorEn(bloques["declared/provider_risk"], "beta") !== undefined
   ) {
     const indice = valorEn(raiz, "classification.official_benchmark.name");
+    /* C-28: por qué no va la nuestra en su lugar. Es cosa nuestra, así que solo en modo interno. */
+    const porLaReferencia =
+      seEnsena("calidadInterna", modoCliente) && valorEn(bloques["computed/metrics"], "relative_absence") === "SAME_FUND_REFERENCE"
+        ? SIN_RELATIVAS_POR_LA_REFERENCIA + cuandoSeRetiraron(bloques["computed/metrics"])
+        : "";
+    const delFolleto = indice ? `No es el índice del folleto (${String(indice)}), y por eso se dice.` : "";
     secciones.push({
       id: "contra-indice",
       titulo: "Contra su índice",
@@ -1488,7 +1525,7 @@ export function componerFicha(
           ? [fila(contexto, "El índice, en nuestra base", "classification.official_benchmark.instrument_id", texto)]
           : [])
       ],
-      nota: indice ? `No es el índice del folleto (${String(indice)}), y por eso se dice.` : undefined
+      nota: [delFolleto, porLaReferencia.trim()].filter(Boolean).join(" ") || undefined
     });
   }
 
@@ -1702,20 +1739,25 @@ export function componerFicha(
     const posiciones = (valorEn(bloques["declared/holdings"], "top") ?? []) as Array<
       Record<string, unknown>
     >;
-    /* La cuenta de posiciones no se escribe, en ninguna ficha, hasta que el dato guarde el total del fondo (decisión 121 de Óscar, 06-11-2026).
-       En la base nueva `declared/holdings.positions_count` es el número de bonos del fondo o, si no tiene, el de acciones
-       (`holdings_count_bond ?? holdings_count_equity`, en `2-plataforma-datos/src/ingestion/baseNueva/mapper.ts`), no el total. La ficha
-       solo recibe las 25 primeras líneas y no puede comprobarla: con la regla de `cuentaQueCuadra` dejaba de escribir las 74 que esas líneas
-       desmienten, pero 243 seguían escribiendo una cuenta corta, como R-co Valor Balanced, «191 posiciones», que son sus bonos, con 243
-       títulos en su cartera. Hasta cuándo: hasta que el extractor exporte el total, que ya lee (`numberOfHolding`), y la plataforma lo guarde
-       en `positions_count`, con refresco y subida del catálogo, después de publicar. Para devolverla, la misma comprobación de antes: los
-       títulos de estas líneas con `carteraPublicada(...).titulos`, `cuentaQueCuadra(positions_count, titulos)` y `rotuloDePosiciones`
-       (`core/cuentaDePosiciones`), delante del peso de las diez mayores. Posiciones y el informe interno siguen con la suya: la comprueban
-       con la cartera completa. */
+    /* Cuántas posiciones tiene el fondo (Óscar, 20-11-2026), donde estaba hasta la decisión 121 (06-11-2026): delante del peso de las diez
+       mayores. Entonces se quitó porque `positions_count` es el número de bonos del fondo o, si no tiene, el de acciones, no el total. Desde el
+       08-11 la base guarda `securities_count`, los títulos de la cartera según el proveedor, acciones más bonos (decisión 55): es el total que
+       se enseña, como en Posiciones y Análisis (`alcanceDeLaCartera`). Se escribe solo si no lo desmienten los títulos que llegan en estas
+       líneas (`cuentaQueCuadra`, contados con `carteraPublicada`); si no está o lo desmienten, «Falta el dato», con su pieza. Medido el
+       20-11-2026 en la base nueva (8092): las 768 carteras lo llevan. */
+    const recibida = carteraPublicada({
+      holdings: posiciones.map((posicion) => ({
+        name: String(posicion["name"] ?? ""),
+        isin: typeof posicion["isin"] === "string" ? posicion["isin"] : undefined,
+        weight_pct: Number(posicion["weight"]) * 100,
+        holding_type_code: typeof posicion["holding_type_code"] === "string" ? posicion["holding_type_code"] : undefined
+      }))
+    });
+    const cuantas = cuentaQueCuadra(valorEn(bloques["declared/holdings"], "securities_count"), recibida?.titulos);
     const diez = posiciones.slice(0, 10);
     /* Se dice solo si cuadra con las filas que hay debajo: el proveedor la calcula sin efectivo ni derivados, y las filas los llevan. */
     const peso10 = diezMayoresQueCuadran(valorEn(bloques["declared/holdings"], "top10_weight"), diez.map((posicion) => posicion["weight"]));
-    const loDeclarado = [typeof peso10 === "number" ? `diez mayores ${pesoDe(peso10)}` : null].filter(Boolean);
+    const diezMayores = typeof peso10 === "number" ? `, diez mayores ${pesoDe(peso10)}` : "";
     /* Una columna entera vacía no dice nada, y le pasa a uno de cada tres: mejor decirlo una vez. */
     const conSector = diez.some((posicion) => posicion["sector"]);
     const conDerivados = diez.some((posicion) => esDerivadoPorSuCodigo(posicion["holding_type_code"]));
@@ -1725,8 +1767,10 @@ export function componerFicha(
       ancha: true,
       procedencia: [
         ...fuente("Declarada por el proveedor", valorEn(bloques["declared/holdings"], "as_of")),
-        /* Sin la cuenta, el peso de las diez mayores va detrás de la fecha como lo demás: «· diez mayores 53,2 %». */
-        { texto: loDeclarado.length > 0 ? ` · ${loDeclarado.join(", ")}` : "" }
+        /* «· 243 posiciones, diez mayores 53,2 %»; sin la cuenta, «· posiciones: Falta el dato, diez mayores 53,2 %». */
+        ...(cuantas !== undefined
+          ? [{ texto: ` · ${rotuloDePosiciones(cuantas)}${diezMayores}` }]
+          : [{ texto: " · posiciones: " }, { texto: textoDeAusencia("falta"), ausencia: "falta" as const }, { texto: diezMayores }])
       ],
       filas: [],
       tabla: {

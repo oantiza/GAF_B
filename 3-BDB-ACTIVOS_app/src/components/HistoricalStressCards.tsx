@@ -2,7 +2,7 @@ import type { BacktestStressScenario } from "../adapters/backtestPortfolioBacken
 import type { HorizonPosition } from "../adapters/portfolioHorizon";
 import { useClientMode, useModoCliente } from "../app/ClientModeContext";
 import { motivoDeFueraParaElCliente } from "../core/backtestCoverage";
-import { motivoDeUnaCrisisSinCifra, posicionesParaLasCrisis } from "../core/crisisPasadas";
+import { mismasFechasQueUnaCrisis, motivoDeUnaCrisisSinCifra, posicionesParaLasCrisis } from "../core/crisisPasadas";
 import { useId, type ReactNode } from "react";
 import { Ausencia } from "./ui/Ausencia";
 import { Distintivo } from "./ui/Distintivo";
@@ -19,6 +19,10 @@ export interface HistoricalStressCardsProps {
 /* Lo que falta lo escribe siempre la pieza, «Falta el dato» en ocre (ANA-11). Hasta el 20-11-2026, en una misma tarjeta la duración y
    el activo que más restó lo decían con ella, y la caída, la recuperación y las fechas, con el texto suelto y en la tinta de una cifra. */
 const FALTA = <Ausencia clase="falta" />;
+/* P1-06 (21-11-2026): sin caída, la duración, la recuperación y el activo que más restó no faltan: no aplican. Antes salía
+   «1 día» de recuperación y un activo que restaba un 0,00 %. */
+const NO_APLICA = <Ausencia clase="no-aplica" />;
+const SIN_CAIDA = <Ausencia clase="no-aplica" motivo="Sin caída" />;
 
 /* Una caída o una contribución: el dato llega en puntos porcentuales y el módulo de formato recibe fracciones. Dos
    decimales, como toda cifra de riesgo de la pantalla (ANA-10). Sin cifra que escribir, `null`: quien la pinta pone la pieza. */
@@ -41,6 +45,8 @@ const EXCLUSION_LABELS: Record<string, string> = {
   NO_SERIES: "Sin serie EUR de 10 años",
   NO_DATA_AT_WINDOW_START: "Sin dato al inicio dentro de cinco días hábiles",
   YOUNGEST_TO_REACH_THREE_YEARS: "Excluido para alcanzar tres años comunes",
+  SERIES_ENDS_EARLY: "Sus precios acaban antes del final del periodo",
+  GAP_IN_WINDOW: "Sin cotizaciones durante parte de la crisis",
   PRICE_SERIES_MISSING: "Sin serie de precios",
   INSUFFICIENT_HISTORY: "Histórico insuficiente",
   FX_SERIES_MISSING: "Sin conversión a euros",
@@ -64,6 +70,7 @@ function tramo(scenario: BacktestStressScenario): ReactNode {
 }
 
 function recoveryLabel(scenario: BacktestStressScenario): ReactNode {
+  if (scenario.recovery_status === "NO_DRAWDOWN") return SIN_CAIDA;
   if (scenario.recovery_status === "RECOVERED" && scenario.recovery_days != null) {
     return <>{formato.cuantos(scenario.recovery_days, "día", "días")} · {formatDate(scenario.recovery_date) ?? FALTA}</>;
   }
@@ -81,6 +88,8 @@ export function HistoricalStressCards({ scenarios, assetLabels = {}, positions =
   const headingId = useId();
   const visibleScenarios = scenarios ?? [];
   const posicionDe = posicionesParaLasCrisis(positions, (id) => assetLabels[id]);
+  /* Junto a la historia común, si cae en las fechas de una crisis y da otra cifra: por qué (Óscar, 20-11-2026). */
+  const mismasFechas = mismasFechasQueUnaCrisis(visibleScenarios, (escenario) => formatPercent(escenario.drawdown_pct));
 
   return (
     <Panel
@@ -106,6 +115,7 @@ export function HistoricalStressCards({ scenarios, assetLabels = {}, positions =
             /* La historia común mide de máximo a mínimo, y las crisis desde su primer día (decisión 115): su cifra es la caída
                máxima, y la duración dice desde qué máximo cuenta. Sin `peak_date` no se dice, porque no se ha medido así. */
             const maximo = scenario.peak_date ?? null;
+            const sinCaida = scenario.recovery_status === "NO_DRAWDOWN";
             return (
               <article
                 key={scenario.id}
@@ -143,7 +153,9 @@ export function HistoricalStressCards({ scenarios, assetLabels = {}, positions =
                   <div>
                     <dt>Duración</dt>
                     <dd>
-                      {scenario.duration_days == null
+                      {sinCaida
+                        ? NO_APLICA
+                        : scenario.duration_days == null
                         ? FALTA
                         : <>{formato.cuantos(scenario.duration_days, "día", "días")} · {maximo ? <>máximo {formatDate(maximo) ?? FALTA} · </> : null}mínimo {formatDate(scenario.trough_date) ?? FALTA}</>}
                     </dd>
@@ -172,7 +184,7 @@ export function HistoricalStressCards({ scenarios, assetLabels = {}, positions =
                       <span>{formatPercent(worstAsset.contribution_pct) ?? FALTA}</span>
                     </p>
                   ) : (
-                    <p>{FALTA}</p>
+                    <p>{sinCaida ? NO_APLICA : FALTA}</p>
                   )}
                 </div> : null}
 
@@ -191,6 +203,10 @@ export function HistoricalStressCards({ scenarios, assetLabels = {}, positions =
                     <p>Sin activos excluidos.</p>
                   )}
                 </div>
+
+                {scenario.id === "COMMON_HISTORY" && mismasFechas && !sinCifra ? (
+                  <p className="f5-stress-mismas-fechas">{mismasFechas}</p>
+                ) : null}
               </article>
             );
           })}

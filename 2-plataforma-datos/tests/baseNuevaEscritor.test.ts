@@ -491,7 +491,7 @@ describe('el mapper: del canonico a la base nueva', () => {
         expect(resultado.avisos.some((aviso) => aviso.includes('no suma 1'))).toBe(true);
     });
 
-    describe('una clase puede salirse de 0-1 hasta un punto, y solo eso (decision A-63)', () => {
+    describe('el reparto neto del proveedor, si suma 1 (decision A-63 y, desde el 21-11-2026, C-29)', () => {
         const tipo = 'instrument-declared-exposure.v2.schema.json';
         const conMezcla = (mezcla: Record<string, number>) =>
             mapearInstrumento(
@@ -525,28 +525,92 @@ describe('el mapper: del canonico a la base nueva', () => {
             expect(validarForma(tipo, exposicion).motivos).toEqual([]);
         });
 
-        it('el limite entra: -1 y 101 exactos, y lo que suma 1', () => {
+        it('el limite de la A-63 entra, como entraba: -1 y 101 exactos, y lo que suma 1', () => {
             const exposicion = exposicionDe(conMezcla({ equity: 1.01, bond: 0, cash: -0.01, other: 0 }))!;
             expect(exposicion['asset_mix']['equity']).toBe(1.01);
             expect(exposicion['asset_mix']['cash']).toBe(-0.01);
             expect(validarForma(tipo, exposicion).motivos).toEqual([]);
         });
 
-        it('un poco mas alla no pasa, sumen lo que sumen', () => {
-            const por = conMezcla({ equity: 1.0101, bond: 0, cash: -0.0101, other: 0 });
-            sinReparto(por);
-            expect(por.avisos.join(' ')).toContain('asset_mix con una clase fuera de rango: equity 1.0101, cash -0.0101');
-            sinReparto(conMezcla({ equity: 1.02, bond: -0.02, cash: 0, other: 0 }));
+        it('desde la C-29 tambien lo de mas alla, si suma 1: el reparto neto del proveedor, con su signo', () => {
+            const resultado = conMezcla({ equity: 1.0101, bond: 0, cash: -0.0101, other: 0 });
+            expect(exposicionDe(resultado)!['asset_mix']).toEqual({ equity: 1.0101, fixed_income: 0, cash: -0.0101, other: 0 });
+            expect(resultado.avisos.join(' ')).not.toContain('fuera de rango');
         });
 
-        it('una clase muy fuera no se toma por no declarada: lo demas suma 1 y aun asi no hay reparto', () => {
-            // Con la regla de antes salia bolsa 0 % en un fondo que dice 150 %.
+        it('ES0137396000: bolsa 319,8 % y liquidez -242,6 % suman 1 y entran tal cual, y el documento valida', () => {
+            // Los numeros del canonico del 17-11-2026: 3,198089 + 0,115421 - 2,425742 + 0,112232 = 1,000000.
+            const resultado = conMezcla({ equity: 3.198089, bond: 0.115421, cash: -2.425742, other: 0.112232 });
+            const exposicion = exposicionDe(resultado)!;
+            expect(exposicion['asset_mix']).toEqual({ equity: 3.198089, fixed_income: 0.115421, cash: -2.425742, other: 0.112232 });
+            expect(exposicion['asset_mix_completion']).toBe('REPORTED');
+            expect(validarForma(tipo, exposicion).motivos).toEqual([]);
+            expect(resultado.ausencias.some((a) => a.ruta === 'declared/exposure.asset_mix')).toBe(false);
+        });
+
+        it('una clase neta no completa las que faltan con nada raro: -2,43 y 3,42 suman 1 y las otras dos salen a cero', () => {
+            // -2,43 + 3,43 = 1,00: la particion esta cerrada, y bond y other son cero por aritmetica.
+            const exposicion = exposicionDe(conMezcla({ equity: 3.43, cash: -2.43 }))!;
+            expect(exposicion['asset_mix']).toEqual({ equity: 3.43, cash: -2.43, fixed_income: 0, other: 0 });
+            expect(exposicion['asset_mix_completion']).toBe('IMPLIED_BY_SUM');
+        });
+
+        it('fuera de los topes (de -5 a 6) no hay reparto, sume lo que sume: es un error de unidades', () => {
+            // 60 - 59 = 1, pero un 6.000 % de bolsa no es apalancamiento: es un porcentaje leido como fraccion.
+            const por = conMezcla({ equity: 60, bond: 0, cash: -59, other: 0 });
+            sinReparto(por);
+            expect(por.avisos.join(' ')).toContain('asset_mix con una clase fuera de rango: equity 60, cash -59');
+            expect(por.ausencias.find((a) => a.ruta === 'declared/exposure.asset_mix')?.detalle).toContain('de -5 a 6');
+            // Los bordes cuentan como dentro: -5 + 6 = 1.
+            expect(exposicionDe(conMezcla({ equity: 6, bond: 0, cash: -5, other: 0 }))!['asset_mix']['cash']).toBe(-5);
+            sinReparto(conMezcla({ equity: 6.01, bond: 0, cash: -5.01, other: 0 }));
+        });
+
+        it('una clase muy fuera que no suma 1 no se toma por no declarada: no hay reparto', () => {
+            // Con la regla de antes del 05-11 salia bolsa 0 % en un fondo que dice 150 %.
             sinReparto(conMezcla({ equity: 1.5, bond: 0.99, cash: 0.01, other: 0 }));
             sinReparto(conMezcla({ equity: -2.43, bond: 0.99, cash: 0.01, other: 0 }));
         });
 
         it('la suma sigue mandando: con las clases dentro, lo que no suma 1 no es un reparto', () => {
             sinReparto(conMezcla({ equity: 1.005, bond: 0.01, cash: 0, other: 0 }));
+        });
+
+        it('un reparto neto no deduce la clase de la raiz: un fondo que vende bolsa no es un monetario', () => {
+            // ES0139112009 en el canonico del 17-11: bolsa -1,881353, renta fija 0,410258, liquidez 2,463339, otros 0,007756.
+            // Si el proveedor lo diera como OTHER, la liquidez del 246 % lo haria CAPITAL_PRESERVATION.
+            const resultado = mapearInstrumento(
+                ficha({
+                    classification_v2: { asset_type: 'other', official_benchmark: 'Un Indice Global' },
+                    portfolio_exposure_v2: { asset_mix: { equity: -1.881353, bond: 0.410258, cash: 2.463339, other: 0.007756 }, exposure_confidence: 0.9 }
+                }),
+                sinClaseEnElUniversal(),
+                AHORA
+            );
+            const raiz = doc(resultado, `instruments/${ISIN}`)?.documento as Record<string, any>;
+            expect(raiz['classification']['asset_class']).toBe('OTHER');
+            expect(raiz['classification']['asset_class_resolution']).toBe('PROVIDER');
+            expect((doc(resultado, '/declared/exposure')?.documento as Record<string, any>)['asset_mix']['equity']).toBe(-1.881353);
+        });
+
+        it('y con un reparto neto los mapas de la renta variable siguen la regla de cuando no habia reparto', () => {
+            // BLK Systematic (LU1373035234): regiones con Estados Unidos al 448 %. Sin la guarda quedaria un 36 % suelto.
+            const resultado = mapearInstrumento(
+                ficha({
+                    portfolio_exposure_v2: {
+                        asset_mix: { equity: 0.003534, bond: 0.467073, cash: 1.336999, other: -0.807606 },
+                        equity_regions: { united_states: 4.479336, united_kingdom: 0.191915, middle_east: 0.167587 },
+                        sectors: { technology: 0.6, healthcare: 0.4 },
+                        exposure_confidence: 0.9
+                    }
+                }),
+                universal(),
+                AHORA
+            );
+            const exposicion = doc(resultado, '/declared/exposure')?.documento as Record<string, any>;
+            expect(exposicion['asset_mix']['other']).toBe(-0.807606);
+            expect(exposicion).not.toHaveProperty('equity_regions');
+            expect(exposicion['sectors']).toEqual({ technology: 0.6, healthcare: 0.4 });
         });
 
         it('un negativo no hace que aplique lo que no aplica: sin renta fija no se reclama su detalle', () => {
@@ -559,8 +623,8 @@ describe('el mapper: del canonico a la base nueva', () => {
 
         it('la regla vive en el contrato, y es la misma en el bloque y en su copia de la tarjeta', () => {
             for (const clase of ['equity', 'fixed_income', 'cash', 'alternative', 'real_asset', 'other']) {
-                expect(rangoDe(tipo, `asset_mix.${clase}`)).toEqual({ minimum: -0.01, maximum: 1.01 });
-                expect(rangoDe('instrument-read-card.v2.schema.json', `exposure.asset_mix.${clase}`)).toEqual({ minimum: -0.01, maximum: 1.01 });
+                expect(rangoDe(tipo, `asset_mix.${clase}`)).toEqual({ minimum: -5, maximum: 6 });
+                expect(rangoDe('instrument-read-card.v2.schema.json', `exposure.asset_mix.${clase}`)).toEqual({ minimum: -5, maximum: 6 });
             }
             // Solo el reparto por clase: un sector y la confianza siguen de 0 a 1.
             expect(rangoDe(tipo, 'sectors.*')).toEqual({ minimum: 0, maximum: 1 });
@@ -857,6 +921,7 @@ describe('las traducciones: exhaustivas y sin valor por defecto', () => {
 
     it('un domicilio desconocido no se recorta a dos letras', () => {
         expect(traducir(DOMICILIO, 'domicilio', 'LUX')).toBe('LU');
+        expect(traducir(DOMICILIO, 'domicilio', 'USA')).toBe('US');
         expect(() => traducir(DOMICILIO, 'domicilio', 'CHE')).toThrow(TraduccionDesconocida);
     });
 
@@ -1741,6 +1806,52 @@ describe('el mapper: lo que calculamos contra un indice', () => {
             expect(m).not.toHaveProperty('relative_absence_evidence');
             expect(m).not.toHaveProperty('relative_withdrawal');
             expect(validarForma('instrument-computed-metrics.v2.schema.json', m).ok).toBe(true);
+        });
+
+        it('la referencia que es otra clase del mismo fondo escribe su motivo (C-28, regla 3)', () => {
+            // Lo que escribe el extractor desde e1d02adb: el proxy entre parentesis y la firma aparte. Es el
+            // caso de Vanguard Global Stock Index Investor, medido contra su clase EUR Acc.
+            const { r, m } = metricasCon({
+                aviso: 'sin_relativas_referencia_del_mismo_fondo(IE00B03HD191)',
+                mismo_fondo_por: 'patrimonio_del_fondo'
+            });
+            expect(m['relative_absence']).toBe('SAME_FUND_REFERENCE');
+            expect(m).not.toHaveProperty('relative');
+            expect(m).not.toHaveProperty('relative_absence_evidence');
+            expect(m).not.toHaveProperty('relative_withdrawal');
+            expect(validarForma('instrument-computed-metrics.v2.schema.json', m).motivos).toEqual([]);
+            expect(r.avisos.some((a) => a.includes('identidad completa del indice'))).toBe(false);
+        });
+
+        it('su retirada viaja como la del KID (§10 del metodo)', () => {
+            // Lo que escribe el extractor desde el 21-11-2026 para Vanguard Global Stock Index Investor, medido con su
+            // ficha del 17-11 (`_escribe_retirada` de `fetchers/vl_fondos.py`), con la clase de serie del proxy.
+            const { m } = metricasCon({
+                aviso: 'sin_relativas_referencia_del_mismo_fondo(IE00B03HD191)',
+                mismo_fondo_por: 'patrimonio_del_fondo',
+                retirada: {
+                    fecha: '2026-11-21',
+                    decision: 'DECISIONES_BASE_NUEVA_2026-11-01.md, decisión C-28 (regla 3)',
+                    indice_nombre: 'MSCI World',
+                    indice_proxy: 'IE00B03HD191',
+                    indice_clase_de_serie: 'VALOR_LIQUIDATIVO',
+                    ultima_fecha_dato: '2026-10-31'
+                }
+            });
+            expect(m['relative_absence']).toBe('SAME_FUND_REFERENCE');
+            expect(m['relative_withdrawal']).toEqual({
+                withdrawn_on: '2026-11-21',
+                decision: 'DECISIONES_BASE_NUEVA_2026-11-01.md, decisión C-28 (regla 3)',
+                benchmark_name: 'MSCI World',
+                benchmark_instrument_id: 'IE00B03HD191',
+                last_as_of: '2026-10-31'
+            });
+            expect(validarForma('instrument-computed-metrics.v2.schema.json', m).motivos).toEqual([]);
+        });
+
+        it('el motivo de la C-28 tambien sin el parentesis del proxy', () => {
+            const { m } = metricasCon({ aviso: 'sin_relativas_referencia_del_mismo_fondo' });
+            expect(m['relative_absence']).toBe('SAME_FUND_REFERENCE');
         });
 
         it('los avisos que son del calculo y no del fondo siguen sin motivo', () => {

@@ -5,7 +5,7 @@ import { isPartialFrontier } from "../core/frontierPortfolioCoverage";
  */
 import { HISTORICAL_FRONTIER_LABEL, PREFIJO_SIN_SOLUCION, type FrontierHistoricalState, type FrontierPointView, type FrontierViewModel } from "../types/portfolioFrontier";
 import { concaveFrontierEnvelope, faltaElPuntoDeLaCartera } from "../core/frontierPresentation";
-import { MAXIMO_SHARPE, MIN_VOLATILIDAD, notaDeLaPropuesta, RENTABILIDAD_OBJETIVO, TU_OBJETIVO } from "../core/notaDeLaPropuesta";
+import { MAXIMO_SHARPE, MIN_VOLATILIDAD, notaDelObjetivoCalculado, RENTABILIDAD_OBJETIVO, TU_OBJETIVO } from "../core/notaDeLaPropuesta";
 import { pesosDelPunto } from "../core/optimizationWeightValidation";
 import { OaaFrontierChart, type OaaFrontierMark } from "../charts/oaa";
 import type { PapelDeSerie } from "../charts/oaa/chartTheme";
@@ -250,7 +250,8 @@ export function FrontierHistoricalView({
 
   const model = state.model;
   const partial = isPartialFrontier(model);
-  const notaDelModelo = notaDeLaPropuesta(model, assets);
+  /* La nota del objetivo calculado, no siempre la de Máximo Sharpe (Óscar, 20-11-2026). */
+  const notaDelModelo = notaDelObjetivoCalculado(model, assets);
   const applyCompleteWeights = partial ? undefined : onApplyWeights;
   const avisos = model.warnings.flatMap((aviso) => avisoDeLaFrontera(aviso, clientMode) ?? []);
   /* OPT-3 (auditoría del 16-11-2026): si no se pudo leer el €STR del periodo, el Sharpe sale con un tipo fijo, y aquí se

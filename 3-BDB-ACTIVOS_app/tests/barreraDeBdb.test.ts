@@ -79,8 +79,12 @@ const PRESENTES = Object.keys(REPOSITORIOS).filter((nombre) => VISTOS[nombre] > 
  * Medido otra vez el 17-11-2026, después de borrar el código heredado (decisión A-160): raíz 268, extractor 341,
  * plataforma 396, app 1.751. La plataforma bajó de 400 por el borrado, no porque el barrido dejara de verla, y su
  * mínimo pasa a 250, como los demás por debajo de dos tercios de lo medido.
+ * Medido otra vez el 21-11-2026, después de borrar el código de la base vieja en la plataforma y el extractor
+ * (decisiones 30 a 39): raíz 269, extractor 346, plataforma 297, app 1.794 (antes de su propia tanda). La plataforma
+ * bajó de 393 por el borrado (77 ficheros de código, pruebas y datos de prueba, y los 19 contratos de `master`), y su
+ * mínimo pasa a 190, otra vez por debajo de dos tercios de lo medido.
  */
-const MINIMO_VISTO: Record<string, number> = { raiz: 30, "1-extractor": 200, "2-plataforma-datos": 250, "3-BDB-ACTIVOS_app": 800 };
+const MINIMO_VISTO: Record<string, number> = { raiz: 30, "1-extractor": 200, "2-plataforma-datos": 190, "3-BDB-ACTIVOS_app": 800 };
 
 interface Aparicion {
   repo: string;
@@ -123,10 +127,8 @@ const ID_DECLARADO: Array<{ repo: string; fichero: string; lineas: number; razon
   { repo: "2-plataforma-datos", fichero: "src/config/projectAllowlist.ts", lineas: 1, razon: "La cabecera de la allowlist explica de dónde viene la barrera." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "src/firebaseEnv.ts", lineas: 1, razon: "La app no arranca si su configuración web apunta a BDB." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "scripts/requireFirebaseDeployApproval.mjs", lineas: 1, razon: "La puerta del despliegue, para decir que ese destino es BDB." },
-  { repo: "3-BDB-ACTIVOS_app", fichero: "scripts/smokeFirestoreRulesNoAuth.mjs", lineas: 1, razon: "Su proyecto sale de los .env: se niega si es el de BDB." },
   { repo: "raiz", fichero: "4-base-nueva/puerta-despliegue.mjs", lineas: 1, razon: "La puerta del despliegue de la base nueva, igual." },
   { repo: "2-plataforma-datos", fichero: "scripts/restoreBackupToEmulator.ts", lineas: 1, razon: "Prohibido en un ensayo de restauración." },
-  { repo: "2-plataforma-datos", fichero: "scripts/runBackupExport.ts", lineas: 1, razon: "Prohibido en una copia." },
   { repo: "2-plataforma-datos", fichero: "scripts/subirALaNube.ts", lineas: 1, razon: "Niega una clave de servicio de BDB antes de subir." },
   { repo: "2-plataforma-datos", fichero: "scripts/verReglasDesplegadas.ts", lineas: 1, razon: "Niega una clave de servicio de BDB antes de leer." },
   { repo: "1-extractor", fichero: "tools/sync_historicos.py", lineas: 1, razon: "Abre el proyecto de la clave que le pasen: niega una de BDB." },
@@ -134,12 +136,11 @@ const ID_DECLARADO: Array<{ repo: string; fichero: string; lineas: number; razon
   { repo: "3-BDB-ACTIVOS_app", fichero: ".env.example", lineas: 2, razon: "Avisa de que no se pongan aquí sus credenciales ni su configuración." },
   { repo: "2-plataforma-datos", fichero: ".env.example", lineas: 1, razon: "Avisa de que ese proyecto se rechaza." },
   // Sin efecto.
-  { repo: "3-BDB-ACTIVOS_app", fichero: "firebase.json", lineas: 1, razon: "La CSP de una carpeta que no despliega: la puerta lo rechaza todo, y `4-base-nueva` la copia cambiando ese dominio." },
   { repo: "2-plataforma-datos", fichero: "src/config/baseNueva/asesores.ts", lineas: 1, razon: "Comentario: de qué proyecto venía el uid de origen de las carteras." },
   // Las pruebas de la barrera.
   { repo: "3-BDB-ACTIVOS_app", fichero: "functions_python/tests/test_master_project.py", lineas: 4, razon: "Prueba de la constante, con el id escrito a mano." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "tests/authGateApuntaABdb.test.tsx", lineas: 1, razon: "Prueba de que el portón no deja pasar." },
-  { repo: "3-BDB-ACTIVOS_app", fichero: "tests/firebaseHostingSecurity.test.ts", lineas: 4, razon: "Prueba de la puerta y de la CSP." },
+  { repo: "3-BDB-ACTIVOS_app", fichero: "tests/firebaseHostingSecurity.test.ts", lineas: 2, razon: "Prueba de la puerta." },
   { repo: "raiz", fichero: "4-base-nueva/probar-puerta.mjs", lineas: 3, razon: "Prueba de la puerta de la base nueva." },
   { repo: "2-plataforma-datos", fichero: "tests/baseNuevaWriter.test.ts", lineas: 1, razon: "Prueba de que el escritor lo rechaza." },
   { repo: "2-plataforma-datos", fichero: "tests/projectAllowlist.test.ts", lineas: 1, razon: "Prueba de la allowlist." },
@@ -152,11 +153,8 @@ const ID_DECLARADO: Array<{ repo: string; fichero: string; lineas: number; razon
  */
 const CLIENTE_DECLARADO: Array<{ repo: string; fichero: string; marca: string; razon: string }> = [
   { repo: "3-BDB-ACTIVOS_app", fichero: "functions_python/main.py", marca: "exigir_arranque_sin_bdb()", razon: "La app del proyecto propio, en el runtime de Functions. Se niega antes de inicializarla si algo nombra a BDB." },
-  { repo: "3-BDB-ACTIVOS_app", fichero: "functions_python/portfolios/store.py", marca: "firestore.client()", razon: "Cliente por defecto de esa app: `main.py` ya se ha negado." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "functions_python/weekly_report.py", marca: "firestore.client()", razon: "Cliente por defecto de esa app: `main.py` ya se ha negado." },
-  { repo: "3-BDB-ACTIVOS_app", fichero: "scripts/set_admin.py", marca: "exigir_proyecto_permitido(proj", razon: "El proyecto de Auth llega por `--project`: pasa por la misma comprobación." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "scripts/smokeCommercialRetroRules.mjs", marca: 'projectId.startsWith("demo-")', razon: "Solo arranca con un proyecto `demo-` y emuladores en local." },
-  { repo: "3-BDB-ACTIVOS_app", fichero: "scripts/smokeFirestoreRulesNoAuth.mjs", marca: "firebaseConfig.projectId === PROYECTO_DE_BDB", razon: "Su proyecto sale de los .env, y niega el de BDB." },
   { repo: "3-BDB-ACTIVOS_app", fichero: "src/firebase.ts", marca: "FIREBASE_CONFIGURED", razon: "El navegador: `firebaseEnv.ts` da por no configurado el proyecto de BDB." },
   { repo: "raiz", fichero: "4-base-nueva/quien_entra.py", marca: "AnonymousCredentials()", razon: "Solo lee, de la base nueva en el emulador, y con credenciales anónimas." },
   { repo: "1-extractor", fichero: "tools/sync_historicos.py", marca: "cred.project_id == PROYECTO_DE_BDB", razon: "Abre el proyecto de la clave que le pasen, de otra base y solo para leer: niega una de BDB." },

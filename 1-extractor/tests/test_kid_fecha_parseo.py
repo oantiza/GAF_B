@@ -52,13 +52,45 @@ CON_FECHA = [
 ]
 
 SIN_FECHA = [
-    # El ISIN se come los dos puntos y la fecha que sigue es la de lanzamiento.
+    # En una sola línea, los dos puntos cuelgan del ISIN y no hay fecha que leer; la forma real, a dos columnas,
+    # está más abajo (C-30: esa fecha es la de elaboración, no la de lanzamiento).
     "Fecha de elaboracion del Codigo ISIN: LU0675297237 30 de diciembre de 2022",
     "La SICAV se creo el 30/06/1999 con una duracion indefinida.",
     "El subfondo se lanzo el 30/06/1999.",
     "La clase de acciones mostrada se lanzo el 15 de enero de 2015.",
     "El fondo se constituyo el 12/03/2004 con una duracion de 99 anos.",
 ]
+
+
+# C-30 (21-11-2026): trece KID en uso se aceptaban sin fecha. Cuatro formas, con la maquetación que da el PDF real
+# (recortada alrededor de la fecha, no copiada entera).
+FORMAS_DE_C30 = [
+    # Amundi: el PDF pierde los espacios de todo el texto.
+    ("AmundiAssetManagementestaautorizadoenFranciaconeln.\u00b0GP-04000036yestareguladoporlaAMF.\n"
+     "Fechadeelaboraciondeldocumentodedatosfundamentales:09/06/2026.\n\n\n\u00bfQue es este producto?\n", "2026-06-09"),
+    # DWS: salto de línea entre «son» y «exactos».
+    ("su regulacion corresponde a la Bundesanstalt fur Finanzdienstleistungsaufsicht. Los presentes datos fundamentales son\n"
+     "exactos a 16.04.2026.\n\u00bfQue es este producto?\nTipo\n", "2026-04-16"),
+    # Columbia Threadneedle: la fecha sola en la última línea de «Producto».
+    (" relacion con este documento de datos fundamentales.\n Este PRIIP esta autorizado en Luxembourg\n"
+     " Threadneedle Management Luxembourg S.A. esta autorizada en Luxemburgo y esta regulada por la CSSF.\n"
+     " 26 marzo 2026\n\n\u00bfQue es este producto?\nTipo\n", "2026-03-26"),
+    # Groupama G Fund Avenir Europe NC: dos columnas; la etiqueta en dos líneas y la fecha en la del medio.
+    ("                           Secteur Financier)\n"
+     "                                                      Fecha de elaboracion del\n"
+     " Codigo ISIN:        LU0675297237                                                   30 de diciembre de 2022\n"
+     "                                                       documento\n Divisa           EUR (\u20ac)\n", "2022-12-30"),
+]
+
+
+@pytest.mark.parametrize("texto,esperada", FORMAS_DE_C30)
+def test_cuatro_formas_que_no_se_leian_c30(texto, esperada):
+    assert _fecha(texto) == esperada
+
+
+def test_una_fecha_suelta_antes_de_que_es_este_producto_solo_cuenta_en_su_linea():
+    # Sin salto de línea antes de la fecha (va dentro de una frase), el patrón anclado no la coge.
+    assert _fecha("Se aplica desde el 26 marzo 2026 y mas.\n\u00bfQue es este producto?\n") is None
 
 
 @pytest.mark.parametrize("texto,esperada", CON_FECHA)

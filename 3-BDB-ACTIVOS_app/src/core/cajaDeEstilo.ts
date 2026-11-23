@@ -1,6 +1,6 @@
 import type { BdbAssetDetail, BdbManualPortfolioPosition } from "../types/bdbAssets";
 import { oFalta, peso } from "./formato";
-import { assetPmsShares } from "./portfolio";
+import { parteParaLaLectura } from "./portfolio";
 
 export const FILAS_DE_LA_CAJA = ["large", "mid", "small"] as const;
 export const COLUMNAS_DE_LA_CAJA = ["value", "blend", "growth"] as const;
@@ -80,8 +80,9 @@ function repartoDelFondo<K extends string>(reparto: Record<string, number> | und
  *    trata estilo y tamaño como independientes, y en un fondo no lo son;
  *  - el que no trae ni eso se queda en `noDeclarada`. No se deduce de su nombre.
  *
- * El peso en renta variable es el canónico (`assetPmsShares`), el mismo de los repartos de al lado. Devuelve
- * `null` si la cartera no tiene renta variable, que no es lo mismo que no declararla.
+ * El peso en renta variable es el canónico (`assetPmsShares`), el mismo de los repartos de al lado, y un fondo sin reparto de
+ * activos no entra (A-211). Devuelve `null` si la cartera no tiene renta variable medida, que no es lo mismo que no
+ * declararla: si hay un fondo sin reparto, lo dice la pantalla (`pesoSinReparto`).
  */
 export function cajaDeEstilo(
   positions: readonly BdbManualPortfolioPosition[],
@@ -96,7 +97,8 @@ export function cajaDeEstilo(
     const weight = position.weight_percent || 0;
     const asset = byId.get(position.asset_id);
     if (weight <= 0 || !asset) continue;
-    const peso = weight * assetPmsShares(asset).shares.equity;
+    /* A-211: un fondo sin reparto de activos no entra: no se sabe qué parte es renta variable. */
+    const peso = weight * (parteParaLaLectura(asset, "equity") ?? 0);
     if (peso <= 0) continue;
     rentaVariable += peso;
     const celdas = celdasDelFondo(asset);

@@ -10,7 +10,9 @@
 //   npm run seed:emulator-user
 
 const AUTH_HOST = process.env.VITE_FIREBASE_AUTH_EMULATOR_URL || "http://127.0.0.1:9097";
-const PROJECT = process.env.VITE_FIREBASE_PROJECT_ID || "gestor-activos-local";
+// Desde el 21-11-2026 el desarrollo local usa el proyecto de la base nueva contra sus emuladores. Solo
+// habla con el emulador de Auth de esta maquina (AUTH_HOST): en la nube este usuario no existe.
+const PROJECT = process.env.VITE_FIREBASE_PROJECT_ID || "bdb-gestor-de-activos";
 
 const EMAIL = process.env.SEED_EMAIL || "asesor@local.test";
 const PASSWORD = process.env.SEED_PASSWORD || "DesarrolloLocal-2026";
@@ -34,11 +36,16 @@ async function post(url, body, owner = false) {
 }
 
 async function main() {
+  /* El proyecto es el real: que la siembra solo pueda ir a un emulador de esta maquina. */
+  if (!/^http:\/\/(127\.0\.0\.1|localhost|\[::1\]):\d+\/?$/.test(AUTH_HOST)) {
+    console.error(`AUTH_HOST no es un emulador local (${AUTH_HOST}): esta siembra no habla con la nube.`);
+    process.exit(1);
+  }
   try {
     await fetch(`${AUTH_HOST}/`);
   } catch {
     console.error(`No hay emulador de Auth en ${AUTH_HOST}. Arrancalo antes:`);
-    console.error("  firebase emulators:start --only firestore,auth --project gestor-activos-local");
+    console.error("  (la habilidad arrancar-entorno dice el orden: la base nueva y despues Auth y Functions)");
     process.exit(1);
   }
 

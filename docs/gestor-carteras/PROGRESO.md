@@ -3,13 +3,14 @@
 *Se actualiza al cerrar cada fase. Si empiezas de cero: lee `PLAN.md`, `ARQUITECTURA.md`, este fichero y
 `git log gestor-carteras`.*
 
-**Dónde se trabaja:** rama `gestor-carteras`, en `.claude/worktrees/gestor-carteras` (copia aislada del
-repositorio; la carpeta principal sigue en `gestor-activos-financieros` y no se toca). La app de la rama se
-arranca en el puerto **5184** (configuración `gestor-carteras` de `.claude/launch.json` de la carpeta
-principal, que no va a Git). Los emuladores (8082, 8092, 9097, 5005) y el Vite del 5174 son de otra sesión:
-no se paran ni se reinician.
+**Dónde se trabaja:** en la rama principal, `gestor-activos-financieros`. La rama `gestor-carteras`, donde se
+construyó (13-11-2026) con su copia aislada y su Vite en el 5184, está fusionada desde hace tiempo
+(`git branch -r --merged gestor-activos-financieros` la lista, 20-11-2026) y ya no se usa; el nombre de la pantalla en
+el menú es **«Carteras de clientes»** desde el 14-11-2026 (decisión 2 del apartado 11 de `docs/frontend/SISTEMA_DISENO.md`),
+y «Gestor de carteras» sigue siendo el nombre de la carpeta, del código y de estos documentos. Hoy la app se arranca
+con la habilidad `arrancar-entorno` (Vite en el 5174, emuladores en 8082, 8092, 9097 y 5005).
 
-**Cómo probar la pantalla sin elegir carpeta a mano:** `http://localhost:5184/cartera-real?carpeta=prueba`
+**Cómo probar la pantalla sin elegir carpeta a mano:** `http://localhost:5174/cartera-real?carpeta=prueba`
 usa una carpeta privada del navegador (solo en desarrollo). El usuario local del emulador está en
 `scripts/seedEmulatorUser.mjs`.
 
@@ -51,7 +52,8 @@ usa una carpeta privada del navegador (solo en desarrollo). El usuario local del
 - **`core/xirr.ts` no se reutiliza para la TIR**: acota la tasa anual entre −95 % y 500 %, y en periodos de
   días una tasa anualizada se sale de ahí. El motor resuelve la tasa del periodo (`tirDeFlujos`) y una prueba
   comprueba que coincide con `xirr` donde los dos valen.
-- **El menú**: la entrada «Rendimiento» se llama ahora «Gestor de carteras». Tres pruebas existentes que
+- **El menú**: la entrada «Rendimiento» pasó a llamarse «Gestor de carteras» (13-11-2026) y desde el 14-11-2026 se llama
+  «Carteras de clientes» en el menú. Tres pruebas existentes que
   nombraban la entrada antigua se han actualizado (`tests/appNavigation.test.tsx`, `tests/marco.test.tsx`):
   no estaban mal; cambia el nombre que comprueban.
 

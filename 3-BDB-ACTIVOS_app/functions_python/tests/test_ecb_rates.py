@@ -175,14 +175,12 @@ def test_resolve_window_average_negative_cache_after_an_outage(monkeypatch):
         ecb_rates.clear_estr_cache()
 
 
-def test_sin_cache_negativa_la_maestra_solo_pierde_el_activo_del_fallo(monkeypatch):
-    """I-6 (sexta pasada; sonda probe5c de la revision): un unico fallo transitorio del BCE
-    en el primer activo. Con la cache negativa global, los cuatro activos salian NO_RATE
-    durante 5 minutos; sin ella (la maestra no la pide), solo el del fallo."""
+def test_la_cache_negativa_solo_la_activa_quien_la_pide(monkeypatch):
+    """I-6 (sexta pasada; sonda probe5c de la revision): un fallo transitorio del BCE no deja sin tipo a las llamadas
+    que no piden la cache negativa. La mitad que lo media sobre la maestra vieja (`ingest_asset.build_metrics_latest`
+    activo a activo) se fue el 21-11-2026 con ella; queda la de la propia cache."""
     import urllib.error
     from datetime import date, timedelta
-    import ingest_asset
-    import metrics_refresh
 
     state = {"calls": 0}
     csv = "TIME_PERIOD,OBS_VALUE\n" + "\n".join(
@@ -194,35 +192,16 @@ def test_sin_cache_negativa_la_maestra_solo_pierde_el_activo_del_fallo(monkeypat
             raise urllib.error.URLError("fallo transitorio")
         return csv
 
-    def points(last):
-        out, day, value = [], last - timedelta(days=4 * 366), 100.0
-        while day <= last:
-            if day.weekday() < 5:
-                out.append({"date": day, "value": value})
-                value *= 1.0003 + (0.004 if day.day % 2 else -0.004)
-            day += timedelta(days=1)
-        return out
-
     monkeypatch.setattr(ecb_rates, "_http_text", fake_http)
     ecb_rates.clear_estr_cache()
     try:
-        status = []
-        for index, last in enumerate((date(2026, 10, 15), date(2026, 10, 14), date(2026, 10, 13), date(2026, 10, 12))):
-            doc = ingest_asset.build_metrics_latest(f"LU00000000{index:02d}", "FUND", points(last),
-                                                    "2026-10-16T08:00:00Z",
-                                                    risk_free_resolver=ingest_asset._estr_window_resolver)
-            status.append("NO_RATE" if metrics_refresh.sharpe_without_rate(doc["windows"]) else "ok")
-        assert status == ["NO_RATE", "ok", "ok", "ok"]
-        assert state["calls"] > 2  # la maestra vuelve a preguntar tras el fallo
-        # La cartera real si salta a su respaldo sin esperar tras un fallo suyo...
-        state["calls"] = 0
-        ecb_rates.clear_estr_cache()
+        # Quien la pide salta a su respaldo sin esperar tras un fallo suyo...
         with pytest.raises(urllib.error.URLError):
             ecb_rates.resolve_estr_window_average("2025-10-01", "2026-10-01", negative_cache=True)
         with pytest.raises(ecb_rates.EstrUnavailable):
             ecb_rates.resolve_estr_window_average("2025-10-02", "2026-10-01", negative_cache=True)
         assert state["calls"] == 1
-        # ...pero ese fallo no afecta a la maestra.
+        # ...pero ese fallo no afecta a quien no la pide.
         assert ecb_rates.resolve_estr_window_average("2025-10-03", "2026-10-01")["rate"] == 0.02
     finally:
         ecb_rates.clear_estr_cache()
@@ -261,7 +240,7 @@ def test_get_ecb_rates_returns_partial_result(monkeypatch):
 
     assert [row["id"] for row in result["rates"]] == ["estr", "dfr", "mlf"]
     assert result["live_count"] == 3
-    assert "mro: temporary outage" in result["notes"]
+    assert "mro: no disponible" in result["notes"] and "temporary outage" not in result["notes"]  # el detalle va al registro
     # Auditoría 11-08 (P9): un resultado parcial NO se cachea 6 h.
     assert ecb_rates._shared_cache == {}
 
@@ -338,7 +317,7 @@ def test_get_euro_yield_curve_returns_other_curve_when_aaa_fails(monkeypatch):
     assert result["aaa"] == []
     assert result["all_bonds"] == [{"maturity_years": 0.25, "yield_pct": 2.4}]
     assert result["source"] == "ECB_DATA_PORTAL"
-    assert "AAA: temporary outage" in result["notes"]
+    assert "AAA: no disponible" in result["notes"] and "temporary outage" not in result["notes"]
     assert "todos los bonos: 1/18 vencimientos disponibles" in result["notes"]
 
 
@@ -350,7 +329,7 @@ def test_get_euro_yield_curve_returns_empty_response_with_notes_when_both_curves
 
     assert result["aaa"] == [] and result["all_bonds"] == []
     assert result["as_of_date"] is None
-    assert "ninguna curva" in result["notes"] and "down" in result["notes"]
+    assert "ninguna curva" in result["notes"] and "no disponible" in result["notes"] and "OSError" not in result["notes"]
     assert "yield_curve" not in ecb_rates._shared_cache  # un fallo no se cachea
 
 

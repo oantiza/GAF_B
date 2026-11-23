@@ -71,3 +71,33 @@ Cuando llegue una respuesta, se escribe aquí debajo de su pregunta, con la fech
     simulación, no asesoramiento fiscal: no se puede saber lo que le pasará a un cliente ni los ahorros que tendrá, y lo
     que se hace es una estimación con los datos de hoy. No se asesora en qué invertir: se calcula una pensión de
     jubilación posible. El informe lo dice en su primera hoja y en el pie de todas (decisión A-145).
+
+16. Una EPSV que se cobra en forma de renta sigue invertida y crece mientras se cobra. El simulador calcula el porcentaje
+    de rentabilidad de la EPSV en la fecha de la jubilación y lo mantiene fijo durante todo el cobro, como dice la ficha
+    KA-01878 de la Hacienda Foral de Bizkaia («permanece invariable»; no cuentan las aportaciones ni los rendimientos
+    posteriores). Esa ficha no dice cómo tributa lo que la EPSV sigue ganando después de la jubilación. ¿Cómo tributa esa
+    rentabilidad posterior en cada territorio foral (Bizkaia, Gipuzkoa y Álava)? ¿Basta con mantener el porcentaje fijo, o
+    hay que separarla?
+    *Añadida el 21-11-2026 por decisión de Óscar, tras la auditoría independiente del 20-11 (P2-11). Mientras no haya
+    respuesta, el motor aplica el porcentaje fijo publicado.*
+
+17. En el régimen transitorio de la EPSV vasca, ¿cómo se reparte un cobro en capital entre lo que va al 60 % (derechos de
+    aportaciones anteriores a 2026) y lo que va al 70 %? El simulador sigue el caso práctico de la Hacienda Foral de
+    Bizkaia y reparte la prestación según lo aportado antes y después de 2026. Pero ese mismo caso práctico imprime en su
+    gráfico otro reparto, y en un rescate íntegro de 100.000 € el texto da 59.000 € a la base general y el cálculo
+    proporcional 59.042,86 €. ¿Qué criterio vale para un rescate íntegro y cuál para uno parcial?
+    *Añadida el 22-11-2026 tras la auditoría consolidada del 21-11 (N07). Mientras no haya respuesta, el simulador reparte
+    según lo aportado.*
+
+18. Si una EPSV gana en el tramo de derechos anteriores a 2026 y pierde en el posterior (o al revés), ¿la pérdida de un
+    tramo compensa la ganancia del otro? El simulador mide la «diferencia positiva» de la norma sobre la EPSV entera: con
+    +20.000 € en un tramo y −20.000 € en el otro no grava rentabilidad, y lo hace también en el régimen transitorio.
+    *Añadida el 22-11-2026 tras la auditoría consolidada del 21-11 (N06). Mientras no haya respuesta, el simulador compensa.*
+
+19. Cuando el asesor no tiene el certificado de la EPSV («Sin desglose»), el simulador estima la rentabilidad con la regla
+    de la Hacienda Foral (un 1 % por año de antigüedad, con un máximo del 35 %, o el 25 % si no se conoce) y trata el saldo
+    como aportado hasta 2025. ¿Vale esa estimación solo para los derechos anteriores a 2026? Y con una antigüedad de un
+    año o menos, en que la primera aportación puede ser de 2026, ¿es correcto tratar el saldo entero como posterior a 2025
+    y no aplicar el régimen transitorio, como hace hoy el simulador?
+    *Añadida el 22-11-2026 tras la auditoría consolidada del 21-11 (N05). Mientras no haya respuesta, el simulador hace lo
+    que dice la pregunta.*

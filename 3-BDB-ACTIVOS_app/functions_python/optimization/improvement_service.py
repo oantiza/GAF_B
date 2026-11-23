@@ -7,7 +7,8 @@ actual da en la ventana completa las mismas cuatro cifras y las mismas fechas qu
 
 - Las posiciones se leen como en Simular, tambien lo que ya no se puede comprar, porque describen lo que el cliente
   tiene. La que no cubre la ventana se aparta con su motivo o se completa con su referencia, exactamente como alli, y el
-  calculo sigue con el resto. Una posicion apartada no se puede medir: no se le buscan sustitutos.
+  calculo sigue con el resto. Una posicion apartada no se puede medir: no se le buscan sustitutos. Una completada con su
+  referencia se mide, pero tampoco se le buscan (20-11-2026): la comparacion se apoyaria en el tramo estimado.
 - Los candidatos pasan la puerta de Optimizar (se van a comprar) y tienen que cubrir la ventana con su propia serie, sin
   completarla con referencias: no se propone un cambio apoyado en una serie estimada. El que no la cubre queda como no
   evaluable, con su motivo, y no hace fallar el calculo.
@@ -16,13 +17,14 @@ actual da en la ventana completa las mismas cuatro cifras y las mismas fechas qu
 """
 from __future__ import annotations
 
+import math
 from typing import Dict, List, Optional, Tuple
 
 from asset_aliases import alias_conflict_message, alias_conflicts, canonical_noting, with_alias_resolutions
 from readmodel.mappers import get_currency, map_costs, map_economic_asset_class, map_region
 
 from .improvement_engine import (
-    ImprovementInput, ImprovementInputError, improve_portfolio as run_engine, insufficient_data_response, merge_thresholds, window_spans,
+    ImprovementInput, ImprovementInputError, bounded_threshold, improve_portfolio as run_engine, insufficient_data_response, merge_thresholds, window_spans,
 )
 from .repository import (
     DEFAULT_RISK_FREE_RATE,
@@ -37,6 +39,8 @@ from .repository import (
 # (la misma cuenta que MAX_POSICIONES_SIMULACION, 85 en 1 GB). Si no cabe, se recortan los candidatos por posicion, a la par.
 MAX_IMPROVEMENT_ASSETS = 80
 MAX_CANDIDATES_PER_POSITION = 8
+# Motivo de los candidatos de una posicion completada con su referencia: no se evaluan.
+MOTIVO_POSICION_COMPLETADA = "POSITION_HISTORY_EXTENDED"
 # Las ventanas de Simular: el periodo que se reutiliza solo existe para ellas.
 VENTANAS = ("3Y", "5Y")
 # La ventana mas corta que ofrece la pantalla: a quien le falta la de 5 anos se le puede aconsejar esta, si la cubre.
@@ -65,10 +69,15 @@ def _parse_positions(raw, aliases: Optional[Dict[str, str]] = None) -> Dict[str,
         asset_id = (item or {}).get("asset_id") if isinstance(item, dict) else None
         if not isinstance(asset_id, str) or not asset_id.strip():
             continue
+        raw_weight = item.get("weight")
+        if isinstance(raw_weight, bool):
+            raise InvalidOptimizationRequest("weight must be a number.")
         try:
-            weight = float(item.get("weight"))
+            weight = float(raw_weight)
         except (TypeError, ValueError):
             weight = 0.0
+        if not math.isfinite(weight):
+            raise InvalidOptimizationRequest("weight must be a finite number.")
         if weight > 0:
             # 14-10-2026 (CRIT-02): un ISIN sustituido se evalua con el sucesor vigente.
             asset_id = canonical_noting(asset_id, aliases)
@@ -171,9 +180,13 @@ def improve_portfolio(reader, request: dict, *, risk_free_rate: float = DEFAULT_
         raise InvalidOptimizationRequest(
             "Demasiados activos: la cartera tiene %d posiciones y el cálculo admite %d." % (len(positions), MAX_IMPROVEMENT_ASSETS))
     locked = {canonical_noting(x, aliases) for x in (request.get("locked") or []) if isinstance(x, str)}
-    thresholds = merge_thresholds(request.get("thresholds"))
-    if isinstance(request.get("max_substitutions"), (int, float)):
-        thresholds["max_substitutions"] = max(1, int(request["max_substitutions"]))
+    # P1-09 (20-11-2026): los umbrales del cliente, con sus cotas; fuera de rango es entrada invalida con el campo nombrado.
+    try:
+        thresholds = merge_thresholds(request.get("thresholds"))
+        if request.get("max_substitutions") is not None:
+            thresholds["max_substitutions"] = bounded_threshold("max_substitutions", request["max_substitutions"])
+    except ImprovementInputError as exc:
+        raise InvalidOptimizationRequest(str(exc)) from exc
     thresholds["min_observations"] = MIN_COMMON_OBSERVATIONS[window]
     total_weight = sum(positions.values())
 
@@ -189,6 +202,12 @@ def improve_portfolio(reader, request: dict, *, risk_free_rate: float = DEFAULT_
 
     # --- los candidatos: solo de lo que se mide, dentro del tope, con historia propia
     candidates = {position: ids for position, ids in candidates.items() if position in medidas}
+    # Una posicion completada con su referencia se mide como en Simular, pero no recibe sustitutos (pendiente del
+    # 19-11-2026, lo que dejo abierto la A-153): la comparacion con un candidato se apoyaria en el tramo estimado, y a los
+    # candidatos ya se les exige historia propia por eso mismo. Sus candidatos quedan como no evaluables, con su motivo.
+    completadas = {item["asset_id"] for item in (periodo.extensions or [])}
+    sin_busqueda = {position: ids for position, ids in candidates.items() if position in completadas}
+    candidates = {position: ids for position, ids in candidates.items() if position not in completadas}
     candidates, por_posicion = _recortar_candidatos(positions, candidates, MAX_IMPROVEMENT_ASSETS)
     free_candidates = _misma_clase(request.get("same_fund_class"), candidates, aliases)
     candidate_ids = sorted({c for ids in candidates.values() for c in ids if c not in positions})
@@ -240,6 +259,15 @@ def improve_portfolio(reader, request: dict, *, risk_free_rate: float = DEFAULT_
         raise InvalidOptimizationRequest(str(exc)) from exc
 
     cand_out = [{"asset_id": aid, "reason": unavailable[aid]["reason"]} for aid in sorted(unavailable)]
+    if sin_busqueda:
+        rechazados = dict(result.get("rejected_candidates") or {})
+        for position, ids in sin_busqueda.items():
+            rechazados[position] = list(rechazados.get(position, [])) + [
+                {"asset_id": candidate, "reason": MOTIVO_POSICION_COMPLETADA, "not_evaluable": True,
+                 "detail": "La posición se ha completado con su referencia antes de su inicio: no se le buscan sustitutos "
+                           "apoyados en ese tramo estimado."}
+                for candidate in dict.fromkeys(ids) if candidate != position and candidate not in positions]
+        result["rejected_candidates"] = {position: items for position, items in rechazados.items() if items}
     result.update({
         "window": window,
         "base_currency": "EUR",

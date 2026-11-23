@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
-  assessFundEquivalence, creditBand, exposureDistance, familyKey, findEquivalentCandidates, inferShareClassTraits
+  assessFundEquivalence, creditBand, exposureDistance, familyKey, findEquivalentCandidates, inferShareClassTraits, sameFundFamily, sinDerivados
 } from "../src/core/fundEquivalence";
 import type { BdbAssetDetail } from "../src/types/bdbAssets";
 
@@ -128,6 +128,34 @@ describe("rasgos de clase inferidos del nombre", () => {
       expect(result.verdict).not.toBe("SAME_FUND_CLASS");
     }
   });
+
+  /* 20-11-2026, pendientes de «Mejorar». Nombres reales de 1-extractor/config/fondos.csv. */
+  test("la misma estrategia con otra letra y número de clase (A2 frente a E2) es otra clase", () => {
+    const pares: [string, string][] = [
+      ["BlackRock Global Funds - World Mining Fund A2 EUR", "BlackRock Global Funds - World Mining Fund E2 EUR Hedged"],
+      ["BlackRock Global Funds - Sustainable Energy Fund A2 EUR", "BlackRock Global Funds - Sustainable Energy Fund C2 EUR"],
+      ["Amundi Funds - Cash EUR A2 EUR (C)", "Amundi Funds - Cash EUR G2 EUR (C)"],
+      ["Schroder International Selection Fund Emerging Asia A Accumulation EUR", "Schroder International Selection Fund Emerging Asia A1 Accumulation EUR"],
+      ["Robeco Smart Energy D-EUR Capitalisation", "Robeco Smart Energy M2-EUR Capitalisation"]
+    ];
+    for (const [a, b] of pares) {
+      expect(familyKey(a), `${a} / ${b}`).toBe(familyKey(b));
+      expect(sameFundFamily(a, b), `${a} / ${b}`).toBe(true);
+    }
+    /* La letra con número solo se quita en la cola: dentro del nombre es parte de la estrategia. */
+    expect(familyKey("Gestora G7 Bond Fund A Acc")).not.toBe(familyKey("Gestora G8 Bond Fund A Acc"));
+  });
+
+  test("dos fondos distintos de una gestora que solo se distinguen por la letra no son otra clase", () => {
+    expect(sameFundFamily("Cartesio X FI", "CARTESIO Y, FI")).toBe(false);
+    const x = fund("ES0116567035", { display_name: "Cartesio X FI" });
+    const y = fund("ES0182527038", { display_name: "CARTESIO Y, FI" });
+    expect(assessFundEquivalence(x, y).verdict).not.toBe("SAME_FUND_CLASS");
+    /* Con una sola palabra y una sola letra, sigue valiendo: es lo único que hay para decirlo. */
+    expect(sameFundFamily("Merchfondo FI", "MERCHFONDO A EUR ACC")).toBe(true);
+    /* Con más de una palabra la letra es la de la clase, como siempre. */
+    expect(sameFundFamily("Amundi Funds - Global Equity Responsible A EUR (C)", "Amundi Funds - Global Equity Responsible C EUR (C)")).toBe(true);
+  });
 });
 
 describe("distancia entre exposiciones", () => {
@@ -146,6 +174,22 @@ describe("distancia entre exposiciones", () => {
     expect(creditBand({ investment_grade_pct: 0.2, high_yield_pct: 0.8 })).toBe("HY");
     expect(creditBand({})).toBeNull();
     expect(creditBand(undefined)).toBeNull();
+  });
+});
+
+describe("el tipo de emisor se compara sin los derivados (decisión 41, 21-11-2026)", () => {
+  test("sinDerivados quita solo la clave derivative y no toca lo demás", () => {
+    expect(sinDerivados({ corporate: 0.6, government: 0.3, derivative: 0.82 })).toEqual({ corporate: 0.6, government: 0.3 });
+    expect(sinDerivados({ corporate: 1 })).toEqual({ corporate: 1 });
+    expect(sinDerivados(undefined)).toBeUndefined();
+  });
+  test("dos fondos con el mismo tipo de emisor y distintos derivados quedan a distancia 0", () => {
+    /* A: corporativa 0,6 y gobierno 0,4 con derivados 0,82; B: lo mismo sin derivados. Con derivados, la distancia sería
+       (|0,6/1,82 − 0,6| + |0,4/1,82 − 0,4| + |0,82/1,82 − 0|) / 2 = 0,4505…; sin ellos, 0. */
+    const a = { corporate: 0.6, government: 0.4, derivative: 0.82 };
+    const b = { corporate: 0.6, government: 0.4 };
+    expect(exposureDistance(a, b)).toBeCloseTo(0.82 / 1.82, 6);
+    expect(exposureDistance(sinDerivados(a), sinDerivados(b))).toBe(0);
   });
 });
 
@@ -306,5 +350,24 @@ describe("candidatos equivalentes para una posición", () => {
     expect(result.map(({ asset, equivalence }) => [asset.asset_id, equivalence.verdict])).toEqual([
       ["CLASE_I", "SAME_FUND_CLASS"], ["EQ", "EQUIVALENT"], ["DIST", "COMPARABLE"]
     ]);
+  });
+  test("H1-04: la exigencia de misma distribución no admite candidatos que el umbral de 0,5 descarta", () => {
+    // Traza de la auditoría: renta fija corta en EUR frente a high yield largo en USD, sin mezcla de activos declarada.
+    const original = fund("EUR Short Term Bond Acc EUR", {
+      category: "EAA Fund EUR Short Term Bond", economic_asset_class: "FIXED_INCOME", pms_exposure: undefined, exposure_detail: {},
+      fixed_income_profile: { effective_duration: 1, avg_credit_quality: "AA", bond_types: { government: 1 } }
+    } as Partial<BdbAssetDetail>);
+    const make = (name: string) => fund(name, {
+      currency: "USD", category: "EAA Fund USD High Yield Bond", economic_asset_class: "FIXED_INCOME", pms_exposure: undefined, exposure_detail: {},
+      fixed_income_profile: { effective_duration: 12, avg_credit_quality: "B", bond_types: { corporate: 1 } }
+    } as Partial<BdbAssetDetail>);
+    const igual = assessFundEquivalence(original, make("USD High Yield Bond Acc USD Hedged"), { requireSameDistribution: true });
+    const distinta = assessFundEquivalence(original, make("USD High Yield Bond Dis USD Hedged"), { requireSameDistribution: true });
+    expect(igual.score).toBeLessThan(0.5);
+    expect(distinta.score).toBeLessThan(0.5);
+    expect(igual.verdict).toBe("NOT_EQUIVALENT");
+    expect(distinta.verdict).toBe("NOT_EQUIVALENT");
+    // Una distribución distinta con puntuación suficiente sigue siendo comparable (rama conservada).
+    expect(assessFundEquivalence(fund("O Acc"), fund("C Dis"), { requireSameDistribution: true }).verdict).toBe("COMPARABLE");
   });
 });

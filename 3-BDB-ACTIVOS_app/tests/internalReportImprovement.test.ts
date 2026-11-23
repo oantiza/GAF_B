@@ -114,3 +114,23 @@ test("con una acción, la sección de la propuesta dice lo que no incluye el cos
   expect(conAccion).toMatch(/la empeora\. \S/);
   expect(conAccion).toContain("No incluye custodia ni corretaje.");
 }, 60000);
+
+/* Óscar, 21-11-2026, con la misma lógica que la pantalla y el PDF de la mejora (7245443a): el último tercio filtra las candidatas. */
+test("la propuesta dice que el último tercio filtró las candidatas, no que las confirmó", async () => {
+  const pages = extractPdfPageTexts(Buffer.from(await (await createInternalPortfolioReportPdfBlob(input({ improvement }))).arrayBuffer()));
+  const text = pages.join(" ").replace(/\s+/g, " ");
+  /* El lector de PDF pierde la ligadura «fi»: se busca desde «trados». */
+  expect(text).toContain("trados con el último, que decide entre hasta 50 candidatas: ese tramo no es una prueba fuera de la muestra");
+  expect(text).not.toContain("confirmados en el último");
+}, 60000);
+
+/* Óscar, 21-11-2026, como la región (af282f78): una posición sin divisa no imprime la clave del reparto. */
+test("la divisa de denominación que falta dice «Falta el dato», y la frase de la divisa mayor nombra una que se conoce", async () => {
+  const sinDivisa = { ...report, xray: { ...report.xray, by_currency: [{ key: "N/D", weight_percent: 60 }, { key: "USD", weight_percent: 40 }] } } as unknown as BdbPortfolioReport;
+  const pages = extractPdfPageTexts(Buffer.from(await (await createInternalPortfolioReportPdfBlob(input({ report: sinDivisa }))).arrayBuffer()));
+  const hoja = pages.find((page) => page.includes("Divisa de denominación"))!.replace(/\s+/g, " ");
+  expect(hoja).toContain("Falta el dato");
+  expect(hoja).not.toContain("N/D");
+  /* 40 % en USD: es la mayor de las que se conocen. */
+  expect(hoja).toContain("de la cartera está denominado en USD");
+}, 60000);

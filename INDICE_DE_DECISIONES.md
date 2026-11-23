@@ -8,9 +8,9 @@ que colisionan dentro del mismo repositorio, sí se reescribieron.
 
 | Serie | Documento | Qué decide | Números | Cómo se citaba antes |
 |---|---|---|---|---|
-| **A** | `3-BDB-ACTIVOS_app/docs/rediseno-2026-11/DECISIONES_AUDITORIA_2026-11-04.md` | La auditoría de la app y todo lo que se ve en pantalla, desde el 04-11 | A-1 a A-199 | «decisión N de Óscar, 0X-11-2026» con fecha 04-11 a 06-11 |
-| **B** | `DECISIONES_DATOS_2026-11-07.md` | Los datos de la base nueva: subidas, fuentes, borrados, emisor, métricas | B-1 a B-82 | «decisión N» en documentos del 07-11 en adelante |
-| **C** | `DECISIONES_BASE_NUEVA_2026-11-01.md` | La base nueva cuando pasó del diseño al dato: método, series, contratos | C-1 a C-26 | «§N» |
+| **A** | `3-BDB-ACTIVOS_app/docs/rediseno-2026-11/DECISIONES_AUDITORIA_2026-11-04.md` | La auditoría de la app y todo lo que se ve en pantalla, desde el 04-11 | A-1 a A-212 | «decisión N de Óscar, 0X-11-2026» con fecha 04-11 a 06-11 |
+| **B** | `DECISIONES_DATOS_2026-11-07.md` | Los datos de la base nueva: subidas, fuentes, borrados, emisor, métricas | B-1 a B-83 | «decisión N» en documentos del 07-11 en adelante |
+| **C** | `DECISIONES_BASE_NUEVA_2026-11-01.md` | La base nueva cuando pasó del diseño al dato: método, series, contratos | C-1 a C-33 | «§N» |
 | **D** | `DECISIONES_ADQUISICION_2026-10-30.md` | El rumbo de la adquisición de datos públicos | D-1 a D-11 | «D1» a «D8» |
 
 Para saber de qué serie es una cita antigua sin prefijo: si está en código o contratos de la plataforma con fecha

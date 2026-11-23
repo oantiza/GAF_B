@@ -143,11 +143,33 @@
   }
 }
 
+/* AN1 (21-11-2026): «En qué está invertida» y «Riesgo por clase de activo», el peso y el riesgo de cada clase. Decide el sitio
+   que tienen, no la ventana: en la columna estrecha de 1.800 px o más, uno bajo otro; a todo el ancho, lado a lado y con la
+   misma altura, para que las dos listas se lean fila contra fila. */
+.analisis-clases {
+  container: analisis-clases / inline-size;
+}
+
+.analisis-clases__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--s-8) + var(--s-2));
+}
+
+@container analisis-clases (min-width: 56rem) {
+  .analisis-clases__rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* --- filas de datos: rótulo a la izquierda, cifra a la derecha, un filete entre ellas --- */
 
+/* Con tope de lectura, como las demás listas de rótulo y cifra: a 2.560 «Posiciones» quedaba a 1.735 px de su cifra
+   (decisión de Óscar del 21-11-2026, tope por bloque). */
 .analisis-filas {
   margin: 0;
   min-width: 0;
+  max-width: var(--filas-max-w);
 }
 
 .analisis-filas__fila {
@@ -329,8 +351,9 @@
 
 /* --- Informes: la lista de documentos, uno por fila --------------------- */
 
-/* Dos columnas compartidas por todas las filas (texto y botón): el botón más ancho fija la suya, y el texto de cada
-   fila mide lo mismo aunque un botón diga «Descargar» y otro «Preparar». */
+/* Dos columnas compartidas por todas las filas de un grupo (texto y botón): el botón más ancho fija la suya, y el texto
+   de cada fila mide lo mismo. Desde el 21-11-2026 los seis dicen «Preparar» y hay dos grupos, «Para el cliente» e
+   «Internos», cada uno en su tarjeta. */
 .informes-lista {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

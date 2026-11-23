@@ -7,14 +7,9 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import admin_panel  # noqa: E402
-import integrity_check  # noqa: E402
+import pytest  # noqa: E402
+
 import master_project  # noqa: E402
-import master_write_client  # noqa: E402
-import metrics_refresh  # noqa: E402
-import price_refresh  # noqa: E402
-import search_index  # noqa: E402
-import system_status  # noqa: E402
 import weekly_report  # noqa: E402
 from readmodel import firestore_client  # noqa: E402
 
@@ -47,68 +42,27 @@ def test_weekly_report_sets_the_timeout_on_the_request(monkeypatch):
     assert seen["timeout"] == weekly_report.GEMINI_REQUEST_TIMEOUT_SEC == 150
 
 
-def test_read_paths_reuse_the_read_model_client(monkeypatch):
-    class _Snap:
-        exists = False
-
-        def to_dict(self):
-            return None
-
-    class _Doc:
-        def get(self):
-            return _Snap()
-
-    class _Col:
-        def document(self, _id):
-            return _Doc()
-
-    class _Db:
-        def collection(self, _name):
-            return _Col()
-
-    shared = _Db()
-    calls = []
-    monkeypatch.setattr(firestore_client, "get_master_db", lambda: calls.append(1) or shared)
-    assert admin_panel._db() is shared
-    assert admin_panel._db() is shared
-    status = system_status.read_system_status()
-    assert set(status) == {"integrity", "backup", "prices", "metrics"}
-    assert len(calls) == 3
-
-
-def test_writers_share_one_client_per_process(monkeypatch):
+def test_el_lector_abre_un_solo_cliente_por_proceso_y_solo_de_la_base_nueva(monkeypatch):
     created = []
 
     class _FakeClient:
         def __init__(self, project=None):
             created.append(project)
 
-    monkeypatch.setattr(master_write_client, "_client", None)
-    monkeypatch.setattr(master_write_client.gcf, "Client", _FakeClient)
-    first = price_refresh._master_db()
-    assert search_index._master_db() is first
-    assert metrics_refresh._master_db() is first
-    assert price_refresh._master_db() is first
-    assert master_write_client.get_master_write_db() is first
-    assert created == [master_project.master_project_id()]
-    # El cliente del lector es otro objeto: no se mezclan.
     monkeypatch.setattr(firestore_client, "_client", None)
     monkeypatch.setattr(firestore_client.gcf, "Client", _FakeClient)
-    assert firestore_client.get_master_db() is not first
+    monkeypatch.setenv(master_project.VARIABLE, master_project.PROYECTO_BASE_NUEVA)
+    first = firestore_client.get_master_db()
+    assert firestore_client.get_master_db() is first
+    assert created == [master_project.PROYECTO_BASE_NUEVA]
 
 
-def test_integrity_check_uses_the_writer_client_by_default(monkeypatch):
-    sentinel = object()
-    monkeypatch.setattr(master_write_client, "get_master_write_db", lambda: sentinel)
-    seen = {}
-
-    def _stop(db, _collection):
-        seen["db"] = db
-        raise RuntimeError("stop")
-
-    monkeypatch.setattr(integrity_check, "_doc_ids", _stop)
-    try:
-        integrity_check.run_integrity_check(write=False)
-    except RuntimeError:
-        pass
-    assert seen["db"] is sentinel
+def test_con_la_base_vieja_declarada_el_lector_para_nombrandola(monkeypatch):
+    """21-11-2026: el codigo de la base vieja se borro. Con su id declarado, el cliente no se abre."""
+    monkeypatch.setattr(firestore_client, "_client", None)
+    monkeypatch.setattr(firestore_client.gcf, "Client", lambda project=None: pytest.fail("no debe abrir cliente"))
+    monkeypatch.setenv(master_project.VARIABLE, master_project.PROYECTO_BASE_DE_SIEMPRE)
+    with pytest.raises(master_project.BaseNuevaRequerida) as err:
+        firestore_client.get_master_db()
+    assert master_project.PROYECTO_BASE_DE_SIEMPRE in str(err.value)
+    assert master_project.PROYECTO_BASE_NUEVA in str(err.value)

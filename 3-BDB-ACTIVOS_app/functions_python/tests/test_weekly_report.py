@@ -223,6 +223,32 @@ def test_generation_overrides_identity_and_attaches_grounding(monkeypatch):
     assert generated["generation"]["source_count"] == 2
 
 
+def test_the_report_id_and_prompts_use_the_madrid_day_like_the_publication_slot(monkeypatch):
+    """22:30 UTC del 9-jul es la 00:30 del 10-jul en Madrid (CEST, UTC+2): `report_publication` abre el cerrojo y el
+    documento `weekly-2026-07-10`, y el informe generado a esa hora no puede salir con el id ni la fecha de referencia del 9."""
+    report = valid_report()
+    prompts = []
+
+    def fake_generate(api_key, prompt, *, grounded, json_output, deadline=None, accept_until=None):
+        prompts.append(prompt)
+        if grounded:
+            payload = {"candidates": [{"groundingMetadata": {"groundingChunks": [
+                {"web": {"title": "ECB", "uri": "https://ecb.europa.eu/a"}},
+                {"web": {"title": "Fed", "uri": "https://federalreserve.gov/b"}},
+            ]}}]}
+            return "Investigacion actual y contrastada", payload, "research-model"
+        return json.dumps(report), {}, "report-model"
+
+    monkeypatch.setattr(weekly_report, "_generate_with_fallback", fake_generate)
+
+    generated = weekly_report.generate_strategy_report(
+        "WEEKLY_REPORT", api_key="test-key", now=datetime(2026, 7, 9, 22, 30, tzinfo=timezone.utc))
+
+    assert generated["id"] == "weekly-2026-07-10"
+    assert generated["date"] == "2026-07-09T22:30:00Z"  # el instante real sigue siendo UTC
+    assert all("2026-07-10" in p and "2026-07-09" not in p for p in prompts)
+
+
 def test_publish_writes_only_the_validated_report(monkeypatch):
     report = valid_report()
     from atomic_firestore_fake import Database as AtomicDatabase

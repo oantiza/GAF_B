@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Auditoria 14-10-2026: H04 (created_at del cliente), H10 (fecha del inventario del
-panel) y BAJA (29-feb en el horizonte)."""
+"""Auditoria 14-10-2026: H04 (created_at del cliente) y BAJA (29-feb en el horizonte).
+
+H10 (fecha del inventario del panel de la base vieja, `admin_panel.db_status`) se fue el 21-11-2026 con ese panel
+(censo de la base vieja, decision 31)."""
 import math
 import os
 import sys
@@ -10,11 +12,9 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import admin_panel  # noqa: E402
 import portfolio_horizon as h  # noqa: E402
 from optimization.repository import _clear_price_series_cache  # noqa: E402
 from portfolios import repository as P  # noqa: E402
-from tests.test_admin_read_budget import _BudgetDb  # noqa: E402
 
 NOW = "2026-10-14T08:00:00+00:00"
 
@@ -75,36 +75,6 @@ def test_update_keeps_the_stored_created_at_even_if_it_is_not_iso():
     nueva_iso = P.save_portfolio(store, "u1", {"portfolio_id": "p3", "created_at": "2026-01-02",
                                                "positions": []}, now=NOW)
     assert nueva_iso["portfolio"]["created_at"] == "2026-01-02"
-
-
-# --------------------------------------------------------------------------- H10
-
-def test_db_status_returns_the_stored_inventory_date(monkeypatch):
-    rows = [{
-        "asset_id": "A0001", "name": "Asset", "type": "FUND", "last_date": "2025-12-31",
-        "points": 250, "has_vol": True, "has_sharpe": True, "has_srri": True,
-        "has_mdd": True, "has_mdd_hist": True, "first_date": "2011-01-03", "flags": [],
-    }]
-    db = _BudgetDb(inventory={
-        "schema_version": "admin-asset-inventory.v1",
-        "generated_at": "2026-10-07T10:30:00+00:00",
-        "count": 1,
-        "rows": rows,
-    })
-    monkeypatch.setattr(admin_panel, "_db", lambda: db)
-    status = admin_panel.db_status()
-    assert status["inventory_generated_at"] == "2026-10-07T10:30:00+00:00"
-    assert status["inventory_source"] == "STORED"
-    assert status["generated_at"] != status["inventory_generated_at"], "la consulta tiene su propia hora"
-    assert status["total_assets"] == 1
-
-
-def test_db_status_without_stored_inventory_says_it_is_live(monkeypatch):
-    db = _BudgetDb()
-    monkeypatch.setattr(admin_panel, "_db", lambda: db)
-    status = admin_panel.db_status()
-    assert status["inventory_source"] == "LIVE"
-    assert isinstance(status["inventory_generated_at"], str) and status["inventory_generated_at"]
 
 
 # --------------------------------------------------------------------------- BAJA 29-feb

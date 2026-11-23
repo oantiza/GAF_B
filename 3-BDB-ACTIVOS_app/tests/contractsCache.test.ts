@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +32,8 @@ beforeEach(() => {
   script = join(root, "scripts", "syncContractsCache.mjs");
   mkdirSync(dirname(script), { recursive: true });
   copyFileSync(scriptSource, script);
+  /* Desde el 21-11-2026 solo se copia `read`: los contratos de `master` eran de la maestra vieja y se borraron con
+     ella (decisión 36). Se deja una carpeta `master` en el origen de prueba para comprobar que no se copia. */
   for (const group of ["master", "read"]) {
     mkdirSync(join(contracts, group), { recursive: true });
     writeFileSync(join(contracts, group, `${group}.schema.json`), schema.replace(/\n/g, "\r\n"));
@@ -47,9 +49,11 @@ describe("portable contract cache verification", () => {
   test("sync and source parity tolerate checkout line endings with identical manifests", () => {
     expect(run().status).toBe(0);
     const manifest = readFileSync(join(cache, "manifest.json"), "utf8");
-    expect(readFileSync(join(cache, "master.schema.json"), "utf8")).toBe(schema);
+    expect(readFileSync(join(cache, "read.schema.json"), "utf8")).toBe(schema);
+    expect(existsSync(join(cache, "master.schema.json"))).toBe(false);
+    expect(Object.keys(JSON.parse(manifest).files)).toEqual(["read.schema.json"]);
     expect(run(true).status).toBe(0);
-    for (const group of ["master", "read"]) {
+    for (const group of ["read"]) {
       setLineEndings(join(contracts, group, `${group}.schema.json`), "\n");
       setLineEndings(join(cache, `${group}.schema.json`), "\r\n");
     }
@@ -62,20 +66,20 @@ describe("portable contract cache verification", () => {
     expect(run().status).toBe(0);
     const missingSource = join(root, "absent-source");
     expect(run(true, missingSource).status).toBe(0);
-    const cachedSchema = join(cache, "master.schema.json");
+    const cachedSchema = join(cache, "read.schema.json");
     setLineEndings(cachedSchema, "\r\n");
     expect(run(true, missingSource).status).toBe(0);
     writeFileSync(cachedSchema, schema.replace("object", "string"));
     const result = run(true, missingSource);
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("Hash de contrato no coincide: master.schema.json");
+    expect(result.stderr).toContain("Hash de contrato no coincide: read.schema.json");
   });
 
   test("source parity rejects a changed contract even with a valid local manifest", () => {
     expect(run().status).toBe(0);
-    writeFileSync(join(contracts, "master", "master.schema.json"), schema.replace("object", "string"));
+    writeFileSync(join(contracts, "read", "read.schema.json"), schema.replace("object", "string"));
     const result = run(true);
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("Cache de contrato desactualizada: master.schema.json");
+    expect(result.stderr).toContain("Cache de contrato desactualizada: read.schema.json");
   });
 });

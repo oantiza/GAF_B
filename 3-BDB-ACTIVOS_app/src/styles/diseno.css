@@ -21,12 +21,18 @@
   border-bottom: 1px solid var(--filete-fuerte);
   border-radius: 0;
   background: transparent;
+  /* Mide su ancho para repartir los campos (abajo): lo que decide es el sitio de la banda, no la ventana. */
+  container: diseno-datos / inline-size;
 }
 
+/* Cada columna, en proporción a lo que pide su campo con su relleno (medido el 20-11-2026): «Cliente · propuesta»
+   146 px, un capital de ocho cifras 104, la opción más larga del perfil («6 · Equilibrado dinámico», con la flecha
+   del desplegable) 198 y «Sin definir» 90. Con 1,5 : 1 : 2 : 0,9 caben los cuatro desde 636 px de campos, que es una
+   banda de 1.072 px; por debajo, los campos van encima de las cifras (abajo). */
 .diseno-datos__campos {
   display: grid;
   flex: 3 1 0;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 0.9fr);
   gap: var(--s-5) var(--s-6);
   min-width: 0;
   padding: 0 var(--s-8) 0 0;
@@ -206,10 +212,13 @@
 /* ---------------------------------------------------------------- tableta */
 
 /* Apilados, campos y cifras arrancan y acaban en el margen de la banda, como su aviso y su filete: los campos sueltan el
-   relleno que los separaba de las cifras, y las cifras se corren lo que mide el relleno de su primer dato. */
-@media (max-width: 1024.98px) {
+   relleno que los separaba de las cifras, y las cifras se corren lo que mide el relleno de su primer dato.
+   Hasta el 20-11-2026 se apilaban solo en tableta (hasta 1.024 px de ventana), y de 1.025 a 1.340 px los cuatro campos
+   en una fila cortaban su texto de ejemplo. Ahora se apilan cuando la banda mide menos de 1.072 px (arriba, la cuenta),
+   que con el menú de hoy es hasta unos 1.390 px de ventana; apilados, los cuatro siguen en una fila, a todo el ancho
+   de la banda (743 px a 1.025, la más estrecha fuera de tableta, donde piden 584). */
+@container diseno-datos (max-width: 66.99rem) {
   .diseno-datos__campos {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     flex-basis: 100%;
     padding-right: 0;
   }
@@ -217,5 +226,12 @@
   .diseno-datos__cifras {
     flex-basis: calc(100% + var(--respuesta-relleno));
     margin-left: calc(-1 * var(--respuesta-relleno));
+  }
+}
+
+/* En tableta, dos y dos, como hasta ahora. */
+@media (max-width: 1024.98px) {
+  .diseno-datos__campos {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }

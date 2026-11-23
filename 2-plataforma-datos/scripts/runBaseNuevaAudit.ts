@@ -21,6 +21,7 @@ import { validarForma } from '../src/config/baseNueva/validadores';
 import { coleccionesRaizDeclaradas, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
 import { CENTINELAS_PROHIBIDOS, TOLERANCIA_DEL_REPARTO } from '../src/config/baseNueva/vocabulario';
 import { BLOQUES_DE_INSTRUMENTO } from '../src/ingestion/baseNueva/mapper';
+import { camposPresentesDondeNoAplica, type InstrumentoLeido } from '../src/ingestion/baseNueva/calidadYTarjeta';
 
 /** Los subdocumentos de un instrumento, con su esquema. La lista vive en el mapper. */
 const BLOQUES = BLOQUES_DE_INSTRUMENTO;
@@ -59,6 +60,11 @@ async function main(): Promise<void> {
     console.log('--- subdocumentos, contados y revalidados ---');
     let totalSub = 0;
     let totalInvalidos = 0;
+    /* Lo leido, guardado por instrumento: la comprobacion de campos presentes donde no aplican lo necesita entero. */
+    const leidos = new Map<string, InstrumentoLeido>();
+    for (const doc of raices.docs) {
+        leidos.set(doc.id, { instrument_id: doc.id, raiz: doc.data(), bloques: {} });
+    }
     for (const [sufijo, tipo] of Object.entries(BLOQUES)) {
         let presentes = 0;
         let invalidos = 0;
@@ -69,6 +75,12 @@ async function main(): Promise<void> {
                 if (!snap.exists) continue;
                 presentes += 1;
                 if (!validarForma(tipo, snap.data()).ok) invalidos += 1;
+                const instrumento = leidos.get(snap.ref.parent.parent?.id ?? '');
+                if (instrumento !== undefined) {
+                    /* `computed/metrics` viaja en `calculadas`, como en el lector del lote. */
+                    if (sufijo === 'computed/metrics') instrumento.calculadas = snap.data() as Record<string, unknown>;
+                    else instrumento.bloques[sufijo] = snap.data() as Record<string, unknown>;
+                }
             }
         }
         totalSub += presentes;
@@ -187,8 +199,8 @@ async function main(): Promise<void> {
         const snap = await coleccion.get();
         const tipo = contratoDeRaiz.get(coleccion.id);
         if (tipo === undefined) {
-            /* `assets` es la maestra de hoy y se cuenta aparte, al final: su contrato vive en
-               `contracts/master/` y no es de esta base. Cualquier otra sin contrato es una
+            /* `assets` es la forma de la maestra vieja y se cuenta aparte, al final: su contrato vivía en
+               `contracts/master/` (borrado con la base vieja el 21-11-2026) y no es de esta base. Cualquier otra sin contrato es una
                coleccion que nadie declaro, y eso hay que decirlo. */
             if (coleccion.id !== 'assets') sinContrato.push(`${coleccion.id} (${snap.size})`);
             continue;
@@ -325,6 +337,53 @@ async function main(): Promise<void> {
         console.log('  pasada anterior. `npm run baseNueva:plan` los nombra uno por uno como SOBRANTES.');
         console.log('  Este escritor no borra nada: decide alguien.');
     }
+
+    /*
+     * La decision C-17 (03-11-2026): un campo PRESENTE donde el contrato dice que no aplica es un error. Es informe y no
+     * bloquea: la decision lo deja asi a proposito (el escritor no tiene delante los rasgos del instrumento) y nace con una
+     * deuda conocida. Se evalua contra el contrato de HOY. Tiene que ser 0; si no lo es, no cuenta como problema aqui.
+     */
+    console.log('');
+    console.log('--- campos presentes donde el contrato dice que no aplica (decision C-17, informe) ---');
+    const porCampo = new Map<string, { cuantos: number; ejemplo: string }>();
+    let instrumentosConCampos = 0;
+    let camposDondeNoAplica = 0;
+    for (const instrumento of leidos.values()) {
+        const encontrados = camposPresentesDondeNoAplica(instrumento);
+        if (encontrados.length > 0) instrumentosConCampos += 1;
+        camposDondeNoAplica += encontrados.length;
+        for (const campo of encontrados) {
+            const clave = `${campo.bloque === '' ? 'instrument' : campo.bloque}.${campo.ruta} [${campo.predicado}]`;
+            const antes = porCampo.get(clave) ?? { cuantos: 0, ejemplo: instrumento.instrument_id };
+            porCampo.set(clave, { cuantos: antes.cuantos + 1, ejemplo: antes.ejemplo });
+        }
+    }
+    console.log(`campos presentes donde NO aplican      : ${camposDondeNoAplica} en ${instrumentosConCampos} instrumentos (informe, no bloquea)`);
+    for (const [clave, { cuantos, ejemplo }] of [...porCampo].sort((a, b) => b[1].cuantos - a[1].cuantos).slice(0, 25)) {
+        console.log(`${String(cuantos).padStart(5)}  ${clave} (p. ej. ${ejemplo})`);
+    }
+    /*
+     * La deuda que la decision C-17 nombra con cifra: el Sharpe (y el Sortino) de las acciones. El contrato de hoy NO lo
+     * declara como no aplicable con un `x-applies-when` (se publica en euros y se oculta en pantalla; la retirada formal
+     * queda fuera, por Oscar, 04-11-2026), asi que la lectura de arriba no lo ve. Se cuenta aparte y con su motivo, que es
+     * el parrafo 9 del metodo, para que la deuda siga a la vista y no dependa de que alguien recuerde la cifra.
+     */
+    let accionesConSharpe = 0;
+    let accionesConSortino = 0;
+    let acciones = 0;
+    for (const instrumento of leidos.values()) {
+        if (instrumento.raiz['instrument_type'] !== 'STOCK') continue;
+        acciones += 1;
+        const metricas = instrumento.calculadas;
+        const hay = (clave: string): boolean => {
+            const valor = metricas?.[clave];
+            return valor !== null && typeof valor === 'object' && Object.keys(valor as object).length > 0;
+        };
+        if (hay('sharpe')) accionesConSharpe += 1;
+        if (hay('sortino')) accionesConSortino += 1;
+    }
+    console.log(`acciones con Sharpe guardado (metodo par. 9): ${accionesConSharpe} de ${acciones}`);
+    console.log(`acciones con Sortino guardado (metodo par. 9): ${accionesConSortino} de ${acciones}`);
 
     /* Y la tercera, que existe por E-3: el objetivo lleva copiado el `advisor_id` de su
        cartera, porque es lo unico que una regla de grupo de Firestore puede comprobar sin un

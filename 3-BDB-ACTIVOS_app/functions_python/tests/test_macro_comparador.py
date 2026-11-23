@@ -264,6 +264,61 @@ def test_xirr_flujos_invalidos_devuelve_none():
     assert mr.xirr([]) is None
 
 
+# H2-09 (auditoria del 22-11-2026). Con todos los flujos el mismo día no pasa el tiempo: el valor actual es la suma de
+# los flujos con cualquier tasa, y la TIR no está definida. Antes, si esa suma era cero, los dos extremos de la
+# bisección daban 0 y el primer punto medio, (−0,95 + 5) / 2 = 2,025, «anulaba» el valor actual: 202,5 %.
+
+def test_xirr_con_todos_los_flujos_el_mismo_dia_no_esta_definida():
+    dia = date(2025, 1, 1)
+    assert mr.xirr([(dia, -100.0), (dia, 100.0)]) is None  # antes, 2,025
+    assert mr.xirr([(dia, -100.0), (dia, 105.0)]) is None
+    assert mr.xirr([(dia, -60.0), (dia, -40.0), (dia, 100.0)]) is None  # antes, 2,025
+
+
+def test_xirr_netea_los_flujos_del_mismo_dia():
+    # −1.000 y −500 el 01-01-2020 pesan lo que −1.500; +1.650 el 01-01-2021 (366 días). A mano: 1.650 / 1.500 = 1,1,
+    # la misma TIR que −1.000 → +1.100: 1,1^(365,2425/366) − 1 = 9,9783 %.
+    neteado = mr.xirr([(date(2020, 1, 1), -1_000.0), (date(2020, 1, 1), -500.0), (date(2021, 1, 1), 1_650.0)])
+    assert neteado == pytest.approx(1.1 ** (365.2425 / 366.0) - 1.0, rel=1e-6)
+    # Un día cuyo neto es cero no cuenta: −100 y +100 el 01-06-2020 no cambian la TIR.
+    con_un_dia_a_cero = mr.xirr([
+        (date(2020, 1, 1), -1_000.0), (date(2020, 6, 1), -100.0), (date(2020, 6, 1), 100.0), (date(2021, 1, 1), 1_100.0),
+    ])
+    assert con_un_dia_a_cero == pytest.approx(1.1 ** (365.2425 / 366.0) - 1.0, rel=1e-6)
+    # Y si lo único que queda tras netear es de un signo, no hay TIR: −1.000 hoy y −100 / +100 dentro de un año.
+    assert mr.xirr([(date(2020, 1, 1), -1_000.0), (date(2021, 1, 1), -100.0), (date(2021, 1, 1), 100.0)]) is None
+
+
+def test_una_aportacion_del_mismo_dia_que_el_final_no_da_tir_en_ninguna_alternativa():
+    # El caso de la pantalla: 1.000 € aportados el mismo día de la fecha final. Letras y depósito valen 1.000 € ese día
+    # (no ha pasado el tiempo) y daban 202,5 % con cualquier valor final de la cartera; la cartera, con 1.000 €, también.
+    dia = date(2026, 11, 22)
+    for valor_final in (1_050.0, 1_000.0):
+        comparativa = mr.build_patrimonial_comparison([(dia, 1_000.0)], valor_final, dia)
+        for nombre in ("cartera", "letras", "deposito"):
+            alternativa = comparativa[nombre]
+            assert alternativa["tir_nominal_bruta_pct"] is None, (valor_final, nombre)
+            assert alternativa["tir_nominal_neta_pct"] is None, (valor_final, nombre)
+            assert alternativa["tir_real_bruta_pct"] is None, (valor_final, nombre)
+            assert alternativa["tir_real_neta_pct"] is None, (valor_final, nombre)
+        # Los valores finales sí están: el importe de Letras y depósito es lo aportado.
+        assert comparativa["letras"]["valor_final_bruto"] == 1_000.0
+        assert comparativa["deposito"]["valor_final_bruto"] == 1_000.0
+
+
+def test_la_tasa_devuelta_anula_siempre_el_valor_actual():
+    # Unos flujos de signo alterno con dos cambios de signo y aportaciones el mismo día que el final: lo que devuelva
+    # xirr se comprueba sin xirr, con el año de 365,2425 días.
+    flows = [
+        (date(2020, 1, 1), -10_000.0), (date(2021, 3, 1), 4_000.0), (date(2022, 7, 1), -3_000.0),
+        (date(2024, 1, 1), -2_000.0), (date(2024, 1, 1), 13_500.0),
+    ]
+    tir = mr.xirr(flows)
+    assert tir is not None
+    valor_actual = sum(importe / (1 + tir) ** ((dia - flows[0][0]).days / 365.2425) for dia, importe in flows)
+    assert abs(valor_actual) <= max(1e-6, 1e-9 * sum(abs(importe) for _, importe in flows))
+
+
 def test_tir_real_por_ipc_con_deflacion_es_superior_a_nominal():
     flows = [(date(2023, 1, 1), -10_000.0), (date(2024, 1, 1), 10_000.0)]
     nominal = mr.xirr(flows)

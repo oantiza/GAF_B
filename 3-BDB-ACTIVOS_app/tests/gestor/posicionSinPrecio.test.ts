@@ -172,7 +172,7 @@ describe("una posición sin precio: lo que el análisis da de ella", () => {
   test("la comprobación de la cartera lo sigue diciendo como un error, con sus palabras de siempre", () => {
     const preparado = preparar(cartera([A, B], MOVIMIENTOS), mercado, new Map(), FIN);
     const avisos = comprobarIntegridad(preparado.cartera, preparado.valoracion, FIN, mercado).avisos.filter((aviso) => aviso.codigo === "SIN_PRECIO");
-    expect(avisos.map((aviso) => [aviso.gravedad, aviso.mensaje])).toEqual([["error", "Activo B no tiene precio: cuenta como cero. Ponle un precio a mano."]]);
+    expect(avisos.map((aviso) => [aviso.gravedad, aviso.mensaje])).toEqual([["error", "Activo B no tiene precio: cuenta como cero, y la rentabilidad de cualquier periodo que incluya esta fecha no vale. Ponle un precio a mano."]]);
   });
 });
 
@@ -362,15 +362,15 @@ describe("varias sin precio", () => {
 });
 
 describe("si a una con precio le falta el coste, el resultado latente no se da, y es por el coste", () => {
-  test("B sin precio, y G comprada con dólares sin ningún cambio a euros", () => {
-    /* G: 5 títulos a 120 $ pagados con 600 $ aportados en dólares, y el mercado no trae el cambio: tiene precio (el de la
-       operación) y no se sabe lo que costó en euros. */
+  test("B sin precio, y G comprada con dólares el día antes de que haya cambio a euros", () => {
+    /* G: 5 títulos a 120 $ pagados el 03-01 con 600 $ aportados en dólares, y el cambio del dólar empieza el 04-01: tiene
+       precio (el de la operación) y valor (5 × 120 / 1,25 = 480 €), y no se sabe lo que costó en euros. Sin ningún cambio
+       tampoco tendría valor, e iría como una sin precio (22-11-2026). */
     const G = activo("G", "ACCION", "USD");
-    const sinCambio: DatosDeMercado = { precios: mercado.precios, cambios: new Map() };
     const analisis = analizada(
-      cartera([A, B, G], [...MOVIMIENTOS, mov("aportacion", "2025-01-02", { importe: "600", divisa: "USD" }), mov("compra", "2025-01-03", { activoId: "G", titulos: "5", precio: "120", divisa: "USD", importe: "-600" })]),
-      sinCambio
+      cartera([A, B, G], [...MOVIMIENTOS, mov("aportacion", "2025-01-02", { importe: "600", divisa: "USD" }), mov("compra", "2025-01-03", { activoId: "G", titulos: "5", precio: "120", divisa: "USD", importe: "-600" })])
     );
+    expect(de(analisis, "G").valor).toBeCloseTo(480, 9);
     expect(de(analisis, "G").coste).toBeNull();
     /* B no entra en el total y no lo impide; lo impide G, que tiene precio y no coste. */
     expect(analisis.latente).toBeNull();

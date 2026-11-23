@@ -77,7 +77,7 @@ describe("en pantalla", () => {
       root.render(
         createElement(ClientModeProvider, {
           initialValue: modoCliente,
-          children: createElement(PortfolioReport, { report, originalPositions: posiciones, assets, feasibility, totalCapital: 100000, portfolioName: "Familia García" })
+          children: createElement(PortfolioReport, { report, originalPositions: posiciones, assets, feasibility, totalCapital: 100000, portfolioName: "Familia García", onIrADiseno: () => undefined })
         })
       );
     });
@@ -89,23 +89,26 @@ describe("en pantalla", () => {
 
   test("una sola posición al 60 %: el informe de cliente no se puede preparar y dice por qué y dónde se arregla", async () => {
     await montarInformes([{ asset_id: "MOCK-FUND-MIXED", weight_percent: 60 }]);
-    expect(botonDe("Informe para el cliente").disabled).toBe(true);
-    expect(fila("Informe para el cliente").textContent).toContain(`${SIN_CUADRAR} Se ajustan en Diseño.`);
+    expect(botonDe("Informe de la propuesta").disabled).toBe(true);
+    expect(fila("Informe de la propuesta").textContent).toContain(SIN_CUADRAR);
+    /* Dónde se arregla lo dice la acción de su aviso (I1, 21-11-2026), y la fila dice que está bloqueado. */
+    expect(fila("Informe de la propuesta").querySelector(".aviso__accion button")?.textContent).toBe("Ajustar en Diseño");
+    expect(fila("Informe de la propuesta").querySelector(".informes-lista__nombre .distintivo")?.textContent).toBe("Bloqueado");
     /* El de costes normaliza y lo dice en su papel: sigue abierto. */
-    expect(botonDe("Informe de costes").disabled).toBe(false);
+    expect(botonDe("Costes de la propuesta").disabled).toBe(false);
   });
 
   test("delante del cliente dice que no cuadra, sin la instrucción al asesor", async () => {
     await montarInformes([{ asset_id: "MOCK-FUND-MIXED", weight_percent: 60 }], true);
-    expect(botonDe("Informe para el cliente").disabled).toBe(true);
-    expect(fila("Informe para el cliente").textContent).toContain(SIN_CUADRAR);
-    expect(fila("Informe para el cliente").textContent).not.toContain("Se ajustan en Diseño");
+    expect(botonDe("Informe de la propuesta").disabled).toBe(true);
+    expect(fila("Informe de la propuesta").textContent).toContain(SIN_CUADRAR);
+    expect(fila("Informe de la propuesta").textContent).not.toContain("Ajustar en Diseño");
   });
 
   test("con 60 y 40 se prepara como siempre", async () => {
     await montarInformes([{ asset_id: "MOCK-FUND-MIXED", weight_percent: 60 }, { asset_id: "MOCK-ETF-CASH", weight_percent: 40 }]);
-    expect(botonDe("Informe para el cliente").disabled).toBe(false);
-    expect(fila("Informe para el cliente").textContent).not.toContain("no se genera");
+    expect(botonDe("Informe de la propuesta").disabled).toBe(false);
+    expect(fila("Informe de la propuesta").textContent).not.toContain("no se genera");
   });
 
   test("el diálogo, que es el de las dos puertas, lo dice dentro y no deja descargar", async () => {

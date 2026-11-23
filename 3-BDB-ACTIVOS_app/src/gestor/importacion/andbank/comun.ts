@@ -8,6 +8,7 @@
  */
 import { d, type Decimal } from "../../motor/decimal";
 import { esDia, type Dia } from "../../motor/fechas";
+import { DIVISAS_MENORES } from "../../mercado/cargar";
 
 /** Un error de formato de un extracto: el mensaje es para el usuario y dice qué hacer. */
 export class ErrorDeFormato extends Error {
@@ -19,8 +20,11 @@ export class ErrorDeFormato extends Error {
 
 export const ISIN = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
 const DIVISA = /^[A-Z]{3}$/;
-/** Las divisas en céntimos se distinguen por la caja («GBp»): pasarlas a mayúsculas las confundiría con la libra. */
-export const DIVISAS_EN_CENTIMOS: ReadonlySet<string> = new Set(["GBX", "GBp"]);
+/**
+ * Las divisas en céntimos se distinguen por la caja («GBp»): pasarlas a mayúsculas las confundiría con la libra. Son las que
+ * el cargador de mercado convierte con el cambio de su divisa mayor por cien (`DIVISAS_MENORES`).
+ */
+export const DIVISAS_EN_CENTIMOS: ReadonlySet<string> = new Set(Object.keys(DIVISAS_MENORES));
 
 /** `_clean_text`: sin espacios duros ni el carácter de sustitución de una mala codificación. */
 export function limpiar(valor: string | undefined): string {
@@ -60,12 +64,20 @@ export function nombresCasan(a: string, b: string): boolean {
   return a !== "" && b !== "" && (a.startsWith(b) || b.startsWith(a));
 }
 
+/**
+ * La divisa tal como llega, en mayúsculas salvo la caja de las divisas en céntimos: «GBp» se queda «GBp», «eur» es «EUR».
+ * No comprueba que sea una divisa. `undefined` si la celda está vacía.
+ */
+export function divisaComoLlega(valor: string | undefined): string | undefined {
+  const texto = limpiar(valor);
+  if (texto === "") return undefined;
+  return DIVISAS_EN_CENTIMOS.has(texto) ? texto : texto.toUpperCase();
+}
+
 /** La divisa como la escribe el banco, conservando la caja de las divisas en céntimos. `undefined` si no es una divisa. */
 export function leerDivisa(valor: string | undefined): string | undefined {
-  const texto = limpiar(valor);
-  if (DIVISAS_EN_CENTIMOS.has(texto)) return texto;
-  const mayusculas = texto.toUpperCase();
-  return DIVISA.test(mayusculas) ? mayusculas : undefined;
+  const divisa = divisaComoLlega(valor);
+  return divisa !== undefined && (DIVISAS_EN_CENTIMOS.has(divisa) || DIVISA.test(divisa)) ? divisa : undefined;
 }
 
 /* ------------------------------------------------------------------ tablas */

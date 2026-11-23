@@ -86,19 +86,3 @@ export const REQUIRE_EMAIL_VERIFIED = parseEnabledUnlessOff(import.meta.env.VITE
 export function showPreviewDisclaimers(kind: AssetDataSourceKind = DEFAULT_DATA_SOURCE_KIND): boolean {
   return kind !== "BBDD_LIVE_API";
 }
-
-/**
- * Servicio local de operaciones del extractor (`python main.py ops` en
- * 1-extractor): alta, extracción, canónico, correcciones y plataforma de datos
- * desde Sistema › Operaciones. Solo escucha en loopback y solo admite los
- * orígenes de desarrollo, así que la pestaña se enciende por defecto fuera de
- * producción. La versión publicada no puede conectarse a este servicio local.
- */
-export const OPS_LOCAL_URL = (import.meta.env.VITE_BDB_OPS_URL || "http://127.0.0.1:8766").replace(/\/+$/, "");
-export const OPS_LOCAL_ENABLED = !import.meta.env.PROD && parseBooleanFlag(import.meta.env.VITE_BDB_OPS_ENABLED, true);
-/**
- * Token del servicio, que lo exige siempre desde el 17-10-2026 (decisión 6.7b). La app lo manda en
- * `X-Ops-Token`. `iniciar-dev.bat` lo toma con `python main.py ops-token` en 1-extractor; si Vite se
- * arranca a mano, va en `.env.local`. Solo en desarrollo: nunca forma parte de la versión publicada.
- */
-export const OPS_LOCAL_TOKEN = import.meta.env.PROD ? "" : import.meta.env.VITE_BDB_OPS_TOKEN || "";

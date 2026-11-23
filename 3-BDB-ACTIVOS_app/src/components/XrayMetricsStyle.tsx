@@ -7,6 +7,8 @@ import { repartoDeclarado, type EquityRegionAllocation } from "../core/equityReg
 import { computeEquitySectorAllocation } from "../core/equitySectors";
 import { numero, oFalta, peso } from "../core/formato";
 import { perfilDeRentaFija, type CifraDeRentaFija } from "../core/perfilDeRentaFija";
+import { pesoSinReparto } from "../core/portfolio";
+import { fraseDelSinRepartoEnLaLectura } from "../core/radiografiaDeLaCartera";
 import { FilasDeReparto } from "./FilasDeReparto";
 import { breakdownLabel, NO_DECLARADO, sectorDonutSlices } from "./xrayBreakdownLabels";
 import { Ausencia } from "./ui/Ausencia";
@@ -23,15 +25,23 @@ const hayRentaVariable = ({ rows, unclassified_weight_percent: noDeclarado }: Eq
 const noDeclaradoDeLaRentaVariable = (parte: number) => `${NO_DECLARADO}: ${conUnDecimal(parte)} de la renta variable`;
 
 /**
+ * Lo que se dice donde no hay nada medido. Si la cartera tiene algo sin reparto de activos (A-211), no se sabe si hay renta
+ * variable o renta fija: «Falta el dato», y el porqué va una vez, al pie de la cuadrícula. Si no, no la hay: «No aplica».
+ */
+function SinNadaMedido({ sinReparto, motivo }: { sinReparto: boolean; motivo: string }) {
+  return sinReparto ? <Ausencia clase="falta" /> : <Ausencia clase="no-aplica" motivo={motivo} />;
+}
+
+/**
  * Un reparto de la renta variable: lo publicado, y lo que no se publica escrito aparte (decisión 11). Sin esa línea
  * la lista no llega al 100 % y no dice por qué.
  */
-function RepartoDeRentaVariable({ titulo, reparto }: { titulo: string; reparto: EquityRegionAllocation }) {
+function RepartoDeRentaVariable({ titulo, reparto, sinReparto }: { titulo: string; reparto: EquityRegionAllocation; sinReparto: boolean }) {
   const { rows, unclassified_weight_percent: noDeclarado } = reparto;
   return (
     <div className="xray-dist-block">
       <h3>{titulo}</h3>
-      {!hayRentaVariable(reparto) ? <Ausencia clase="no-aplica" motivo={SIN_RENTA_VARIABLE} /> : null}
+      {!hayRentaVariable(reparto) ? <SinNadaMedido motivo={SIN_RENTA_VARIABLE} sinReparto={sinReparto} /> : null}
       {rows.length > 0 ? (
         <FilasDeReparto filas={rows.map((row) => ({ clave: row.key, rotulo: breakdownLabel(row.key), peso: row.weight_percent }))} />
       ) : null}
@@ -91,6 +101,9 @@ export function XrayMetricsStyle({ assets, positions }: XrayMetricsStyleProps) {
 
   const { styles, caps, caja, rentaFija } = breakdown;
   const notas = notasDeLaCaja(caja);
+  /* A-211: lo que no tiene reparto de activos no entra en ninguna de estas lecturas, y se dice una vez. */
+  const sinReparto = useMemo(() => fraseDelSinRepartoEnLaLectura(pesoSinReparto(positions, assets), "renta variable ni renta fija"), [assets, positions]);
+  const conSinReparto = sinReparto !== null;
 
   return (
     <Panel
@@ -103,7 +116,7 @@ export function XrayMetricsStyle({ assets, positions }: XrayMetricsStyleProps) {
         <div className="xray-style-grid">
           <div className="xray-style-section xray-style-section--third">
             <h3>Estilo y tamaño</h3>
-            {!caja ? <Ausencia clase="no-aplica" motivo={SIN_RENTA_VARIABLE} /> : null}
+            {!caja ? <SinNadaMedido motivo={SIN_RENTA_VARIABLE} sinReparto={conSinReparto} /> : null}
             {caja && hayAlgoQueDibujar(caja) ? (
               <OaaStyleBoxChart
                 celdas={caja.celdas}
@@ -132,12 +145,12 @@ export function XrayMetricsStyle({ assets, positions }: XrayMetricsStyleProps) {
             ) : hayRentaVariable(breakdown.sectors) ? (
               <Ausencia clase="falta" motivo={noDeclaradoDeLaRentaVariable(breakdown.sectors.unclassified_weight_percent)} />
             ) : (
-              <Ausencia clase="no-aplica" motivo={SIN_RENTA_VARIABLE} />
+              <SinNadaMedido motivo={SIN_RENTA_VARIABLE} sinReparto={conSinReparto} />
             )}
           </div>
           <div className="xray-style-section xray-style-section--third stack">
-            <RepartoDeRentaVariable titulo="Estilo" reparto={styles} />
-            <RepartoDeRentaVariable titulo="Tamaño" reparto={caps} />
+            <RepartoDeRentaVariable titulo="Estilo" reparto={styles} sinReparto={conSinReparto} />
+            <RepartoDeRentaVariable titulo="Tamaño" reparto={caps} sinReparto={conSinReparto} />
             <div className="xray-dist-block">
               <h3>Renta fija</h3>
               {rentaFija ? (
@@ -151,14 +164,20 @@ export function XrayMetricsStyle({ assets, positions }: XrayMetricsStyleProps) {
                   </ul>
                 </>
               ) : (
-                <Ausencia clase="no-aplica" motivo="Sin renta fija en esta cartera" />
+                <SinNadaMedido motivo="Sin renta fija en esta cartera" sinReparto={conSinReparto} />
               )}
             </div>
           </div>
         </div>
 
+        {sinReparto ? (
+          <p className="xray-dist-pie">
+            <Ausencia clase="falta" motivo={sinReparto} />
+          </p>
+        ) : null}
+
         <p className="xray-style-note">
-          Estilo y tamaño, ponderados por la exposición a renta variable; lo que un activo no declara no se reparte ni se deduce de su nombre. Grado de inversión, alto rendimiento y duración son medias ponderadas por el peso en renta fija de las posiciones que los declaran, cada una con su cobertura: si los dos primeros no suman 100, el resto no consta, y las dos duraciones no se mezclan porque miden cosas distintas.
+          Estilo y tamaño, ponderados por la exposición a renta variable; lo que un activo no declara no se reparte ni se deduce de su nombre, y un fondo que no declara su reparto de activos no entra en ninguna. Grado de inversión, alto rendimiento y duración son medias ponderadas por el peso en renta fija de las posiciones que los declaran, cada una con su cobertura: si los dos primeros no suman 100, el resto no consta, y las dos duraciones no se mezclan porque miden cosas distintas.
         </p>
     </Panel>
   );

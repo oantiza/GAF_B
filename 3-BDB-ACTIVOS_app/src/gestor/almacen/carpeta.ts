@@ -28,9 +28,24 @@
  * la carpeta sincronizada): no se escribe, se copia SIEMPRE lo del disco a sus copias y se falla
  * con `CONFLICTO`. Una cartera que este almacén no ha leído ni escrito se guarda como siempre.
  *
+ * UNA ESCRITURA CADA VEZ, AUNQUE HAYA VARIAS PESTAÑAS. Comprobar la huella y escribir no es
+ * atómico: dos pestañas que guardasen a la vez pasarían las dos la comprobación. Por eso toda
+ * escritura en la carpeta (guardar, retirar, recuperar y los ajustes) se hace con un cerrojo de la
+ * Web Locks API compartido por todas las pestañas del navegador, y la segunda pestaña ya ve lo que
+ * escribió la primera y falla con `CONFLICTO`. Sin `navigator.locks`, se queda la cola de esta
+ * pestaña, como antes del 22-11-2026. Y si al volver a leer lo escrito resulta que en el disco hay
+ * otra versión válida (la escribió alguien de fuera entretanto), no se restituye nada encima: se
+ * deja lo que hay, la versión que esta pestaña intentaba guardar va a sus copias, y se falla con
+ * `CONFLICTO`.
+ *
  * NUNCA SE BORRA UNA CARTERA desde aquí: `retirar` la mueve a `papelera/` con sus copias. Lo
  * único que se elimina son copias que la retención ya no conserva y el fichero de nombre
  * antiguo cuando una cartera cambia de nombre (después de escribir y comprobar el nuevo).
+ *
+ * RECUPERAR es retirar al revés, y tampoco pisa nada: la cartera vuelve con el fichero de su
+ * nombre y sus copias vuelven a `copias/<id>/`. Si en la carpeta ya está esa misma cartera, o
+ * hay otra con su nombre, no se recupera y se dice (`YA_EXISTE`): lo que hay no se toca y lo
+ * retirado sigue en la papelera.
  */
 import type { Cartera } from "../motor/modelo";
 import { permisoDe } from "./acceso";
@@ -38,6 +53,7 @@ import {
   ErrorDeAlmacen,
   type AjustesDelGestor,
   type AlmacenDeCarteras,
+  type CarteraRetirada,
   type CodigoDeErrorDeAlmacen,
   type CopiaDeSeguridad,
   type OpcionesDeGuardado,
@@ -47,9 +63,27 @@ import { copiasAConservar, fechaDeCopia, marcaDeTiempo, nombreDeCopia, ordenarCo
 import { ErrorDeFormato, leer, ordenarClaves, serializar, sinMarcaDeGuardado, type CarteraLeida, type Esquema } from "./formato";
 import { EXTENSION_DE_CARTERA, esFicheroDeCartera, nombreDeFicheroPara, sanearNombre, sinExtension } from "./nombres";
 
+/** Lo que el almacén usa de la Web Locks API (`navigator.locks`): un cerrojo exclusivo por nombre. */
+export interface GestorDeCerrojos {
+  request(nombre: string, tarea: () => Promise<unknown>): Promise<unknown>;
+}
+
 export interface OpcionesDelAlmacen {
   /** El reloj. Las pruebas lo inyectan para simular el paso del tiempo. */
   ahora?: () => Date;
+  /**
+   * Los cerrojos compartidos entre pestañas. Por defecto, `navigator.locks`; con `null`, o si el
+   * navegador no los tiene, las escrituras solo van en fila dentro de esta pestaña.
+   */
+  cerrojos?: GestorDeCerrojos | null;
+}
+
+/** El prefijo del cerrojo de escritura de una carpeta de carteras. */
+export const PREFIJO_DEL_CERROJO = "gestor-cartera:";
+
+function cerrojosDelNavegador(): GestorDeCerrojos | null {
+  const navegador = (globalThis as { navigator?: { locks?: GestorDeCerrojos } }).navigator;
+  return typeof navegador?.locks?.request === "function" ? navegador.locks : null;
 }
 
 export const FICHERO_DE_AJUSTES = "ajustes.json";
@@ -203,6 +237,21 @@ function idDelTexto(texto: string): string | undefined {
   }
 }
 
+/** El nombre de la cartera de un texto, sin validar nada más. */
+function nombreDelTexto(texto: string): string | undefined {
+  try {
+    const nombre = (JSON.parse(texto.replace(/^\uFEFF/, "")) as { cartera?: { nombre?: unknown } }).cartera?.nombre;
+    return typeof nombre === "string" ? nombre : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Dos nombres de cartera que se leen igual: sin espacios de los lados y sin distinguir mayúsculas. */
+function mismoNombreDeCartera(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
 function movimientosDelTexto(texto: string): number | undefined {
   try {
     const datos = JSON.parse(texto) as { cartera?: { movimientos?: unknown } };
@@ -231,6 +280,7 @@ function carpetaDeLasCopias(carteraId: string): string {
 
 export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: OpcionesDelAlmacen = {}): AlmacenDeCarteras {
   const ahora = opciones.ahora ?? (() => new Date());
+  const cerrojos = opciones.cerrojos === undefined ? cerrojosDelNavegador() : opciones.cerrojos;
 
   /** Dónde está cada cartera abierta o guardada en esta sesión: id → nombre del fichero. */
   const ubicaciones = new Map<string, string>();
@@ -245,6 +295,17 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
     const resultado = cola.then(tarea, tarea);
     cola = resultado.catch(() => undefined);
     return resultado;
+  }
+
+  /*
+   * Y entre pestañas, con un cerrojo de la Web Locks API. Es uno por carpeta y no uno por cartera:
+   * guardar una cartera con nombre nuevo, o recuperarla, mira los nombres de las demás, y dos
+   * carteras distintas que se escribiesen a la vez con el mismo nombre se pisarían. La carpeta se
+   * reconoce por su nombre (el navegador no da su ruta): dos carpetas que se llamen igual
+   * comparten cerrojo, que solo hace que esperen una a otra unos milisegundos.
+   */
+  function enExclusiva<T>(tarea: () => Promise<T>): Promise<T> {
+    return enCola(() => (cerrojos === null ? tarea() : (cerrojos.request(`${PREFIJO_DEL_CERROJO}${carpeta.name}`, tarea) as Promise<T>)));
   }
 
   /**
@@ -386,6 +447,22 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
     }
 
     if (!(await escritoBien(destino, texto))) {
+      /* Si lo que hay ahora es otra versión que se abre bien, no es lo nuestro estropeado: lo ha escrito alguien de fuera
+         entretanto. Restituir lo anterior, o quitar el fichero, borraría esa versión; se deja como está, y lo que esta
+         pestaña quería guardar va a las copias de la cartera, para que no se pierda. La huella no cambia: hasta recargar,
+         los siguientes guardados también darán CONFLICTO. */
+      if (await hayOtraVersion(destino, texto, enSuSitio ? origen.texto : undefined)) {
+        let copiado = true;
+        try {
+          await quizaCopiar(cartera.id, texto, momento, true);
+        } catch {
+          copiado = false;
+        }
+        throw new ErrorDeAlmacen(
+          "CONFLICTO",
+          `La cartera «${cartera.nombre}» ha cambiado fuera de esta pestaña (en otra pestaña, en otro equipo o en otro programa) mientras se guardaba. No se da por guardada, y lo que hay ahora en el disco no se ha tocado${copiado ? "; lo que intentabas guardar queda en sus copias de seguridad" : ""}.`
+        );
+      }
       /* Se deja todo como estaba: el contenido anterior si el fichero ya existía, y nada si era nuevo. */
       if (enSuSitio) await escribirTexto(carpeta, destino, origen.texto).catch(() => undefined);
       else await carpeta.removeEntry(destino).catch(() => undefined);
@@ -414,6 +491,28 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
     }
   }
 
+  /**
+   * Si en `nombre` hay ahora una versión que no es la que esta escritura dejó (`escrito`) ni la que había antes
+   * (`anterior`): un fichero de cartera que se abre bien, o ningún fichero donde antes había uno. Un contenido que no
+   * se abre es lo nuestro estropeado al escribir, y eso sí se puede restituir.
+   */
+  async function hayOtraVersion(nombre: string, escrito: string, anterior: string | undefined): Promise<boolean> {
+    let actual: Leido | undefined;
+    try {
+      actual = await leerTexto(carpeta, nombre);
+    } catch {
+      return false;
+    }
+    if (actual === undefined) return anterior !== undefined;
+    if (actual.texto === escrito || actual.texto === anterior) return false;
+    try {
+      leer(actual.texto);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   /** Un nombre libre en `destino`: el mismo, o con la fecha y hora y, si hace falta, un número. */
   async function nombreLibre(destino: FileSystemDirectoryHandle, nombre: string, momento: Date): Promise<string> {
     if (!(await existe(destino, nombre))) return nombre;
@@ -425,7 +524,7 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
   }
 
   /** Copia un fichero a otra carpeta, comprueba la copia y quita el original. */
-  async function mover(desde: FileSystemDirectoryHandle, nombre: string, hacia: FileSystemDirectoryHandle, momento: Date): Promise<void> {
+  async function mover(desde: FileSystemDirectoryHandle, nombre: string, hacia: FileSystemDirectoryHandle, momento: Date, adonde = "a la papelera"): Promise<void> {
     const leido = await leerTexto(desde, nombre);
     if (leido === undefined) return;
     const yaEsta = await leerTexto(hacia, nombre);
@@ -433,7 +532,7 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
       const destino = await nombreLibre(hacia, nombre, momento);
       await escribirTexto(hacia, destino, leido.texto);
       if ((await leerTexto(hacia, destino))?.texto !== leido.texto) {
-        throw new ErrorDeAlmacen("ESCRITURA", `No se pudo mover «${nombre}» a la papelera. No se ha quitado nada.`);
+        throw new ErrorDeAlmacen("ESCRITURA", `No se pudo mover «${nombre}» ${adonde}. No se ha quitado nada.`);
       }
     }
     await desde.removeEntry(nombre);
@@ -470,6 +569,97 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
     if (id !== undefined) huellas.delete(id);
   }
 
+  /** Lo que se sabe de cada fichero de cartera de una carpeta, con la fecha del fichero. Uno que no se lee va con su motivo. */
+  async function resumenesDe(donde: FileSystemDirectoryHandle): Promise<Array<{ resumen: ResumenDeCartera; modificado: number }>> {
+    const resumenes: Array<{ resumen: ResumenDeCartera; modificado: number }> = [];
+    for (const manejador of await ficherosDe(donde)) {
+      if (!esFicheroDeCartera(manejador.name)) continue;
+      let texto = "";
+      let modificado = 0;
+      try {
+        const fichero = await manejador.getFile();
+        modificado = fichero.lastModified;
+        texto = await fichero.text();
+        const { cartera } = leer(texto);
+        const resumen: ResumenDeCartera = {
+          fichero: manejador.name,
+          id: cartera.id,
+          nombre: cartera.nombre,
+          divisaBase: cartera.divisaBase,
+          movimientos: cartera.movimientos.length,
+          modificada: cartera.modificada !== "" ? cartera.modificada : new Date(modificado).toISOString()
+        };
+        if (cartera.cliente?.nombre !== undefined) resumen.cliente = cartera.cliente.nombre;
+        resumenes.push({ resumen, modificado });
+      } catch (error) {
+        resumenes.push({
+          resumen: {
+            fichero: manejador.name,
+            id: idDelTexto(texto) ?? "",
+            nombre: sinExtension(manejador.name),
+            divisaBase: "",
+            movimientos: 0,
+            modificada: new Date(modificado).toISOString(),
+            error: mensajeDe(error)
+          },
+          modificado
+        });
+      }
+    }
+    return resumenes;
+  }
+
+  async function recuperarSinCola(fichero: string): Promise<{ fichero: string; nombre: string }> {
+    const papelera = await subcarpeta(carpeta, CARPETA_DE_PAPELERA, false);
+    const leido = papelera === undefined ? undefined : await leerTexto(papelera, fichero);
+    if (papelera === undefined || leido === undefined) throw new ErrorDeAlmacen("NO_ENCONTRADO", `No se encuentra «${fichero}» entre las carteras retiradas.`);
+    let cartera: Cartera;
+    try {
+      cartera = leer(leido.texto).cartera;
+    } catch (error) {
+      throw new ErrorDeAlmacen("LECTURA", `«${fichero}» no se puede abrir, así que no se ha recuperado: ${mensajeDe(error)}`);
+    }
+    const destino = nombreDeFicheroPara(cartera.nombre);
+
+    /* No se pisa nada: ni el fichero de su nombre, ni otra cartera que se llame igual, ni la misma cartera, que dejaría dos
+       ficheros con el mismo identificador compartiendo sus copias de seguridad. */
+    for (const manejador of await ficherosDe(carpeta)) {
+      if (!esFicheroDeCartera(manejador.name)) continue;
+      const texto = await (await manejador.getFile()).text();
+      const nombre = nombreDelTexto(texto);
+      if (idDelTexto(texto) === cartera.id) {
+        throw new ErrorDeAlmacen("YA_EXISTE", `La cartera «${cartera.nombre}» ya está en la carpeta, en «${manejador.name}». No se ha recuperado la de la papelera, para no tener dos veces la misma cartera.`);
+      }
+      if (mismoNombre(manejador.name, destino) || (nombre !== undefined && mismoNombreDeCartera(nombre, cartera.nombre))) {
+        throw new ErrorDeAlmacen(
+          "YA_EXISTE",
+          `Ya hay en la carpeta una cartera que se llama «${nombre ?? sinExtension(manejador.name)}», y no se pisa: cambia el nombre de la que hay, o retírala, y vuelve a intentarlo. La retirada sigue en la papelera.`
+        );
+      }
+    }
+
+    const momento = ahora();
+    /* Primero las copias, después la cartera, como al retirarla: si algo falla a mitad, la cartera sigue en la papelera y
+       lo movido está en sus copias, sin pérdida. Volver a intentarlo no duplica una copia que ya volvió. */
+    const copiasEnPapelera = await subcarpeta(papelera, CARPETA_DE_COPIAS, false);
+    const nombreDeSusCopias = carpetaDeLasCopias(cartera.id);
+    const suyas = copiasEnPapelera === undefined ? undefined : await subcarpeta(copiasEnPapelera, nombreDeSusCopias, false);
+    if (copiasEnPapelera !== undefined && suyas !== undefined) {
+      const raiz = (await subcarpeta(carpeta, CARPETA_DE_COPIAS, true))!;
+      const vuelta = (await subcarpeta(raiz, nombreDeSusCopias, true))!;
+      for (const manejador of await ficherosDe(suyas)) await mover(suyas, manejador.name, vuelta, momento, "a las copias de la cartera");
+      await copiasEnPapelera.removeEntry(nombreDeSusCopias, { recursive: true }).catch(() => undefined);
+    }
+
+    await escribirTexto(carpeta, destino, leido.texto);
+    if (!(await escritoBien(destino, leido.texto))) {
+      await carpeta.removeEntry(destino).catch(() => undefined);
+      throw new ErrorDeAlmacen("VERIFICACION", `«${cartera.nombre}» se escribió en la carpeta, pero al volver a leerla no se pudo abrir, así que no se ha recuperado. Sigue en la papelera.`);
+    }
+    await papelera.removeEntry(fichero);
+    return { fichero: destino, nombre: cartera.nombre };
+  }
+
   return {
     clase: "carpeta",
     nombre: carpeta.name,
@@ -477,38 +667,7 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
     /* En la cola, detrás de las escrituras: la lista que se pide al volver de una cartera ve su último guardado (GES-27). */
     listar: () =>
       enCola(() => protegido("leer", async () => {
-        const resumenes: ResumenDeCartera[] = [];
-        for (const manejador of await ficherosDe(carpeta)) {
-          if (!esFicheroDeCartera(manejador.name)) continue;
-          let texto = "";
-          let modificado = 0;
-          try {
-            const fichero = await manejador.getFile();
-            modificado = fichero.lastModified;
-            texto = await fichero.text();
-            const { cartera } = leer(texto);
-            const resumen: ResumenDeCartera = {
-              fichero: manejador.name,
-              id: cartera.id,
-              nombre: cartera.nombre,
-              divisaBase: cartera.divisaBase,
-              movimientos: cartera.movimientos.length,
-              modificada: cartera.modificada !== "" ? cartera.modificada : new Date(modificado).toISOString()
-            };
-            if (cartera.cliente?.nombre !== undefined) resumen.cliente = cartera.cliente.nombre;
-            resumenes.push(resumen);
-          } catch (error) {
-            resumenes.push({
-              fichero: manejador.name,
-              id: idDelTexto(texto) ?? "",
-              nombre: sinExtension(manejador.name),
-              divisaBase: "",
-              movimientos: 0,
-              modificada: new Date(modificado).toISOString(),
-              error: mensajeDe(error)
-            });
-          }
-        }
+        const resumenes = (await resumenesDe(carpeta)).map(({ resumen }) => resumen);
         const instante = (r: ResumenDeCartera) => {
           const ms = Date.parse(r.modificada);
           return Number.isFinite(ms) ? ms : 0;
@@ -530,11 +689,23 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
         fichero
       ),
 
-    guardar: (cartera, opcionesDeGuardado = {}) => enCola(() => protegido("escribir", () => guardarSinCola(cartera, opcionesDeGuardado))),
+    guardar: (cartera, opcionesDeGuardado = {}) => protegido("escribir", () => enExclusiva(() => guardarSinCola(cartera, opcionesDeGuardado))),
 
     pedirPermiso: async () => (await permisoDe(carpeta, true)) === "concedido",
 
-    retirar: (fichero) => enCola(() => protegido("escribir", () => retirarSinCola(fichero), fichero)),
+    retirar: (fichero) => protegido("escribir", () => enExclusiva(() => retirarSinCola(fichero)), fichero),
+
+    retiradas: () =>
+      enCola(() =>
+        protegido("leer", async () => {
+          const papelera = await subcarpeta(carpeta, CARPETA_DE_PAPELERA, false);
+          if (papelera === undefined) return [];
+          const retiradas: CarteraRetirada[] = (await resumenesDe(papelera)).map(({ resumen, modificado }) => ({ ...resumen, retirada: new Date(modificado).toISOString() }));
+          return retiradas.sort((a, b) => (a.retirada < b.retirada ? 1 : a.retirada > b.retirada ? -1 : a.fichero < b.fichero ? -1 : 1));
+        })
+      ),
+
+    recuperar: (fichero) => protegido("escribir", () => enExclusiva(() => recuperarSinCola(fichero)), fichero),
 
     copias: (carteraId) => protegido("leer", () => copiasDe(carteraId, true)),
 
@@ -569,8 +740,8 @@ export function almacenEnCarpeta(carpeta: FileSystemDirectoryHandle, opciones: O
       }),
 
     guardarAjustes: (ajustes) =>
-      enCola(() =>
-        protegido("escribir", async () => {
+      protegido("escribir", () =>
+        enExclusiva(async () => {
           const fichero = { formato: FORMATO_DE_AJUSTES, version: 1, guardado: ahora().toISOString(), ajustes };
           const texto = `${JSON.stringify(ordenarClaves(fichero, ESQUEMA_DE_AJUSTES), null, 2)}\n`;
           await escribirTexto(carpeta, FICHERO_DE_AJUSTES, texto);

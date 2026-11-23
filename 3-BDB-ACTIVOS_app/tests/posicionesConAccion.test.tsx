@@ -68,6 +68,8 @@ describe("Posiciones con una acción", () => {
     /* El módulo común escribe un espacio duro antes del «%» (antes, uno normal). */
     expect(kpi("Coste medio conocido")?.valor).toBe("0,70 %");
     expect(kpi("Coste medio conocido")?.texto).toContain("No incluye custodia ni corretaje");
+    /* 0,70 × 1 % + 0,30 × 0 % = 0,70 %: la media es de toda la cartera, con la acción a cero (Óscar, 21-11-2026). */
+    expect(kpi("Coste medio conocido")?.texto).toContain("Sobre toda la cartera, con las acciones a cero.");
     expect(kpi("Coste corriente anual")?.valor).toMatch(/^700\s*€$/);
     expect(kpi("Coste anual identificado")).toBeNull();
     const fila = [...view.querySelectorAll(".positions-table-panel .tabla tbody tr")].find((tr) => tr.textContent?.includes("Iberdrola"));
@@ -81,6 +83,8 @@ describe("Posiciones con una acción", () => {
     expect(kpi("Coste corriente anual")?.valor).toBe("No aplica");
     expect(kpi("Coste medio conocido")?.valor).toBe("No aplica");
     expect(kpi("Coste medio conocido")?.texto).toContain("No incluye custodia ni corretaje");
+    /* Sin media no se dice de qué es. */
+    expect(kpi("Coste medio conocido")?.texto).not.toContain("Sobre");
   });
 
   test("un fondo sin coste sigue siendo un dato que falta; junto a una acción no se convierte en 0 €", async () => {
@@ -90,5 +94,7 @@ describe("Posiciones con una acción", () => {
     await analizar();
     /* Lo que falta se dice con la pieza `Ausencia` (antes «N/D»). */
     expect(kpi("Coste anual identificado")?.valor).toBe("Falta el dato");
+    /* Con dato solo la acción, el 30 % del importe: la media dice que es de esa parte. */
+    expect(kpi("Coste medio conocido")?.texto?.replace(/\s/g, " ")).toContain("Sobre el 30,0 % de la cartera con dato, con las acciones a cero.");
   });
 });

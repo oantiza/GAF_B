@@ -34,7 +34,7 @@ const POSICIONES = [
   { asset_id: "GS", weight_percent: 7 }
 ];
 
-/* El peso en renta variable, como lo lee `assetPmsShares`: tal cual si es un reparto neto, sobre su suma con signo (decisión 63). El de PIMCO, con bonos al 165,5 % y liquidez al −65,5 %, no lo es: de lo positivo, y no tiene bolsa. */
+/* El peso en renta variable, como lo lee `assetPmsShares`: tal cual si es un reparto neto, sobre su suma con signo (decisión 63). El de PIMCO, con bonos al 165,5 % y liquidez al −65,5 %, también lo es desde la C-29 (21-11-2026), y su bolsa es −0,03 %: no tiene renta variable que repartir. */
 const PESO_EN_RV = { ISHARES: 0.996335, VANGUARD: 1, AMUNDI: 0.991679 / 0.999999, ROBECO: 1.000547, PIMCO: 0, JPM: 0, RCO: 0.408636 / 1.000001, GS: 0.003187 / 0.999983 };
 
 const FORMA_ANTIGUA: Record<string, Record<string, number> | undefined> = {

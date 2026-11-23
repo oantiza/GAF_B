@@ -283,7 +283,7 @@ export async function backendSavePortfolio(
         weight_percent: position.weight_percent,
         // Alias legacy hasta retirar clientes anteriores.
         weight: position.weight_percent,
-        label: position.label,
+        /* `label` ya no se manda (20-11-2026): es el nombre del activo, el servidor no lo guarda y la base nueva nunca lo hizo. */
         keep_euros: position.keepEuros,
         target_euros: position.targetEuros
       })),

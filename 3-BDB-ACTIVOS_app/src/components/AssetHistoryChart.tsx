@@ -137,7 +137,7 @@ export function AssetHistoryChart({
             ariaLabel={`Evolución histórica de ${asset.display_name}, rebasada a 100`}
           />
           {sinDividendos ? null : (
-            <div className="ficha__fila">
+            <div className="ficha__fila ficha__fila--bajo-grafico">
               <span className="ficha__rotulo">Variación del periodo</span>
               <span className="ficha__valor">
                 {/* Una rentabilidad: dos decimales, con signo y su color (formato común). */}

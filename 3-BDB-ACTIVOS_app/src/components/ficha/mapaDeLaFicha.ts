@@ -1,5 +1,6 @@
 import { REGION } from "../../core/etiquetasDeReparto";
 import type { Signo } from "../../core/formato";
+import { textoDeAusencia } from "../../core/textoDeAusencia";
 import { MORNINGSTAR_REGIONS, ZONE_CHIP, type Macro } from "../../core/regionTaxonomy";
 import type {
   CeldaDeSeccion,
@@ -256,23 +257,41 @@ export function respuestaDeLaFicha(ficha: FichaInstrumento): DatoDeLaRespuesta[]
 const VENTANAS_DEL_RESUMEN = ["En el año", "1 año", "3 años", "5 años", "10 años"] as const;
 
 /**
+ * El título de cada ventana en el Resumen, si no es el de la ventana. La del año se llama «YTD», como en las tablas, la
+ * ficha y Planes desde el 17-11-2026 (Óscar; en el Resumen, el 20-11-2026). La ventana conserva su nombre de siempre
+ * porque es el rótulo con que la sección del proveedor escribe su fila.
+ */
+const TITULO_EN_EL_RESUMEN: Partial<Record<(typeof VENTANAS_DEL_RESUMEN)[number], string>> = {
+  "En el año": "YTD"
+};
+
+/**
  * Con qué nombres puede venir cada ventana en la tabla de nuestras métricas. La del año se llama «YTD» allí desde el
- * 17-11-2026 (`conColumnaDelAnio`) y antes «En el año»: el Resumen la busca con los dos, y la columna conserva el
- * nombre del Resumen.
+ * 17-11-2026 (`conColumnaDelAnio`) y antes «En el año»: el Resumen la busca con los dos.
  */
 const COLUMNAS_DE_LA_VENTANA: Partial<Record<(typeof VENTANAS_DEL_RESUMEN)[number], readonly string[]>> = {
   "En el año": ["En el año", "YTD"]
 };
 
+/** Por qué no hay cifra a 10 años cuando la serie no llega: se dice bajo el «No aplica» (F3, Óscar, 21-11-2026). */
+export const MOTIVO_SIN_DIEZ_ANOS = "La serie no llega a 10 años";
+
 /**
  * La fila de rentabilidades por periodo del Resumen: por ventana, la del proveedor si se compuso (solo se compone donde no está
  * la nuestra) y si no, la de nuestra tabla. Las mismas celdas que la pestaña «Rentabilidad y riesgo», sin escribir ninguna.
+ *
+ * La columna de 10 años sale siempre (F3, Óscar, 21-11-2026): lo que falta se dice, no se esconde. Sin cifra de nadie,
+ * «No aplica» con su motivo si nuestra tabla está calculada y no llega a esa ventana —la misma lectura que su «Sin
+ * historia»: sin rentabilidad a 10 años, la serie no llega—, y «Falta el dato» si no hay tabla nuestra con que saberlo.
  */
-export function rentabilidadesDelResumen(ficha: FichaInstrumento): { columnas: string[]; celdas: CeldaDeSeccion[] } | null {
+export function rentabilidadesDelResumen(
+  ficha: FichaInstrumento
+): { columnas: string[]; celdas: CeldaDeSeccion[]; motivos: (string | undefined)[] } | null {
   const delProveedor = seccionDe(ficha, "rentabilidad");
   const nuestras = seccionDe(ficha, "metricas");
   const columnas: string[] = [];
   const celdas: CeldaDeSeccion[] = [];
+  const motivos: (string | undefined)[] = [];
   for (const ventana of VENTANAS_DEL_RESUMEN) {
     const fila = delProveedor?.filas.find((candidata) => candidata.rotulo === ventana);
     const nuestraSuelta = ventana === "En el año" ? nuestras?.filas.find((candidata) => candidata.rotulo === "En el año") : undefined;
@@ -280,11 +299,23 @@ export function rentabilidadesDelResumen(ficha: FichaInstrumento): { columnas: s
       .map((columna) => celdaDeLaTabla(nuestras, /^Rentabilidad/, columna))
       .find((candidata) => candidata !== undefined);
     const celda = fila ? celdaDeLaFila(fila) : (deNuestraTabla ?? (nuestraSuelta ? celdaDeLaFila(nuestraSuelta) : undefined));
+    if (celda === undefined && ventana === "10 años" && columnas.length > 0) {
+      const sinLaVentana = nuestras?.tabla !== undefined && !nuestras.tabla.columnas.includes(ventana);
+      columnas.push(ventana);
+      celdas.push(
+        sinLaVentana
+          ? { texto: textoDeAusencia("no-aplica"), ausencia: "no-aplica" }
+          : { texto: textoDeAusencia("falta"), ausencia: "falta" }
+      );
+      motivos.push(sinLaVentana ? MOTIVO_SIN_DIEZ_ANOS : undefined);
+      continue;
+    }
     if (celda === undefined) continue;
-    columnas.push(ventana);
+    columnas.push(TITULO_EN_EL_RESUMEN[ventana] ?? ventana);
     celdas.push(celda);
+    motivos.push(undefined);
   }
-  return columnas.length > 0 ? { columnas, celdas } : null;
+  return columnas.length > 0 ? { columnas, celdas, motivos } : null;
 }
 
 /** Una parte de un reparto de la ficha, lista para `ListaDePartes`: su nombre, su fracción y, si la tiene, su color. */

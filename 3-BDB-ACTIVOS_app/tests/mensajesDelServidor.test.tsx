@@ -36,6 +36,14 @@ describe("toAppError con failed-precondition", () => {
     expect(toAppError(delSdk("Texto del servidor", "functions/invalid-argument")).message).toBe("La petición contiene un dato no válido.");
     expect(toAppError(delSdk("Texto del servidor", "functions/internal")).detail).toBe("Texto del servidor");
   });
+
+  /* 20-11-2026: un fallo del programa en Optimizar llega como `internal` con texto propio, que dice que no es de las restricciones. */
+  test("el error interno del optimizador se lee con su texto y su referencia, sin el estado HTTP", () => {
+    const texto = "Error interno del optimizador: no es un problema de los activos ni de las restricciones elegidas, y cambiarlas no lo arregla. Ha quedado registrado con la referencia 1a2b3c4d.";
+    const error = toAppError(delSdk(`${texto} [500]`, "functions/internal"));
+    expect(error.message).toBe(texto);
+    expect(error.kind).toBe("BACKEND");
+  });
 });
 
 describe("el estado de la frontera", () => {

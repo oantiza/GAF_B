@@ -1003,7 +1003,8 @@ export function PortfolioBuilder({
             <p className="respuesta__apunte portfolio-edelta">
               {!hayPosiciones ? "Sin posiciones todavía" : balanced ? "Cartera cuadrada" : textoDeDescuadre()}
             </p>
-            {descuadrada ? (
+            {/* En Componer, «Normalizar» vive al pie de la tabla, siempre a la vista (D1): aquí sale en los otros pasos. */}
+            {descuadrada && step !== "compose" ? (
               <Button className="diseno-datos__normalizar" onClick={normalize} size="sm" variant="secondary">
                 {libresACero ? "Repartir a partes iguales" : "Normalizar al 100 %"}
               </Button>
@@ -1110,6 +1111,11 @@ export function PortfolioBuilder({
                     capitalSinFijar={capitalIlustrativo}
                     aviso={avisoDeImporte}
                     cargandoFichas={cargandoFichas}
+                    normalizar={{
+                      alPulsar: normalize,
+                      cuadrada: balanced,
+                      rotulo: libresACero ? "Repartir a partes iguales" : "Normalizar al 100 %"
+                    }}
                   />
                 </div>
                 <aside className="col-4 builder-compose__side" aria-label="Reparto, riesgo y estado de la propuesta">

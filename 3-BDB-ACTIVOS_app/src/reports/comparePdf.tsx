@@ -20,7 +20,7 @@ import { motivoDeQueNoAplique } from "../core/metricasPorInstrumento";
 import { comparisonMetrics } from "../core/portfolioComparison";
 import { pesoEnElPapel } from "../core/parteMedida";
 import { comparisonConcentration, comparisonDrawdown, comparisonYearReturns, validateComparisonHistory, type ComparisonPositionRow } from "../core/portfolioComparisonReport";
-import { FUERA_DEL_REPARTO } from "../core/repartoDelPapel";
+import { fraseDelSinRepartoEnElPapel, FUERA_DEL_REPARTO } from "../core/repartoDelPapel";
 import { NO_DECLARADO, SIN_SITUAR } from "../core/etiquetasDeReparto";
 import { deQueVanNetasLasRentabilidades, mediaDelCoste, type CostesDeLaCartera } from "../core/mediaDelCoste";
 import { LO_QUE_NO_INCLUYE_EL_COSTE } from "../core/portfolioCosts";
@@ -62,7 +62,8 @@ export interface ComparePdfMetrics {
   maxdd?: number;
 }
 type AllocationRow = { label: string; a: number; b: number };
-export type RentaVariableDeUnaCartera = { filas: Array<{ key: string; weight_percent: number }>; pesoPct: number };
+/** `sinRepartoPct`: el % de la cartera sin reparto de activos, que no entra en su renta variable (A-211). Sin el campo, cero. */
+export type RentaVariableDeUnaCartera = { filas: Array<{ key: string; weight_percent: number }>; pesoPct: number; sinRepartoPct?: number };
 export interface ComparePdfInput {
   nameA: string;
   nameB: string;
@@ -309,6 +310,9 @@ function AllocationTable({ rows, limit = FILAS_DE_UNA_TABLA, titulo = "Distribuc
     ? <Tabla columnas={[{ titulo, ancho: 46 }, { titulo: "A", ancho: 17, cifra: true }, { titulo: "B", ancho: 17, cifra: true }, { titulo: "B − A", ancho: 20, cifra: true }]} filas={grouped(rows, limit).map((r) => ({ celdas: [short(r.label, 70), peso(r.a / 100), peso(r.b / 100), pp(r.a, r.b, true)] }))} />
     : <Apunte>{`${FALTA}.`}</Apunte>;
 }
+/* A-211: una cartera sin renta variable medida pero con algo sin reparto de activos no se sabe si la tiene: «Falta el dato», no «No aplica». */
+const conSinReparto = (cartera: RentaVariableDeUnaCartera) => (cartera.sinRepartoPct ?? 0) >= 0.05;
+const sinNada = (cartera: RentaVariableDeUnaCartera) => (conSinReparto(cartera) ? FALTA : NO_APLICA);
 /** La renta variable por región. Una cartera sin renta variable no tiene región que repartir: «No aplica». */
 function RentaVariableTable({ rv }: { rv: ComparePdfInput["rentaVariable"] }) {
   if (!rv) return <Apunte>{`Renta variable por región: ${FALTA.toLocaleLowerCase("es-ES")}.`}</Apunte>;
@@ -316,9 +320,14 @@ function RentaVariableTable({ rv }: { rv: ComparePdfInput["rentaVariable"] }) {
   const pesoDe = (cartera: RentaVariableDeUnaCartera) => (cartera.pesoPct > 0.05 ? `el ${oFalta(peso(cartera.pesoPct / 100))}` : "nada");
   return <View>
     <Apunte arriba={0}>{`El reparto de la parte de renta variable de cada cartera, mirando dentro de los fondos. La renta variable pesa ${pesoDe(rv.a)} de A y ${pesoDe(rv.b)} de B.`}</Apunte>
+    {/* A-211: lo que no declara su reparto de activos no entra en la renta variable de ninguna de las dos, y se dice. */}
+    {([["de A", rv.a], ["de B", rv.b]] as const).map(([deQuien, cartera]) => {
+      const frase = fraseDelSinRepartoEnElPapel(cartera.sinRepartoPct ?? 0, deQuien);
+      return frase ? <Apunte key={deQuien}>{frase}</Apunte> : null;
+    })}
     {filas.length ? <Tabla columnas={[{ titulo: "Región", ancho: 46 }, { titulo: "A", ancho: 17, cifra: true }, { titulo: "B", ancho: 17, cifra: true }, { titulo: "B − A", ancho: 20, cifra: true }]} filas={filas.map((f) => ({
-      celdas: [f.label, f.a === null ? NO_APLICA : peso(f.a / 100), f.b === null ? NO_APLICA : peso(f.b / 100), f.a === null || f.b === null ? NO_APLICA : pp(f.a, f.b, true)]
-    }))} /> : <Apunte>{`${NO_APLICA}: ninguna de las dos tiene renta variable.`}</Apunte>}
+      celdas: [f.label, f.a === null ? sinNada(rv.a) : peso(f.a / 100), f.b === null ? sinNada(rv.b) : peso(f.b / 100), f.a === null || f.b === null ? NO_APLICA : pp(f.a, f.b, true)]
+    }))} /> : conSinReparto(rv.a) || conSinReparto(rv.b) ? null : <Apunte>{`${NO_APLICA}: ninguna de las dos tiene renta variable.`}</Apunte>}
   </View>;
 }
 /** Una fila por clase: su nombre y sus cifras, y debajo una barra fina por cartera, sobre un filete que marca el 100 %. */

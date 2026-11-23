@@ -11,7 +11,7 @@ import math
 import threading
 import time
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from quietlog import swallowed
 
 # Auditoría 11-08 (D13): se elimina el socket.setdefaulttimeout(8) global, que
@@ -123,7 +123,7 @@ def _ine_inflation(start_date, end_date):
                         raise ValueError
                     month_key = "%04d-%02d" % (year, month)
                 except (TypeError, ValueError):
-                    month_key = datetime.utcfromtimestamp(float(f) / 1000.0).strftime("%Y-%m")
+                    month_key = datetime.fromtimestamp(float(f) / 1000.0, tz=timezone.utc).strftime("%Y-%m")
                 rows.append((float(f), float(v), month_key))
     if len(rows) < 2:
         raise ValueError("INE: <2 puntos validos")
@@ -408,6 +408,24 @@ def simulate_letras(aportaciones, fecha_final):
             "intereses_brutos": intereses, "impuestos": impuestos}
 
 
+def _flujos_netos_por_fecha(cashflows):
+    """Los flujos sumados por fecha, ordenados, sin las fechas cuyo neto es cero.
+
+    El valor actual solo depende del neto de cada fecha: dos flujos del mismo dia
+    pesan lo mismo que su suma. Un neto que es cero por redondeo (menos de una
+    billonesima de lo que se movio ese dia) cuenta como cero.
+    """
+    netos, brutos = {}, {}
+    for d, a in cashflows:
+        importe = float(a)
+        netos[d] = netos.get(d, 0.0) + importe
+        brutos[d] = brutos.get(d, 0.0) + abs(importe)
+    return [
+        (d, netos[d]) for d in sorted(netos)
+        if abs(netos[d]) > 1e-12 * max(1.0, brutos[d])
+    ]
+
+
 def xirr(cashflows):
     """TIR (XIRR) con Newton-Raphson y respaldo de biseccion.
 
@@ -415,13 +433,24 @@ def xirr(cashflows):
     (aportacion negativa, valor final positivo). Devuelve tasa decimal o None
     si no converge / flujos invalidos. Funcion pura (equivalente stdlib del
     pyxirr.xirr que usaba el legacy, con la misma politica: None en fallo).
+
+    Toda tasa devuelta es una raiz comprobada: el valor actual en ella es cero
+    dentro de la tolerancia. H2-09 (auditoria del 22-11-2026): con todos los
+    flujos en la misma fecha no pasa el tiempo y la TIR no esta definida; el
+    valor actual es la suma de los flujos para cualquier tasa. Si esa suma era
+    cero, los dos extremos de la biseccion daban 0, el producto no era positivo
+    y el primer punto medio, (-0,95 + 5) / 2 = 2,025, «anulaba» el valor actual:
+    un 202,5 %. Ahora los flujos se netean por fecha y hacen falta dos fechas
+    con neto de signo distinto.
     """
-    flows = sorted(((d, float(a)) for d, a in cashflows), key=lambda p: p[0])
+    flows = _flujos_netos_por_fecha(cashflows)
     if len(flows) < 2:
         return None
     if not (any(a < 0 for _, a in flows) and any(a > 0 for _, a in flows)):
         return None
     t0 = flows[0][0]
+    # Tolerancia del valor actual proporcional al tamano de los flujos, la de src/core/xirr.ts.
+    tolerancia = max(1e-6, 1e-9 * sum(abs(a) for _, a in flows))
 
     def npv(rate):
         total = 0.0
@@ -429,6 +458,12 @@ def xirr(cashflows):
             years = (d - t0).days / DIAS_POR_ANIO
             total += a / (1.0 + rate) ** years
         return total
+
+    def es_raiz(rate):
+        try:
+            return math.isfinite(rate) and rate > -1.0 and abs(npv(rate)) <= tolerancia
+        except (OverflowError, ZeroDivisionError):
+            return False
 
     rate = 0.1
     for _ in range(80):
@@ -443,7 +478,9 @@ def xirr(cashflows):
         if not math.isfinite(nxt):
             break
         if abs(nxt - rate) < 1e-9:
-            return nxt if nxt > -1.0 else None
+            if es_raiz(nxt):
+                return nxt
+            break  # convergio a un punto que no anula el valor actual: se prueba la biseccion
         rate = -0.5 if nxt < -0.999 else nxt
 
     lo, hi = -0.95, 5.0
@@ -451,14 +488,13 @@ def xirr(cashflows):
         flo, fhi = npv(lo), npv(hi)
     except (OverflowError, ZeroDivisionError):
         return None
+    # Un extremo que ya es raiz se devuelve: con el producto a cero, la biseccion de abajo se iria al otro extremo.
+    if abs(flo) <= tolerancia:
+        return lo
+    if abs(fhi) <= tolerancia:
+        return hi
     if flo * fhi > 0:
-        if math.isfinite(rate) and -1.0 < rate:
-            try:
-                if abs(npv(rate)) < 1e-6:
-                    return rate
-            except (OverflowError, ZeroDivisionError):
-                return None
-        return None
+        return rate if es_raiz(rate) else None
     for _ in range(200):
         mid = (lo + hi) / 2.0
         v = npv(mid)
@@ -468,7 +504,8 @@ def xirr(cashflows):
             hi = mid
         else:
             lo, flo = mid, v
-    return (lo + hi) / 2.0
+    mid = (lo + hi) / 2.0
+    return mid if es_raiz(mid) else None
 
 
 def tir_real_por_ipc(cashflows, ipc_monthly, fecha_final):
@@ -721,11 +758,14 @@ def _fetch_sources(ine_start, start_date, end_date):
     try:
         res["infl"] = _ine_inflation(ine_start, end_date)
     except Exception as exc:
-        res["errors"].append("IPC (INE): %s" % str(exc)[:140])
+        # A la pantalla, sin el texto de la excepcion (rutas, urls, trazas de la libreria): ese detalle va al registro.
+        swallowed("macro_reference._fetch_sources:INE")
+        res["errors"].append("IPC (INE): no disponible")
     try:
         res["letras"], res["letras_last"] = _letras_result(_bde_letras(start_date, end_date))
     except Exception as exc:
-        res["errors"].append("Letras ES (BdE): %s" % str(exc)[:140])
+        swallowed("macro_reference._fetch_sources:BdE")
+        res["errors"].append("Letras ES (BdE): no disponible")
     return res
 
 
@@ -820,6 +860,7 @@ def get_macro_reference(request):
             if faltan:
                 notes.append("TIR real no disponible: falta el IPC de %s." % ", ".join(faltan))
     except Exception as exc:
-        notes.append("comparativa patrimonial: %s" % str(exc)[:140])
+        swallowed("macro_reference.comparativa_patrimonial")
+        notes.append("comparativa patrimonial: no disponible")
     out["notes"] = " · ".join(notes)
     return out

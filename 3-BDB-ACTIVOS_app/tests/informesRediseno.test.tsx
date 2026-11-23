@@ -5,8 +5,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 /**
  * Informes rediseñado (14-11-2026): «¿qué documentos puedo entregar de esta propuesta, y qué les falta?». Arriba, los datos de los
- * documentos y la firma de los informes (la identidad del asesor, con «Cambiar»); debajo, una lista con un documento por fila: su
- * nombre, para quién es, qué contiene, qué le falta y su botón —«Preparar» si abre un diálogo, «Descargar» si descarga sin él—.
+ * documentos y la firma de los informes (la identidad del asesor, con «Cambiar»); debajo, los documentos, uno por fila: su nombre,
+ * qué contiene, qué le falta y su botón. Desde el 21-11-2026 (I1 · I2 · I3, aprobadas por Óscar): cada fila dice si está lista, si le
+ * falta algo o si está bloqueada, con la acción que lo arregla; van en dos grupos con título, «Para el cliente» e «Internos»; y las
+ * seis dicen «Preparar».
  */
 import { buildManualPortfolioReport, getComparableAssets } from "../src/adapters/bdbAssetsAdapter";
 import { ClientModeProvider } from "../src/app/ClientModeContext";
@@ -70,44 +72,149 @@ afterEach(async () => {
 });
 
 describe("la lista de documentos", () => {
-  test("primero los del cliente y después los internos, cada uno con su distintivo", async () => {
+  const grupos = () => [...host.querySelectorAll(".panel")].filter((panel) => panel.querySelector(".informes-lista"));
+  const tituloDe = (panel: Element) => panel.querySelector("h2")?.textContent;
+  const estadoDe = (fila: Element) => fila.querySelector(".informes-lista__nombre .distintivo");
+
+  test("dos grupos con título, primero los del cliente y después los internos, con «Interno» en el grupo", async () => {
     await montarInformes();
-    expect(filas().map(nombreDe)).toEqual([
-      "Informe para el cliente",
-      "Informe de costes",
+    expect(grupos().map(tituloDe)).toEqual(["Para el cliente", "Internos"]);
+    const [delCliente, internos] = grupos();
+    expect([...delCliente.querySelectorAll(".informes-lista__documento")].map(nombreDe)).toEqual([
+      "Informe de la propuesta",
+      "Costes de la propuesta",
       "Comparativa de propuestas",
-      "Propuesta de cambio",
-      "Informe interno del asesor",
-      "Propuesta de mejora"
+      "Propuesta de cambio"
     ]);
-    const distintivos = filas().map((fila) => fila.querySelector(".distintivo")?.className);
-    expect(distintivos.slice(0, 4).every((clase) => clase?.includes("distintivo--marca"))).toBe(true);
-    expect(distintivos.slice(4).every((clase) => clase?.includes("distintivo--interno"))).toBe(true);
-    expect(filas().slice(0, 4).every((fila) => fila.textContent?.includes("Para el cliente"))).toBe(true);
+    expect([...internos.querySelectorAll(".informes-lista__documento")].map(nombreDe)).toEqual(["Informe interno del asesor", "Propuesta de mejora"]);
+    /* Lo que solo ve el asesor lleva su marca, una vez, en el grupo; ninguna fila repite para quién es. */
+    expect(internos.querySelector(".panel__head .distintivo--interno")?.textContent).toBe("Interno");
+    expect(host.querySelectorAll(".informes-lista__documento .distintivo--interno")).toHaveLength(0);
+    expect(filas().some((fila) => fila.textContent?.includes("Para el cliente"))).toBe(false);
+  });
+
+  test("cada documento dice si está listo, si le falta algo o si está bloqueado, y la palabra va con su tono", async () => {
+    /* Sin capital y con los datos de muestra: al de cliente y al de costes les falta el capital, la comparativa y la propuesta de
+       cambio no tienen histórico, el interno sale con lo que hay y la propuesta de mejora no se ha calculado. */
+    await montarInformes();
+    expect(filas().map((fila) => [nombreDe(fila), estadoDe(fila)?.textContent])).toEqual([
+      ["Informe de la propuesta", "Falta algo"],
+      ["Costes de la propuesta", "Falta algo"],
+      ["Comparativa de propuestas", "Bloqueado"],
+      ["Propuesta de cambio", "Bloqueado"],
+      ["Informe interno del asesor", "Listo"],
+      ["Propuesta de mejora", "Bloqueado"]
+    ]);
+    /* A-200 (21-11-2026): «Bloqueado» va en ocre, como «Falta algo»; el rojo queda para pérdidas y «en contra». */
+    const tono = { "Listo": "distintivo--marca", "Falta algo": "distintivo--aviso", "Bloqueado": "distintivo--aviso" } as const;
+    for (const fila of filas()) {
+      const distintivo = estadoDe(fila)!;
+      expect(distintivo.classList.contains(tono[distintivo.textContent as keyof typeof tono])).toBe(true);
+    }
+    /* Bloqueado es que su botón no se pulsa; lo demás se prepara. */
+    for (const fila of filas()) {
+      const boton = fila.querySelector(".informes-lista__boton button") as HTMLButtonElement;
+      expect(boton.disabled).toBe(estadoDe(fila)?.textContent === "Bloqueado");
+    }
+    /* Con capital, el de cliente y el de costes están listos. */
+    await act(async () => root.unmount());
+    root = createRoot(host);
+    await montarInformes({ capital: 250000 });
+    expect(filas().slice(0, 2).map((fila) => estadoDe(fila)?.textContent)).toEqual(["Listo", "Listo"]);
+    expect(filas()[0].querySelector(".aviso")).toBeNull();
+    expect(host.querySelector(".informes-lista .distintivo--desfavorable")).toBeNull();
+  });
+
+  test("lo que solo se pide en el diálogo al preparar no es un dato que falte: «Listo», y la fila dice qué se pedirá (A-201)", async () => {
+    const report = { ...(await buildManualPortfolioReport(POSICIONES, "Familia García")), mode: "BBDD_LIVE_API" as const };
+    const assets = await getComparableAssets(POSICIONES.map((p) => p.asset_id));
+    const feasibility = checkPortfolioFeasibility({ positions: POSICIONES, assets });
+    const dos = [
+      { portfolio_id: "a", sourceKind: "BBDD_LIVE_API" },
+      { portfolio_id: "b", sourceKind: "BBDD_LIVE_API" }
+    ] as never[];
+    await act(async () => {
+      root.render(
+        createElement(ClientModeProvider, {
+          initialValue: false,
+          children: createElement(PortfolioReport, {
+            report,
+            originalPositions: POSICIONES,
+            assets,
+            feasibility,
+            totalCapital: 250000,
+            portfolioName: "Familia García",
+            savedPortfolios: dos
+          })
+        })
+      );
+    });
+    const fila = (nombre: string) => filas().find((f) => nombreDe(f) === nombre)!;
+    for (const [nombre, pide] of [
+      ["Comparativa de propuestas", "Al preparar, se eligen las dos carteras."],
+      ["Propuesta de cambio", "Al preparar, se eligen Actual y Propuesta y se escribe el motivo."]
+    ] as const) {
+      expect(estadoDe(fila(nombre))?.textContent).toBe("Listo");
+      expect(fila(nombre).querySelector(".aviso")).toBeNull();
+      expect(plano(fila(nombre).textContent)).toContain(pide);
+      expect((fila(nombre).querySelector(".informes-lista__boton button") as HTMLButtonElement).disabled).toBe(false);
+    }
   });
 
   test("en Modo cliente, los internos no existen", async () => {
     await montarInformes({ modoCliente: true });
-    expect(filas().map(nombreDe)).toEqual(["Informe para el cliente", "Informe de costes", "Comparativa de propuestas", "Propuesta de cambio"]);
+    expect(filas().map(nombreDe)).toEqual(["Informe de la propuesta", "Costes de la propuesta", "Comparativa de propuestas", "Propuesta de cambio"]);
+    expect(grupos().map(tituloDe)).toEqual(["Para el cliente"]);
     expect(host.querySelector(".distintivo--interno")).toBeNull();
   });
 
-  test("«Preparar» si abre un diálogo y «Descargar» si descarga sin él; cada botón dice de qué documento es", async () => {
+  test("«Preparar» en las seis filas, también en la que descarga sin diálogo; cada botón dice de qué documento es", async () => {
     await montarInformes();
     const botones = filas().map((fila) => fila.querySelector(".informes-lista__boton button") as HTMLButtonElement);
-    expect(botones.map((boton) => boton.textContent)).toEqual(["Preparar", "Preparar", "Preparar", "Preparar", "Preparar", "Descargar"]);
+    expect(botones.map((boton) => boton.textContent)).toEqual(["Preparar", "Preparar", "Preparar", "Preparar", "Preparar", "Preparar"]);
     expect(botones.map((boton) => boton.getAttribute("aria-label"))).toEqual([
-      "Preparar: Informe para el cliente",
-      "Preparar: Informe de costes",
+      "Preparar: Informe de la propuesta",
+      "Preparar: Costes de la propuesta",
       "Preparar: Comparativa de propuestas",
       "Preparar: Propuesta de cambio",
       "Preparar: Informe interno del asesor",
-      "Descargar: Propuesta de mejora"
+      "Preparar: Propuesta de mejora"
     ]);
     /* Nunca dos «Descargar…» seguidos: el de la lista prepara, el del diálogo descarga. */
     await pulsar(botones[0]);
     const enElDialogo = [...dialogo()!.querySelectorAll("button")].map((boton) => boton.textContent);
     expect(enElDialogo).toContain("Descargar el informe");
+  });
+
+  test("lo que se arregla fuera de Informes lleva su acción en el aviso, y en Modo cliente no", async () => {
+    const montar = async (modoCliente: boolean) => {
+      const report = await buildManualPortfolioReport(POSICIONES, "Familia García");
+      const assets = await getComparableAssets(POSICIONES.map((p) => p.asset_id));
+      const feasibility = checkPortfolioFeasibility({ positions: POSICIONES, assets });
+      await act(async () => {
+        root.render(
+          createElement(ClientModeProvider, {
+            initialValue: modoCliente,
+            children: createElement(PortfolioReport, { report, originalPositions: POSICIONES, assets, feasibility, portfolioName: "Familia García", onIrADiseno: () => undefined })
+          })
+        );
+      });
+    };
+    await montar(false);
+    const accionDe = (fila: Element) => fila.querySelector(".aviso__accion button")?.textContent;
+    expect(filas().map((fila) => [nombreDe(fila), accionDe(fila)])).toEqual([
+      ["Informe de la propuesta", "Fijar en Diseño"],
+      ["Costes de la propuesta", "Fijar en Diseño"],
+      /* Con los datos de muestra no hay histórico: guardar otra cartera no lo arregla. */
+      ["Comparativa de propuestas", undefined],
+      ["Propuesta de cambio", undefined],
+      ["Informe interno del asesor", undefined],
+      ["Propuesta de mejora", "Ir a Optimizar"]
+    ]);
+    await act(async () => root.unmount());
+    root = createRoot(host);
+    await montar(true);
+    expect(host.querySelectorAll(".aviso__accion")).toHaveLength(0);
   });
 
   test("lo que le falta a un documento, como aviso dentro de su fila", async () => {
@@ -125,7 +232,7 @@ describe("la lista de documentos", () => {
     expect([...host.querySelectorAll("h3.informes-lista__nombre")]).toHaveLength(6);
     expect(saltosDeNivel(host)).toEqual([]);
     await pulsar(filas()[0].querySelector(".informes-lista__boton button"));
-    expect(dialogo()?.querySelector("h2")?.textContent).toBe("Informe para el cliente");
+    expect(dialogo()?.querySelector("h2")?.textContent).toBe("Informe de la propuesta");
     expect(saltosDeNivel(dialogo()!)).toEqual([]);
   });
 });
@@ -185,7 +292,7 @@ describe("el diálogo único del informe para el cliente", () => {
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
     expect(dialogo()?.textContent).toContain("Tus datos en los informes");
     await pulsar([...dialogo()!.querySelectorAll("button")].find((boton) => boton.textContent === "Cancelar"));
-    expect(dialogo()?.querySelector("h2")?.textContent).toBe("Informe para el cliente");
+    expect(dialogo()?.querySelector("h2")?.textContent).toBe("Informe de la propuesta");
   });
 
   test("mientras genera no se cierra ni con Escape, ni deja cambiar la firma", async () => {

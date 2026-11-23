@@ -203,6 +203,40 @@ def test_cada_motivo_se_nombra_por_lo_que_es(raiz, motivo):
     assert "ACTIVO01" not in respuesta["frontier"]["max_sharpe_portfolio"]["weights"]
 
 
+# --- (c) La equiponderada sigue la misma regla que la frontera (pendiente del 19-11-2026) ------------------------------
+
+def test_la_equiponderada_reparte_solo_entre_lo_que_se_puede_comprar(monkeypatch):
+    lector = base.universo()
+    congelar(monkeypatch, lector, "ACTIVO02")
+    repo._clear_price_series_cache()
+    respuesta = simular(lector, PESOS)
+    igual = respuesta["equal_weight"]
+    # Las mismas columnas que la cartera, con cero en el congelado y un quinto en cada uno de los otros cinco.
+    assert igual["asset_ids"] == sorted(PESOS)
+    assert igual["weights_normalized"]["ACTIVO02"] == 0.0
+    for a in sorted(PESOS):
+        if a != "ACTIVO02":
+            assert igual["weights_normalized"][a] == pytest.approx(0.2, abs=1e-15)
+    assert igual["coverage"] == respuesta["backtest"]["coverage"]
+    # La rentabilidad, a mano: cada uno de los cinco por lo que ha crecido, a partes iguales; el congelado no cuenta.
+    primero, ultimo = igual["coverage"]["first_date"], igual["coverage"]["last_date"]
+
+    def nivel(aid, dia):
+        return [p["value"] for p in lector.series[aid] if p["date"] <= dia][-1]
+
+    crecimiento = sum(0.2 * nivel(a, ultimo) / nivel(a, primero) for a in PESOS if a != "ACTIVO02")
+    anios = (date.fromisoformat(ultimo) - date.fromisoformat(primero)).days / DAYS_PER_YEAR
+    assert igual["metrics"]["cagr"] == pytest.approx(crecimiento ** (1 / anios) - 1, abs=1e-12)
+    # Lo que se aparta lo dice la misma lista que la frontera: una sola regla, una sola lista.
+    assert [f["asset_id"] for f in respuesta["frontier_excluded_assets"]] == ["ACTIVO02"]
+
+
+def test_sin_nada_apartado_la_equiponderada_es_la_de_antes():
+    lector = base.universo()
+    igual = simular(lector, PESOS)["equal_weight"]
+    assert all(w == pytest.approx(1 / 6, abs=1e-15) for w in igual["weights_normalized"].values())
+
+
 # --- (d) Menos de dos que se puedan comprar ----------------------------------------------------------------------------
 
 def test_si_solo_queda_uno_que_se_pueda_comprar_no_hay_frontera_y_se_dice_por_que(monkeypatch):
@@ -215,6 +249,8 @@ def test_si_solo_queda_uno_que_se_pueda_comprar_no_hay_frontera_y_se_dice_por_qu
         "La frontera solo usa activos que se pueden comprar y necesita al menos dos: en esta cartera solo queda uno "
         "después de apartar el que no se puede comprar. Las cifras de la cartera sí lo incluyen.")
     assert respuesta["frontier_excluded_assets"] == [{"asset_id": "ACTIVO01", "reason": "FROZEN_PRICE", "weight": pytest.approx(0.3)}]
+    # La equiponderada de lo que se puede comprar es el que queda, entero.
+    assert respuesta["equal_weight"]["weights_normalized"] == {"ACTIVO00": 1.0, "ACTIVO01": 0.0}
     # La cartera se sigue midiendo con los dos, y la aportacion al riesgo, tambien: es de la cartera, no de la frontera.
     assert respuesta["backtest"]["asset_ids"] == ["ACTIVO00", "ACTIVO01"]
     assert [a["asset_id"] for a in respuesta["risk_contributions"]] == ["ACTIVO00", "ACTIVO01"]
@@ -233,6 +269,8 @@ def test_si_no_queda_ninguno_que_se_pueda_comprar_tampoco_hay_error(monkeypatch)
         "después de apartar los 2 que no se pueden comprar. Las cifras de la cartera sí los incluyen.")
     assert {f["asset_id"]: f["reason"] for f in respuesta["frontier_excluded_assets"]} == {
         "ACTIVO00": "CORPORATE_ACTION", "ACTIVO01": "FROZEN_PRICE"}
+    # Sin nada que se pueda comprar no hay equiponderada que proponer.
+    assert respuesta["equal_weight"] is None
     assert math.isfinite(respuesta["backtest"]["metrics"]["volatility"])
 
 

@@ -151,8 +151,17 @@ export function ActivePortfolioChip({
   onOpen: () => void;
 }) {
   const nombre = name?.trim() ?? "";
-  /* Sin posiciones y sin nombre no hay propuesta de la que hablar. Con nombre sí: se está empezando una. */
-  if (positions.length === 0 && !nombre) return null;
+  /* Sin posiciones y sin nombre no hay propuesta, y el recuadro lo dice en vez de desaparecer: el asesor sabe en qué
+     estado está y empieza con un clic (M4, Óscar, 21-11-2026). Con nombre sí la hay: se está empezando una. */
+  if (positions.length === 0 && !nombre) {
+    return (
+      <button type="button" className="topbar-chip" onClick={onOpen} title={`Abrir en ${tituloForRoute("cartera")}`}>
+        <span className="topbar-chip__sin">Sin propuesta</span>
+        <span className="topbar-chip__empezar">Empezar</span>
+        <span className="sr-only">. Abrir en {tituloForRoute("cartera")}</span>
+      </button>
+    );
+  }
 
   const recuento = `${positions.length} ${positions.length === 1 ? "posición" : "posiciones"}`;
   const suma = peso(totalPortfolioWeight(positions) / 100) ?? "";
@@ -175,17 +184,25 @@ export function ActivePortfolioChip({
 export function ClientModeToggle() {
   const clientMode = useClientMode();
   return (
-    <button
-      type="button"
-      className={`topbar-switch${clientMode.enabled ? " is-active" : ""}`}
-      role="switch"
-      aria-checked={clientMode.enabled}
-      onClick={clientMode.toggle}
-      title="Oculta información comercial y detalles técnicos en las vistas que ve el cliente"
-    >
-      <span className="topbar-switch__track" aria-hidden="true" />
-      <span className="topbar-switch__label">Modo cliente</span>
-    </button>
+    <>
+      {/* M3 (Óscar, 21-11-2026): con el Modo cliente puesto la barra lo dice con palabras, y lleva un filete de latón
+          (`app-topbar--cliente`). Va fuera del interruptor, para que su nombre siga siendo «Modo cliente» encendido o
+          apagado; la región está siempre montada y cambia solo su texto, para que se anuncie (como MAR-24). */}
+      <span className="topbar-vista-cliente" role="status">
+        {clientMode.enabled ? "Vista para el cliente" : null}
+      </span>
+      <button
+        type="button"
+        className={`topbar-switch${clientMode.enabled ? " is-active" : ""}`}
+        role="switch"
+        aria-checked={clientMode.enabled}
+        onClick={clientMode.toggle}
+        title="Oculta información comercial y detalles técnicos en las vistas que ve el cliente"
+      >
+        <span className="topbar-switch__track" aria-hidden="true" />
+        <span className="topbar-switch__label">Modo cliente</span>
+      </button>
+    </>
   );
 }
 
@@ -788,7 +805,7 @@ export function BdbActivosApp() {
       </div>
 
       <div className="app-main">
-        <header className="app-topbar">
+        <header className={`app-topbar${modoCliente.activo ? " app-topbar--cliente" : ""}`}>
           {/* MAR-23: la miga dice dónde se está y no lleva a ningún sitio, así que no es una navegación. */}
           <p className="topbar-crumbs">
             {migas.map((miga) => (

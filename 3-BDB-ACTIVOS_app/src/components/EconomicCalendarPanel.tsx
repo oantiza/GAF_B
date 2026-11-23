@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import { fetchEconomicCalendar, type EconomicCalendarResult, type EconomicEvent } from "../adapters/economicCalendarBackend";
 import { useModoCliente } from "../app/ClientModeContext";
-import { faseDeAgenda } from "../core/agendaDeMercado";
+import { faseDeAgenda, notaDeLaFuente } from "../core/agendaDeMercado";
 import { FalloDeAgenda } from "./FalloDeAgenda";
 import { EmptyState } from "./ui/AsyncState";
 import { Aviso } from "./ui/Aviso";
@@ -124,7 +124,8 @@ export function EconomicCalendarPanel() {
   const { resultado, cargando, error, recargar } = useAgendaDeMercado(RANURA, cargarCalendario);
   const events = resultado?.events ?? null;
   const origen = resultado?.source ?? null;
-  const note = resultado?.note;
+  /* La nota de la fuente puede nombrar al proveedor: en Modo cliente se escribe sin nombrarlo, como en Dividendos y Resultados. */
+  const note = notaDeLaFuente(resultado?.note, seEnsena("fuenteDeDatos")) ?? undefined;
   const fase = faseDeAgenda({ cargando, error, origen, cuantos: events?.length ?? 0 });
   const [filter, setFilter] = useState<Filter>("all");
 

@@ -5,6 +5,7 @@
  */
 import { CLASE_DE_ACTIVO, SECTOR_DEL_REPARTO, SECTOR_EN_INGLES } from "../../core/etiquetasDeReparto";
 import { subzonaDeUnaAccion, zonaDeLaClave } from "../../core/regionTaxonomy";
+import { sumaComoUnRepartoNeto } from "../../core/repartoNeto";
 import type { FichaDeActivo } from "../motor/composicion";
 import type { Activo, TipoDeActivo } from "../motor/modelo";
 
@@ -84,6 +85,26 @@ function repartoCon(origen: Record<string, unknown> | undefined, nombrar: (clave
   return reparto;
 }
 
+/**
+ * El reparto por clase de activo. Si es un reparto neto que suma 1 (decisión C-29 de Óscar, 21-11-2026), va tal cual, con sus
+ * negativos y su clase por encima de 1: ES0137396000 es renta variable 3,198 y liquidez −2,426, y normalizar lo positivo lo dejaría
+ * en un 93 % de bolsa que no es el fondo. Si no suma 1, como cualquier otro reparto: lo positivo, y reescalado si pasa de 1.
+ */
+function clasesDelReparto(mezcla: Record<string, unknown> | undefined): Record<string, number> | undefined {
+  if (!mezcla) return undefined;
+  const conNombre = Object.entries(mezcla).flatMap(([clave, valor]) => {
+    const peso = numero(valor);
+    const nombre = CLASE_DE_ACTIVO[clave];
+    return peso === undefined || !nombre ? [] : [[nombre, peso] as const];
+  });
+  if (conNombre.some(([, peso]) => peso < 0 || peso > 1) && sumaComoUnRepartoNeto(conNombre.map(([, peso]) => peso))) {
+    const neto: Record<string, number> = {};
+    for (const [nombre, peso] of conNombre) neto[nombre] = (neto[nombre] ?? 0) + peso;
+    return neto;
+  }
+  return repartoCon(mezcla, (clave) => CLASE_DE_ACTIVO[clave]);
+}
+
 /** La ficha de reparto de un instrumento, a partir de su tarjeta. */
 export function fichaDeLaTarjeta(tarjeta: Documento): FichaDeActivo {
   const exposicion = objeto(tarjeta.exposure);
@@ -93,7 +114,7 @@ export function fichaDeLaTarjeta(tarjeta: Documento): FichaDeActivo {
   const esAccion = texto(tarjeta.instrument_type) === "STOCK";
   const mezcla = objeto(exposicion?.asset_mix);
 
-  const clases = repartoCon(mezcla, (clave) => CLASE_DE_ACTIVO[clave]);
+  const clases = clasesDelReparto(mezcla);
   let regiones = repartoCon(objeto(exposicion?.equity_regions), (clave) => zonaDeLaClave(clave));
   let sectores = repartoCon(objeto(exposicion?.sectors), (clave) => SECTOR_DEL_REPARTO[clave]);
 
@@ -106,11 +127,14 @@ export function fichaDeLaTarjeta(tarjeta: Documento): FichaDeActivo {
     if (!sectores && sector) sectores = { [SECTOR_EN_INGLES[sector] ?? sector]: 1 };
   }
 
+  /* La parte de renta variable es la de `clases`, ya reescalada si el reparto pasaba de 1 (P2-05, auditoría del 20-11-2026):
+     con 0,90 de renta variable y 0,15 de renta fija, las clases daban 0,857 y esta cifra seguía en 0,90. */
+  const conRentaVariable = numero(mezcla?.equity) !== undefined;
   return {
     clases: clases ?? (esAccion ? { "Renta variable": 1 } : undefined),
     regiones,
     sectores,
     gastosCorrientes: numero(costes?.ongoing_charge),
-    rentaVariable: numero(mezcla?.equity) ?? (esAccion ? 1 : undefined)
+    rentaVariable: conRentaVariable ? (clases?.["Renta variable"] ?? 0) : esAccion ? 1 : undefined
   };
 }

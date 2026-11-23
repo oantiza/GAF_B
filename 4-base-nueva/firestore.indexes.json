@@ -30,7 +30,15 @@
     "entonces se declara aqui. Antes no.",
     "",
     "`price_series.points` queda sin indices automaticos: nadie consulta por un punto de la",
-    "serie, y esos indices aumentarian mucho el espacio ocupado."
+    "serie, y esos indices aumentarian mucho el espacio ocupado. Lo mismo, desde el 21-11-2026",
+    "(auditoria 20-11, P2-10), con los demas campos grandes que se leen enteros y no se filtran",
+    "ni se ordenan: `fx_rates.points`, `holdings_chunks.positions`, `issuer_holdings_chunks.positions`,",
+    "`reference_rates.points`, `search_shards.entries` e `issuer_nav.points`. Comprobado en el codigo:",
+    "las unicas consultas con filtro son `instruments.instrument_type`, `fx_rates.currency`,",
+    "`reference_rates.rate`, `portfolios.advisor_id` y `targets.advisor_id`; ninguna toca esos arrays.",
+    "Un array o un mapa grande indexado por defecto genera varias entradas de indice por elemento",
+    "(tope de 40.000 por documento) y ocupa espacio sin servir a ninguna consulta. Si una pantalla",
+    "llegara a filtrar por uno de ellos, se quita aqui su exencion."
   ],
   "indexes": [
     {
@@ -67,6 +75,31 @@
     },
     {
       "collectionGroup": "fx_rates",
+      "fieldPath": "points",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "holdings_chunks",
+      "fieldPath": "positions",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "issuer_holdings_chunks",
+      "fieldPath": "positions",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "reference_rates",
+      "fieldPath": "points",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "search_shards",
+      "fieldPath": "entries",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "issuer_nav",
       "fieldPath": "points",
       "indexes": []
     }

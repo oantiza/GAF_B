@@ -189,7 +189,7 @@ describe("vector PDF reports", () => {
     const hojas = extractPdfPageTexts(Buffer.from(await blob.arrayBuffer())).length;
     expect(hojas).toBeGreaterThanOrEqual(4);
     expect(source.match(/\/MediaBox \[0 0 595\.280029 841\.890015\]/g)).toHaveLength(hojas);
-    expect(source).toContain("Informe de cartera - Cliente de ejemplo");
+    expect(source).toContain("Informe de la propuesta - Cliente de ejemplo");
     expect(source).not.toContain("Independent Private Bankers");
     if (process.env.BDB_WRITE_PDF_PREVIEW === "true") {
       const outputDir = path.resolve("output/pdf");

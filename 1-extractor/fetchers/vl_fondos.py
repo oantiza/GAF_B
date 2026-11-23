@@ -645,6 +645,10 @@ AVISO_DEL_KID = {
 # caen exactamente los tres que nombra la decisión (DWS Latin America ×2 y Echiquier Space).
 KID_NO_CONFIRMA = ("NO_CONFIRMADO", "CONFIRMADO_MARCA")
 DECISION_RETIRADA_KID = "DECISIONES_DATOS_2026-11-07.md, punto 20"
+# C-28, regla 3 (Óscar, 21-11-2026): la referencia era otra clase del mismo fondo. Sí tuvo cifras —Vanguard Global Stock
+# Index Investor las publicaba contra su clase EUR Acc—, así que su retirada va con su fecha como la del KID.
+DECISION_RETIRADA_MISMO_FONDO = "DECISIONES_BASE_NUEVA_2026-11-01.md, decisión C-28 (regla 3)"
+AVISO_MISMO_FONDO = "sin_relativas_referencia_del_mismo_fondo"
 # Las cifras del bloque: si la ficha anterior tenía alguna, lo que hace esta pasada es RETIRARLAS.
 _CIFRAS_RELATIVAS = ("beta", "r2", "jensen_alpha", "rentabilidad_activa", "tracking_error",
                      "information_ratio")
@@ -670,13 +674,13 @@ def _bloque_kid(previo: dict | None) -> dict:
     return {}
 
 
-def _escribe_retirada_por_kid(out: dict, kid: dict, previo: dict | None) -> None:
-    """El motivo, la frase del KID que lo justifica y, si había cifras, la retirada con su fecha.
+def _motivo(aviso) -> str | None:
+    """El aviso sin lo que lleva entre paréntesis: el de la C-28 nombra el proxy, y cambiar de proxy no es cambiar de motivo."""
+    return aviso.split("(", 1)[0] if isinstance(aviso, str) and aviso else None
 
-    La retirada es la §10 del método: retirar no es faltar, y consta desde cuándo ya no se publica.
-    La fecha es la de la pasada que las quitó y **no se mueve** en las siguientes: se arrastra de
-    la ficha anterior mientras siga el mismo motivo. Un fondo que nunca las tuvo no lleva
-    `retirada`, porque no se le retiró nada (decisión 17)."""
+
+def _escribe_retirada_por_kid(out: dict, kid: dict, previo: dict | None) -> None:
+    """El motivo, la frase del KID que lo justifica y, si había cifras, la retirada con su fecha."""
     estado = kid["estado"]
     aviso = AVISO_DEL_KID[estado]
     set_path(out, "riesgo.relativas.aviso", aviso)
@@ -685,18 +689,36 @@ def _escribe_retirada_por_kid(out: dict, kid: dict, previo: dict | None) -> None
                             ("fecha_comprobacion", "kid_fecha_comprobacion")):
         if kid.get(origen):
             set_path(out, f"riesgo.relativas.{destino}", kid[origen])
+    _escribe_retirada(out, aviso, DECISION_RETIRADA_KID, previo)
+
+
+def _escribe_retirada(out: dict, aviso: str, decision: str, previo: dict | None) -> None:
+    """Si la ficha anterior publicaba cifras frente al índice y esta pasada las quita por `aviso`, la retirada.
+
+    Es la §10 del método: retirar no es faltar, y consta entre qué fechas estuvieron publicadas. Todo motivo decidido que
+    quite cifras que se publicaban pasa por aquí —hoy, el del KID (decisión 20 del 07-11-2026) y el de la referencia del
+    mismo fondo (C-28)—, para que las retiradas digan lo mismo y la plataforma las traduzca igual.
+
+    - **Hasta cuándo:** `fecha`, el día de la pasada que las quitó. **No se mueve** en las siguientes: se arrastra de la
+      ficha anterior mientras siga el mismo motivo (`_motivo`, sin el paréntesis del proxy).
+    - **Contra qué y con qué dato:** el índice, su proxy y su clase de serie, y `ultima_fecha_dato`, la fecha de dato de
+      las últimas que se publicaron, para que quien tenga un informe entregado las reconozca.
+    - **Desde cuándo:** no se escribe, porque el extractor no lo sabe. La ficha guarda la pasada anterior, no la primera
+      que las publicó, y escribir un día que no consta sería inventarlo.
+
+    Un fondo que nunca las tuvo no lleva `retirada`, porque no se le retiró nada (decisión 17)."""
     anterior = ((((previo or {}).get("_anterior") or {}).get("riesgo") or {}).get("relativas") or {})
     if not isinstance(anterior, dict):
         return
     retirada = anterior.get("retirada")
-    if anterior.get("aviso") == aviso and isinstance(retirada, dict) and retirada.get("fecha"):
+    if _motivo(anterior.get("aviso")) == _motivo(aviso) and isinstance(retirada, dict) and retirada.get("fecha"):
         for clave, valor in retirada.items():
             set_path(out, f"riesgo.relativas.retirada.{clave}", valor)
         return
     if not any(anterior.get(c) for c in _CIFRAS_RELATIVAS):
         return
     set_path(out, "riesgo.relativas.retirada.fecha", _hoy().isoformat())
-    set_path(out, "riesgo.relativas.retirada.decision", DECISION_RETIRADA_KID)
+    set_path(out, "riesgo.relativas.retirada.decision", decision)
     # La clase de serie viaja con la retirada: la plataforma la necesita para saber si lo que se
     # retiró se medía contra un instrumento (ISIN) o contra el nivel del índice (decisión 23).
     for origen, destino in (("indice_nombre", "indice_nombre"), ("indice_proxy", "indice_proxy"),
@@ -728,6 +750,62 @@ def _clase_cubierta(previo: dict | None) -> bool:
     copia = {"identificacion": {"nombre": nombre}}
     derivados._cobertura_divisa(copia)
     return bool(copia["identificacion"].get("clase_cubierta"))
+
+
+def _txt(v) -> str | None:
+    return " ".join(v.split()).casefold() if isinstance(v, str) and v.strip() else None
+
+
+def _firmas_de_fondo(ficha: dict) -> dict[str, tuple]:
+    """Lo que una ficha dice del FONDO y no de su clase, con lo que se reconoce que dos clases son del mismo.
+
+    - `patrimonio_del_fondo`: el patrimonio del fondo entero (no el de la clase) y su fecha, de Morningstar.
+    - `cartera`: la fecha de la cartera, cuántas posiciones tiene y el peso de las diez primeras. Morningstar publica
+      la cartera del fondo, y todas sus clases traen la misma.
+
+    Una firma solo vale entera: con algún dato que falte, no está."""
+    val, car = ficha.get("valoracion") or {}, ficha.get("cartera") or {}
+    firmas = {"patrimonio_del_fondo": (val.get("patrimonio_fondo_meur"), val.get("patrimonio_fecha")),
+              "cartera": (car.get("fecha"), car.get("num_posiciones"), car.get("peso_top10_pct"))}
+    return {k: v for k, v in firmas.items() if all(x is not None and x != "" for x in v)}
+
+
+def _referencia_del_mismo_fondo(previo: dict | None, fila: dict, base: Path | None) -> str | None:
+    """La firma por la que la referencia de las relativas resulta ser otra clase del mismo fondo, o `None`.
+
+    C-28 (Óscar, 21-11-2026). No hay un identificador del fondo paraguas en los datos: el LEI es el de la sociedad
+    (Vanguard Investment Series plc tiene muchos fondos), el nombre de la clase no tiene forma fija y la fecha de
+    lanzamiento «del fondo» que trae Morningstar es en Vanguard la de la clase. Lo que sí es del fondo es su
+    patrimonio y su cartera, y se exige la MISMA GESTORA y una de las dos firmas (`_firmas_de_fondo`) igual.
+
+    Medido el 21-11-2026 sobre las 1.334 fichas de la exportación del 17-11: de los 84 grupos con el mismo patrimonio
+    del fondo en la misma fecha, 83 son clases de un mismo fondo y el otro son dos fondos de 2,15 M€ de gestoras
+    distintas; y los 29 grupos con la misma cartera y distinto patrimonio son todos clases de un mismo fondo en otra
+    divisa (el patrimonio se da en la de la clase) o fondos españoles que dan el de la clase. Con la gestora, ningún
+    falso positivo. Se compara la referencia con lo que trae esta pasada del fondo y con su ficha anterior, porque la
+    de la referencia en disco puede ser de la pasada anterior y el patrimonio cambia cada día.
+
+    Sin la ficha de la referencia (un nivel de índice, o un proxy que no está en el universo) no se puede decir, y se
+    mide como antes."""
+    if base is None or fila.get("clase_de_serie") == "NIVEL_DE_INDICE":
+        return None
+    try:
+        ref = json.loads((Path(base) / "data" / "funds" / f"{fila.get('proxy')}.json").read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    previo = previo or {}
+    propias = [d for k, d in previo.items() if isinstance(d, dict) and k != "_anterior"]
+    if isinstance(previo.get("_anterior"), dict):
+        propias.append(previo["_anterior"])
+    gestora = next((g for g in (_txt((d.get("identificacion") or {}).get("gestora")) for d in propias) if g), None)
+    if not gestora or gestora != _txt((ref.get("identificacion") or {}).get("gestora")):
+        return None
+    de_la_referencia = _firmas_de_fondo(ref)
+    for propia in propias:
+        for nombre, firma in _firmas_de_fondo(propia).items():
+            if de_la_referencia.get(nombre) == firma:
+                return nombre
+    return None
 
 
 def _escribe_relativas(out: dict, s: metricas.Serie, isin: str, previo: dict | None,
@@ -778,6 +856,18 @@ def _escribe_relativas(out: dict, s: metricas.Serie, isin: str, previo: dict | N
     # 0,86 y R2 del 79 % contra ese mismo indice.
     if _clase_cubierta(previo):
         set_path(out, "riesgo.relativas.aviso", "sin_relativas_clase_cubierta")
+        return
+    # Ni contra otra clase del mismo fondo (C-28, Óscar, 21-11-2026): es la misma cartera con otra comisión, y sale
+    # lo mismo, beta 1 y R² 100. Medido sobre la exportación del 17-11-2026: Vanguard Global Stock Index Investor
+    # (IE00B03HCZ61) se medía contra la clase EUR Acc del mismo fondo (IE00B03HD191), su proxy de MSCI World. Va detrás
+    # de la clase cubierta porque, cuando se escribió, ese motivo la plataforma ya lo guardaba (HEDGED_SHARE_CLASS) y
+    # este no. Si la ficha anterior publicaba cifras, la retirada lleva su fecha, como la del KID (§10 del método).
+    senal = _referencia_del_mismo_fondo(previo, fila, base)
+    if senal:
+        aviso = f"{AVISO_MISMO_FONDO}({fila['proxy']})"
+        set_path(out, "riesgo.relativas.aviso", aviso)
+        set_path(out, "riesgo.relativas.mismo_fondo_por", senal)
+        _escribe_retirada(out, aviso, DECISION_RETIRADA_MISMO_FONDO, previo)
         return
     if indices.es_tasa(fila):
         # El benchmark es una tasa: la serie es el €STR, que no es una serie de

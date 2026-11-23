@@ -6,11 +6,12 @@
  * no se reconoce entra como «Otro cargo o abono» para que el asesor lo reclasifique, y toda
  * fila que el motor no daría por buena sale marcada para revisión con los errores del motor.
  */
-import { aTexto, leerCifra, type Decimal } from "../../motor/decimal";
+import { aTexto, cifraEnTexto, leerCifraCon, pistaDelSeparador, type Decimal, type SeparadorDecimal } from "../../motor/decimal";
 import type { CampoDeMovimiento, ContextoDeMovimiento, DefinicionDeMovimiento } from "../../motor/efectos";
 import { esDia, type Dia } from "../../motor/fechas";
 import type { Activo, DestinoDelMovimiento, Movimiento, TipoDeActivo } from "../../motor/modelo";
 import { TIPOS, definicionDe } from "../../motor/movimientos/registro";
+import { divisaComoLlega, leerDivisa } from "../andbank/comun";
 import type { ActivoCitado, DocumentoLeido, ExtractoPropuesto, MovimientoPropuesto } from "../tipos";
 import {
   COLUMNAS_DE_MOVIMIENTOS,
@@ -20,6 +21,7 @@ import {
   definicionDeColumna,
   normalizarRotulo,
   reconocerTipo,
+  tipoDeActivoDelRotulo,
   type ClaveDeColumna,
   type ClaveDeColumnaDePosiciones,
   type ColumnaDeLaPlantilla
@@ -32,7 +34,6 @@ export const FILAS_PARA_BUSCAR_LA_CABECERA = 15;
 const TRANSFERENCIA = new Set(["transferencia", "transfer", "transferenciabancaria"]);
 
 const FORMA_ISIN = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
-const FORMA_DIVISA = /^[A-Z]{3}$/;
 
 /** Una fila de cabecera reconocida: en qué fila está y en qué celda va cada columna. */
 export interface Cabecera<Clave extends string> {
@@ -182,6 +183,57 @@ export function leerFecha(crudo: string, orden: OrdenDeLaFecha = "dia-mes"): Dia
   return esDia(resultado) ? resultado : undefined;
 }
 
+/** Las columnas de cifras de la hoja de movimientos y de la de posiciones: en ellas se mira el separador decimal (H1-07). */
+const CIFRAS_DE_MOVIMIENTOS: readonly ClaveDeColumna[] = ["titulos", "precio", "importe", "comision", "gastos", "retencion", "cuponCorrido", "cambio", "valor", "proporcion", "titulosDestino", "precioDestino", "importeDestino"];
+const CIFRAS_DE_POSICIONES: readonly ClaveDeColumnaDePosiciones[] = ["titulos", "valor", "precio"];
+
+/** El separador decimal de un documento, y lo que lo decide. */
+export interface SeparadorDelDocumento {
+  separador: SeparadorDecimal;
+  /** Cuántas cifras solo se pueden leer con la coma decimal, y cuántas solo con el punto. */
+  deComa: number;
+  dePunto: number;
+  /** Ninguna cifra lo decide y alguna admite las dos lecturas: se leen con la coma, como siempre, y piden revisión. */
+  sinIndicios: boolean;
+  /** Hay cifras de las dos clases: se lee con la coma, como siempre, y se avisa. */
+  contradictorio: boolean;
+}
+
+/**
+ * El separador decimal de las cifras de un documento de la plantilla, por lo que ellas mismas dicen (H1-07, decisión 4 de
+ * la auditoría consolidada del 22-11-2026, aprobada por Óscar el 23-11-2026). Como el orden de las fechas (GES-12), se
+ * decide una vez por documento y no cifra a cifra.
+ *
+ * `leerCifra` lee «1.085» como mil ochenta y cinco, que es la convención española declarada (FMT-20, GES-22). Pero las
+ * instrucciones de la plantilla admiten «1234.56», y en un CSV escrito en inglés un precio de «1.085» entraba como 1.085
+ * y un dividendo de «5.425» USD como 5.425, en «Listo». Ahora:
+ * - si alguna cifra solo se lee con la coma decimal («12,5», «1.234,56»), el documento va en español: lo de siempre;
+ * - si alguna solo se lee con el punto decimal («12.5», «1234.56») y ninguna con la coma, va en inglés: «1.085» es 1,085;
+ * - si ninguna lo decide (solo «1.085» o enteros), se lee como siempre, y la línea con una cifra ambigua pide revisión.
+ * Con cifras de las dos clases, el documento se contradice: se lee con la coma, como siempre (`contradictorio`).
+ *
+ * Un Excel con celdas numéricas no cambia: `xlsxCellToText` las escribe con coma decimal («1,0850»), así que nunca
+ * parecen inglesas. Lo que se mira es el texto de las celdas, del CSV o del Excel.
+ */
+export function separadorDeLasCifras(textos: readonly string[]): SeparadorDelDocumento {
+  let deComa = 0;
+  let dePunto = 0;
+  let ambiguas = 0;
+  for (const texto of textos) {
+    const pista = pistaDelSeparador(texto);
+    if (pista === "coma") deComa += 1;
+    else if (pista === "punto") dePunto += 1;
+    else if (pista === "ambigua") ambiguas += 1;
+  }
+  return {
+    separador: deComa === 0 && dePunto > 0 ? "punto" : "coma",
+    deComa,
+    dePunto,
+    sinIndicios: deComa === 0 && dePunto === 0 && ambiguas > 0,
+    contradictorio: deComa > 0 && dePunto > 0
+  };
+}
+
 /** Sin tildes, en mayúsculas y con los espacios reducidos a uno: la clave de un activo citado por su nombre. */
 export function normalizarNombre(nombre: string): string {
   return nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
@@ -203,12 +255,45 @@ function textoOriginal(fila: readonly string[]): string {
   return fila.map((celda) => (celda ?? "").trim()).join("; ");
 }
 
-/** El tipo de activo que se deduce del tipo de movimiento: un fondo se suscribe, un bono paga cupón. */
-function tipoDeActivoDelMovimiento(tipo: string): TipoDeActivo | undefined {
-  if (tipo === "suscripcion" || tipo === "reembolso" || tipo === "traspaso") return "FONDO";
-  if (tipo === "cupon" || tipo === "amortizacion") return "BONO";
-  if (tipo === "compra" || tipo === "venta") return "ACCION";
+/** El tipo de activo que deduce una fila, y si lo dice ella o solo se supone. */
+interface TipoDeducido {
+  tipo: TipoDeActivo;
+  /** `false` solo en la «acción» que se supone de una compra o una venta sin más. */
+  firme: boolean;
+}
+
+/**
+ * El tipo de activo que se deduce del tipo de movimiento: un fondo se suscribe, un bono paga cupón.
+ * Una compra o una venta con cupón corrido es de un bono, y una rotulada «Compra de bonos», «Venta de
+ * acciones» o «Compra de ETF» es de lo que dice su rótulo. Una compra o una venta sin más dice
+ * «acción» solo a falta de algo mejor: es la única deducción débil, y la corrige cualquier otra
+ * fila del documento que diga el tipo (P2-05, auditoría del 20-11-2026: un bono comprado
+ * antes de su primer cupón quedaba como acción, y su precio en % se valoraba por título). Si nada
+ * la corrige, la revisión pide al asesor que diga qué es (22-11-2026).
+ */
+function tipoDeActivoDelMovimiento(tipo: string, rotulo: string, conCuponCorrido: boolean): TipoDeducido | undefined {
+  if (tipo === "suscripcion" || tipo === "reembolso" || tipo === "traspaso") return { tipo: "FONDO", firme: true };
+  if (tipo === "cupon" || tipo === "amortizacion") return { tipo: "BONO", firme: true };
+  if (tipo === "compra" || tipo === "venta") {
+    if (conCuponCorrido) return { tipo: "BONO", firme: true };
+    const delRotulo = tipoDeActivoDelRotulo(rotulo);
+    return delRotulo ? { tipo: delRotulo, firme: true } : { tipo: "ACCION", firme: false };
+  }
+  /*
+   * Una entrada o una salida de títulos («Posición inicial», «Traspaso de entrada»…) no dice qué activo es. Antes no
+   * deducía nada y un activo nuevo sin catálogo se daba de alta como «Otro», sin multiplicador: 10.000 de nominal de un
+   * bono al 98,5 entraban por 985.000 € en vez de 9.850 €, en «Listo» y sin aviso (H1-08, auditoría del 22-11-2026). Es la
+   * forma documentada de empezar una cartera, y el arreglo de las compras no la cubría. Ahora supone «Otro» débil, como
+   * la compra a secas supone «acción»: lo corrige cualquier fila del documento que diga el tipo, y si nada lo dice, la
+   * revisión pregunta qué es.
+   */
+  if (tipo === "entradaDeTitulos" || tipo === "salidaDeTitulos") return { tipo: "OTRO", firme: false };
   return undefined;
+}
+
+/** Si un tipo deducido sustituye al reunido hasta ahora: el primero que llegue, o uno firme sobre la «acción» débil. */
+function mejoraElTipo(reunido: TipoDeducido | undefined, nuevo: TipoDeducido | undefined): boolean {
+  return nuevo !== undefined && (reunido === undefined || (!reunido.firme && nuevo.firme));
 }
 
 /** Lo que se sabe de un activo citado juntando todas las filas del documento que lo citan. */
@@ -217,15 +302,15 @@ interface ActivoReunido {
   isin?: string;
   nombre: string;
   divisa?: string;
-  tipo?: TipoDeActivo;
+  tipo?: TipoDeducido;
 }
 
 /** Lo que una fila deja leído antes de validarla con el motor. */
 interface Borrador {
   movimiento: Movimiento;
   definicion?: DefinicionDeMovimiento;
-  activo?: { clave: string; tipo?: TipoDeActivo };
-  destino?: { clave: string; tipo?: TipoDeActivo };
+  activo?: { clave: string; tipo?: TipoDeducido };
+  destino?: { clave: string; tipo?: TipoDeducido };
   avisos: string[];
   requiereRevision: boolean;
   documento: string;
@@ -244,6 +329,9 @@ export class LecturaDePlantilla {
   readonly avisos: string[] = [];
   /** El orden de día y mes de la tabla que se está leyendo (GES-12). */
   private ordenDeLaFecha: OrdenDeLaFecha = "dia-mes";
+  /** El separador decimal del documento que se está leyendo, y si ninguna cifra lo decide (H1-07). */
+  private separador: SeparadorDecimal = "coma";
+  private separadorSinIndicios = false;
 
   constructor(divisaBase: string) {
     this.divisaBase = divisaBase;
@@ -272,6 +360,56 @@ export class LecturaDePlantilla {
         `«${documento.nombre}»: hay fechas que solo pueden ser día/mes y otras que solo pueden ser mes/día. Se han leído como día/mes, y las que no encajan se han quedado sin fecha: revisa el fichero.`
       );
     }
+  }
+
+  /**
+   * Decide el separador decimal de un documento con las cifras de todas sus tablas, y lo dice si no es el de siempre (H1-07).
+   * Se llama una vez por documento, antes de leer sus tablas.
+   */
+  fijarElSeparadorDecimal(documento: DocumentoLeido, tablas: TablasDeLaPlantilla): void {
+    const textos: string[] = [];
+    const recoger = <Clave extends string>(tabla: TablaReconocida<Clave>, claves: readonly Clave[]): void => {
+      const posiciones = claves.map((clave) => tabla.cabecera.columnas.get(clave)).filter((posicion): posicion is number => posicion !== undefined);
+      for (let i = tabla.cabecera.indice + 1; i < tabla.tabla.length; i += 1) {
+        const fila = tabla.tabla[i] ?? [];
+        if (esFilaVacia(fila) || esFilaDeComentarioOTotal(fila)) continue;
+        for (const posicion of posiciones) textos.push((fila[posicion] ?? "").trim());
+      }
+    };
+    for (const tabla of tablas.movimientos) recoger(tabla, CIFRAS_DE_MOVIMIENTOS);
+    for (const tabla of tablas.posiciones) recoger(tabla, CIFRAS_DE_POSICIONES);
+    const { separador, dePunto, deComa, sinIndicios, contradictorio } = separadorDeLasCifras(textos);
+    this.separador = separador;
+    this.separadorSinIndicios = sinIndicios;
+    if (separador === "punto") {
+      this.avisos.push(
+        `«${documento.nombre}»: las cifras vienen con punto decimal (${dePunto === 1 ? "hay una que solo se puede leer así" : `hay ${dePunto} que solo se pueden leer así`}) y se han leído todas así. Compruébalo: «1.085» se ha tomado como 1,085, y «1,085», como 1.085.`
+      );
+    } else if (contradictorio) {
+      this.avisos.push(
+        `«${documento.nombre}»: hay cifras que solo pueden llevar coma decimal (${deComa}) y otras que solo pueden llevar punto decimal (${dePunto}). Se han leído con la coma decimal, como se escribe en español, y «1.085» se ha tomado como 1.085,00: revisa el fichero.`
+      );
+    }
+  }
+
+  /** Una cifra del documento, con su separador decimal. */
+  private leerCifra(crudo: string): Decimal | undefined {
+    return leerCifraCon(crudo, this.separador);
+  }
+
+  /**
+   * Si una cifra admite las dos lecturas y nada en el documento decide cuál (H1-07): cómo se ha leído y cuál sería la otra,
+   * para el aviso de su línea. Si el documento lo decide, o la cifra no es ambigua, nada.
+   */
+  private lecturaAmbigua(columna: string, crudo: string, leida: Decimal): string | undefined {
+    if (!this.separadorSinIndicios || pistaDelSeparador(crudo) !== "ambigua") return undefined;
+    const otra = leerCifraCon(crudo, "punto");
+    const escrita = (valor: Decimal): string => {
+      const texto = cifraEnTexto(valor);
+      return texto.includes(",") ? texto : `${texto},00`;
+    };
+    const conQue = crudo.includes(".") ? "con el punto de millares" : "con la coma decimal";
+    return `Leído como ${escrita(leida)}: la columna «${columna}» dice «${crudo}», y el fichero no deja ver si usa la coma o el punto decimal. Se ha tomado ${conQue}, como se escribe en español; si es ${otra ? escrita(otra) : "otra cifra"}, corrígelo.`;
   }
 
   /** Lee una tabla de movimientos. Devuelve cuántas filas útiles tenía. */
@@ -311,28 +449,36 @@ export class LecturaDePlantilla {
     const cifra = (clave: ClaveDeColumna): Decimal | undefined => {
       const crudo = celda(clave);
       if (crudo === "") return undefined;
-      const valor = leerCifra(crudo);
+      const valor = this.leerCifra(crudo);
       if (valor === undefined) {
         avisos.push(`La columna «${definicionDeColumna(clave).nombre}» dice «${crudo}», que no es una cifra: se ha dejado en blanco.`);
+        requiereRevision = true;
+        return undefined;
+      }
+      /* H1-07: «1.085» en un fichero que no dice su separador decimal se lee como siempre, pero la línea pide revisión. */
+      const ambigua = this.lecturaAmbigua(definicionDeColumna(clave).nombre, crudo, valor);
+      if (ambigua) {
+        avisos.push(ambigua);
         requiereRevision = true;
       }
       return valor;
     };
+    /* «GBp» son peniques y se queda así: en mayúsculas sería la libra, y el precio, cien veces mayor. «GBX» también son peniques. */
     const divisa = (clave: ClaveDeColumna): string | undefined => {
-      const crudo = celda(clave).toUpperCase();
-      if (crudo === "") return undefined;
-      if (!FORMA_DIVISA.test(crudo)) {
+      if (celda(clave) === "") return undefined;
+      const leida = leerDivisa(celda(clave));
+      if (!leida) {
         avisos.push(`La columna «${definicionDeColumna(clave).nombre}» dice «${celda(clave)}», que no es un código de divisa de tres letras: se ha dejado en blanco.`);
         requiereRevision = true;
         return undefined;
       }
-      return crudo;
+      return leida;
     };
 
     const textoDeFecha = celda("fecha");
     const fecha = leerFecha(textoDeFecha, this.ordenDeLaFecha);
     /* Sin fecha y sin importe legibles no hay movimiento que proponer: la fila se descarta. */
-    if (!fecha && leerCifra(celda("importe")) === undefined) return undefined;
+    if (!fecha && this.leerCifra(celda("importe")) === undefined) return undefined;
 
     /* El tipo. */
     const textoDeTipo = celda("tipo");
@@ -340,7 +486,7 @@ export class LecturaDePlantilla {
     /* «Transferencia» a secas no dice si entra o sale: lo dice el signo de su importe (auditoría 16-11-2026, GES-3). Antes caía en
        «Otro cargo o abono», que cuenta como resultado: una transferencia del cliente de 1.000 € era una ganancia de 1.000 €. */
     if (!definicion && TRANSFERENCIA.has(normalizarRotulo(textoDeTipo))) {
-      const importeDeLaFila = leerCifra(celda("importe"));
+      const importeDeLaFila = this.leerCifra(celda("importe"));
       if (importeDeLaFila !== undefined && !importeDeLaFila.eq(0)) {
         definicion = definicionDe(importeDeLaFila.gt(0) ? "aportacion" : "retirada")!;
         avisos.push(`«${textoDeTipo}» con importe ${importeDeLaFila.gt(0) ? "positivo" : "negativo"}: se lee como ${definicion.nombre.toLowerCase()}. Si no es dinero que entra o sale de la cartera, cámbiale el tipo.`);
@@ -401,7 +547,9 @@ export class LecturaDePlantilla {
     if (fechaValor) movimiento.fechaValor = fechaValor;
 
     /* El activo. */
-    const tipoDeActivo = reconocido ? tipoDeActivoDelMovimiento(definicion.tipo) : undefined;
+    /* Sin aviso: si la cifra no se lee, lo dice abajo la lectura de las cifras. */
+    const corrido = usa(definicionDeColumna("cuponCorrido").campo) ? this.leerCifra(celda("cuponCorrido")) : undefined;
+    const tipoDeActivo = reconocido ? tipoDeActivoDelMovimiento(definicion.tipo, textoDeTipo, corrido !== undefined && !corrido.eq(0)) : undefined;
     let activo: Borrador["activo"];
     if (usa("activo")) {
       const citado = this.citar(celda("isin"), celda("nombre"), divisa("divisaActivo"), tipoDeActivo, avisos);
@@ -443,7 +591,7 @@ export class LecturaDePlantilla {
     const destino: DestinoDelMovimiento = {};
     let destinoCitado: Borrador["destino"];
     if (usa("destinoActivo")) {
-      const tipoDelDestino = definicion.tipo === "traspaso" ? "FONDO" : undefined;
+      const tipoDelDestino: TipoDeducido | undefined = definicion.tipo === "traspaso" ? { tipo: "FONDO", firme: true } : undefined;
       const citado = this.citar(celda("isinDestino"), celda("nombreDestino"), undefined, tipoDelDestino, avisos);
       if (citado.revision) requiereRevision = true;
       if (citado.clave) {
@@ -486,7 +634,7 @@ export class LecturaDePlantilla {
   }
 
   /** Cita un activo por ISIN o por nombre y lo reúne con las demás citas del mismo activo. */
-  private citar(textoDeIsin: string, nombre: string, divisa: string | undefined, tipo: TipoDeActivo | undefined, avisos: string[]): { clave?: string; revision: boolean } {
+  private citar(textoDeIsin: string, nombre: string, divisa: string | undefined, tipo: TipoDeducido | undefined, avisos: string[]): { clave?: string; revision: boolean } {
     const isin = textoDeIsin.toUpperCase().replace(/\s+/g, "");
     let revision = false;
     let clave: string | undefined;
@@ -507,7 +655,7 @@ export class LecturaDePlantilla {
     if (isinValido) reunido.isin = isinValido;
     if (reunido.nombre === "" && nombre !== "") reunido.nombre = nombre.replace(/\s+/g, " ").trim();
     if (reunido.divisa === undefined && divisa) reunido.divisa = divisa;
-    if (reunido.tipo === undefined && tipo) reunido.tipo = tipo;
+    if (mejoraElTipo(reunido.tipo, tipo)) reunido.tipo = tipo;
     this.activos.set(clave, reunido);
     return { clave, revision };
   }
@@ -535,7 +683,12 @@ export class LecturaDePlantilla {
       const cifra = (clave: ClaveDeColumnaDePosiciones): Decimal | undefined | "ilegible" => {
         const crudo = celda(clave);
         if (crudo === "") return undefined;
-        return leerCifra(crudo) ?? "ilegible";
+        const leida = this.leerCifra(crudo);
+        if (leida === undefined) return "ilegible";
+        /* H1-07: la hoja de posiciones no tiene líneas que revisar; la cifra ambigua se dice en los avisos del documento. */
+        const ambigua = this.lecturaAmbigua(nombreDe(clave), crudo, leida);
+        if (ambigua) this.avisos.push(`${donde}: ${ambigua}`);
+        return leida;
       };
       const titulos = cifra("titulos");
       const valor = cifra("valor");
@@ -546,14 +699,16 @@ export class LecturaDePlantilla {
       const extracto = porFecha.get(fecha) ?? { fecha, documento: documento.nombre, posiciones: [], efectivo: [] };
       porFecha.set(fecha, extracto);
       const nombre = celda("nombre");
-      const divisa = celda("divisa").toUpperCase();
+      /* Como en la hoja de movimientos: «GBp» se queda en peniques. `divisa` es la de un activo, si es una divisa. */
+      const comoLlega = divisaComoLlega(celda("divisa"));
+      const divisa = leerDivisa(celda("divisa"));
       if (celda("isin") === "" && normalizarNombre(nombre).startsWith("EFECTIVO")) {
         const saldo = valor ?? titulos;
         if (saldo === undefined) {
           this.avisos.push(`${donde}: la fila de efectivo no tiene saldo en «${nombreDe("valor")}»; se ha ignorado.`);
           continue;
         }
-        extracto.efectivo.push({ divisa: divisa || this.divisaBase, saldo: aTexto(saldo) });
+        extracto.efectivo.push({ divisa: comoLlega ?? this.divisaBase, saldo: aTexto(saldo) });
         utiles += 1;
         continue;
       }
@@ -573,8 +728,26 @@ export class LecturaDePlantilla {
       for (const aviso of avisosDeLaCita) this.avisos.push(`${donde}: ${aviso}`);
       const activo: ActivoCitado = { clave, nombre: nombre !== "" ? nombre.replace(/\s+/g, " ") : (isinValido ?? clave) };
       if (isinValido) activo.isin = isinValido;
-      if (FORMA_DIVISA.test(divisa)) activo.divisa = divisa;
-      extracto.posiciones.push({ activo, titulos: aTexto(titulos), ...(valor !== undefined ? { valor: aTexto(valor) } : {}) });
+      if (divisa) activo.divisa = divisa;
+      /* A-210: el precio en la divisa del activo, si la fila lo da, con esa divisa al lado. Es opcional: uno que no se entiende
+         no tira la fila, que sin él se lee como sin la columna. */
+      const precio = cifra("precio");
+      let cotizacion: Decimal | undefined;
+      if (precio === "ilegible") {
+        this.avisos.push(`${donde}: la columna «${nombreDe("precio")}» dice «${celda("precio")}», que no es una cifra; la posición se lee sin precio.`);
+      } else if (precio !== undefined && !precio.gt(0)) {
+        this.avisos.push(`${donde}: el precio ha de ser mayor que cero; la posición se lee sin precio.`);
+      } else if (precio !== undefined && !divisa) {
+        this.avisos.push(`${donde}: hay precio pero falta su divisa en «${nombreDe("divisa")}»; la posición se lee sin precio.`);
+      } else {
+        cotizacion = precio;
+      }
+      extracto.posiciones.push({
+        activo,
+        titulos: aTexto(titulos),
+        ...(valor !== undefined ? { valor: aTexto(valor) } : {}),
+        ...(cotizacion !== undefined && divisa ? { cotizacion: aTexto(cotizacion), divisa } : {})
+      });
       utiles += 1;
     }
     this.extractos.push(...[...porFecha.values()].filter((extracto) => extracto.posiciones.length + extracto.efectivo.length > 0));
@@ -616,13 +789,21 @@ export class LecturaDePlantilla {
     return { movimientos, extractos };
   }
 
-  /** La cita de un activo, con lo reunido de todo el documento y el tipo que deduce este movimiento. */
-  private citado(clave: string, tipo: TipoDeActivo | undefined): ActivoCitado {
+  /**
+   * La cita de un activo, con lo reunido de todo el documento y el tipo que deduce este movimiento. Si este movimiento
+   * solo deduce la «acción» débil y otra fila del documento dice algo firme, va lo firme. Si nada lo dice, la cita lleva
+   * `tipoSupuesto`, para que la revisión pregunte.
+   */
+  private citado(clave: string, tipo: TipoDeducido | undefined): ActivoCitado {
     const reunido = this.activos.get(clave)!;
     const citado: ActivoCitado = { clave, nombre: reunido.nombre || reunido.isin || clave };
     if (reunido.isin) citado.isin = reunido.isin;
     if (reunido.divisa) citado.divisa = reunido.divisa;
-    if (tipo) citado.tipo = tipo;
+    const elTipo = tipo !== undefined && mejoraElTipo(tipo, reunido.tipo) ? reunido.tipo : tipo;
+    if (elTipo) {
+      citado.tipo = elTipo.tipo;
+      if (!elTipo.firme) citado.tipoSupuesto = true;
+    }
     return citado;
   }
 
@@ -633,7 +814,7 @@ export class LecturaDePlantilla {
       const activo: Activo = {
         id: reunido.clave,
         nombre: reunido.nombre || reunido.clave,
-        tipo: reunido.tipo ?? "OTRO",
+        tipo: reunido.tipo?.tipo ?? "OTRO",
         divisa: reunido.divisa ?? this.divisaBase,
         origen: "manual"
       };

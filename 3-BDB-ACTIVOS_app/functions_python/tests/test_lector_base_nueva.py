@@ -336,13 +336,19 @@ def test_el_codigo_fino_de_la_linea_llega_y_sin_el_no_se_inventa():
     assert "holding_type_code" not in lector.posicion_vieja({"name": "Linea de justETF", "weight": 0.05})
 
 
-def test_el_proyecto_declarado_elige_el_lector(monkeypatch):
-    monkeypatch.setattr(lector, "master_project_id", lambda: "bdb-gestor-de-activos")
+def test_el_lector_es_el_de_la_base_nueva_y_con_la_vieja_declarada_para(monkeypatch):
+    """21-11-2026: el lector de la base vieja (`FirestoreReader`) se borro. Con su id declarado no se cae a el: para."""
+    from master_project import BaseNuevaRequerida
+    from portfolios.store import almacen_de_carteras
+
+    monkeypatch.setenv("MASTER_PROJECT_ID", "bdb-gestor-de-activos")
     monkeypatch.setattr(lector, "LectorBaseNueva", lambda: "nueva")
-    monkeypatch.setattr(lector, "FirestoreReader", lambda: "vieja")
     assert lector.lector_de_activos() == "nueva"
-    monkeypatch.setattr(lector, "master_project_id", lambda: "gestor-activos-local")
-    assert lector.lector_de_activos() == "vieja"
+    monkeypatch.setenv("MASTER_PROJECT_ID", "gestor-activos-local")
+    for pide in (lector.lector_de_activos, lector.lector_de_optimizacion, lector.resolver_tipo_libre, almacen_de_carteras):
+        with pytest.raises(BaseNuevaRequerida) as error:
+            pide()
+        assert "gestor-activos-local" in str(error.value) and "bdb-gestor-de-activos" in str(error.value)
 
 
 def _serie(anio, divisa="EUR", clase="NAV"):
@@ -372,7 +378,7 @@ def test_una_serie_en_dolares_no_se_presenta_como_euros():
 
 
 def test_el_proyecto_declarado_elige_el_lector_de_optimizacion(monkeypatch):
-    monkeypatch.setattr(lector, "master_project_id", lambda: "bdb-gestor-de-activos")
+    monkeypatch.setenv("MASTER_PROJECT_ID", "bdb-gestor-de-activos")
     monkeypatch.setattr(lector, "LectorOptimizacionBaseNueva", lambda: "nueva")
     assert lector.lector_de_optimizacion() == "nueva"
 

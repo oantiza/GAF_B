@@ -10,7 +10,10 @@ import { NOMBRE_DEL_TIPO_DE_ACTIVO, type Activo } from "./modelo";
 
 /** Lo que se sabe de cómo se reparte un activo. Todos los repartos van en fracciones que suman (como mucho) 1. */
 export interface FichaDeActivo {
-  /** Renta variable, renta fija, liquidez… ya con su nombre en pantalla. */
+  /**
+   * Renta variable, renta fija, liquidez… ya con su nombre en pantalla. Puede ser el reparto neto del proveedor (C-29): suma 1,
+   * y una clase puede ser negativa o pasar de 1.
+   */
   clases?: Record<string, number>;
   /** Regiones de su parte de renta variable, con su nombre en pantalla. Suman 1 sobre esa parte. */
   regiones?: Record<string, number>;
@@ -18,7 +21,7 @@ export interface FichaDeActivo {
   sectores?: Record<string, number>;
   /** Gastos corrientes anuales (TER) en fracción. */
   gastosCorrientes?: number;
-  /** Qué parte del activo es renta variable (0 a 1). Las regiones y los sectores se refieren a ella. */
+  /** Qué parte del activo es renta variable (de 0 a 1, o más en un fondo apalancado). Las regiones y los sectores se refieren a ella. */
   rentaVariable?: number;
 }
 
@@ -84,8 +87,24 @@ function sumar(mapa: Map<string, number>, clave: string, valor: number): void {
   mapa.set(clave, (mapa.get(clave) ?? 0) + valor);
 }
 
-/** Reparte `valor` según `pesos`; lo que los pesos no cubren va a «Sin clasificar». */
+/** Cuánto puede no sumar 1 un reparto neto: la tolerancia de la plataforma (`TOLERANCIA_DEL_REPARTO`, 0,01). */
+const TOLERANCIA_DEL_REPARTO_NETO = 0.01;
+
+/**
+ * Reparte `valor` según `pesos`; lo que los pesos no cubren va a «Sin clasificar».
+ *
+ * Un reparto NETO por clase de activo (decisión C-29 de Óscar, 21-11-2026) se reparte entero, con su signo: si una clase es
+ * negativa y entre todas suman 1, un fondo de 1.000 € con renta variable 3,2 y liquidez −2,2 pone 3.200 € en renta variable y
+ * −2.200 € en liquidez, y la suma de la cartera sigue siendo su valor. Las regiones y los sectores no llegan nunca así: solo
+ * traen pesos positivos (`fichas.ts`).
+ */
 function repartir(mapa: Map<string, number>, valor: number, pesos: Record<string, number> | undefined): void {
+  const todos = Object.values(pesos ?? {}).filter((peso) => Number.isFinite(peso));
+  const suma = todos.reduce((total, peso) => total + peso, 0);
+  if (todos.some((peso) => peso < 0) && Math.abs(suma - 1) <= TOLERANCIA_DEL_REPARTO_NETO) {
+    for (const [nombre, peso] of Object.entries(pesos ?? {})) if (Number.isFinite(peso) && peso !== 0) sumar(mapa, nombre, valor * peso);
+    return;
+  }
   let cubierto = 0;
   for (const [nombre, peso] of Object.entries(pesos ?? {})) {
     if (!(peso > 0)) continue;

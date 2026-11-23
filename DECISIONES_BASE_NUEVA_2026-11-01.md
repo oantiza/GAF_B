@@ -645,9 +645,26 @@ un fondo y una acción tienen conjuntos contables distintos con todo derecho, y 
 comparar *el mismo* instrumento a lo largo del tiempo y para saber si una cifra es anterior a un
 cambio.
 
-**Estado: decidido y no construido, y fuera del cierre del 04-11-2026**, porque el Sharpe de las acciones se oculta y no se retira. El campo no existe todavía en
-`instrument-quality.v2.schema.json`, y la declaración del contrato de métricas que lo hizo falta
-está **esperando a esta huella**: por esta decisión, no aterriza antes.
+**Estado: construida el 21-11-2026**, con el sí de Óscar de ese día. El campo es
+`applicable_paths_fingerprint`, junto a `applicable_paths` en `instrument-quality.v2.schema.json`, que sigue en `v2`:
+es un campo opcional añadido, como `product.replication` (B-81) y `source_segments` (D-9), y ningún SHA cubre los
+contratos de la base nueva —los de `contracts_cache` son los de la maestra vieja—. Se calcula en `calcularCalidad`
+(`2-plataforma-datos/src/ingestion/baseNueva/calidadYTarjeta.ts`, con `huellaDeLasRutas`): SHA-256 en hexadecimal, entero,
+de las rutas aplicables escritas como `absences.path`, ordenadas por código de carácter y unidas por un salto de línea.
+Sale de la misma lista que el recuento —`applicable_paths` es su longitud—, así que no pueden separarse; las rutas
+indecidibles no entran, como no entran en el denominador. `read/card` no la copia: la app lee la cobertura de
+`quality/latest`, no de la tarjeta. Llega a la base con la siguiente pasada de `baseNueva:batch`; hasta entonces ningún
+documento la lleva, y uno sin huella no se compara con uno que la lleva.
+
+**Medido** el 21-11-2026 sobre el canónico del 17-11, con el mapper y el lote en seco y sin bases: los 1.334
+instrumentos dan **9 huellas**. Las 529 acciones comparten una (68 rutas); los 772 fondos se reparten en siete —280, 178,
+173, 136, 3, 1 y 1—; los 32 ETF, en tres —29, 2 y 1—, las tres compartidas con fondos, porque un ETF usa los mismos
+contratos; y el único OTHER tiene la suya. Lo que separa las de los fondos es solo la exposición: si le aplican los cinco
+mapas de renta variable, los siete campos de `declared/fixed_income` y los tres mapas de renta fija. Ninguna huella
+lleva dos recuentos distintos.
+
+La declaración del contrato de métricas que la hizo falta —Sharpe y Sortino solo en `FONDO_O_ETF`— ya no espera a nada
+de aquí: sigue sin escribirse porque la retirada formal quedó fuera por decisión de Óscar (§9 y §10 del método).
 
 ## 17. Un campo presente donde el contrato dice que no aplica es un error
 
@@ -684,7 +701,17 @@ conserva y que la nube ya tiene desde la subida del 03-11. Eso es el estado real
 para suavizar la regla: la condición 3 de la §10 del método —la base no conserva lo retirado— es
 justo lo que esta comprobación mide.
 
-**Estado: decidido y no construido.**
+**Estado: construida como informe el 20-11-2026; el bloqueo en el escritor sigue sin decidir.** `npm run audit:base-nueva`
+imprime el apartado «campos presentes donde el contrato dice que no aplica» (`camposPresentesDondeNoAplica`, en
+`calidadYTarjeta.ts`; prueba `baseNuevaCamposDondeNoAplica.test.ts`), que no cambia el veredicto final de la auditoría.
+Primera pasada sobre la base nueva local, medida ese día: **386 campos en 254 instrumentos** que el contrato de hoy
+declara no aplicables (225 `declared/exposure.bond_types` y 41 `declared/fixed_income.avg_credit_quality` en fondos
+sin renta fija según su reparto; 32 `computed/metrics.inputs.series_adjustment` en instrumentos que no son acciones;
+unos pocos sectores, estilos y regiones en fondos sin renta variable; y un ETC, `IE00B4ND3602`, de tipo `OTHER`, que
+conserva campos con forma de fondo: categoría, índice, domicilio, coste corriente...). **Los Sharpe de las acciones no salen de esa lectura**: el contrato de hoy
+no los declara no aplicables con un `x-applies-when` (se publican en euros y se ocultan en pantalla, la retirada
+formal quedó fuera, 04-11-2026), así que la auditoría los cuenta aparte: **261 de 529 acciones** con Sharpe guardado
+(eran 198 el 03-11; la base creció con las 522 acciones del FIRDS y el recálculo de la versión 4) y 0 con Sortino.
 
 ## 18. Las retrocesiones viven en la base nueva, y las escribe el administrador
 
@@ -969,3 +996,417 @@ y «Agresivo» con «Dinámico».
 **Limitaciones.** El nivel es una etiqueta que escribe el asesor, y una cartera hecha a mano puede tener más o menos renta
 variable de la que dice la tabla. Las referencias no se reequilibran: sus porcentajes son los del primer día y con los
 años se separan de su nombre.
+
+
+## 27. Los mapas de renta fija, solo desde un 0,5 % de renta fija con los convertibles; y los repartos a cero son un reparto que falta
+
+*Óscar, 21-11-2026.*
+
+**La pregunta.** El canónico del 17-11 traía tipos de bono, tramos de duración y calidad crediticia en fondos con un 0,01 %
+de renta fija: posiciones de liquidez o de paso en fondos de renta variable, que no dicen nada de cómo invierte el fondo.
+
+**Elegido.**
+- Los tres mapas (`declared/exposure.bond_types`, `duration_buckets` y `credit_buckets`) se escriben solo si la renta fija
+  **más los convertibles** pesa al menos un **0,5 %** del reparto. Los convertibles cuentan como renta fija. Por debajo, no
+  aplican: no faltan. `declared/fixed_income` sigue con la condición de antes (`CON_RENTA_FIJA`).
+- Un reparto con las cuatro clases a cero es un reparto **que falta**, no ceros: dice «Falta el dato».
+- El ETC de oro (y una materia prima o un alternativo sin reparto) va al **100 % en «otros»**, que es donde el programa
+  pone hoy materias primas y alternativos.
+- **El peso propio de los convertibles no se guarda en la base** (Óscar, 21-11-2026, «déjalo como está»). Quien lee la base
+  decide la regla con la categoría del fondo; el mapper, con el peso que trae la fuente.
+
+**Dónde se cumple.** La regla vive una sola vez, en `2-plataforma-datos/src/ingestion/baseNueva/aplicabilidad.ts`
+(`UMBRAL_DE_RENTA_FIJA_DE_SUS_MAPAS`, `pesoDeRentaFijaConConvertibles`); el contrato la declara con el predicado
+`CON_RENTA_FIJA_NO_RESIDUAL`, y `tests/baseNuevaTiposDeBonoSoloConRentaFija.test.ts` falla si el contrato y el mapper se
+separan.
+
+**Consecuencia que se acepta.** Sin el peso de los convertibles en la base, la base no puede reproducir la regla por sí
+sola en un fondo cuyo veredicto dependa de ese peso. Si pasa, el mapper lo avisa con un mensaje que empieza por «mapas de
+renta fija:». Medido el 21-11 sobre el canónico del 17-11: no pasa en ninguno de los 1.334; 46 fondos traen ese peso, 7
+distinto de cero y todos por debajo del 0,4 %.
+
+**Lo que mueve.** 133 fondos con renta fija entre 0 y 0,5 % dejan de tener esos tres campos como aplicables; `quality/latest`
+y `read/card` cambian en 134 instrumentos, solo en la cobertura (entre +0,24 y +0,82 puntos). Llega a la base con el
+próximo refresco y la subida del catálogo, que son a mano.
+
+## 28. El ratio de información sin redondear corrige la versión 4; el €STR diario parado más de 7 días deja sin Sharpe; y la referencia no puede ser otra clase del mismo fondo
+
+*Óscar, 21-11-2026 («por la recomendada», sobre los hallazgos de la auditoría independiente del 20-11 en el extractor).
+Construida el mismo día en la rama `claude/decisiones-extractor-21-11`.*
+
+**La pregunta.** La tanda del 21-11 sobre el extractor (`claude/auditoria-extractor-21-11`) dejó tres cosas que no
+podía decidir sola: si el ratio de información sin redondear (`f0125f0b`, que cambia cifras publicadas) pide una versión
+5 del método; si un €STR que se para al final de la ventana del camino diario se sigue publicando marcado sin límite; y
+si una referencia de las relativas puede ser otra clase del mismo fondo, como le pasaba a Vanguard Global Stock Index
+Investor (beta 1, R² 100).
+
+**Elegido.**
+1. **El ratio de información sin redondear entra en la versión 4 como corrección de un fallo; no hay versión 5.** La
+   fórmula declarada no cambia —rentabilidad activa entre tracking error—; lo que estaba mal era la cuenta, que dividía la
+   activa ya redondeada a cuatro decimales. El sello sigue siendo `v4`.
+2. **En el camino diario, un €STR que se para al final suprime el Sharpe pasados 7 días naturales**, como el método
+   mensual: la última noche de la ventana —la víspera de su último día— necesita un €STR de como mucho
+   `RF_ARRASTRE_MAX_DIAS` (7) días, la misma regla de cada noche de `rf_entre`. Un retraso de 7 días o menos se sigue
+   publicando y marcando (`rf_incompleto`, decisión del 09-11-2026). El mensual no marca nada, arrastra el último tipo; la
+   marca del diario se queda porque no cambia ninguna cifra, y desde hoy dice si suprimió el Sharpe (`sharpe_suprimido`).
+3. **Una referencia que sea otra clase del mismo fondo se excluye**, como ya se excluía el mismo ISIN. No hay un
+   identificador del fondo paraguas en los datos —el LEI es el de la sociedad (Vanguard Investment Series plc tiene muchos
+   fondos), el nombre de la clase no tiene forma fija y la fecha de lanzamiento «del fondo» de Morningstar es, en
+   Vanguard, la de la clase—, así que se reconoce por lo que es del fondo y no de la clase: **la misma gestora y, o el
+   mismo patrimonio del fondo en la misma fecha, o la misma cartera** (fecha, número de posiciones y peso de las diez
+   primeras). La ficha dice `sin_relativas_referencia_del_mismo_fondo(<proxy>)` y con qué firma (`mismo_fondo_por`).
+
+Y la §2 del método lleva desde hoy una línea por cada regla nueva: las dos de la tanda anterior (el hueco de más de 33
+días del índice dentro de la ventana de las relativas, y la cobertura del €STR del camino diario desde el primer día y sin
+tramos de más de 7 noches) y las reglas 2 y 3 de esta.
+
+**Dónde se cumple.**
+- Regla 1: `1-extractor/core/metricas.py::relativas` (`f0125f0b`); la prueba es
+  `test_el_ratio_de_informacion_divide_la_activa_sin_redondear` de `tests/test_metricas_ceros_y_huecos.py`, y la versión
+  4 del método, en la §4 de `METODO_PROPIO_METRICAS_2026-11-01.md`.
+- Regla 2: `core/metricas.py::estr_sin_tramos_vacios` y `cobertura_rf`, y la ficha en `fetchers/eodhd.py`; la prueban
+  `tests/test_estr_cobertura.py` y `tests/test_metricas_ceros_y_huecos.py`.
+- Regla 3: `fetchers/vl_fondos.py::_referencia_del_mismo_fondo`, detrás de la regla de la clase cubierta; la prueban seis
+  casos de `tests/test_vl_fondos.py`, uno por firma y los que no deben excluir.
+
+**Medido** el 21-11-2026 sobre la exportación del extractor del 17-11 (`export/fondos.ndjson`, `export_series`, y el €STR
+y los cambios de la caché), sin red y sin bases:
+- **Regla 1.** Cambian **48 de los 712** ratios de información publicados (a 1, 3 y 5 años): **45 en una diezmilésima**,
+  y los otros 3 son los de Vanguard Global Stock Index Investor, que con la regla 3 dejan de publicarse.
+- **Regla 2.** **Ninguna cifra cambia**, aparece ni desaparece (el `metricas.py` de `d0f6fb97` contra el de la C-28,
+  con el mismo camino que la pasada). De las 520 acciones con `rf_hasta`, la última noche usaba un €STR de 2 días como
+  mucho, y ninguna llevaba `rf_incompleto`.
+- **Regla 3.** La precisión de la señal, sobre las 1.334 fichas: de los 84 grupos con el mismo patrimonio del fondo en la
+  misma fecha, 83 son clases de un mismo fondo y el otro son dos fondos de 2,15 M€ de gestoras distintas (Andbank y
+  Metagestión), que la gestora separa; los 29 grupos con la misma cartera y distinto patrimonio son todos clases de un
+  mismo fondo, en otra divisa (el patrimonio se da en la de la clase) o fondos españoles que dan el de la clase. Con la
+  gestora, ningún falso positivo. Lo que mueve, con el código de la pasada sobre las 308 fichas con proxy que no son su
+  propio proxy: **un fondo**, Vanguard Global Stock Index Investor (`IE00B03HCZ61`), medido contra la clase EUR Acc del
+  mismo fondo (`IE00B03HD191`), que es el proxy de MSCI World NR. Lo reconocen las dos firmas. **Después no tiene otra
+  referencia**: MSCI World NR tiene una sola fila en `config/indices.csv`, así que se queda sin relativas y pierde sus 18
+  cifras (beta, R², alfa, rentabilidad activa, tracking error y ratio de información a 1, 3 y 5 años).
+
+**Por qué no cambia la versión.** La regla 1 corrige la cuenta y no un parámetro (§4 del método). Las reglas 2 y 3 solo
+quitan cifras, en un caso que hoy no se da y en un fondo, como el hueco de la decisión 111: lo que queda sale igual.
+
+**Consecuencia que se acepta.** Hasta el próximo refresco y la subida del catálogo, que son a mano, la base tiene ratios
+de información de la versión 4 con la activa redondeada; después, sin redondear, con el mismo sello y como mucho una
+diezmilésima de diferencia. Ninguna pantalla ordena ni compara ratios de información entre instrumentos (§3 del método),
+así que no rompe ninguna comparación.
+
+**Lo que deja abierto.**
+- **El motivo de la regla 3 no llega a la base.** La plataforma traduce a `computed/metrics.relative_absence` solo los
+  avisos que conoce (`AUSENCIA_RELATIVA_DECIDIDA` en `2-plataforma-datos/src/ingestion/baseNueva/traducciones.ts`), y este
+  no está: sin tocar la plataforma, el fondo sale sin `relative` y sin decir por qué, y sin la retirada con fecha de la
+  §10. Pide un valor nuevo del contrato (p. ej. `SAME_FUND_REFERENCE`), que es trabajo de la sesión de la plataforma.
+  **Hecho el 21-11-2026 (rama `claude/decisiones-plataforma-21-11`): el motivo llega a la base como
+  `computed/metrics.relative_absence = SAME_FUND_REFERENCE`**, copiado en `read/card`, en el contrato `v2` sin subir de
+  versión (añadir un motivo cerrado a un enum que solo escribe el lote, como `HEDGED_SHARE_CLASS` con la decisión 30). A
+  diferencia del KID y de la clase cubierta, la tarjeta sí cae a la cifra del proveedor contra su categoría: lo que falla es
+  nuestra serie del índice, no lo que mide él. **Óscar lo confirmó el 21-11-2026** («Sí, las tres», punto 25): el fondo
+  enseña la cifra del proveedor, como cualquiera que no tiene serie de su índice. Sigue abierto el proxy y la firma
+  (`mismo_fondo_por`), que no llegan a la base.
+  **La retirada con fecha, hecha el 21-11-2026 a petición de Óscar** (rama `claude/decision-27-retirada-21-11`): el
+  extractor la escribe con el mismo mecanismo que la del KID (`fetchers/vl_fondos.py::_escribe_retirada`, y la §10 del
+  método dice desde ese día que toda retirada nueva va así), y la plataforma ya la llevaba a
+  `computed/metrics.relative_withdrawal`. Medido con la ficha del 17-11 de Vanguard Global Stock Index Investor, sin red
+  ni bases: la pasada escribe la retirada con su día (el de la pasada, que no se mueve en las siguientes), esta decisión,
+  MSCI World, su proxy `IE00B03HD191` sobre valor liquidativo y el último dato publicado, del 31-10-2026. **Desde cuándo se
+  publicaban no se escribe**, como en el KID: el extractor no guarda la primera pasada que las publicó. La cota que sí
+  consta: no antes del 01-11-2026, el día que entró en `config/indices.csv` la fila de su proxy (`708f8df5`). Entra con
+  el próximo refresco, y solo si esa pasada lleva este código: si corriera antes una con la regla 3 y sin la retirada,
+  la ficha anterior ya no tendría cifras y la retirada no se escribiría nunca.
+- **La señal depende de que la ficha de la referencia esté en el universo.** Un proxy que no es ficha (hoy, los niveles
+  de índice `.INDX`, que no son fondos) no se puede comparar, y se mide como antes.
+- **Los 13 KID en uso sin fecha legible** (punto 7 de la misma tanda) se investigaron sin cambiar código: el lector no la
+  saca por cuatro formas de escribirla, y con el arreglo propuesto se leerían las 13 sin cambiar ninguna de las 617 que ya
+  se leen; una es de 30-12-2022 y caducaría (Groupama G Fund Avenir Europe NC). Óscar aprobó el arreglo el 21-11-2026:
+  decisión 30.
+
+
+## 29. Se acepta el reparto neto del proveedor, con cortos y apalancamiento, si suma el 100 %
+
+*Óscar, 21-11-2026 («Sí, las tres»). Construida el mismo día en la rama `claude/decision-23-reparto-neto-21-11`.*
+
+**La pregunta.** `repartoDeActivos` rechazaba el reparto entero si una clase se salía de 0-1 más del punto de la A-63
+(`asset_mix con una clase fuera de rango`), aunque el reparto sumase 1. Así 95 fondos del canónico del 17-11 se quedaban
+sin reparto, y desde la A-203 decían «Falta el dato» en Análisis, con un reparto que sí cuadra: renta fija 101,16 % y
+liquidez −1,39 %, o renta variable 319,8 % y liquidez −242,6 % (ES0137396000). El proveedor da el reparto **neto**, como
+Morningstar: una clase negativa es una posición corta o liquidez prestada, y una por encima del 100 %, apalancamiento.
+
+**Elegido.**
+- Se acepta el **reparto neto tal como lo da el proveedor** si suma el 100 % con la tolerancia que ya usaba el mapper
+  (`TOLERANCIA_DEL_REPARTO`, un punto). La clase negativa se escribe **con su signo**; la que pasa de 100, **tal cual**.
+- Sigue sin reparto lo que no suma el 100 %, lo que no trae números y las cuatro clases a cero (C-27).
+- **Topes del contrato: una clase entre −5 y 6** (de −500 % a +600 %). Lo medido el 21-11 sobre el canónico del 17-11 va de
+  −2,43 a 3,20; los topes dan dos veces ese margen y siguen siendo finitos, para que un porcentaje leído como fracción en
+  una sola clase (60 y −59, que suman 1) no pase por apalancamiento. Una clase fuera de los topes deja al fondo sin reparto,
+  sume lo que sume, y lo dice («error de unidades»).
+- **En pantalla, la clase negativa no lleva barra ni porción de aro**, que no pueden ser negativas: se escribe «−1,4 %».
+  Junto al reparto con una clase fuera de 0-100 va una nota: «Reparto neto: incluye posiciones cortas o apalancamiento, así
+  que una clase puede salir en negativo y otra pasar del 100 %». El aro dibuja solo las partes positivas, pone la negativa en
+  la leyenda con su signo y muestra hueca, y lo dice.
+
+**Dónde se cumple.**
+- Contrato: `$defs.peso_de_clase` de `instrument-declared-exposure.v2` y de `instrument-read-card.v2`, de −5 a 6, con la
+  regla y su fecha en la descripción de `asset_mix`. **No sube de versión**: ensancha un rango que solo escribe la
+  plataforma, como los enums ampliados sin subir (C-28, `SAME_FUND_REFERENCE`). Ningún SHA cubre los contratos de la base
+  nueva; sí el de lectura `asset-for-bdb.v1`, en la caché de las Functions, que no tiene topes y cuya descripción se puso
+  al día (`npm run sync:contracts`: cambia su SHA en `functions_python/contracts_cache/manifest.json`).
+- Plataforma: `repartoDeActivos` y `pesoDeClase` leen los topes del contrato (`2-plataforma-datos/src/ingestion/baseNueva/mapper.ts`).
+  Un reparto neto (`esRepartoNeto`: una clase fuera de 0-1 más de la tolerancia) **no deduce la clase de la raíz** —un fondo
+  con la bolsa a −188 % y la liquidez a 246 % no es un monetario: manda lo que diga el proveedor— y sus regiones y sectores
+  siguen la regla de cuando no había reparto (decisión 109), para que recuperar el reparto no cambie sus mapas. Lo prueban
+  `tests/baseNuevaEscritor.test.ts` y `tests/baseNuevaLaPasadaDel108Al112.test.ts`.
+- Extractor: `info_clase_fuera_de_rango` (`1-extractor/core/calidad.py`) deja de marcar el reparto neto que suma 100; avisa
+  la clase fuera de los topes, sume lo que sume, y la que se sale de 0-100 en un reparto que no suma
+  (`tests/test_calidad_reparto.py`). Los topes los sigue leyendo del contrato de la plataforma.
+- Servidor: `map_pms_exposure` (`functions_python/readmodel/mappers.py`) ya pasaba el reparto sin recortar; se dice en su
+  docstring y lo prueba `tests/test_read_contract.py` con ES0137396000. Ninguna otra Function suma o reparte la exposición
+  por clase: la radiografía, Optimizar y los informes la calculan en la aplicación.
+- Aplicación: la regla vive en `3-BDB-ACTIVOS_app/src/core/repartoNeto.ts`. `assetPmsShares` (`src/core/portfolio.ts`) lee
+  tal cual el reparto que suma 1 dentro de los topes —antes, solo dentro del punto: ES0137396000 habría contado su bolsa
+  como el 93 % de lo positivo—; `ListaDePartes` no dibuja barra a lo negativo; `OaaDonutChart`, la porción; y la nota va en
+  la ficha (Composición), en Análisis › Estructura de la cartera (Exposición agregada), en Carteras guardadas y en
+  Carteras de clientes (Resumen y Composición), donde `fichas.ts` y `componer` reparten la clase con su signo. Lo prueban
+  `tests/repartoNeto.test.ts`, `tests/repartoNetoEnPantalla.test.tsx`, `tests/piezas/listaDePartes.test.tsx` y
+  `tests/fichaSinReparto.test.ts`.
+- PDF: nada que cambiar. Las cifras del papel salen de `peso()`, que escribe el signo menos tipográfico, y la
+  `ListaDePartes` de la plantilla ya no dibujaba barra a una parte negativa.
+
+**Medido** el 21-11-2026 sobre el canónico del 17-11 (`export_bdb` y `export/fondos.ndjson`), con el mapper en seco y sin
+bases: **95 fondos recuperan su reparto** (707 con reparto, 802 después); los 95 sumaban 1 con la tolerancia, y de ellos
+36 ganan el bloque `declared/exposure` entero, que no tenían. Se quedan sin reparto **3**, los de las cuatro clases a cero.
+Por cuánto se salían de 0-1: 36 hasta 5 puntos, 30 hasta 20, 14 hasta 50 y 15 más de 50. Ninguna clase de la raíz cambia:
+ninguno de los 95 llega como OTHER. Con el reparto aparecen los mapas de renta fija donde la renta fija, con los
+convertibles, pasa del 0,5 % (C-27): `duration_buckets` en 77, `bond_types` en 71 y `credit_buckets` en 53; y la caja de
+estilo de uno, BLK Systematic. Ningún mapa de la renta variable cambia, y los 802 documentos validan contra el contrato.
+En el extractor, la marca pasa de 95 fondos a ninguno.
+
+**Consecuencia que se acepta.** Una lectura por dentro (regiones, sectores, estilo, perfil de renta fija) pondera cada fondo
+por su clase **neta**: un fondo apalancado pesa en las regiones de la cartera por su 319,8 % de bolsa, y uno corto de bolsa
+no entra en ellas. Es la exposición económica, y es la convención de un reparto neto; normalizar lo positivo, que era la
+alternativa, habría escrito un 93 % de bolsa que no es el fondo. Llega a la base con el próximo refresco y la subida del
+catálogo, que son a mano; hasta entonces los 95 siguen diciendo «Falta el dato».
+
+**Lo que deja abierto.**
+- **Los mapas de un fondo neto saltan lo que no es un peso** (`mapaDePesos`): un `bond_types` con la liquidez negativa la
+  pierde, y suma de más (1,049 en UBS Duración 0-2). Ya pasaba fuera de ellos: en el canónico del 17-11, 117 fondos sin
+  reparto neto traen un `bond_types` con algún valor fuera de 0-1; ahora entran también estos.
+  Aceptar el neto en esos mapas es otra decisión. **Hecho el 21-11-2026: decisión C-31**, con la misma regla: neto si
+  suma 1 y cabe en los topes.
+- **La equivalencia de fondos** (`src/core/fundEquivalence.ts`, `assetMixMap`) compara las mezclas sin las clases
+  negativas, como hasta hoy (decisión 117, B). No se ha tocado.
+- **El aro de la aplicación no recibe hoy ningún reparto neto**: los aros pintan la clase de cada posición, entera. La
+  regla está en la pieza para cuando lo reciba.
+
+## 30. El extractor lee la fecha de 13 KID que se aceptaban sin ella, y uno resulta caducado
+
+*Óscar, 21-11-2026.*
+
+**La pregunta.** Trece KID en uso no daban fecha de elaboración al lector (`core/kid.py`, `RE_FECHA_DOC`), y sin fecha el
+extractor no puede aplicar la caducidad de `KID_MAX_DIAS` (456 días): se aceptaban sin mirar de cuándo eran. El punto 7 de
+la tanda de la C-28 los investigó sin tocar código y dejó el arreglo para que Óscar decidiera.
+
+**Elegido.** Cuatro arreglos del lector, cada uno con su prueba en `tests/test_kid_fecha_parseo.py` sobre un texto con la
+forma real del PDF:
+- **Amundi (3).** El PDF pierde los espacios de todo el texto («Fechadeelaboracióndeldocumentodedatosfundamentales:17/10/2025»).
+  El primer patrón admite `\s*` entre las palabras de la etiqueta.
+- **DWS (3).** Salto de línea entre «son» y «exactos a 16.04.2026»: el patrón pasa de un espacio a `\s+`.
+- **Columbia Threadneedle (6).** La fecha va sola en la última línea del bloque «Producto», justo antes de «¿Qué es este
+  producto?»: un patrón nuevo, anclado a esa posición (la fecha ocupa su línea entera), para que otra fecha suelta del
+  documento no la sustituya.
+- **Groupama G Fund Avenir Europe NC (`LU0675297237`).** Maquetado a dos columnas: la etiqueta cae en dos líneas («Fecha de
+  elaboración del» / «documento») y la fecha, en la línea del medio, a la derecha del ISIN. Por las coordenadas del PDF,
+  «30 de diciembre de 2022» **es** la fecha de elaboración. El comentario de `core/kid.py` y el caso de
+  `test_kid_fecha_parseo.py` que la daban por fecha de lanzamiento estaban equivocados y se corrigen; el patrón de los dos
+  puntos pegados a «datos fundamentales» sigue sin cogerla en una sola línea, que es lo que debe.
+
+**Dónde se cumple.** Una sola lista, `RE_FECHA_DOC['es']`, que usan `parsea` y, por él, `fetchers/kid_gestora.py::_lee`. Las
+cifras esperadas de las pruebas son las que se leen a ojo en el PDF, no la salida del lector.
+
+**Medido el 21-11-2026 sobre los 633 PDF de la caché** (`cache/kid/gestoras`, el lector de antes contra el de ahora, mismo
+texto): **13 fechas nuevas**, 3 PDF siguen sin fecha (no estaban entre los 13 en uso) y **0 de las 617
+que ya se leían cambian**. De las 13, 12 están vigentes (de 131 a 400 días) y **una está caducada: Groupama, de 1.422 días**
+(el límite es 456). `_lee` la devuelve vacía con el aviso «documento de 2022-12-30, caducado; no lo uso», el mismo motivo
+que ya usa el extractor para cualquier KID caducado.
+
+**Consecuencia que se acepta.** Groupama G Fund Avenir Europe NC pierde su KID en el próximo refresco del extractor: sus
+costes, su SRI y su procedencia de KID dejan de salir de ese documento, y el fondo queda con lo que le den las demás
+fuentes hasta que la gestora publique uno vigente. Es el comportamiento correcto: hoy se enseña un KID de hace casi cuatro
+años como si valiera. Hasta ese refresco y la subida del catálogo, que son a mano, la base sigue con el KID de antes.
+
+**Lo que deja abierto.**
+- **Los otros 12 pasan a tener fecha y empezarán a caducar** como cualquier KID: el más antiguo (un fondo de Amundi,
+  `FR0010829697`) tiene 400 días y caducará dentro de 56.
+- **Hay patrones que dependen de la maquetación de cada gestora.** Si una gestora cambia el PDF, el lector volverá a dejar el
+  KID sin fecha sin avisar. Una auditoría de «KID en uso sin fecha» es el control que lo cazaría; no está construida.
+  **Hecho el 21-11-2026 (la auditoría de «KID en uso sin fecha»):** `calidad.kid_en_uso_sin_fecha` (`core/calidad.py`) nombra la ficha que lleva su KID (`kid_url` o `kid_sha256`) sin `kid_fecha`, y `python main.py calidad` lo cuenta y lo nombra, con su fuente, en la salida y en `reports/fondos_problematicos.md`. Es un aviso: no entra en las flags ni en el score, y no bloquea. Prueba en `tests/test_kid_en_uso_sin_fecha.py`. **Medido ese día** sobre las 1.341 fichas de `data/funds` (aún con el lector de antes de la C-30, sin refrescar): **17 KID en uso sin fecha**, los 13 de esta decisión (Deutsche Bank 6, DWS 3, Amundi 3, Renta4/Allfunds 1) y **4 de la CNMV** (`ES0112602000`, `ES0140643034`, `ES0141113037`, `ES0146309002`), que no son de esta decisión y el lector no lee: de dos de ellos hay PDF en la caché y no trae fecha legible. Sobre la caché de PDF con el lector de hoy: de los 633 de las gestoras **3 siguen sin fecha y ninguno está en uso** (`LU1333148903` en dos gestoras y `LU1814994353`); de los 744 PDF de las tres cachés (gestoras, CNMV y AMF), los AMF sin fecha legible tienen la de la API de la AMF, y los **dos de la CNMV en uso sin fecha** son los que quedan. Tras el próximo refresco el control debe dar los 4 de la CNMV y ninguno de los 13.
+
+## 31. Los mapas de la renta fija se guardan netos, como el reparto por clase
+
+*Óscar, 21-11-2026. Construida el mismo día en la rama `claude/decision-28-mapas-netos-21-11`.*
+
+**La pregunta.** Lo que dejó abierto la C-29: los tres mapas de la renta fija de `declared/exposure` (`bond_types`,
+`duration_buckets` y `credit_buckets`) pasaban por `mapaDePesos`, que salta lo que no está entre 0 y 1. Un `bond_types`
+con la liquidez negativa la perdía y sumaba de más: UBS Duración 0-2 (`ES0126547035`) escribía gobierno, corporativa y
+titulizada, que suman 1,049, sin su liquidez de −4,87 %.
+
+**Elegido.**
+- Los tres mapas se guardan **netos, tal como los da el proveedor**, con la regla de la C-29: un mapa con una parte fuera
+  de 0-1 se escribe tal cual —la negativa con su signo, la que pasa de 1 sin recortar— si todas sus partes caben en los
+  topes y entre todas suman 1 con `TOLERANCIA_DEL_REPARTO`, el punto del reparto por clase.
+- **Topes: de −5 a 6 por parte**, los de `peso_de_clase`. Cubren con holgura lo que cuadra (de −3,44 a 4,44) y dejan
+  fuera dos mapas reescalados sobre una base neta casi nula, que ya no describen el fondo.
+- **Lo que no cuadra sigue con la regla de antes**: si no suma 1, o una parte se sale de los topes, se saltan las partes
+  fuera de 0-1 y se escribe el resto, sin comprobar la suma, que es lo que hacía el mapper con todos estos mapas. El
+  mapper lo avisa («`<campo>` neto que no se escribe tal cual»).
+- Un mapa sin partes fuera de 0-1 no cambia, sume lo que sume. Cuándo se escriben los tres sigue siendo la C-27.
+
+**Dónde se cumple.**
+- Contrato: `$defs.mapa_neto_de_renta_fija` de `instrument-declared-exposure.v2`, con las partes de −5 a 6 y la regla, su
+  fecha y lo medido en la descripción; lo usan los tres mapas, y los de la renta variable siguen en `mapa_de_pesos`, de 0
+  a 1. **No sube de versión**, como la C-29: ensancha un rango que solo escribe la plataforma. `read/card` no copia estos
+  mapas. Ningún SHA cubre los contratos de la base nueva; el de lectura `asset-for-bdb.v1` dice desde hoy cómo sirve el
+  mapa (`npm run sync:contracts`: cambia su SHA en `functions_python/contracts_cache/manifest.json`).
+- Plataforma: `mapaDeRentaFija` (`2-plataforma-datos/src/ingestion/baseNueva/mapper.ts`), que lee los topes del contrato.
+  Lo prueba `tests/baseNuevaMapasNetosDeRentaFija.test.ts`, con mapas del canónico y lo esperado escrito a mano.
+- Servidor: `map_fixed_income_profile` (`functions_python/readmodel/mappers.py`) sirve de `bond_types` solo las partes
+  mayores que cero (`_frac_map`), como antes, y no rompe con un mapa neto: lo dice su docstring y lo prueba
+  `tests/test_mappers.py` con UBS Duración 0-2 y FON Fineco Inversión. Los otros dos mapas no los lee ninguna Function.
+- Aplicación: **ninguna pantalla ni ningún PDF pinta estos mapas**, así que no hay barra ni nota que poner. Su único lector
+  es la equivalencia de fondos (`src/core/fundEquivalence.ts`, «Tipo de emisor»), que recibe el mapa del servidor y además
+  filtra lo que no es mayor que cero (`src/adapters/bdbLiveApiAdapter.ts`): compara el tipo de emisor sin las partes
+  negativas, como compara la mezcla de clases (C-29). No se ha tocado.
+- Extractor: nada que cambiar; ningún control suyo mira estos mapas.
+
+**Medido** el 21-11-2026 sobre el canónico del 17-11 (`export_bdb` y `export/fondos.ndjson`), con el mapper en seco y sin
+bases. En los mapas que aplican, **91 `bond_types` y 13 `credit_buckets` traen una parte negativa, y ningún
+`duration_buckets`**. Las negativas del tipo de emisor son la liquidez en 71, gobierno en 21, corporativa en 6 y titulizada
+en 4; las de crédito, tramos de calificación. Suman 1 netos los 13 de crédito y 42 de tipo de emisor, y de esos 55 caben en
+los topes 53. Lo que mueve: **53 mapas de 51 fondos pasan a escribirse netos**, 40 de tipo de emisor y 13 de crédito; 5 de
+los de tipo de emisor no tenían mapa, porque ninguna de sus partes era un peso (FON Fineco Inversión, `ES0137396000`, trae
+la liquidez a 105 % y el gobierno a −5 %). Siguen con la regla de antes 49 `bond_types` con una negativa que no suman 1, 2
+que suman 1 fuera de los topes (Allianz Strategy 75 CT EUR, gobierno −4,14 y liquidez 8,50; y Morgan Stanley Euro
+Corporate Bond, en más y menos 1.600), y 6 `duration_buckets` con una parte por encima de 1 que no suman 1. Ningún otro
+mapa cambia, y los 802 `declared/exposure` validan contra el contrato.
+
+**Consecuencia que se acepta.** Un mapa neto no se puede leer como un reparto de lo positivo: una parte puede salir en
+negativo y otra pasar del 100 %, y quien lo dibuje tiene que escribir el signo y no ponerle barra. Hoy no lo dibuja nadie.
+Llega a la base con el próximo refresco y la subida del catálogo, que son a mano; hasta entonces sigue el mapa de antes. Los
+5 fondos que ganan `bond_types` deberían subir su cobertura en `quality/latest` y `read/card`; no se ha medido.
+
+**Lo que deja abierto.**
+- **Los 49 `bond_types` que no suman 1 no cuadran por el extractor.** El adaptador (`1-extractor/core/adaptador_bdb.py`,
+  `bond_sectors`) pasa al canónico gobierno, corporativa, titulizada y liquidez, y deja fuera los **derivados** y el
+  **municipal** del proveedor. En `data/funds` del extractor, medido el mismo día, los 111 repartos por tipo de emisor con
+  una parte negativa suman 100 con todas sus claves y solo 52 sin esas dos (de los 673 sin negativas, 673 y 503). Llevar esas
+  dos partes al canónico y al mapa es otra decisión, y toca el extractor.
+- **`duration_buckets` casi nunca suma 1**: 12 de los 332 que se escriben. Son tramos de vencimiento que no cubren toda la
+  renta fija, así que la suma no lo valida; ninguno trae negativos.
+- **La equivalencia de fondos** compara el tipo de emisor sin las partes negativas, como la mezcla de clases (C-29). Pasarle
+  el mapa neto es otra decisión.
+
+## 32. Se borra el código de la base vieja
+
+*Óscar, 21-11-2026* («A, a la base nueva» para el desarrollo local, y «Sí, todas» a las decisiones 30 a 39 del censo
+`CENSO_BASE_VIEJA_2026-11-21.md`).
+
+**La pregunta.** Desde el 21-11-2026 ni producción ni el desarrollo local leen la base vieja (`gestor-activos-local`,
+Firestore 8082). El censo encontró 92 piezas muertas, unas 44.100 líneas, y 30 dudosas.
+
+**Elegido.**
+- **Se retira entera, en tres tandas** (Functions, aplicación, plataforma con extractor), con la etiqueta de Git
+  `referencia-base-vieja-2026-11-21` en el último estado que la tenía.
+- **Functions:** salen las 20 declaradas que solo servían a la base vieja; quedan 26 declaradas y las mismas 23
+  desplegadas. Se conservan las 3 programadas de informes. Las que antes elegían base por `master_project_id()` piden
+  ahora la nueva (`master_project.exigir_base_nueva`) y con la vieja paran con un mensaje claro.
+- **Se conservan a propósito:** `functions_python/.env` con `gestor-activos-local` y ese id en `master_project.py` y en
+  `ALLOWED_PROJECT_IDS` (el defecto seguro de un guion lanzado a mano: no existe en la nube); el guion que restaura una
+  copia de la maestra en un emulador (`backup:restore-drill`), única vía para leer las copias; el programa de línea de
+  órdenes del extractor y el resto de su servicio web; la cuarentena de series (`adjustment_problem`,
+  `price_repair_release`), activa con la base nueva; y la lectura REST de la app, que es la barrera «sin emuladores,
+  nada de SDK».
+- **Sale:** Sistema › Operaciones y las otras pestañas de Sistema que solo existían con la base vieja (quedan Estado del
+  sistema y Retrocesiones); los contratos de la maestra (`contracts/master`) y sus copias en la caché de las Functions;
+  el estimador semanal `GEOMETRIC_CAGR/WEEKLY` (§12 del método); las reglas de Firestore de la app, cuyas pruebas pasan
+  a probar las de producción (`4-base-nueva/firestore.rules`).
+
+**Lo que mueve.** 303 ficheros tocados, 220 de ellos borrados enteros, y 58.459 líneas menos (822 nuevas), medido con
+`git diff --shortstat` sobre los tres borrados. Ninguna Function
+desplegada cambia de comportamiento con la base nueva; la web pierde pantallas que ya no se veían.
+
+**Lo que queda abierto.** El servicio web del extractor (otra tanda); un consejo de `/api/ops/reclasificar` que cita una
+orden borrada; la tarea de copia diaria de la maestra, si sigue en el Programador de tareas de Windows, se quita a mano.
+
+## 33. El tipo de emisor lleva también los derivados y el municipal
+
+*Óscar, 21-11-2026 (punto 40). Construida el mismo día en la rama `claude/decision-40-derivados-21-11`.*
+
+**La pregunta.** Lo que dejó abierto la C-31: 49 `bond_types` con una parte negativa no sumaban 1, y no se podían guardar
+netos, porque el adaptador del extractor pasaba al canónico cuatro de las seis partes que da el proveedor —gobierno,
+corporativa, titulizada y liquidez— y dejaba fuera el **municipal** y los **derivados**. En un fondo con futuros o permutas
+la liquidez sale en negativo y los derivados la compensan: sin ellos, el reparto no cuadra.
+
+**Elegido.**
+- El canónico lleva las **seis partes** del reparto por tipo de emisor del proveedor (`GlobalBondSectorBreakdownLevel1` de
+  Morningstar), con el nombre de su supersector en minúsculas, como las cuatro de antes: `government`, `municipal`,
+  `corporate`, `securitized`, `cash` y **`derivative`**. En singular, como lo nombra el proveedor y como `government` o
+  `corporate`.
+- Van **netas, con su signo**, en `ms.fixed_income.bond_sectors` (en porcentaje, la que falta como nula, igual que las
+  otras) y en `portfolio_exposure_v2.bond_types` (en fracción, y la que falta no se escribe: no es un cero).
+- La plataforma no cambia de regla: el mapa pasa por la de la C-31, y ahora suma 1 donde antes le faltaban dos partes.
+
+**Dónde se cumple.**
+- Extractor: `convierte` en `1-extractor/core/adaptador_bdb.py` (`bond_sectors`), con `tests/test_tipos_de_bono.py` y los
+  repartos de Gestión Talento y Abante Selección sumados a mano. **El contrato canónico no cambia**: `fondosdb-fund.v1`
+  declara `bond_sectors` y `bond_types` como mapas abiertos (`additionalProperties: true`), así que no sube de versión ni
+  cambia el SHA de `contracts_cache`.
+- Plataforma: el contrato `instrument-declared-exposure.v2` **no tiene lista de claves** en `bond_types` (es
+  `mapa_neto_de_renta_fija`, un mapa clave-peso con tope de 60), así que ya las aceptaba; desde hoy su descripción nombra las
+  seis y lo medido, sin subir de versión. `mapaDeRentaFija` (`src/ingestion/baseNueva/mapper.ts`) pasa las claves tal cual;
+  lo dice su comentario y lo prueba `tests/baseNuevaMapasNetosDeRentaFija.test.ts` con tres mapas del canónico nuevo.
+- Servidor: `map_fixed_income_profile` (`functions_python/readmodel/mappers.py`) sirve las partes mayores que cero sin
+  lista de claves, y el contrato de lectura `asset-for-bdb.v1` las admite (`number_map`). No se ha tocado su lógica; lo prueba
+  `tests/test_mappers.py`.
+- Aplicación: la equivalencia de fondos (`src/core/fundEquivalence.ts`, «Tipo de emisor») compara sobre la unión de las
+  claves de los dos fondos y no tiene lista: no rompe. Solo cambia el comentario del tipo en `src/types/bdbAssets.ts`.
+
+**Medido** el 21-11-2026 en seco, sin bases: el adaptador nuevo sobre las 1.334 fichas de `data/funds` del 17-11 (las
+mismas del canónico de ese día), y el mapper sobre ese canónico y sobre el del 17-11. El canónico nuevo **solo difiere** del
+del 17-11 en las dos claves (805 fondos las llevan en `bond_sectors`; 487 traen derivados y 17 municipal en `bond_types`), y
+las 1.334 fichas cumplen su contrato. En la ficha, los 318 repartos por tipo de emisor con alguna parte negativa (111 en las
+cuatro de antes y el resto solo en los derivados) suman 100 con las seis partes, y solo 147 con cuatro. En el mapper, los 802
+`declared/exposure` validan y **no cambia ningún otro campo**:
+- De los **49 `bond_types` que no sumaban 1, 45 lo suman y se escriben netos**; los otros **4 suman 1 pero se salen de los
+  topes** de −5 a 6 —Nordea 1 Stable Return E (`LU0227385266`, liquidez −558 %), Nordea 1 Alpha 15 MA BP (`LU0607983896`) y
+  dos clases de Allianz Dynamic (`LU1304666057`, `LU1594335520`)—, reescalados sobre una base neta casi nula como los dos de
+  la C-31, que siguen igual. Esos 6 siguen con la regla de antes y su aviso.
+- Uno de los 45 **gana el mapa**, que antes no tenía porque ninguna de sus partes era un peso: MERCHFONDO (`ES0162332037`),
+  con un 0,58 % de renta fija. Los `bond_types` escritos pasan de 348 a 349.
+- **Los mapas netos pasan de 40 a 185**: los 45, y **100 que no traían ninguna parte negativa en las cuatro de antes y ahora
+  traen los derivados en negativo** —51 por menos de un punto, el resto hasta −37,6 %—. Esos 100 se escribían sumando de más,
+  hasta 1,376. Los mapas que suman 1 pasan de 233 a 348 de 349; el que no, Nordea 1 Stable Return, es de los que se salen de
+  los topes.
+- **Cambian 253 de los 348 mapas que ya se escribían, y ninguno pierde ni cambia una cifra**: todos ganan claves. Los
+  derivados en 252 (de los 253 mapas que los llevan, MERCHFONDO incluido, 134 en negativo, 104 en positivo y 15 a cero), el
+  municipal en 17, y los 45 que pasan a netos, además, la
+  parte negativa que antes se saltaba (la liquidez en 42, el gobierno en 7 y la corporativa en 2). 32 de los 40 que ya eran
+  netos ganan los derivados. 96 no cambian.
+- **Lo que sirve el servidor**, que son las partes mayores que cero, cambia en **115 fondos** (68 de renta fija, 36 mixtos, 8
+  de renta variable y 3 otros): ganan los derivados en positivo o el municipal, y MERCHFONDO, su mapa.
+
+**Consecuencia que se acepta.** Llega a la base con el próximo refresco y la subida del catálogo, que son a mano; hasta
+entonces sigue el mapa de antes. La equivalencia de fondos verá una clave más en esos 115: un fondo con los derivados en
+positivo y la liquidez en negativo se compara con su parte de derivados y sin la liquidez, porque el servidor solo sirve lo
+positivo. En Gestión Talento, los derivados pasan a ser el 82 % de lo que se compara.
+
+**Lo que deja abierto.**
+- **Si la equivalencia debe comparar los derivados.** Son exposición sintética, no un tipo de emisor que se tenga en
+  cartera, y con la liquidez negativa fuera pesan más de lo que el fondo tiene neto. Las salidas: dejarlo así (compara lo que
+  declara el proveedor), sacar `derivative` de la comparación como se saca lo negativo, o pasarle el mapa neto (la última
+  salida abierta de la C-31). Decisión de Óscar; no se ha tocado.
+- **Los 6 que se salen de los topes** siguen sin mapa neto; ensanchar los topes para ellos sería escribir repartos reescalados
+  sobre una renta fija neta casi nula, y la C-31 ya dijo que no.
+- **El municipal** casi no existe en este catálogo (17 fondos, ninguno por encima del 0,7 %): entra por completar el
+  reparto, no por su peso.

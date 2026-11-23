@@ -672,25 +672,30 @@ def _aplica_metricas_historicas(out: dict, serie: list[dict], http,
     huecos = huecos_por_ventana(puntos, puntos[-1][0], diario=True)
     if huecos:
         set_path(out, "riesgo.historial_precios.huecos", huecos)
-    if any(m and m.get("rf_pct") is not None for m in metricas.values()):
+    con_sharpe = any(m and m.get("rf_pct") is not None for m in metricas.values())
+    # Hasta qué día llega el €STR de la media (las tres ventanas acaban el mismo día, así
+    # que es uno solo): sin él, un re-mapeo no sabe con qué copia del BCE se calculó.
+    cobertura = cobertura_rf(estr_puntos, puntos[-1][0]) if any(metricas.values()) else None
+    if con_sharpe:
         # Solo si algún Sharpe se calculó de verdad contra el €STR.
         set_path(out, "riesgo.historial_precios.rf_referencia", "ESTR_EUR")
-        # Hasta qué día llega el €STR de la media (las tres ventanas acaban el mismo día, así
-        # que es uno solo): sin él, un re-mapeo no sabe con qué copia del BCE se calculó.
-        cobertura = cobertura_rf(estr_puntos, puntos[-1][0])
         if cobertura:
             set_path(out, "riesgo.historial_precios.rf_hasta", cobertura["rf_hasta"])
-            if cobertura["incompleto"]:
-                # No se suprime (el Sharpe solo falta si falta el tipo): se dice.
-                log.warning("€STR hasta %s para una ventana que acaba el %s (%s días hábiles)",
-                            cobertura["rf_hasta"], cobertura["fin_ventana"],
-                            cobertura["dias_habiles_sin_estr"])
-                set_path(out, "riesgo.historial_precios.rf_incompleto", {
-                    "rf_hasta": cobertura["rf_hasta"],
-                    "fin_ventana": cobertura["fin_ventana"],
-                    "dias_habiles_sin_estr": cobertura["dias_habiles_sin_estr"],
-                    "tolerancia_dias_habiles": RF_TOLERANCIA_DIAS_HABILES,
-                })
+    if cobertura and cobertura["incompleto"] and (con_sharpe or cobertura["sharpe_suprimido"]):
+        # Un retraso de hasta 7 días se marca y no se suprime (decisión del 09-11-2026); uno mayor
+        # deja la última noche sin tipo y sin Sharpe, como el mensual (C-28, 21-11-2026). En los dos
+        # casos se dice, para que un Sharpe que falta no se lea como una serie corta.
+        log.warning("€STR hasta %s para una ventana que acaba el %s (%s días hábiles)%s",
+                    cobertura["rf_hasta"], cobertura["fin_ventana"],
+                    cobertura["dias_habiles_sin_estr"],
+                    ": sin Sharpe" if cobertura["sharpe_suprimido"] else "")
+        set_path(out, "riesgo.historial_precios.rf_incompleto", {
+            "rf_hasta": cobertura["rf_hasta"],
+            "fin_ventana": cobertura["fin_ventana"],
+            "dias_habiles_sin_estr": cobertura["dias_habiles_sin_estr"],
+            "tolerancia_dias_habiles": RF_TOLERANCIA_DIAS_HABILES,
+            "sharpe_suprimido": cobertura["sharpe_suprimido"],
+        })
     # El escalar de siempre se conserva: lo leen consumidores que no saben de ventanas.
     # Lo nuevo es `riesgo.max_drawdown_pct.{plazo}.fondo`, en paralelo a volatilidad y
     # sharpe, que es la forma que la plataforma ya sabe mapear.
@@ -914,6 +919,27 @@ def clasifica_tipo(isin: str, http, settings: dict, base: Path | None = None) ->
 _YF_QUOTETYPE = {"EQUITY": "accion", "ETF": "etf", "MUTUALFUND": "fondo", "INDEX": "indice"}
 
 
+def _quote_del_isin(quotes: list, isin: str) -> dict | None:
+    """El resultado de la busqueda de Yahoo que ES el ISIN pedido, o `None`.
+
+    Antes se tomaba el primero que trajera tipo o simbolo, sin comprobar de quien era. La busqueda de Yahoo es de texto:
+    si el ISIN no existe puede devolver un valor parecido, y clasificar o fichar un valor con los datos de otro es
+    peor que no clasificarlo.
+
+    El resultado de la busqueda NO trae el ISIN (medido el 20-11-2026 sobre las 17 respuestas de `cache/http`: 12
+    vacias y 5 con un unico resultado, ninguno con campo `isin`). Asi que: si un resultado lo trae, tiene que coincidir;
+    si no lo trae, solo vale cuando es el UNICO resultado, que es lo que devuelve una busqueda exacta por ISIN. Varios
+    resultados sin ISIN son una coincidencia aproximada y no se acepta ninguno."""
+    candidatos = [q for q in quotes if isinstance(q, dict)]
+    con_isin = [q for q in candidatos if q.get("isin") or q.get("ISIN")]
+    if con_isin:
+        for q in con_isin:
+            if str(q.get("isin") or q.get("ISIN")).strip().upper() == (isin or "").strip().upper():
+                return q
+        return None
+    return candidatos[0] if len(candidatos) == 1 else None
+
+
 def _clasifica_yahoo(isin: str, http) -> str | None:
     """Alternativa a EODHD: clasifica por el buscador de Yahoo Finance (sin token).
     Útil para valores que EODHD aún no lista (p. ej. IPOs recientes)."""
@@ -929,7 +955,8 @@ def _clasifica_yahoo(isin: str, http) -> str | None:
         quotes = (r.json() or {}).get("quotes") or []
     except Exception:
         return None
-    for q in quotes:
+    q = _quote_del_isin(quotes, isin)
+    if q is not None:
         t = _YF_QUOTETYPE.get(str(q.get("quoteType") or "").upper())
         if t:
             return t
@@ -1048,10 +1075,9 @@ def _fetch_yahoo(isin: str, http, base: Path | None = None) -> dict:
         r = http.get("https://query1.finance.yahoo.com/v1/finance/search",
                      params={"q": isin, "quotesCount": "5", "newsCount": "0"}, ttl_dias=2)
         if getattr(r, "ok", False):
-            for q in (r.json() or {}).get("quotes") or []:
-                if q.get("symbol"):
-                    sym, q0 = q["symbol"], q
-                    break
+            q = _quote_del_isin((r.json() or {}).get("quotes") or [], isin)
+            if q is not None and q.get("symbol"):
+                sym, q0 = q["symbol"], q
     except Exception as e:
         log.warning("Yahoo search %s: %s", isin, e)
     if not sym:

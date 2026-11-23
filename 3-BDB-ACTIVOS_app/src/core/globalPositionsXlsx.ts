@@ -1,3 +1,5 @@
+import { TEXTO_DEL_ESTADO, type PositionRowStatus } from "./positionsShared";
+
 export interface GlobalPositionExportRow {
   id: string;
   name: string;
@@ -5,7 +7,7 @@ export interface GlobalPositionExportRow {
   retroPct: number | null;
   cessionPct: number | null;
   incomeEur: number | null;
-  status: "found" | "missing";
+  status: PositionRowStatus;
 }
 
 /**
@@ -23,7 +25,7 @@ export async function buildGlobalPositionsXlsx(
   const values = rows.map((row) => [
     row.name, row.id, row.amount,
     ...(!clientMode ? [row.retroPct == null ? null : row.retroPct / 100, row.cessionPct == null ? null : row.cessionPct / 100, row.incomeEur ?? null] : []),
-    row.status === "found" ? "Reconocida" : "No reconocida"
+    TEXTO_DEL_ESTADO[row.status]
   ]);
   const sheet = utils.aoa_to_sheet([header, ...values]);
   const totalRow = rows.length + 2;

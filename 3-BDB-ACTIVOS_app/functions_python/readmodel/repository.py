@@ -10,7 +10,10 @@ Interfaz esperada de `reader`:
   reader.list_assets(types, limit) -> list[dict]    # documentos root
 """
 import bisect
+import time
 from typing import Optional
+
+from google.api_core import exceptions as gexc
 
 from .busqueda import coincide, como_se_busca, es_respuesta_exacta, palabras_de_la_busqueda
 from .firestore_client import _valid_asset_id
@@ -33,10 +36,41 @@ class LecturaFallida(Exception):
     """
 
 
+# Fallos que dicen que la BASE entera no contesta (plazo, corte, cuota, credencial): reintentar activo a activo no los
+# arregla y cada lectura suelta cuesta otro plazo. Un fallo de UN documento (p. ej. un 500) no entra aqui: ese si degrada.
+_FALLOS_GLOBALES = (gexc.DeadlineExceeded, gexc.ServiceUnavailable, gexc.ResourceExhausted,
+                    gexc.Unauthenticated, gexc.PermissionDenied, gexc.RetryError)
+# Tiempo maximo, por peticion, de las lecturas sueltas que sustituyen a un lote fallido. El callable muere a los 60 s.
+PRESUPUESTO_LECTURAS_SUELTAS_S = 20.0
+
+
+def _es_fallo_global(exc: BaseException) -> bool:
+    """True si `exc` (o su causa) dice que la base no contesta en absoluto, no que fallo un documento."""
+    visto = 0
+    while exc is not None and visto < 5:
+        if isinstance(exc, _FALLOS_GLOBALES):
+            return True
+        exc = exc.__cause__ or exc.__context__
+        visto += 1
+    return False
+
+
+def _plazo_de_lecturas_sueltas() -> float:
+    return time.monotonic() + PRESUPUESTO_LECTURAS_SUELTAS_S
+
+
+def _agotado(limite: float, que: str) -> None:
+    if time.monotonic() > limite:
+        raise LecturaFallida("Se agoto el tiempo de las lecturas sueltas de %s." % que)
+
+
 # Codigo propio del aviso de lectura parcial: distinto de MISSING_ASSET (no existe) y de «sin metricas»
 # (el dato no esta en la base). `part` dice que no se pudo leer: la raiz del activo, sus metricas o sus posiciones.
 AVISO_LECTURA = "READ_FAILED"
-_QUE_NO_SE_LEYO = {"asset": "el activo", "metrics": "las métricas", "holdings": "las posiciones"}
+# Un cursor que ordena antes que cualquier identificador valido (empiezan por letra, cifra, punto, guion o guion bajo): la pagina
+# siguiente arranca en el primer id del resto.
+_CURSOR_ANTES_DEL_PRIMERO = "!"
+_QUE_NO_SE_LEYO ={"asset": "el activo", "metrics": "las métricas", "holdings": "las posiciones"}
 
 
 def aviso_de_lectura(part: str, asset_ids) -> dict:
@@ -92,13 +126,19 @@ def _asset_roots_map(reader, asset_ids: list[str], fallidos: Optional[set] = Non
     if batch:
         try:
             return batch(ids) or {}
-        except Exception:  # degrada a lecturas sueltas, con rastro en Cloud Logging (T1)
+        except Exception as exc:  # degrada a lecturas sueltas, con rastro en Cloud Logging (T1)
+            if _es_fallo_global(exc):
+                raise LecturaFallida("La base no contesta al leer los activos pedidos.") from exc
             swallowed("readmodel/repository.py:_asset_roots_map get_assets_many")
     out, sin_leer = {}, []
+    limite = _plazo_de_lecturas_sueltas()
     for asset_id in ids:
+        _agotado(limite, "los activos")
         try:
             root = reader.get_asset(asset_id)
-        except Exception:
+        except Exception as exc:
+            if _es_fallo_global(exc):
+                raise LecturaFallida("La base no contesta al leer los activos pedidos.") from exc
             swallowed_quiet("readmodel/repository.py:_asset_roots_map get_asset")
             sin_leer.append(asset_id)
             continue
@@ -147,13 +187,19 @@ def _metrics_latest_map(reader, roots: list[dict], fallidos: Optional[set] = Non
     if batch:
         try:
             return batch(asset_ids) or {}
-        except Exception:  # sin esto, el activo salia con metrics vacio sin rastro (T1)
+        except Exception as exc:  # sin esto, el activo salia con metrics vacio sin rastro (T1)
+            if _es_fallo_global(exc):
+                raise LecturaFallida("La base no contesta al leer las metricas.") from exc
             swallowed("readmodel/repository.py:_metrics_latest_map get_metrics_latest_many")
     out = {}
+    limite = _plazo_de_lecturas_sueltas()
     for aid in asset_ids:
+        _agotado(limite, "las metricas")
         try:
             item = reader.get_metrics_latest(aid)
-        except Exception:
+        except Exception as exc:
+            if _es_fallo_global(exc):
+                raise LecturaFallida("La base no contesta al leer las metricas.") from exc
             swallowed_quiet("readmodel/repository.py:_metrics_latest_map get_metrics_latest")
             if fallidos is not None:
                 fallidos.add(aid)
@@ -171,7 +217,9 @@ def _holdings_summary_for_root(reader, root: dict, fallidos: Optional[set] = Non
         return None
     try:
         return summarizer(root.get("asset_id"))
-    except Exception:
+    except Exception as exc:
+        if _es_fallo_global(exc):
+            raise LecturaFallida("La base no contesta al leer las posiciones.") from exc
         swallowed_quiet("readmodel/repository.py:_holdings_summary_for_root")
         if fallidos is not None:
             fallidos.add(root.get("asset_id"))
@@ -190,14 +238,19 @@ def _holdings_summary_map(reader, roots: list[dict], fallidos: Optional[set] = N
     if batch:
         try:
             return batch(eligible_ids) or {}
-        except Exception:
+        except Exception as exc:
+            if _es_fallo_global(exc):
+                raise LecturaFallida("La base no contesta al leer las posiciones.") from exc
             swallowed("readmodel/repository.py:_holdings_summary_map get_holdings_summaries_many")
-    return {
-        root["asset_id"]: summary
-        for root in roots
-        if root.get("asset_id")
-        if (summary := _holdings_summary_for_root(reader, root, fallidos)) is not None
-    }
+    limite = _plazo_de_lecturas_sueltas()
+    out = {}
+    for root in roots:
+        if not root.get("asset_id"):
+            continue
+        _agotado(limite, "las posiciones")
+        if (summary := _holdings_summary_for_root(reader, root, fallidos)) is not None:
+            out[root["asset_id"]] = summary
+    return out
 
 
 def _index_candidate_ids(index: dict, query: str, allowed: list[str]) -> list[str]:
@@ -277,7 +330,9 @@ def search_assets_page(reader, query: str = "", types=None, limit: int = 20,
         total = len(candidates)
         tamano = max(int(limit), 1)
         exactos = _index_exact_ids(index, query, candidates)
-        if not 0 < len(exactos) < tamano:
+        # P2-07: una respuesta exacta va la primera aunque la pagina sea de uno (antes `< tamano` la descartaba: «SAN» con limit=1
+        # no traia Santander). Si hay mas exactas que sitio, ninguna se adelanta y todas siguen por id (decision 81).
+        if not 0 < len(exactos) <= tamano:
             exactos = []
         resto = [asset_id for asset_id in candidates if asset_id not in exactos]
         wanted = str(cursor or "").strip()
@@ -285,7 +340,8 @@ def search_assets_page(reader, query: str = "", types=None, limit: int = 20,
         start = bisect.bisect_right(resto, wanted) if wanted else 0
         page_ids = resto[start:start + tamano - (0 if wanted else len(exactos))]
         has_more = (start + len(page_ids)) < len(resto)
-        next_cursor = page_ids[-1] if (has_more and page_ids) else None
+        # Si las exactas llenan la pagina no hay ultimo id del resto: el cursor ha de dejar la siguiente en su primer id.
+        next_cursor = (page_ids[-1] if page_ids else _CURSOR_ANTES_DEL_PRIMERO) if has_more else None
         if not wanted:
             page_ids = exactos + page_ids
         roots_by_id = _asset_roots_map(reader, page_ids, fallidos["asset"])
@@ -368,7 +424,7 @@ def get_asset_detail(reader, asset_id: str, with_holdings: bool = True) -> Optio
         fallidos["metrics"].add(asset_id)
         metrics = None
     detail = map_asset_detail(root, metrics, holdings)
-    if asset_id != requested and isinstance(detail, dict):
+    if asset_id != str(requested).strip() and isinstance(detail, dict):
         detail["resolved_from"] = requested
     if isinstance(detail, dict) and _avisos_de(fallidos):
         detail["read_warnings"] = _avisos_de(fallidos)
@@ -561,7 +617,7 @@ def resolve_portfolio(reader, positions) -> dict:
                                  "asset_id": aid, "message": "Asset not found."})
             continue
         roots_by_id[cid] = root
-        if cid != aid:
+        if cid != str(aid).strip():  # P3-05: los espacios de los bordes no son una sustitucion
             warnings.append({"code": "ALIAS_RESOLVED", "severity": "LOW", "asset_id": aid,
                              "resolved_to": cid,
                              "message": "Identificador sustituido: resuelto al activo sucesor %s." % cid})

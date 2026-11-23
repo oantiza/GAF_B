@@ -6,7 +6,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { BacktestResponse, BacktestStressScenario } from "../src/adapters/backtestPortfolioBackend";
 import type { PortfolioHorizon } from "../src/adapters/portfolioHorizon";
-import { createInformeDeClientePdfBlob, informeDeClienteMetricRows, notaDelTipoSinRiesgo, type InformeDeClientePdfInput } from "../src/reports/informeDeClientePdf";
+import { createInformeDeClientePdfBlob, informeDeClienteMetricRows, type InformeDeClientePdfInput } from "../src/reports/informeDeClientePdf";
 import type { PortfolioFeasibilityCheck } from "../src/core/portfolioConstraints";
 import type { BdbPortfolioReport } from "../src/types/bdbAssets";
 import type { FrontierViewModel } from "../src/types/portfolioFrontier";
@@ -243,23 +243,31 @@ describe("decisión 4: lo que lee el cliente", () => {
     const guia = seccion(paginas, "guia");
     expect(guia).toContain("Rentabilidad por encima del tipo sin riesgo por cada punto de oscilación en el periodo medido. No mide la calidad de la gestión ni anticipa el futuro.");
     expect(guia).toContain("Hacia arriba: mayor rentabilidad en el periodo medido; comparada con cinco carteras de referencia");
-    expect(guia).toContain("No es el peor escenario posible.");
-    expect(guia).toContain("Caída máxima a 3 años");
-    expect(guia).toContain("Tipo sin riesgo");
     expect(guia).toContain("Solapamiento");
-    expect(guia.toUpperCase().replace(/\s+/g, "")).toContain("LAMAYORCAÍDADENTRODEESTEPERIODO");
+    /* Sin tipo sin riesgo, caída máxima ni crisis pasadas (Óscar, 22-11-2026); con el cono, que sale en esta cartera. */
+    const seguida = guia.toUpperCase().replace(/\s+/g, "");
+    expect(guia).not.toContain("Caída máxima a 3 años");
+    expect(seguida).not.toContain("LAMAYORCAÍDADENTRODEESTEPERIODO");
+    expect(guia).not.toMatch(/Tipo sin riesgo\s/);
+    expect(guia).not.toContain("€STR");
+    expect(seguida).not.toContain("UNAMEDIDADELPASADO,NOUNAPREVISIÓN");
+    expect(guia).not.toContain("Crisis pasadas");
+    expect(guia).toContain("Cono estadístico a 3 años");
+    expect(guia).toContain("Es un cálculo estadístico, no una previsión");
     expect(guia).not.toMatch(/gestión excelente|decisiones inteligentes|peligros innecesarios|nivel de confort|ganancia esperada|en comparación con el mercado|regularizan|optimizador/);
     expect(guia.toUpperCase().replace(/\s+/g, "")).not.toContain("¿CUÁLESELPEORESCENARIO?");
     /* Sin histórico ampliado no hay tramos estimados que decir. */
     expect(guia).not.toContain("tramos estimados");
   }, 20_000);
 
-  test("la guía dice lo que es verdad en esta cartera: tramos estimados y tipo de respaldo", async () => {
+  test("con tramos estimados y tipo de respaldo, lo dicen el anexo y las cifras, no la guía", async () => {
     const conReferencia = [{ assetId: "A", reference: "Índice", url: "https://x", estimatedFrom: "2023-08-25", estimatedUntil: "2024-01-05", observedFrom: "2024-01-08", validationWeeks: 80, holdoutCorrelation: .97, residualVolatility: .08, referenceHasBacktestedHistory: false }];
     const paginas = await hojas({ analysis: analisis(backtest(["A", "B"], [COVID, TIPOS], 158, "3Y", "STATIC_FALLBACK"), 90, { extensions: conReferencia }) });
     const guia = seccion(paginas, "guia");
-    expect(guia).toContain("Incluye los tramos estimados indicados en el anexo.");
-    expect(guia).toContain("Un tipo jo de respaldo");
+    /* La guía ya no lleva la caída máxima ni el tipo sin riesgo (22-11-2026): el respaldo lo dice la nota bajo las cifras. */
+    expect(guia).not.toContain("tramos estimados");
+    expect(guia).not.toContain("respaldo");
+    expect(seccion(paginas, "cifras")).toContain("Sharpe con un tipo jo de respaldo");
     expect(paginas.join(" ")).toContain(`las crisis pasadas de la sección ${numeroDe(paginas, "crisis")} no: solo usan precios observados`);
   }, 20_000);
 
@@ -380,16 +388,15 @@ describe("decisión 41: el Sharpe de una cartera que es una sola acción", () =>
     const metricas = seccion(paginas, "cifras");
     expect(metricas).toContain("No aplica");
     expect(metricas).not.toContain("1,20");
-    /* El resto de la tira no se mueve, y la cifra del tipo sin riesgo sigue, en su nota y sin llamarse referencia de un Sharpe que no sale. */
+    /* El resto de la tira no se mueve; el tipo sin riesgo ya no va debajo (22-11-2026). */
     expect(metricas).toContain("+13,00 %");
-    expect(metricas).toContain("Tipo sin riesgo a 3 años: 2,00 %.");
+    expect(metricas).not.toContain("Tipo sin riesgo");
     const guia = seccion(paginas, "guia");
     const seguido = guia.toUpperCase().replace(/\s+/g, "");
     expect(seguido).toContain("NOAPLICAAUNASOLAACCIÓN");
     expect(guia).toContain("Lo que mide la simulación es una sola acción, y a una acción no se le da este ratio. De un componente importa lo que aporta a la cartera, no su nota aislada.");
     expect(guia).not.toContain("Rentabilidad por encima del tipo sin riesgo");
     expect(seguido).not.toContain("LAREFERENCIADELRATIODESHARPE");
-    expect(seguido).toContain("LAREFERENCIADELDINEROAMUYCORTOPLAZO");
   }, 20_000);
 
   test("en papel: con la acción dentro de una cartera con fondos, cifra y guía de siempre", async () => {
@@ -397,7 +404,6 @@ describe("decisión 41: el Sharpe de una cartera que es una sola acción", () =>
     expect(seccion(paginas, "cifras")).toContain("1,20");
     const guia = seccion(paginas, "guia");
     expect(guia).toContain("Rentabilidad por encima del tipo sin riesgo");
-    expect(guia.toUpperCase().replace(/\s+/g, "")).toContain("LAREFERENCIADELRATIODESHARPE");
   }, 20_000);
 });
 
@@ -469,22 +475,19 @@ describe("decisión 59: por debajo del 80 % del peso medido no hay cifra de la c
   const tira = (peso: number) => informeDeClienteMetricRows(report(), analisis(backtest(), peso)).map((fila) => sinEspacioDuro(fila.value));
   const FALTA = "Falta el dato";
 
-  test.each([[79.9], [79.99], [40], [0]])("con el %d %% las cuatro faltan, y el tipo sin riesgo se queda en su nota: no es una cifra de la cartera", (peso) => {
+  test.each([[79.9], [79.99], [40], [0]])("con el %d %% las cuatro faltan", (peso) => {
     expect(tira(peso)).toEqual([FALTA, FALTA, FALTA, FALTA]);
-    expect(sinEspacioDuro(notaDelTipoSinRiesgo(report(), analisis(backtest(), peso)))).toBe("Tipo sin riesgo a 3 años: 2,00 %.");
   });
 
   test.each([[80], [79.99999999999999], [90], [100]])("con el %d %% hay cifras: las de la simulación, calculadas a mano en la entrada", (peso) => {
     /* Con el formato común (paso 9): rentabilidad con su signo y dos decimales; volatilidad y caída, dos decimales. */
     expect(tira(peso)).toEqual(["+13,00 %", "9,00 %", "1,20", "−10,00 %"]);
-    expect(sinEspacioDuro(notaDelTipoSinRiesgo(report(), analisis(backtest(), peso)))).toBe("Tipo sin riesgo a 3 años: 2,00 %, la referencia del ratio de Sharpe.");
   });
 
-  test("sin simulación tampoco hay cifra: ni la suma ponderada, que ya no existe, ni el tipo sin riesgo, que sale de ella", () => {
+  test("sin simulación tampoco hay cifra: ni la suma ponderada, que ya no existe", () => {
     const filas = informeDeClienteMetricRows(report());
     expect(filas.map((fila) => fila.value)).toEqual([FALTA, FALTA, FALTA, FALTA]);
     expect(filas.map((fila) => fila.label)).toEqual(["Rentabilidad anualizada 3 años", "Volatilidad 3 años", "Sharpe 3 años", "Caída máxima 3 años"]);
-    expect(notaDelTipoSinRiesgo(report())).toBe("Tipo sin riesgo a 3 años: falta el dato.");
   });
 
   test("llega al 80 % y la simulación no da una cifra: ausencia en las cuatro, nunca una suma ponderada", () => {
@@ -509,7 +512,8 @@ describe("decisión 59: por debajo del 80 % del peso medido no hay cifra de la c
       expect(metricas.match(/Falta el dato/g)).toHaveLength(4);
       expect(metricas).toContain(MOTIVO);
       for (const cifra of ["13,0", "9,00 %", "1,20", "−10,0"]) expect(metricas).not.toContain(cifra);
-      expect(metricas).toContain("2,00 %");
+      /* Ni el tipo sin riesgo, que ya no va bajo las cifras (22-11-2026). */
+      expect(metricas).not.toContain("2,00 %");
     });
 
     test("la evolución y el mapa: solo la parte medida, rotulada; sin referencia, sin Diferencial y sin punto en el mapa", () => {
@@ -722,9 +726,9 @@ describe("decisión 89: el tipo sin riesgo de respaldo se dice solo si ocurre", 
     expect(seccion(await hojas({ analysis: analisis(conAviso) }), "cifras")).toContain(FRASE);
   }, 20_000);
 
-  test("la guía también lo dice, con el aviso solo", async () => {
+  test("la guía ya no lo repite (22-11-2026: sin entrada del tipo sin riesgo); lo dice la nota bajo las cifras", async () => {
     const conAviso = { ...backtest(), warnings: ["RISK_FREE_RATE_STATIC_FALLBACK"] } as BacktestResponse;
-    expect(seccion(await hojas({ analysis: analisis(conAviso) }), "guia")).toContain("de respaldo, porque no se ha podido leer el tipo a un día");
+    expect(seccion(await hojas({ analysis: analisis(conAviso) }), "guia")).not.toContain("de respaldo");
   }, 20_000);
 
   test("sin cifra de la cartera no hay de qué avisar bajo la tira", async () => {

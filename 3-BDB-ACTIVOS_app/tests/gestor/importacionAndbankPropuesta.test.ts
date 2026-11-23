@@ -144,17 +144,21 @@ describe("la propuesta de un juego completo de tres documentos", () => {
     expect(porId("andbank-mov-5").avisos).toEqual([]);
   });
 
-  /* GES-10: el extracto va a la fecha de cotización más reciente, y cada posición lleva la suya: aquí, tres del 29 y una del 30. */
+  /*
+   * GES-10: el extracto va a la fecha de cotización más reciente, y cada posición lleva la suya: aquí, tres del 29 y una del 30.
+   * A-205: y su precio de mercado en la divisa del activo, la columna «Precio de mercado» con la de «Div»: Tecnología, 210 $
+   * (10 × 210 = 2.100 $ de valor de mercado), y no 1.800 € / 10 = 180 € pasados a dólares con un cambio que no es el del banco.
+   */
   it("declara las posiciones a la fecha de cotización más reciente y el saldo de efectivo al último movimiento", () => {
     expect(resultado.extractos).toEqual([
       {
         fecha: "2025-09-30",
         documento: "pos.xls",
         posiciones: [
-          { activo: { clave: ISIN_ELECTRICA, isin: ISIN_ELECTRICA, nombre: "ELECTRICA DEL SUR SA", divisa: "EUR", tipo: "ACCION" }, titulos: "50", valor: "750", fecha: "2025-09-29" },
-          { activo: { clave: ISIN_TECNOLOGIA, isin: ISIN_TECNOLOGIA, nombre: "TECNOLOGIA AMERICANA INC", divisa: "USD", tipo: "ACCION" }, titulos: "10", valor: "1800", fecha: "2025-09-29" },
-          { activo: { clave: ISIN_MIXTO, isin: ISIN_MIXTO, nombre: "FONDO MIXTO PRUDENTE EURO", divisa: "EUR", tipo: "FONDO" }, titulos: "100", valor: "1090", fecha: "2025-09-30" },
-          { activo: { clave: ISIN_BOLSA, isin: ISIN_BOLSA, nombre: "FONDO BOLSA GLOBAL", divisa: "EUR", tipo: "FONDO" }, titulos: "100", valor: "1620", fecha: "2025-09-29" }
+          { activo: { clave: ISIN_ELECTRICA, isin: ISIN_ELECTRICA, nombre: "ELECTRICA DEL SUR SA", divisa: "EUR", tipo: "ACCION" }, titulos: "50", valor: "750", fecha: "2025-09-29", precio: "15", divisa: "EUR" },
+          { activo: { clave: ISIN_TECNOLOGIA, isin: ISIN_TECNOLOGIA, nombre: "TECNOLOGIA AMERICANA INC", divisa: "USD", tipo: "ACCION" }, titulos: "10", valor: "1800", fecha: "2025-09-29", precio: "210", divisa: "USD" },
+          { activo: { clave: ISIN_MIXTO, isin: ISIN_MIXTO, nombre: "FONDO MIXTO PRUDENTE EURO", divisa: "EUR", tipo: "FONDO" }, titulos: "100", valor: "1090", fecha: "2025-09-30", precio: "10.9", divisa: "EUR" },
+          { activo: { clave: ISIN_BOLSA, isin: ISIN_BOLSA, nombre: "FONDO BOLSA GLOBAL", divisa: "EUR", tipo: "FONDO" }, titulos: "100", valor: "1620", fecha: "2025-09-29", precio: "16.2", divisa: "EUR" }
         ],
         efectivo: []
       },

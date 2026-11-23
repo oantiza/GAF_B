@@ -133,3 +133,28 @@ def test_una_cartera_con_nh_lo_valora_plano_a_su_precio_desde_que_se_congelo(cac
     valores = [congelados[d] for d in sorted(congelados)]
     rendimientos = [b / a - 1 for a, b in zip(valores, valores[1:])]
     assert max(abs(r) for r in rendimientos) == 0, "cero rentabilidad y cero volatilidad desde la congelacion"
+
+
+def test_p1_04_nh_no_aparta_a_los_demas_cuando_el_refresco_pasa_de_14_dias(cache_limpia):
+    """P1-04 (auditoria del 20-11-2026). Catalogo refrescado el viernes 30-10-2026 y simulacion el viernes 20-11-2026: 21 dias.
+
+    NH se prolonga plano hasta hoy al leerlo. Antes su ultimo dato fijaba el fin del periodo en el 20-11-2026, y LONG, con su
+    ultimo dato 21 dias antes (21 > 14, el hueco que se puentea), salia con SERIES_ENDS_EARLY: la cartera se media con el 2 %
+    de NH y la cobertura era un 2 %. Ahora el fin lo pone LONG: el viernes 30-10-2026, y la cobertura es 98 + 2 = 100 %."""
+    lector_ = _Lector()
+    lector_.puntos["LONG"] = {d: v for d, v in lector_.puntos["LONG"].items() if d <= "2026-10-30"}
+    posiciones = [{"asset_id": "LONG", "weight": 98}, {"asset_id": NH, "weight": 2}]
+    resultado = h.analyze_horizon(lector_, {"window": "3Y", "positions": posiciones}, today=date(2026, 11, 20))
+    simulacion = resultado["backtest"]
+    assert simulacion["excluded_assets"] == []
+    assert set(simulacion["asset_ids"]) == {"LONG", NH}
+    assert resultado["coverage_weight_percent"] == pytest.approx(100)
+    assert simulacion["coverage"]["last_date"] == "2026-10-30"
+    assert simulacion["weights_normalized"] == {"LONG": pytest.approx(0.98), NH: pytest.approx(0.02)}
+
+
+def test_p1_04_una_cartera_solo_de_nh_sigue_midiendose_hasta_su_ultimo_dato():
+    """Sin otro activo que ponga el fin, lo pone el congelado, como antes: el ultimo viernes hasta el 20-11-2026 es ese dia."""
+    cargados = {NH: {d.isoformat(): 6.5 for d in _dias(date(2023, 1, 2), date(2026, 11, 20))}}
+    periodo = h._periodo_comun(cargados, [], "3Y", {**h.references(), "assets": {}}, date(2026, 11, 20))
+    assert periodo.ids == [NH] and periodo.dates[-1] == "2026-11-20"

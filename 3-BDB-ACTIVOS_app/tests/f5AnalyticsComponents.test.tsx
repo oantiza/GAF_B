@@ -74,7 +74,7 @@ describe("RiskContributionChart", () => {
   });
 });
 
-const REASONS = ["NO_SERIES", "NO_DATA_AT_WINDOW_START", "YOUNGEST_TO_REACH_THREE_YEARS", "PRICE_SERIES_MISSING", "INSUFFICIENT_HISTORY", "FX_SERIES_MISSING", "FX_QUARANTINE", "NON_INVESTABLE", "QUALITY_BLOCKED", "DISTRIBUTES_WITHOUT_PAYMENTS"];
+const REASONS = ["NO_SERIES", "NO_DATA_AT_WINDOW_START", "YOUNGEST_TO_REACH_THREE_YEARS", "SERIES_ENDS_EARLY", "GAP_IN_WINDOW", "PRICE_SERIES_MISSING", "INSUFFICIENT_HISTORY", "FX_SERIES_MISSING", "FX_QUARANTINE", "NON_INVESTABLE", "QUALITY_BLOCKED", "DISTRIBUTES_WITHOUT_PAYMENTS"];
 
 describe("HistoricalStressCards", () => {
   const scenarios: BacktestStressScenario[] = [
@@ -231,6 +231,16 @@ describe("HistoricalStressCards", () => {
       expect(frase).not.toContain("incidencia");
     });
 
+    test("una serie parada (P1-06) se nombra con las palabras de la simulación", () => {
+      expect(pinta(false, "SERIES_ENDS_EARLY")).toContain("Sus precios acaban antes del final del periodo");
+      expect(pinta(true, "SERIES_ENDS_EARLY")).toContain("Fuera del cálculo: sin precios recientes");
+    });
+
+    test("una serie con un hueco dentro de la crisis (N03) dice que no cotizó durante parte de ella", () => {
+      expect(pinta(false, "GAP_IN_WINDOW")).toContain("Sin cotizaciones durante parte de la crisis");
+      expect(pinta(true, "GAP_IN_WINDOW")).toContain("Fuera del cálculo: sin cotizaciones durante parte de la crisis");
+    });
+
     test("a un cliente no se le enseña un código que no se conoce", () => {
       expect(motivoDeFueraParaElCliente("ALGO_NUEVO")).toBe("Fuera del cálculo");
       expect(pinta(true, "ALGO_NUEVO")).not.toContain("ALGO_NUEVO");
@@ -340,6 +350,23 @@ describe("HistoricalStressCards", () => {
       const html = pinta(scenarios.map((scenario) => (scenario.id === "RATES_2022" ? { ...scenario, coverage: { ...scenario.coverage, weight_pct: 80 }, representative: true, remaining_to_recover_pct: null } : scenario)));
       expect(html).toContain("<dd>Sin recuperar</dd>");
       expect(html).not.toContain("falta Falta");
+    });
+
+    /* P1-06 (21-11-2026): una crisis en la que la cartera no bajó de su primer día salía «recuperada» en 1 día, con un
+       activo que restaba un 0,00 %. Ahora el servidor dice NO_DRAWDOWN, y lo que no aplica no se pinta como si faltara. */
+    test("sin caída: la caída es un cero de verdad, y la duración, la recuperación y el activo que más restó no aplican", () => {
+      const NO_APLICA = '<span class="ausencia ausencia--no-aplica">No aplica</span>';
+      const sinCaida = scenarios.map((scenario) => (scenario.id === "COVID" ? {
+        ...scenario, trough_date: "2020-02-19", drawdown_pct: 0, duration_days: 0, recovery_date: null, recovery_days: null,
+        remaining_to_recover_pct: 0, recovery_status: "NO_DRAWDOWN" as const, worst_asset: null
+      } : scenario));
+      const covid = tarjetas(pinta(sinCaida))[0];
+      expect(covid).toMatch(/<dt>Caída<\/dt><dd>0,00\s%<\/dd>/);
+      expect(covid).toContain(`<dt>Duración</dt><dd>${NO_APLICA}</dd>`);
+      expect(covid).toContain('<dt>Recuperación</dt><dd><span class="ausencia ausencia--no-aplica">Sin caída</span></dd>');
+      expect(covid).toContain(`<h4>Activo que más restó</h4><p>${NO_APLICA}</p>`);
+      expect(covid).not.toContain("Falta el dato");
+      expect(covid).not.toContain("1 día");
     });
   });
 

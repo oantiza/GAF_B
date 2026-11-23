@@ -389,6 +389,126 @@ describe("retirar", () => {
   });
 });
 
+describe("recuperar una cartera retirada", () => {
+  it("la papelera se lista con la fecha en que se retiró cada una, la última primero", async () => {
+    const a = almacen();
+    expect(await a.retiradas()).toEqual([]);
+    await a.guardar(garcia());
+    await a.retirar(FICHERO);
+    reloj += MINUTO;
+    await a.guardar(garcia({ id: "bbbbbbbb-2222-4000-8000-000000000002", nombre: "Familia López", cliente: { nombre: "Ana López" } }));
+    await a.retirar("Familia López.cartera.json");
+    reloj += MINUTO;
+    falsa.poner("papelera/Rota.cartera.json", "basura");
+    const lista = await a.retiradas();
+    expect(lista.map((r) => [r.fichero, r.nombre, r.cliente, r.movimientos])).toEqual([
+      ["Rota.cartera.json", "Rota", undefined, 0],
+      ["Familia López.cartera.json", "Familia López", "Ana López", 1],
+      [FICHERO, "Familia García", "Familia García", 1]
+    ]);
+    expect(lista[1].retirada).toBe("2026-11-13T09:01:00.000Z");
+    expect(lista[2].retirada).toBe("2026-11-13T09:00:00.000Z");
+    expect(lista[0].error).toBeTruthy();
+    /* Lo retirado no sale entre las vivas. */
+    expect(await a.listar()).toEqual([]);
+  });
+
+  it("vuelve a su sitio con su nombre y sus copias, y la papelera queda vacía", async () => {
+    const a = almacen();
+    const c = garcia();
+    await a.guardar(c);
+    reloj += MINUTO;
+    await a.guardar(conOtroMovimiento(c, "m-2"));
+    const vivo = falsa.contenido(FICHERO);
+    const copia = falsa.contenido(`${COPIAS}2026-11-13T09-01-00Z.cartera.json`);
+    reloj += MINUTO;
+    await a.retirar(FICHERO);
+    reloj += MINUTO;
+    expect(await a.recuperar(FICHERO)).toEqual({ fichero: FICHERO, nombre: "Familia García" });
+    expect(falsa.volcar()).toEqual({
+      [`${COPIAS}2026-11-13T09-01-00Z.cartera.json`]: copia,
+      [FICHERO]: vivo,
+      "papelera/copias/": ""
+    });
+    expect(await a.retiradas()).toEqual([]);
+    expect((await a.listar()).map((r) => r.fichero)).toEqual([FICHERO]);
+    expect((await a.copias(c.id)).map((x) => x.fichero)).toEqual(["2026-11-13T09-01-00Z.cartera.json"]);
+    /* Se abre y se guarda como cualquier otra. */
+    const abierta = await a.abrir(FICHERO);
+    reloj += 20 * MINUTO;
+    await a.guardar(conOtroMovimiento(abierta.cartera, "m-3"));
+  });
+
+  it("una retirada con fecha y hora en el nombre vuelve con el fichero de su nombre", async () => {
+    const a = almacen();
+    await a.guardar(garcia());
+    await a.retirar(FICHERO);
+    reloj += MINUTO;
+    await a.guardar(garcia({ id: "otra-cartera" }));
+    await a.retirar(FICHERO);
+    const conFecha = "Familia García 2026-11-13T09-01-00Z.cartera.json";
+    expect(await a.recuperar(conFecha)).toEqual({ fichero: FICHERO, nombre: "Familia García" });
+    expect((await a.listar()).map((r) => [r.fichero, r.id])).toEqual([[FICHERO, "otra-cartera"]]);
+    expect((await a.retiradas()).map((r) => r.fichero)).toEqual([FICHERO]);
+  });
+
+  it("si ya hay una cartera con ese nombre, no la pisa: lo dice y deja la retirada en la papelera", async () => {
+    const a = almacen();
+    await a.guardar(garcia());
+    await a.retirar(FICHERO);
+    await a.guardar(garcia({ id: "otra-cartera" }));
+    const antes = falsa.volcar();
+    const error = await rechazo(a.recuperar(FICHERO));
+    expect(error.codigo).toBe("YA_EXISTE");
+    expect(error.message).toContain("Ya hay en la carpeta una cartera que se llama «Familia García»");
+    expect(error.message).toContain("sigue en la papelera");
+    expect(falsa.volcar()).toEqual(antes);
+  });
+
+  it("tampoco la pisa si la otra se llama igual con otras mayúsculas o vive en otro fichero", async () => {
+    const a = almacen();
+    await a.guardar(garcia());
+    await a.retirar(FICHERO);
+    falsa.poner("Otra cosa.cartera.json", serializar(garcia({ id: "otra-cartera", nombre: "familia garcía " }), "2026-11-13T09:00:00.000Z"));
+    const antes = falsa.volcar();
+    expect((await rechazo(a.recuperar(FICHERO))).codigo).toBe("YA_EXISTE");
+    expect(falsa.volcar()).toEqual(antes);
+  });
+
+  it("si la misma cartera ya está en la carpeta, no la duplica", async () => {
+    const a = almacen();
+    const c = garcia();
+    await a.guardar(c);
+    const texto = falsa.contenido(FICHERO)!;
+    await a.retirar(FICHERO);
+    falsa.poner("Renombrada.cartera.json", texto);
+    const error = await rechazo(a.recuperar(FICHERO));
+    expect(error.codigo).toBe("YA_EXISTE");
+    expect(error.message).toContain("ya está en la carpeta, en «Renombrada.cartera.json»");
+  });
+
+  it("una retirada que no se puede abrir no se recupera, y lo dice", async () => {
+    falsa.poner("papelera/Rota.cartera.json", "basura");
+    const error = await rechazo(almacen().recuperar("Rota.cartera.json"));
+    expect(error.codigo).toBe("LECTURA");
+    expect(falsa.volcar()).toEqual({ "papelera/Rota.cartera.json": "basura" });
+  });
+
+  it("lo que no está en la papelera se dice", async () => {
+    expect((await rechazo(almacen().recuperar("No está.cartera.json"))).codigo).toBe("NO_ENCONTRADO");
+  });
+
+  it("si la escritura falla, la cartera sigue en la papelera", async () => {
+    const a = almacen();
+    await a.guardar(garcia());
+    await a.retirar(FICHERO);
+    falsa.fallarLaSiguienteEscritura();
+    await rechazo(a.recuperar(FICHERO));
+    expect(falsa.contenido(`papelera/${FICHERO}`)).toBeDefined();
+    expect(falsa.contenido(FICHERO)).toBeUndefined();
+  });
+});
+
 describe("ajustes", () => {
   it("sin fichero, vacíos; ida y vuelta; un fichero dañado se dice", async () => {
     const a = almacen();

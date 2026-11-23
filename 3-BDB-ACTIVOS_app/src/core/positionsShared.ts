@@ -1,5 +1,6 @@
 import type { BdbAssetDetail } from "../types/bdbAssets";
 import type { ParteSinLeer } from "./appError";
+import { celdaCsv } from "./celdaCsv";
 import { descargar } from "./descargaDeFicheros";
 import { oFalta, puntos } from "./formato";
 import type { PositionImportEntry } from "./positionImport";
@@ -20,7 +21,25 @@ export interface PositionRow {
   sinLeer?: ParteSinLeer[];
 }
 
-export type PositionRowStatus = "found" | "missing";
+/**
+ * Los tres estados de una posición (20-11-2026): reconocida en el catálogo, no reconocida (la base contestó y no la
+ * tiene) y no se pudo leer (la base no contestó por ella: no consta que no exista, y se arregla volviendo a analizar).
+ * Hasta ese día la tabla y el Excel solo tenían los dos primeros, y una posición sin leer salía «No reconocida».
+ */
+export type PositionRowStatus = "found" | "missing" | "unread";
+
+/** El estado de una fila: con activo, reconocida; sin él, no se pudo leer si la base dijo que no la leyó, y si no, no reconocida. */
+export function estadoDeLaPosicion(row: Pick<PositionRow, "asset" | "sinLeer">): PositionRowStatus {
+  if (row.asset) return "found";
+  return row.sinLeer && row.sinLeer.length > 0 ? "unread" : "missing";
+}
+
+/** Cómo se dice cada estado en la tabla y en el Excel. */
+export const TEXTO_DEL_ESTADO: Record<PositionRowStatus, string> = {
+  found: "Reconocida",
+  missing: "No reconocida",
+  unread: "No se pudo leer"
+};
 export type PositionFilterStatus = "all" | PositionRowStatus;
 export type PositionSortDirection = "asc" | "desc";
 
@@ -36,8 +55,8 @@ export function fmtRetroPoints(value: number | null | undefined): string {
 
 export function csvCell(value: string | number | null | undefined): string {
   if (value == null) return "";
-  const text = typeof value === "number" ? String(value).replace(".", ",") : value;
-  return /[;"\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  /* Una cifra no se neutraliza nunca: `-12.5` sale «-12,5». Un texto que una hoja leería como fórmula, sí (`celdaCsv`, P1-08). */
+  return celdaCsv(typeof value === "number" ? String(value).replace(".", ",") : value);
 }
 
 export function resolveRowsFromAssets(entries: PositionImportEntry[], assets: BdbAssetDetail[]): PositionRow[] {

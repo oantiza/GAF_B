@@ -5,6 +5,7 @@ import { OaaChartFrame, type OaaChartQualityProps } from "./OaaChartFrame";
 import { OaaLegend } from "./OaaLegend";
 import { OaaTooltip } from "./OaaTooltip";
 import { coloresDelReparto, repartoConOtros } from "./chartTheme";
+import { NOTA_DEL_ARO_NETO } from "../../core/repartoNeto";
 
 export interface OaaDonutSlice {
   key: string;
@@ -60,19 +61,36 @@ export const OaaDonutChart = memo(function OaaDonutChart({
     data.filter((item) => Number.isFinite(item.value) && item.value > 0),
     sumarPorciones
   );
+  /*
+   * Un reparto neto (C-29, 21-11-2026) puede traer una parte negativa —un corto, liquidez prestada— y otra por encima del 100 %.
+   * Un aro no puede dibujar una porción negativa: dibuja las positivas, y la negativa va en la leyenda con su signo y sin porción
+   * (muestra hueca). Lo dice la nota de debajo, porque entonces las porciones no son partes de 100.
+   */
+  const negativas = data.filter((item) => Number.isFinite(item.value) && item.value < -0.05);
+  const esNeto = negativas.length > 0 || slices.some((slice) => slice.value > 100.05);
   const colores = coloresDelReparto(slices);
-  const legend = slices.map((slice, index) => ({
-    id: slice.key,
-    label: slice.label,
-    color: colores[index],
-    value: pctPoint(slice.value)
-  }));
+  const legend = [
+    ...slices.map((slice, index) => ({
+      id: slice.key,
+      label: slice.label,
+      color: colores[index],
+      value: pctPoint(slice.value)
+    })),
+    ...negativas.map((parte) => ({
+      id: parte.key,
+      label: parte.label,
+      color: parte.colorDeCategoria ?? parte.color ?? "var(--clase-resto)",
+      value: pctPoint(parte.value),
+      hollow: true
+    }))
+  ];
   const nombre = ariaLabel ?? `Reparto: ${legend.map((item) => `${item.label} ${item.value}`).join(", ")}`;
+  const nota = esNeto ? <p className="oaa-donut-nota">{NOTA_DEL_ARO_NETO}</p> : null;
 
   // Revisión 12-08 (B2): un donut de una sola porción es un gráfico sin
   // información — con una única categoría, la cifra dice lo mismo y mejor.
   // La regla nació en la Divisa del Análisis y ahora vive aquí, para todos.
-  if (slices.length === 1) {
+  if (slices.length === 1 && negativas.length === 0) {
     const only = slices[0];
     return (
       <div className="oaa-donut-layout oaa-donut-layout--single">
@@ -136,6 +154,7 @@ export const OaaDonutChart = memo(function OaaDonutChart({
         ) : null}
       </OaaChartFrame>
       <OaaLegend items={legend} />
+      {nota}
     </div>
   );
 });

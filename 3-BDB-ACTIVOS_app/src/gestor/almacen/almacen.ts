@@ -22,6 +22,14 @@ export interface ResumenDeCartera {
   error?: string;
 }
 
+/** Una cartera que está en la papelera: lo mismo que se sabe de una viva, y cuándo se retiró. */
+export interface CarteraRetirada extends ResumenDeCartera {
+  /** Nombre del fichero dentro de `papelera/`, que puede llevar fecha y hora si se retiraron dos con el mismo nombre. */
+  fichero: string;
+  /** Fecha y hora ISO en que se retiró: la del fichero en la papelera, que se escribe al retirarla. */
+  retirada: string;
+}
+
 export interface CopiaDeSeguridad {
   carteraId: string;
   /** Nombre del fichero de la copia dentro de `copias/<id>/`. */
@@ -70,6 +78,13 @@ export interface AlmacenDeCarteras {
   pedirPermiso?(): Promise<boolean>;
   /** No borra: mueve el fichero y sus copias a la subcarpeta `papelera/`. */
   retirar(fichero: string): Promise<void>;
+  /** Las carteras de la papelera, de la última retirada a la primera. */
+  retiradas(): Promise<CarteraRetirada[]>;
+  /**
+   * Devuelve una cartera de la papelera a la carpeta, con el fichero de su nombre y sus copias de seguridad. No pisa nada:
+   * si en la carpeta ya hay una cartera con ese nombre, o la misma cartera, falla con `YA_EXISTE` y la deja en la papelera.
+   */
+  recuperar(fichero: string): Promise<{ fichero: string; nombre: string }>;
   copias(carteraId: string): Promise<CopiaDeSeguridad[]>;
   leerCopia(copia: CopiaDeSeguridad): Promise<CarteraLeida>;
   leerAjustes(): Promise<AjustesDelGestor>;
@@ -90,7 +105,9 @@ export type CodigoDeErrorDeAlmacen =
   /** El fichero cambió fuera de esta pestaña desde que se leyó: no se escribe para no pisarlo. */
   | "CONFLICTO"
   /** Un fichero auxiliar (ajustes, copia) no se puede leer. */
-  | "LECTURA";
+  | "LECTURA"
+  /** Lo que se quiere recuperar ya está en la carpeta, o hay otra cartera con su nombre: no se pisa. */
+  | "YA_EXISTE";
 
 /** Un fallo del almacén, con un mensaje en lenguaje llano para enseñarlo tal cual. */
 export class ErrorDeAlmacen extends Error {

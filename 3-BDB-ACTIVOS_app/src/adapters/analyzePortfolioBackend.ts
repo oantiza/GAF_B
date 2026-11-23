@@ -40,6 +40,8 @@ export function parsePortfolioAnalysisResult(raw: unknown): PortfolioAnalysisRes
   };
 }
 
+const ANALYZE_PORTFOLIO_TIMEOUT_MS = 120_000;
+
 export async function fetchPortfolioAnalysis(
   positions: AnalyzePosition[],
   context?: Record<string, unknown>
@@ -50,7 +52,9 @@ export async function fetchPortfolioAnalysis(
   const raw = await callBackend<unknown>(
     "analyze_portfolio",
     { positions, context },
-    "No se pudo invocar analyze_portfolio."
+    "No se pudo invocar analyze_portfolio.",
+    /* La misma espera que el servidor (`timeout_sec=120` de `analyze_portfolio` en main.py); sin ella, 70 s. */
+    { timeout: ANALYZE_PORTFOLIO_TIMEOUT_MS }
   );
   return parsePortfolioAnalysisResult(raw);
 }

@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest  # noqa: E402
-from google.api_core.exceptions import FailedPrecondition, NotFound  # noqa: E402
+from google.api_core.exceptions import Conflict, FailedPrecondition, NotFound  # noqa: E402
 from google.cloud.firestore_v1 import DELETE_FIELD  # noqa: E402
 
 from portfolios import repository as repo  # noqa: E402
@@ -59,6 +59,16 @@ class _Col:
     def _cumple(self, ruta):
         return self.filtro is None or self.db.datos[ruta].get(self.filtro[0]) == self.filtro[1]
 
+    def count(self):
+        total = len(self.stream())
+        self.db.agregaciones += 1
+
+        class _Agregado:
+            def get(_self):
+                return [[type("Valor", (), {"value": total})()]]
+
+        return _Agregado()
+
     def stream(self):
         if self.ruta.startswith("*/"):
             grupo = self.ruta[2:]
@@ -83,17 +93,25 @@ class _Lote:
     def set(self, ref, datos):
         self.ops.append(("set", ref.ruta, datos, None))
 
+    def create(self, ref, datos):
+        self.ops.append(("create", ref.ruta, datos, None))
+
     def update(self, ref, cambios, option=None):
         self.ops.append(("update", ref.ruta, cambios, option))
 
-    def delete(self, ref):
-        self.ops.append(("del", ref.ruta, None, None))
+    def delete(self, ref, option=None):
+        self.ops.append(("del", ref.ruta, None, option))
 
     def commit(self):
         if self.db.antes_del_commit:
             otra, self.db.antes_del_commit = self.db.antes_del_commit, None
             otra()
         for op, ruta, _datos, opcion in self.ops:
+            if op == "create" and ruta in self.db.datos:
+                raise Conflict("ya existe")
+            if op == "del" and opcion is not None:
+                if ruta not in self.db.datos or opcion.last_update_time != self.db.tiempos.get(ruta):
+                    raise FailedPrecondition("la precondicion no se cumple")
             if op != "update":
                 continue
             if ruta not in self.db.datos:
@@ -102,7 +120,7 @@ class _Lote:
                 raise FailedPrecondition("la precondicion no se cumple")
         self.db.reloj += 1
         for op, ruta, datos, _opcion in self.ops:
-            if op == "set":
+            if op in ("set", "create"):
                 self.db.datos[ruta] = dict(datos)
             elif op == "update":
                 nuevo = dict(self.db.datos[ruta])
@@ -124,6 +142,7 @@ class _Db:
     def __init__(self):
         self.datos, self.tiempos, self.reloj = {}, {}, 0
         self.antes_del_commit = None
+        self.agregaciones = 0
 
     def collection(self, nombre):
         return _Col(self, nombre)
@@ -316,3 +335,150 @@ def test_la_carrera_si_la_borran_entre_la_lectura_y_el_commit_no_se_escribe_nada
         _guardar_si_sigue_igual(almacen)
     assert conflicto.value.reason == "deleted"
     assert db.datos == {}
+
+
+# --- Guardar sin condicion (nueva, o sobrescribir tras un conflicto), atado a lo leido: pendiente del 19-11-2026 ---------
+
+def test_sin_condicion_otro_guardado_entre_medias_no_deja_objetivos_mezclados():
+    """Antes: esta pestana leia los objetivos {A}, la otra guardaba {A, B}, y esta escribia su raiz y A sin ver B: quedaban
+    A al 100 % y B al 40 %, un reparto del 140 % que no habia compuesto nadie. Ahora la precondicion falla, se vuelve a leer y
+    queda lo de esta pestana, entero."""
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": 100}])
+    db.antes_del_commit = lambda: _guardar(AlmacenCarterasBaseNueva(db), posiciones=[
+        {"asset_id": A, "weight_percent": 60}, {"asset_id": B, "weight_percent": 40}])
+    _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": 100}])
+    objetivos = {r: d for r, d in db.datos.items() if r.startswith("portfolios/c1/targets/")}
+    assert objetivos == {f"portfolios/c1/targets/{A}": {**objetivos[f"portfolios/c1/targets/{A}"], "weight": 1.0}}
+    assert sum(d["weight"] for d in objetivos.values()) == 1.0
+
+
+def test_sin_condicion_dos_altas_con_el_mismo_identificador_no_se_pisan():
+    """Otro asesor crea `c1` entre la lectura y la escritura de este: el `create` falla, se vuelve a leer y se ve que es de
+    otro. Antes, el `set` la pisaba sin mirar."""
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    db.antes_del_commit = lambda: _guardar(AlmacenCarterasBaseNueva(db), uid=OTRO)
+    with pytest.raises(repo.InvalidPortfolio):
+        _guardar(almacen)
+    assert db.datos["portfolios/c1"]["advisor_id"] == OTRO
+
+
+def test_sin_condicion_si_siempre_se_cuela_otro_es_un_conflicto_y_no_escribe_lo_suyo(monkeypatch):
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen)
+    lote_de_verdad = db.batch
+
+    def lote_que_siempre_pierde():
+        lote = lote_de_verdad()
+        original = lote.commit
+
+        def commit():
+            _guardar(AlmacenCarterasBaseNueva(_DbSinTrampa(db)), posiciones=[{"asset_id": B, "weight_percent": 100}])
+            original()
+        lote.commit = commit
+        return lote
+
+    monkeypatch.setattr(db, "batch", lote_que_siempre_pierde)
+    with pytest.raises(repo.PortfolioConflict) as conflicto:
+        _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": 100}])
+    assert conflicto.value.reason == "changed"
+    assert f"portfolios/c1/targets/{A}" not in db.datos
+
+
+class _DbSinTrampa:
+    """La misma base, con su lote normal: la otra pestana que se cuela en cada intento."""
+
+    def __init__(self, db):
+        self._db = db
+
+    def __getattr__(self, nombre):
+        return getattr(self._db, nombre)
+
+    def batch(self):
+        return _Lote(self._db)
+
+
+
+# --- Auditoria 20-11-2026 (P2-04): borrar y guardar a la vez, conteo por agregacion, cabecera y booleanos ----------------
+
+def test_borrar_mientras_se_guarda_no_deja_objetivos_huerfanos():
+    """Antes: el borrado leia los objetivos {A}, otro guardado anadia B, y el lote borraba A y la raiz: B quedaba sin
+    cartera y `list` lo leia para siempre. Ahora el borrado va atado a la raiz leida, falla, relee {A, B} y los borra."""
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": 100}])
+    db.antes_del_commit = lambda: _guardar(AlmacenCarterasBaseNueva(db), posiciones=[
+        {"asset_id": A, "weight_percent": 60}, {"asset_id": B, "weight_percent": 40}])
+    assert repo.delete_portfolio(almacen, ASESOR, "c1")["ok"] is True
+    assert db.datos == {}
+
+
+def test_borrar_si_siempre_se_cuela_un_guardado_es_un_conflicto_y_no_borra_nada(monkeypatch):
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen)
+    lote_de_verdad = db.batch
+
+    def lote_que_siempre_pierde():
+        lote = lote_de_verdad()
+        original = lote.commit
+
+        def commit():
+            _guardar(AlmacenCarterasBaseNueva(_DbSinTrampa(db)))
+            original()
+        lote.commit = commit
+        return lote
+
+    monkeypatch.setattr(db, "batch", lote_que_siempre_pierde)
+    with pytest.raises(repo.PortfolioConflict):
+        almacen.delete(ASESOR, "c1")
+    assert "portfolios/c1" in db.datos and f"portfolios/c1/targets/{A}" in db.datos
+
+
+def test_borrar_una_inexistente_o_ajena_dice_que_no_existia():
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen)
+    assert almacen.delete(OTRO, "c1") is False
+    assert almacen.delete(ASESOR, "no-existe") is False
+    assert "portfolios/c1" in db.datos
+
+
+def test_contar_usa_la_agregacion_y_solo_cuenta_las_del_asesor():
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen, pid="c1")
+    _guardar(almacen, pid="c2")
+    _guardar(almacen, uid=OTRO, pid="c3")
+    db.agregaciones = 0
+    assert almacen.count(ASESOR) == 2
+    assert almacen.count(OTRO) == 1
+    assert db.agregaciones == 2
+
+
+def test_la_cabecera_es_la_raiz_sola_y_respeta_el_aislamiento():
+    db = _Db()
+    almacen = AlmacenCarterasBaseNueva(db)
+    _guardar(almacen)
+    cabecera = almacen.get_cabecera(ASESOR, "c1")
+    assert cabecera["positions"] == [] and cabecera["name"] == "Prudente"
+    assert almacen.get_cabecera(OTRO, "c1") is None
+    assert almacen.get_cabecera(ASESOR, "otra") is None
+
+
+@pytest.mark.parametrize("valor", [True, False])
+def test_un_booleano_no_es_un_capital(valor):
+    almacen = AlmacenCarterasBaseNueva(_Db())
+    with pytest.raises(repo.InvalidPortfolio):
+        _guardar(almacen, total_capital=valor)
+
+
+def test_un_booleano_no_es_un_peso_ni_un_objetivo_en_euros():
+    almacen = AlmacenCarterasBaseNueva(_Db())
+    with pytest.raises(repo.InvalidPortfolio):
+        _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": True}])
+    with pytest.raises(repo.InvalidPortfolio):
+        _guardar(almacen, posiciones=[{"asset_id": A, "weight_percent": 100, "target_euros": True}])

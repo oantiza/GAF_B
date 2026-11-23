@@ -81,6 +81,10 @@ Todo en porcentaje (2.5 = 2,5 %), redondeado a **4 decimales**.
 | Caída máxima | Peor caída desde un máximo, con valores **diarios** | Una por ventana: **12, 36, 60 y 120** meses. La ventana que la serie no cubre no se publica |
 | Fecha de la métrica | Cierre de mes (`cierre_mensual`), publicado en `as_of` | El valor liquidativo, en cambio, es el último publicado. Un fondo que aún no ha publicado su último valor del mes cierra en el mes anterior; ver el final de la §3 |
 | Divisa | **Euros.** La serie se convierte antes de calcular, con el cambio de referencia del BCE de cada día | Vale el último cambio de hasta **7 días** antes; un punto sin cambio se descarta, y una serie sin cambio no da ninguna cifra. Una clase ya en euros no se convierte. Ver §5 |
+| Hueco del índice en las relativas | Días seguidos sin un solo punto **del índice** dentro de la ventana de las relativas | **33 días**, como el del fondo: con más, esa ventana no publica beta, R², alfa, rentabilidad activa, tracking error ni ratio de información. Hasta el 21-11-2026 solo se miraba el hueco del fondo (P2-01 de la auditoría del 20-11, `cf52c139`). Medido ese día: no quita ninguna publicada |
+| Tipo sin riesgo del camino diario | €STR medio de los días de la ventana | Tiene que dar tipo **desde el primer día** —con un €STR de como mucho 7 días antes— y **sin tramos de más de 7 noches** por dentro: la regla de cada noche del mensual (`estr_sin_tramos_vacios`). Hasta el 21-11-2026 bastaba un solo dato dentro de la ventana (P2-01, `cf52c139`). Medido ese día: no quita ninguna publicada |
+| €STR parado al final, camino diario | La última noche de la ventana, la víspera de su último día | **C-28.** Necesita un €STR de como mucho **7 días**, como en el mensual: si no, no hay `rf_pct` ni Sharpe, y la ficha lo dice (`rf_incompleto` con `sharpe_suprimido`). Un retraso menor se marca y se publica. Hasta el 21-11-2026 se publicaba marcado, sin límite de días. Medido ese día: no quita ninguna. Ver «El tipo libre de riesgo» |
+| Referencia de las relativas | El proxy o el índice contra el que se miden | Ni el **propio ISIN** ni **otra clase del mismo fondo** (C-28): la misma gestora y, o el mismo patrimonio del fondo a la misma fecha, o la misma cartera (fecha, posiciones y peso de las diez primeras). Medido el 21-11-2026: quita las de un fondo, Vanguard Global Stock Index Investor, que no tiene otra referencia |
 
 ### Una ventana con hueco no se publica
 
@@ -148,6 +152,16 @@ del BCE, otro por la edad admitida de la caché y otro por un cierre de TARGET c
 falta el tipo—: se marca. Un día de €STR mueve el `rf_pct` a un año 0,0015 puntos y el Sharpe como mucho
 0,0009. El Sharpe mensual de fondos y ETF no lleva `rf_hasta` todavía: un último mes con pocos días de €STR
 promedia en silencio, y queda anotado. No cambia ningún parámetro, así que la versión del método no cambia.
+
+**La marca tiene un límite desde la C-28** (Óscar, 21-11-2026). Hasta ese día un €STR parado se marcaba y el Sharpe se
+publicaba con él sin límite de días: un €STR de hace un mes habría seguido haciendo de tipo de hoy. Ahora el final se
+mira como en el método mensual, donde cada noche necesita un €STR de como mucho 7 días (abajo): si la última noche de la
+ventana —la víspera de su último día— no lo tiene, la ventana no tiene tipo y no hay Sharpe, y la ficha lo dice con
+`rf_incompleto` y `sharpe_suprimido: true`. Un retraso de 7 días o menos se sigue marcando y publicando, porque es lo que
+hace el mensual con él: arrastrar el último tipo. El mensual no lleva marca, y la del diario se queda porque es de la
+decisión del 09-11-2026 y no cambia ninguna cifra. Medido el 21-11-2026 sobre la exportación del 17-11 (el código de
+`d0f6fb97` contra el de la C-28): ninguna cifra cambia, aparece ni desaparece, y de las 520 acciones con `rf_hasta` la
+última noche usaba un €STR de 2 días como mucho. No cambia la versión: solo quita cifras en un caso que hoy no se da.
 
 **En el método mensual el tipo de cada mes capitaliza con su base de días** (decisión A-158 de Óscar,
 16-11-2026; versión 3). Hasta la versión 2 el tipo de un mes era la media del €STR de ese mes entre 12:
@@ -236,9 +250,34 @@ nada, así que el mismo fondo da dos alfas distintos según contra qué se mida.
 comparable de una métrica relativa es la terna `(method, window, benchmark.series_class)`, y una lista
 que ordene por alfa agrupa por las tres. Las métricas propias del fondo siguen con el par.
 
-**Estado:** escrito y **no hecho cumplir en código**. Ninguna pantalla ordena hoy por una de estas
-cifras —medido el 02-11-2026: ninguna de las cuatro consultas de la aplicación ordena ni filtra—,
-así que la regla llega antes que su primer infractor, que es cuando conviene que llegue.
+**Estado (20-11-2026):** se hace cumplir en código en todo lo que hoy ordena o pone juntas cifras de
+varios instrumentos; lo que queda sin comprobar es lo que ninguna pantalla hace. Hasta ese día este
+párrafo decía que no se hacía cumplir, con la medida del 02-11-2026 (ninguna consulta ordenaba ni
+filtraba); desde entonces llegaron las pantallas que ordenan, y con ellas la comprobación. Dónde vive:
+
+- **Ordenar.** La pieza de tablas (`3-BDB-ACTIVOS_app/src/components/tabla/TablaDeDatos.tsx`) agrupa
+  por escala —el `method` de la cifra— cuando se ordena por una columna declarada `escalaMixta` cuyas
+  filas traen más de un método, y no ordena una contra otra entre grupos. La usan el Buscador (cuatro
+  columnas, en `src/adapters/componerLista.ts`, con el nombre de cada grupo de `nombreDeEscalaDelBuscador`)
+  y el catálogo del Comparador (`src/components/AssetComparisonCatalogModal.tsx`). La celda cuya cifra a
+  tres años no es del método de su fila lo dice (`celdaConSuEscala`, A-171). Lo prueba
+  `tests/tablaDeDatos.test.tsx`.
+- **Poner juntas y comparar.** La tabla de Comparar (`src/components/tabla/TablaComparativa.tsx`) no
+  ordena ni colorea: marca «No comparable entre sí» la fila cuyas cifras no comparten método y
+  frecuencia (`describeMetricsMethodology`, `src/core/metricsMethodology.ts`), y cada fila es una sola
+  ventana, así que compara el par `(method, window)`. Una cifra del proveedor donde no hay la nuestra
+  cuenta como su método, `TRAILING_PROVIDER` (`metodoDe` en `src/adapters/comparativaDeActivos.ts`).
+  La caída a tres años no lo miraba y se corrigió el 20-11-2026; ese día ninguna de las 1.334 tarjetas
+  de la base nueva traía la caída del proveedor sin la nuestra, así que no cambió ninguna tabla. El
+  informe de «Comparar activos» marca las mismas columnas con la misma función
+  (`metodologiaDeLaComparativa`). Lo prueban `tests/tablaComparativa.test.tsx` y
+  `tests/comparativaDeActivos.test.ts`.
+- **Dibujar en unos mismos ejes.** El plano de riesgo y rentabilidad
+  (`src/components/tabla/PlanoRiesgoRetorno.tsx`) dibuja un panel por método.
+
+Lo que no se comprueba: la terna de las relativas, `(method, window, benchmark.series_class)`, porque
+ninguna pantalla ordena ni compara entre instrumentos una beta o un alfa —la ficha dice, junto a
+ellas, si se midieron sobre precio de mercado—; el día que una lo haga, tendrá que agrupar por las tres.
 
 ## 4. Cambiar un parámetro cambia la VERSIÓN del método
 
@@ -263,6 +302,22 @@ están en la 4 (`AUDITORIA_INTEGRAL_2026-11-16.md`).*
 | Año natural | Diciembres con 10 días naturales de tolerancia; no miraba huecos | Los diciembres, cierres de mes como los demás; un hueco de más de 33 días lo tumba | Años naturales |
 | Relativas | Se calculaban sin cierre: podían cerrar un mes antes que el riesgo | Al cierre del riesgo, o no se dan | Beta, R², alfa, rentabilidad activa, tracking error, ratio de información |
 | Hueco (mensual) | Más de 31 días | Más de 33 días, lo que pueden separarse dos cierres de mes (§2; Óscar, 17-11-2026). El diario sigue en 31 | Hoy, ninguna publicada |
+| Ratio de información (corrección del 21-11-2026, C-28) | Dividía la rentabilidad activa **ya redondeada** a cuatro decimales | La divide **sin redondear**, como todo cociente del método | Ratio de información; abajo |
+
+**El ratio de información sin redondear es una corrección de la versión 4, no una versión 5** (C-28, Óscar,
+21-11-2026). La fórmula declarada no cambia —rentabilidad activa entre tracking error—: lo que estaba mal era la cuenta,
+que dividía la activa ya redondeada a cuatro decimales entre un tracking error sin redondear, cuando el Sharpe, el
+Sortino y la beta dividen los dos términos sin redondear. No es un parámetro ni una convención (lo que la §4 dice que
+cambia la versión), así que el sello sigue siendo `v4`. Corregido en `f0125f0b` (P2-01 de la auditoría del 20-11).
+
+Medido el 21-11-2026 sobre la exportación del 17-11: cambian **48 de los 712** ratios de información publicados (a 1, 3
+y 5 años). **45 se mueven una diezmilésima**. Los otros 3 son de Vanguard Global Stock Index Investor (`IE00B03HCZ61`),
+medido contra otra clase del mismo fondo con un tracking error de 0,0004 a 0,0006 puntos (de 0,2257 a 0,306 a un año, de
+0,1915 a 0,1621 a tres y de −0,0 a −0,0055 a cinco), y con la otra regla de la C-28 dejan de publicarse: ese fondo ya no
+tiene relativas (§2). La consecuencia que se acepta: hasta el próximo refresco y la subida del catálogo, la base tiene
+ratios de la versión 4 calculados con la activa redondeada, y después, sin redondear; los dos llevan el mismo sello y
+difieren como mucho en una diezmilésima. No rompe ninguna comparación, porque ninguna pantalla ordena ni compara ratios
+de información entre instrumentos (§3).
 
 **La tolerancia: una semana laborable, confirmada por Óscar el 17-11-2026.** La tabla de abajo es con el hueco
 de 33 días, también confirmado ese día. La auditoría pedía que un cierre
@@ -795,9 +850,33 @@ en que la cifra estuvo viva. Cruzarlo con los informes queda del lado de quien l
 es Óscar y su archivo. El día que exista un registro de informes emitidos, la condición puede
 subir sin cambiar el resto de la regla.
 
-**Estado:** la regla está escrita y la §9 cumple hoy las condiciones 1, 2 —pendiente de la huella
-de la decisión 16— y 4. La 3 no se cumple todavía: la base y la nube conservan los 198 Sharpe de
-acciones. Y de la 5 falta el intervalo, porque no hemos medido desde cuándo se publicaron.
+**Cada retirada nueva escribe su intervalo con el mismo mecanismo** (Óscar, 21-11-2026): el extractor,
+en `fetchers/vl_fondos.py::_escribe_retirada`, y la plataforma lo lleva a la base como
+`computed/metrics.relative_withdrawal`. Un motivo nuevo que quite cifras que se publicaban pasa por
+ahí y no escribe una retirada propia. Hoy son dos casos: el del KID compuesto o sin índice (decisión
+20 del 07-11-2026, `DECISIONES_DATOS_2026-11-07.md`) y el de la referencia que es otra clase del
+mismo fondo (C-28, `DECISIONES_BASE_NUEVA_2026-11-01.md`). Lo que escribe:
+
+- **Hasta cuándo:** el día de la pasada que las quitó (`withdrawn_on`). No se mueve en las
+  siguientes mientras siga el mismo motivo.
+- **Contra qué y con qué dato:** el índice, la serie que hacía de él —el ISIN del proxy o el nivel
+  del índice— y la fecha de dato de las últimas que se publicaron (`last_as_of`), para que quien
+  tenga un informe entregado las reconozca.
+- **Desde cuándo, no.** El extractor guarda la ficha de la pasada anterior, no la de la primera que
+  las publicó, así que ese día no consta en ninguna parte, y escribirlo sería inventarlo. Lo que sí
+  se puede decir de cada caso se dice en su decisión, como una cota y no como una fecha.
+
+**Estado** (21-11-2026): la regla está escrita y tiene esos dos casos construidos, con su retirada
+en la base. Los dos cumplen las condiciones 1, 2 (`relative_absence` en el contrato), 3 —la pasada
+que los encuentra quita las cifras— y 4; de la 5, el hasta cuándo y no el desde cuándo. Las del
+KID las escribe el extractor desde la pasada del 07-11-2026: en la exportación del 17-11 son 9
+fondos, 7 por un índice compuesto y 2 sin índice, todos retirados ese día. La de la C-28, un fondo,
+se escribe en el próximo refresco, que es a mano. La §9, su primer caso, sigue como
+estaba: cumple la 1 y la 4; la 2 esperaba a la huella de la decisión 16, construida el 21-11-2026
+(`quality/latest.applicable_paths_fingerprint`), y ya no espera a nada técnico: el contrato sigue sin declararlo
+porque la retirada formal quedó fuera por decisión de Óscar (04-11-2026). La 3 no se cumple
+todavía: la base y la nube conservan los 198 Sharpe de acciones. Y de la 5 falta el intervalo,
+porque no hemos medido desde cuándo se publicaron.
 
 
 ## 11. Los ETF se miden con el cálculo de los fondos, sobre su precio de mercado
@@ -868,6 +947,8 @@ cifras de activo salen de las tarjetas. `GEOMETRIC_CAGR` sigue en el contrato re
 calculador analítico futuro, que no es este: si algún día existe, tendrá que llevar otro nombre o
 declarar que es otra cosa. Y esto es de **activos**: el análisis de una cartera también muestrea por
 semanas, y es otra cifra de otro sujeto.
+
+**Retirado con la base vieja el 21-11-2026** (decisión 37 de Óscar, sobre `CENSO_BASE_VIEJA_2026-11-21.md`): la aplicación local ya no lee la base vieja desde ese día, y el único cálculo de este estimador (`ingest_asset.build_metrics_latest` y `_window_metrics`, en las Functions) sale con ella en la misma tanda de borrado. Lo de arriba queda como registro de lo que era; el código, en la etiqueta de Git `referencia-base-vieja-2026-11-21`.
 
 ## 13. El modelo encoge lo que espera de cada activo, y se queda así
 

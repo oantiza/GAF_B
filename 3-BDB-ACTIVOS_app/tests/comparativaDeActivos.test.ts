@@ -365,6 +365,13 @@ describe("lo que no aplica a una accion se dice, con o sin tarjeta", () => {
         expect(sharpe?.valor?.(columnas[2]!)).toBe(0.9);
     });
 
+    it("el rótulo de las estrellas nombra a Morningstar solo con la fuente a la vista (H3-01)", () => {
+        const fondoSolo = [fuentes[2]!];
+        const titulo = (modoCliente: boolean) => filasDeActivos(fondoSolo, { modoCliente }).find((f) => f.id === "estrellas")?.titulo;
+        expect(titulo(false)).toBe("Morningstar");
+        expect(titulo(true)).toBe("Estrellas");
+    });
+
     it("lo que falta en un fondo sigue diciendo que falta", () => {
         const fondoSinNada = [
             { activo: delTipo("fondo", "FUND"), tarjeta: { instrument_type: "FUND", metrics: { method: "M" } } as unknown as FuenteDeColumna["tarjeta"] }
@@ -579,5 +586,73 @@ describe("la rentabilidad del proveedor a 1 año, sin fecha (decisión 114)", ()
         const notas = fechaYDivisaDeLasCifras([taiwan("2026-10-31"), jpm]);
         expect(notas.get("LU0117843481")).toEqual({ sinConvertir: "USD" });
         expect(notas.get("LU0430492750")).toEqual({});
+    });
+});
+
+/*
+ * §3 del método (20-11-2026): la caída a 3 años del proveedor, donde no hay la nuestra, no comparte fila con las nuestras sin decirlo.
+ * Hasta ese día la fila no miraba de quién era la cifra: la marca «No comparable entre sí» no podía saltar y la celda no decía «Del proveedor».
+ */
+describe("la caída del proveedor junto a las nuestras (§3 del método)", () => {
+    const de = (asset_id: string) => ({ asset_id, display_name: asset_id, currency: "EUR", metrics: {} }) as unknown as FuenteDeColumna["activo"];
+    const conTarjeta = (asset_id: string, metrics: Record<string, unknown>): FuenteDeColumna => ({
+        activo: de(asset_id),
+        tarjeta: { identity: { currency: "EUR" }, metrics } as unknown as FuenteDeColumna["tarjeta"]
+    });
+    const nuestra = conTarjeta("LU0000000001", { method: "EXTRACTOR_MONTHLY_V4", frequency: "MONTHLY", as_of: "2026-10-31", max_drawdown: { "3y": -0.12 } });
+    const suya = conTarjeta("LU0000000002", {
+        method: "EXTRACTOR_MONTHLY_V4", frequency: "MONTHLY", as_of: "2026-10-31",
+        provider: { as_of: "2026-10-31", max_drawdown: { "3y": -0.2 } }
+    });
+
+    it("la fila se marca, la celda dice de quién es y el papel la cuenta entre las no comparables", () => {
+        const fuentes = [nuestra, suya];
+        const columnas = columnasDeActivos(fuentes);
+        const filas = filasDeActivos(fuentes, { modoCliente: false });
+        const caida = filas.find((f) => f.id === "caida-3y")!;
+        expect(caida.metodoDe?.(columnas[1]!)).toEqual({ metodo: "TRAILING_PROVIDER", frecuencia: "PROVIDER" });
+        expect(caida.metodoDe?.(columnas[0]!)).toBeUndefined();
+        expect(caida.celda(columnas[1]!).apunte).toBe("Del proveedor · a 31/10/2026");
+        const html = renderToStaticMarkup(createElement(TablaComparativa, { columnas, filas: [caida], titulo: "t" }));
+        expect(html).toContain("No comparable entre sí");
+        expect(metodologiaDeLaComparativa(columnas, filas).noComparable?.columnas).toContain("caida-3y");
+    });
+
+    it("dos caídas nuestras del mismo método comparten fila sin marca", () => {
+        const otra = conTarjeta("LU0000000003", { method: "EXTRACTOR_MONTHLY_V4", frequency: "MONTHLY", as_of: "2026-10-31", max_drawdown: { "3y": -0.08 } });
+        const fuentes = [nuestra, otra];
+        const columnas = columnasDeActivos(fuentes);
+        const caida = filasDeActivos(fuentes, { modoCliente: false }).find((f) => f.id === "caida-3y")!;
+        expect(renderToStaticMarkup(createElement(TablaComparativa, { columnas, filas: [caida], titulo: "t" }))).not.toContain("No comparable entre sí");
+    });
+});
+
+/*
+ * La caída máxima, en rojo (propuesta C3 de las láminas, aprobada por Óscar el 21-11-2026): una caída es siempre una pérdida. Se pinta
+ * por la cifra tal como se escribe, a dos decimales del %: −0,12 se escribe «−12,00 %» y va en rojo; −0,00004 se escribe «0,00 %» y,
+ * como 0, va sin color; una positiva (un error del dato) no lleva color, y nunca el verde.
+ */
+describe("la caída máxima de la tabla comparada, en rojo", () => {
+    /* El formato común separa la unidad con un espacio que no parte línea; aquí se lee como un espacio. */
+    const plano = (texto: string | undefined) => texto?.replace(/\s/g, " ");
+    const conCaida = (asset_id: string, valor: number | undefined): FuenteDeColumna => ({
+        activo: { asset_id, display_name: asset_id, currency: "EUR", metrics: {} } as unknown as FuenteDeColumna["activo"],
+        tarjeta: { identity: { currency: "EUR" }, metrics: { method: "EXTRACTOR_MONTHLY_V4", frequency: "MONTHLY", as_of: "2026-10-31", ...(valor === undefined ? {} : { max_drawdown: { "3y": valor } }) } } as unknown as FuenteDeColumna["tarjeta"]
+    });
+    const fuentes = [conCaida("A", -0.12), conCaida("B", 0), conCaida("C", -0.00004), conCaida("D", 0.05), conCaida("E", undefined)];
+    const columnas = columnasDeActivos(fuentes);
+    const caida = filasDeActivos(fuentes, { modoCliente: false }).find((f) => f.id === "caida-3y")!;
+
+    it("una pérdida escrita lleva el signo de lo que baja; cero, ninguno; una positiva no va en verde; la que falta, nada", () => {
+        expect(columnas.map((c) => caida.celda(c).signo)).toEqual(["baja", undefined, undefined, undefined, undefined]);
+        expect(plano(caida.celda(columnas[0]!).texto)).toBe("−12,00 %");
+        expect(plano(caida.celda(columnas[2]!).texto)).toBe("0,00 %");
+    });
+
+    it("en la tabla, la de A en rojo con la clase de la pieza Cifra", () => {
+        const html = renderToStaticMarkup(createElement(TablaComparativa, { columnas, filas: [caida], titulo: "t" }));
+        expect(plano(html)).toContain('<span class="cifra cifra--baja">−12,00 %</span>');
+        expect(html.match(/cifra--baja/g)).toHaveLength(1);
+        expect(html).not.toContain("cifra--sube");
     });
 });

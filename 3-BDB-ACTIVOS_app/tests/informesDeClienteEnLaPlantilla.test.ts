@@ -135,8 +135,8 @@ describe("el informe de costes", () => {
     const management = { enabled: true, unit: "percent" as const, input: "0.5" };
     const con = await bytesDe(createCostsPdfBlob({ costs, management, clientName: "Familia García", banker: ASESOR }), "costes/costes");
     const sin = await bytesDe(createCostsPdfBlob({ costs, management, banker: SIN_ASESOR }), "costes/costes-sin-asesor");
-    comoDocumentoDeCliente(con, "Informe de costes");
-    comoDocumentoDeCliente(sin, "Informe de costes");
+    comoDocumentoDeCliente(con, "Costes de la propuesta");
+    comoDocumentoDeCliente(sin, "Costes de la propuesta");
     comprobarIdentidad(con, sin);
     /* 1.758,26 € de los productos y 500 € de la comisión: 2.258 €, en euros enteros porque es una estimación. */
     const fee = calculatePortfolioManagementFee(costs, 0.5, "percent");
@@ -147,7 +147,7 @@ describe("el informe de costes", () => {
   test("un caso largo: 45 posiciones, todas una vez, con la cabecera de su tabla y el total junto a las últimas", async () => {
     const assets = Array.from({ length: 45 }, (_, i) => ({ ...costAssets[0], asset_id: `PRUEBA${String(i).padStart(2, "0")}`, isin: `PRUEBA${String(i).padStart(2, "0")}`, display_name: i % 3 ? `Fondo ${i}` : `Principal Global Investors Funds - Finisterre Unconstrained Emerging Market Fxd Inc Fd A Hdg Acc EUR ${i}`, costs: i % 7 ? costAssets[0].costs : {} }));
     const bytes = await bytesDe(createCostsPdfBlob({ costs: calculatePortfolioCosts(assets.map((a) => ({ asset_id: a.asset_id, weight_percent: 100 / 45 })), assets, 100000), management: { enabled: false, unit: "percent", input: "" } }), "costes/costes-largo");
-    const hojas = comoDocumentoDeCliente(bytes, "Informe de costes");
+    const hojas = comoDocumentoDeCliente(bytes, "Costes de la propuesta");
     const conFilas = hojas.filter((hoja) => /PRUEBA\d\d/.test(hoja));
     for (const hoja of conFilas) expect(hoja).toContain("Activo / ISIN");
     const vistas = conFilas.flatMap((hoja) => [...new Set([...hoja.matchAll(/PRUEBA(\d\d)/g)].map((m) => Number(m[1])))]);

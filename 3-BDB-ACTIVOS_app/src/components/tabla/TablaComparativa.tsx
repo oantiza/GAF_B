@@ -1,4 +1,5 @@
 import { EnlaceAFicha } from "../ui/EnlaceAFicha";
+import { MarcaDeActivo } from "../ui/MarcaDeActivo";
 import { useMemo } from "react";
 import { describeMetricsMethodology } from "../../core/metricsMethodology";
 import type { CeldaDeTabla } from "../../types/tablaDeDatos";
@@ -30,6 +31,8 @@ export interface ColumnaComparada {
   metodo?: string;
   /** La frecuencia de muestreo de esas cifras. */
   frecuencia?: string;
+  /** Su número y su color en la pantalla que la usa (el Comparador): los mismos que en su gráfico. */
+  marca?: { numero: number; color: string };
 }
 
 export interface FilaComparada {
@@ -101,6 +104,7 @@ export function TablaComparativa({ columnas, filas, titulo, notas = [] }: TablaC
               <th scope="col"><span className="sr-only">Dato</span></th>
               {columnas.map((columna) => (
                 <th className="tabla__celda--cifra" key={columna.id} scope="col">
+                  {columna.marca ? <MarcaDeActivo color={columna.marca.color} numero={columna.marca.numero} /> : null}
                   {columna.enlaceAFicha ? (
                     <EnlaceAFicha isin={columna.enlaceAFicha}>{columna.nombre}</EnlaceAFicha>
                   ) : (
@@ -134,7 +138,7 @@ export function TablaComparativa({ columnas, filas, titulo, notas = [] }: TablaC
                       .join(" ");
                     return (
                       <td className={clase} key={columna.id}>
-                        <span className={celda.ausencia ? "tabla__ausencia" : undefined}>
+                        <span className={celda.ausencia ? "tabla__ausencia" : celda.signo === "sube" || celda.signo === "baja" ? `cifra cifra--${celda.signo}` : undefined}>
                           {celda.texto}
                         </span>
                         {celda.apunte ? <span className="tabla__apunte">{celda.apunte}</span> : null}

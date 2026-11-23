@@ -42,6 +42,8 @@ export interface Trozo {
   texto: string;
   /** La fuente del dato, lo que se destaca: «del proveedor», «del KID». */
   fuerte?: boolean;
+  /** Un dato que no está, dicho dentro de la frase con su pieza: `texto` lleva su palabra («Falta el dato»). */
+  ausencia?: ClaseDeAusencia;
 }
 
 /** Una fila de una sección: rótulo a la izquierda, cifra a la derecha. */

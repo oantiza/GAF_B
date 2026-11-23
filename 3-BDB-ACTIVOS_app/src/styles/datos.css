@@ -31,7 +31,9 @@
   }
 }
 
-/* Las tablas y los avisos, con un tope de lectura: a 1920 y 2560 la cifra quedaba a más de un metro de su nombre. */
-.salud .panel__body {
-  max-width: var(--tabla-lectura-max);
+/* Las tablas y los avisos, con un tope de lectura: a 1920 y 2560 la cifra quedaba a más de un metro de su nombre. Y
+   la tarjeta se ajusta a ese tope (21-11-2026): con el tope solo en el cuerpo quedaban 648 px de blanco dentro de la
+   tarjeta. El tope de la tarjeta es el de su cuerpo más su relleno y su borde. */
+.salud .panel {
+  max-width: calc(var(--tabla-lectura-max) + 2 * var(--s-7) + 2px);
 }

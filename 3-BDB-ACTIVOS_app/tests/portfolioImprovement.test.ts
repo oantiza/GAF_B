@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import {
-  buildImprovementCandidates, improvementSummary, preselectCandidates, proposalPositions, rejectionLabel
+  buildImprovementCandidates, improvementLockKey, improvementSummary, preselectCandidates, proposalPositions, rejectionLabel
 } from "../src/core/portfolioImprovement";
 import type { ImprovementProposal, ImprovementResponse } from "../src/adapters/improvePortfolioBackend";
 import type { BdbAssetDetail, BdbAssetSearchResult } from "../src/types/bdbAssets";
@@ -99,6 +99,21 @@ describe("propuesta a posiciones y textos", () => {
       { asset_id: "B", weight_percent: 50 }
     ]);
     expect(positions[0].asset_id).toBe("A");
+  });
+
+  test("H1-12: una posición con candado no se sustituye nunca, aunque la propuesta la nombre", () => {
+    const positions = [{ asset_id: "A", weight_percent: 50 }, { asset_id: "B", weight_percent: 50 }];
+    expect(proposalPositions(positions, proposal, ["A"])).toEqual([{ asset_id: "A", weight_percent: 50 }, { asset_id: "B", weight_percent: 50 }]);
+    expect(proposalPositions(positions, proposal, ["B"])[0].asset_id).toBe("A2");
+  });
+
+  test("H1-12: la clave de candados cambia al poner o quitar uno de una posición invertida", () => {
+    const positions = [{ asset_id: "A", weight_percent: 50 }, { asset_id: "B", weight_percent: 50 }, { asset_id: "C", weight_percent: 0 }];
+    expect(improvementLockKey(positions, [])).toBe("");
+    expect(improvementLockKey(positions, ["B", "A"])).toBe("A,B");
+    expect(improvementLockKey(positions, ["A"])).not.toBe(improvementLockKey(positions, []));
+    // Un candado sobre un id que no está invertido no cuenta.
+    expect(improvementLockKey(positions, ["C", "Z"])).toBe("");
   });
 
   test("resumen por estado", () => {

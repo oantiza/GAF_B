@@ -10,6 +10,7 @@ import {
   excluidosSinRepetir,
   IMPROVEMENT_STATUS_LABELS,
   notasDelPeriodo,
+  improvementLockKey,
   proposalPositions,
   rejectionLabel,
   resumenDeLaMejoraEnPantalla,
@@ -78,6 +79,8 @@ type Phase =
       candidates: ImprovementCandidateSet;
       /** Composición con la que se calculó: el resultado solo vale para ella. */
       positions: BdbManualPortfolioPosition[];
+      /** Candados con los que se calculó (H1-12): si cambian, la propuesta es de otra situación. */
+      lockKey?: string;
     }
   | { status: "error"; error: unknown };
 
@@ -179,6 +182,7 @@ export function PortfolioImprovementPanel({
   }, [windowSel, maxSubstitutions, sameDistribution, volatilityTolerance, drawdownTolerance, minReturnImprovement, phase, selectedProposal]);
 
   const investable = positions.filter((position) => (position.weight_percent ?? 0) > 0);
+  const lockedIds = useMemo(() => Object.keys(lockedWeights ?? {}), [lockedWeights]);
   const canRun = investable.length >= 1 && phase.status !== "loading" && !maxSustitucionesNoValido;
 
   async function run() {
@@ -189,7 +193,7 @@ export function PortfolioImprovementPanel({
       const candidates = await onBuildCandidates(investable, assets, { requireSameDistribution: sameDistribution });
       setPhase({ status: "loading", step: "Evaluando las combinaciones en la ventana común…" });
       const total = investable.reduce((sum, position) => sum + position.weight_percent, 0);
-      const locked = Object.keys(lockedWeights ?? {}).filter((id) => investable.some((position) => position.asset_id === id));
+      const locked = lockedIds.filter((id) => investable.some((position) => position.asset_id === id));
       const response = await fetchPortfolioImprovement({
         positions: investable.map((position) => ({ asset_id: position.asset_id, weight: position.weight_percent / total })),
         candidates: candidates.candidates,
@@ -203,7 +207,7 @@ export function PortfolioImprovementPanel({
           min_return_improvement: minReturnImprovement / 100
         }
       });
-      setPhase({ status: "result", response, candidates, positions: investable });
+      setPhase({ status: "result", response, candidates, positions: investable, lockKey: improvementLockKey(investable, lockedIds) });
     } catch (error) {
       setPhase({ status: "error", error });
     }
@@ -217,7 +221,7 @@ export function PortfolioImprovementPanel({
     for (const [id, asset] of result.candidates.assetsById) if (!merged.has(id)) merged.set(id, asset);
     return [...merged.values()];
   }, [assets, result]);
-  const proposed = useMemo(() => (proposal ? proposalPositions(positions, proposal) : null), [positions, proposal]);
+  const proposed = useMemo(() => (proposal ? proposalPositions(positions, proposal, lockedIds) : null), [positions, proposal, lockedIds]);
   /* Revisión del 14-10-2026: si la cartera del Constructor ya no es la evaluada
      (otro peso, otra posición), la propuesta es de otra cartera: no se aplica ni
      se guarda hasta recalcular. El PDF sí, porque describe lo que se evaluó. */
@@ -225,7 +229,11 @@ export function PortfolioImprovementPanel({
     () => (result ? improvementFingerprint(result.positions) : null),
     [result]
   );
-  const isStale = evaluatedFingerprint !== null && evaluatedFingerprint !== improvementFingerprint(investable);
+  /* H1-12: los candados forman parte de lo evaluado; poner o quitar uno deja la propuesta obsoleta. */
+  const isStale = evaluatedFingerprint !== null && (
+    evaluatedFingerprint !== improvementFingerprint(investable)
+    || (result?.lockKey ?? "") !== improvementLockKey(investable, lockedIds)
+  );
   const diff = useMemo(() => proposal && proposed && result
     ? buildPortfolioOptimizationDiff({
       source: "Fondos equivalentes",
@@ -322,7 +330,7 @@ export function PortfolioImprovementPanel({
     <Panel
       claseDelCuerpo="stack stack--tight"
       className="improvement-panel"
-      subtitulo="Busca en la base de datos fondos homogéneos a los actuales, mantiene los pesos y propone solo lo que no empeora ningún criterio obligatorio y mejora al menos uno. Solo sustituye fondos por fondos: los ETF y las acciones de la cartera se conservan tal cual. Se elige en los dos primeros tercios de la ventana y se confirma en el último."
+      subtitulo="Busca en la base de datos fondos homogéneos a los actuales, mantiene los pesos y propone solo lo que no empeora ningún criterio obligatorio y mejora al menos uno. Solo sustituye fondos por fondos: los ETF y las acciones de la cartera se conservan tal cual. Se elige en los dos primeros tercios de la ventana y se filtra con el último, que decide entre hasta 50 candidatas: ese tramo no es una prueba fuera de la muestra."
       titulo="Fondos equivalentes que mejoran la cartera"
       tituloId="improvement-panel-title"
     >

@@ -126,7 +126,10 @@ def test_el_fallback_de_fundamentals_de_yahoo_escribe_porcentaje(monkeypatch, en
 class _RespuestaEstr:
     ok = True
     status = 200
-    text = "TIME_PERIOD,OBS_VALUE\n2020-01-01,2.0\n2026-01-01,2.0\n"
+    # Un dato cada día, como lo publica el BCE: desde el 21-11-2026 (P2-01) el €STR tiene que dar tipo a
+    # cada noche de la ventana, y con dos datos en seis años ya no hay Sharpe.
+    text = "TIME_PERIOD,OBS_VALUE\n" + "".join(
+        f"{dt.date(2020, 1, 1) + dt.timedelta(days=i)},2.0\n" for i in range(2300))
 
 
 class _RespuestaCaida:

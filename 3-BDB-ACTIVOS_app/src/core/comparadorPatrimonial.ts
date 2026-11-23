@@ -28,6 +28,12 @@ export interface ResultadoPatrimonial {
    * de una aportación que aún no se ha hecho no significa nada, y `xirr` la calcula igual.
    */
   posterior: string | null;
+  /**
+   * Si todas las aportaciones son del día de la fecha final. Sin tiempo entre lo aportado y el final no hay TIR:
+   * `xirr` lo dice con null (H2-09 / N-2, 22-11-2026; antes salía un 202,5 % si el valor final era lo aportado), y
+   * tampoco hay comparación, porque Letras y depósito valen ese día lo que se aportó.
+   */
+  sinPlazo: boolean;
 }
 
 /** Las filas con las dos cosas. Una fila a medias no cuenta, y `filasAMedias` lo dice. */
@@ -55,12 +61,14 @@ export function resultadoPatrimonial(
   const capital = valid.reduce((sum, flow) => sum + flow.amount, 0);
   /* Las fechas son ISO: se comparan como texto. La más tardía es la que se nombra. */
   const posterior = finalDate ? (valid.filter((flow) => flow.date > finalDate).at(-1)?.date ?? null) : null;
-  if (valid.length === 0 || finalValue === null || finalValue <= 0 || !finalDate || posterior) {
-    return { capital, tir: null, years: 0, start: "", end: finalDate, posterior };
+  const sinPlazo = Boolean(finalDate) && valid.length > 0 && valid.every((flow) => flow.date === finalDate);
+  if (valid.length === 0 || finalValue === null || finalValue <= 0 || !finalDate || posterior || sinPlazo) {
+    return { capital, tir: null, years: 0, start: "", end: finalDate, posterior, sinPlazo };
   }
   return {
     capital,
     posterior,
+    sinPlazo,
     tir: xirr([
       ...valid.map((flow) => ({ date: new Date(flow.date), amount: -flow.amount })),
       { date: new Date(finalDate), amount: finalValue }

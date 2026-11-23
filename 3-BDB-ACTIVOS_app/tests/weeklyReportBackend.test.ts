@@ -111,4 +111,24 @@ describe("weekly report backend contract", () => {
       report: report(), source: "FIRESTORE_LIVE", freshness: "CURRENT", age_days: -1, invalid_count: 0
     })).toThrow(AppError);
   });
+
+  test.each(["javascript:alert(1)", "data:text/html,<b>x</b>", "ftp://example.com/x", "no es una url", ""])(
+    "descarta la fuente cuya dirección no es http o https y entrega el resto del informe: %s",
+    (url) => {
+      const informe = report();
+      informe.sources = [{ title: "Mala", url }, { title: "Buena", url: "https://www.ecb.europa.eu/" }];
+      const result = parseWeeklyReportResponse({ report: informe, source: "FIRESTORE_LIVE" });
+      expect(result.report?.sources).toEqual([{ title: "Buena", url: "https://www.ecb.europa.eu/" }]);
+      expect(result.report?.id).toBe("weekly-2026-07-10");
+    }
+  );
+
+  test("sin ninguna fuente válida el informe sale como uno sin fuentes", () => {
+    const informe = report();
+    informe.sources = [{ title: "Mala", url: "javascript:alert(1)" }];
+    const result = parseWeeklyReportResponse({ report: informe, source: "FIRESTORE_LIVE" });
+    expect(result.report?.sources).toEqual([]);
+    informe.sources = [];
+    expect(parseWeeklyReportResponse({ report: informe, source: "FIRESTORE_LIVE" }).report?.sources).toEqual([]);
+  });
 });

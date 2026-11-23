@@ -32,6 +32,8 @@ const COLLECTION = "commercial_retro";
 const IMPORTS_COLLECTION = "commercial_retro_imports";
 /** Each asset write checks assets/{isin}; rules allow 20 document accesses per transaction. */
 export const COMMERCIAL_RETRO_BATCH_SIZE = 20;
+/** El tope de `error` en la foto de importación: el mismo que ponen las reglas. */
+const ERROR_MAX_CHARS = 2000;
 
 /** A3.5: las cachés caducan — antes vivían toda la sesión y una retro editada
  *  en otra pestaña o dispositivo no se veía nunca sin recargar. */
@@ -430,7 +432,11 @@ export async function applyCommercialRetroImport(
       invalidateCommercialRetroCache();
       const message = error instanceof Error ? error.message : String(error);
       // Do not overwrite the atomic receipt after an ambiguous network outcome.
-      if (auth?.currentUser?.uid === uid) await updateDoc(runRef, { error: message }).catch(() => undefined);
+      // Las reglas acotan `error` a 2.000 caracteres (P1-10, 21-11-2026): uno más largo se rechazaría y la
+      // foto se quedaría sin la anotación, sin aviso. El mensaje entero sigue en el error que se lanza.
+      if (auth?.currentUser?.uid === uid) {
+        await updateDoc(runRef, { error: message.slice(0, ERROR_MAX_CHARS) }).catch(() => undefined);
+      }
       throw new Error(
         `Se confirmaron ${done} de ${actionable.length} cambios antes del fallo (${message}). Consulta el registro ${import_id} para comprobar lo aplicado.`,
         { cause: error }

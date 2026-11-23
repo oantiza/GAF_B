@@ -58,9 +58,9 @@ def run():
     check(bool(pid), "save devuelve portfolio_id")
     doc = s.get("user1", pid)
     check(doc["positions"][0] == {
-        "asset_id": "BE0946564383", "weight_percent": 60.0, "label": "DPAM",
+        "asset_id": "BE0946564383", "weight_percent": 60.0,
         "keep_euros": True, "target_euros": 150000.0,
-    }, "posicion saneada con bloqueo en euros")
+    }, "posicion saneada con bloqueo en euros; el nombre para mostrar (label) es dato maestro y no se guarda")
     check(doc["total_capital"] == 250000.0, "capital total app-owned persistido")
     check("metrics" not in doc["positions"][0] and "costs" not in doc["positions"][0], "datos maestros DESCARTADOS")
     check(doc["owner_uid"] == "user1" and doc["source_kind"] == "BDB_APP_OWNED", "owner_uid + source app-owned")
@@ -221,181 +221,9 @@ def test_con_condicion_usa_el_metodo_atomico_del_almacen_si_lo_tiene():
     assert llamadas == [("user1", "p1", ABIERTA_A_LAS)]
 
 
-# ---------- FirestorePortfolioStore.save_if_unchanged, con un doble de Firestore ----------
-
-from google.api_core.exceptions import FailedPrecondition, NotFound  # noqa: E402
-from google.cloud.firestore_v1 import DELETE_FIELD  # noqa: E402
-
-
-class _Opcion:
-    def __init__(self, last_update_time):
-        self.last_update_time = last_update_time
-
-
-class _DocSnap:
-    def __init__(self, db, ruta):
-        self._datos = db.datos.get(ruta)
-        self.exists = self._datos is not None
-        self.update_time = db.tiempos.get(ruta)
-
-    def to_dict(self):
-        return dict(self._datos) if self._datos is not None else None
-
-
-class _DocRef:
-    def __init__(self, db, ruta):
-        self.db, self.ruta = db, ruta
-
-    def collection(self, nombre):
-        return _ColRef(self.db, f"{self.ruta}/{nombre}")
-
-    def get(self):
-        return _DocSnap(self.db, self.ruta)
-
-    def set(self, datos, merge=False):
-        self.db.escribir(self.ruta, dict(datos) if not merge else {**self.db.datos.get(self.ruta, {}), **datos})
-
-    def update(self, cambios, option=None):
-        if self.db.antes_de_escribir:
-            otra, self.db.antes_de_escribir = self.db.antes_de_escribir, None
-            otra()
-        if self.ruta not in self.db.datos:
-            raise NotFound("no existe")
-        if option is not None and option.last_update_time != self.db.tiempos.get(self.ruta):
-            raise FailedPrecondition("la precondicion no se cumple")
-        nuevo = dict(self.db.datos[self.ruta])
-        for campo, valor in cambios.items():
-            campo = campo.strip("`")
-            if valor is DELETE_FIELD:
-                nuevo.pop(campo, None)
-            else:
-                nuevo[campo] = valor
-        self.db.escribir(self.ruta, nuevo)
-
-
-class _ColRef:
-    def __init__(self, db, ruta):
-        self.db, self.ruta = db, ruta
-
-    def document(self, ident):
-        return _DocRef(self.db, f"{self.ruta}/{ident}")
-
-    def count(self):
-        prefijo = self.ruta + "/"
-        total = sum(1 for r in self.db.datos if r.startswith(prefijo) and "/" not in r[len(prefijo):])
-
-        class _Agregado:
-            def get(self_agregado):
-                return [[type("Valor", (), {"value": total})()]]
-
-        return _Agregado()
-
-
-class _LoteSimple:
-    def __init__(self, db):
-        self.db, self.ops = db, []
-
-    def set(self, ref, datos, merge=False):
-        self.ops.append((ref, datos, merge))
-
-    def commit(self):
-        for ref, datos, merge in self.ops:
-            ref.set(datos, merge=merge)
-
-
-class _DbSimple:
-    def __init__(self):
-        self.datos, self.tiempos, self.reloj = {}, {}, 0
-        self.antes_de_escribir = None
-
-    def escribir(self, ruta, datos):
-        self.reloj += 1
-        self.datos[ruta] = datos
-        self.tiempos[ruta] = self.reloj
-
-    def collection(self, nombre):
-        return _ColRef(self, nombre)
-
-    def batch(self):
-        return _LoteSimple(self)
-
-    def write_option(self, **kwargs):
-        assert set(kwargs) == {"last_update_time"}
-        return _Opcion(kwargs["last_update_time"])
-
-
-RUTA_P1 = "bdb_activos/user1/portfolios/p1"
-
-
-@pytest.fixture
-def almacen_firestore():
-    from app_owned_store import clear_owner_cache
-    from portfolios.store import FirestorePortfolioStore
-
-    clear_owner_cache()
-    db = _DbSimple()
-    almacen = FirestorePortfolioStore(db)
-    P.save_portfolio(almacen, "user1", {
-        "portfolio_id": "p1", "name": "Cliente", "total_capital": 1000,
-        "positions": [{"asset_id": "A", "weight_percent": 100}],
-    }, now=ABIERTA_A_LAS)
-    yield db, almacen
-    clear_owner_cache()
-
-
-def test_firestore_con_la_condicion_correcta_sustituye_el_documento_entero(almacen_firestore):
-    db, almacen = almacen_firestore
-    db.datos[RUTA_P1]["campo_antiguo"] = "sobra"
-    P.save_portfolio(almacen, "user1", {
-        "portfolio_id": "p1", "name": "Revisada", "positions": [{"asset_id": "B", "weight_percent": 100}],
-        "expected_updated_at": ABIERTA_A_LAS,
-    }, now="2026-11-14T10:00:00+00:00")
-    doc = db.datos[RUTA_P1]
-    assert doc["name"] == "Revisada" and doc["positions"] == [{"asset_id": "B", "weight_percent": 100.0}]
-    assert doc["updated_at"] == "2026-11-14T10:00:00+00:00"
-    # Lo que la nueva no trae se borra, como hacia `set`: el capital que se quito y el campo antiguo.
-    assert "total_capital" not in doc and "campo_antiguo" not in doc
-    assert "expected_updated_at" not in doc
-
-
-def test_firestore_con_otra_fecha_o_sin_documento_es_un_conflicto(almacen_firestore):
-    db, almacen = almacen_firestore
-    antes = dict(db.datos[RUTA_P1])
-    with pytest.raises(P.PortfolioConflict) as cambiada:
-        P.save_portfolio(almacen, "user1", {"portfolio_id": "p1", "name": "X", "positions": [],
-                                            "expected_updated_at": "2026-11-13T08:00:00+00:00"})
-    assert (cambiada.value.reason, cambiada.value.current_updated_at) == ("changed", ABIERTA_A_LAS)
-    assert db.datos[RUTA_P1] == antes
-    with pytest.raises(P.PortfolioConflict) as eliminada:
-        P.save_portfolio(almacen, "user1", {"portfolio_id": "p2", "name": "X", "positions": [],
-                                            "expected_updated_at": ABIERTA_A_LAS})
-    assert eliminada.value.reason == "deleted"
-    assert "bdb_activos/user1/portfolios/p2" not in db.datos
-
-
-def test_firestore_otra_escritura_entre_la_lectura_y_la_escritura_hace_fallar_la_precondicion(almacen_firestore):
-    db, almacen = almacen_firestore
-
-    def otra_pestana():
-        # Escribe con la misma fecha de modificacion: solo la precondicion de Firestore la distingue.
-        db.escribir(RUTA_P1, {**db.datos[RUTA_P1], "name": "De la otra pestana"})
-
-    db.antes_de_escribir = otra_pestana
-    with pytest.raises(P.PortfolioConflict) as conflicto:
-        P.save_portfolio(almacen, "user1", {"portfolio_id": "p1", "name": "De esta", "positions": [],
-                                            "expected_updated_at": ABIERTA_A_LAS})
-    assert conflicto.value.reason == "changed"
-    assert db.datos[RUTA_P1]["name"] == "De la otra pestana"
-
-
-def test_firestore_si_la_borran_entre_la_lectura_y_la_escritura_es_eliminada(almacen_firestore):
-    db, almacen = almacen_firestore
-    db.antes_de_escribir = lambda: db.datos.pop(RUTA_P1)
-    with pytest.raises(P.PortfolioConflict) as conflicto:
-        P.save_portfolio(almacen, "user1", {"portfolio_id": "p1", "name": "De esta", "positions": [],
-                                            "expected_updated_at": ABIERTA_A_LAS})
-    assert conflicto.value.reason == "deleted"
-    assert RUTA_P1 not in db.datos
+# Las pruebas de `FirestorePortfolioStore.save_if_unchanged` (el almacen de la base vieja, con un doble de Firestore) se
+# fueron con el el 21-11-2026 (decision 31 del censo CENSO_BASE_VIEJA_2026-11-21.md). La misma precondicion en el de la
+# base nueva la fijan test_almacen_carteras_base_nueva.py y test_guardado_condicionado_emulador.py.
 
 
 @pytest.mark.parametrize("motivo, actual", [("changed", ABIERTA_A_LAS), ("deleted", None)])

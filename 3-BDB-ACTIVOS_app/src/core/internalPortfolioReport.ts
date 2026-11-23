@@ -32,7 +32,9 @@ import { cuentaQueCuadra } from "./cuentaDePosiciones";
 import { categoriaLegible, regionLegible } from "./etiquetasDeReparto";
 import { fecha, oFalta, peso, porcentaje, ratio } from "./formato";
 import { computeEquitySectorAllocation } from "./equitySectors";
-import { computePmsExposureDistribution } from "./portfolio";
+import { assetPmsShares, CLAVE_SIN_DATO_DEL_REPARTO, computePmsExposureDistribution } from "./portfolio";
+import { textoDeAusencia } from "./textoDeAusencia";
+import type { FrontierViewModel } from "../types/portfolioFrontier";
 import { esAccion } from "./esAccion";
 import { rotuloDeLaVentana } from "./metricsFrequency";
 import { calculatePortfolioCosts } from "./portfolioCosts";
@@ -142,6 +144,8 @@ export interface InternalPositionRow {
   otherExposure: number | null;
   /** Su ficha no trae mezcla de activos y el servidor la rellena por su clase (`CLASSIFICATION_FALLBACK`): esas cifras no están en la base. */
   exposicionPorSuClase?: boolean;
+  /** Un fondo que no declara su reparto, o una posición sin clase (A-203): no hay exposición que escribir, y sus cifras van a null. */
+  exposicionSinDato?: boolean;
   inBacktest: Partial<Record<InternalReportWindow, "included" | "extended" | "excluded">>;
   exclusionReason: Partial<Record<InternalReportWindow, string>>;
   /** No está en el catálogo (`not_found_positions`, decisión 85): no se sabe su clase ni su vehículo, y no se escriben «Otros». */
@@ -252,7 +256,11 @@ export interface InternalReportModel {
     byMetricsMethod: WeightedBucket[];
     underlyingMix: WeightedBucket[];
     underlyingMixCoverage: number | null;
+    /** De 0 a 1, de toda la cartera: lo que no declara su reparto (A-203). Va en su propia fila de la mezcla, «Falta el dato». */
+    underlyingMixSinReparto: number;
     equitySectors: WeightedBucket[];
+    /** Fracción de la cartera sin reparto de activos, que no entra en sectores ni regiones (A-211). La misma que `underlyingMixSinReparto`. */
+    equityLookthroughSinReparto: number;
     equitySectorsQuality: string;
     equityRegions: Array<{ key: string; weight_percent: number }>;
     /** % de la RV sin región (núcleo, `unclassified_weight_percent`): el mismo dato que la pantalla. */
@@ -327,6 +335,29 @@ function bucketsFrom(
   return fuera.peso > 0 ? [...filas, { key: CLAVE_DE_LO_QUE_NO_ENTRA, label: FUERA_DEL_REPARTO, weight: fuera.peso / total }] : filas;
 }
 
+/**
+ * El nombre de una región en el papel. Las posiciones sin región se juntan bajo `CLAVE_SIN_DATO_DEL_REPARTO`, que es una clave y no un texto:
+ * el papel dice «Falta el dato», como la pantalla (`FilasDeReparto` con `claveDeLoQueFalta`). Óscar, 20-11-2026; antes imprimía «N/D».
+ */
+export const regionDelPapel = (clave: string): string => (clave === CLAVE_SIN_DATO_DEL_REPARTO ? textoDeAusencia("falta") : regionLegible(clave));
+
+/** La divisa de denominación en el papel, con la misma regla que la región (Óscar, 21-11-2026): sin divisa, «Falta el dato»; antes, «N/D». */
+export const divisaDelPapel = (clave: string): string => (clave === CLAVE_SIN_DATO_DEL_REPARTO ? textoDeAusencia("falta") : clave);
+
+/**
+ * Si una posición aporta más riesgo del que pesa, decidido con las dos cifras tal como se imprimen, con un decimal (Óscar, 20-11-2026): con las
+ * de antes de redondear salía en ocre una fila que dice «1,4 % / 1,4 %». Las dos llegan en puntos (de 0 a 100). Sin cifra que imprimir, no.
+ */
+export function aportaMasRiesgoDelQuePesa(pesoPct: number, riesgoPct: number): boolean {
+  const impresa = (pct: number): number | null => {
+    const texto = peso(pct / 100);
+    return texto === null ? null : Number(texto.replace(/\u00a0%$/, "").replace(/\./g, "").replace(",", ".").replace("\u2212", "-"));
+  };
+  const elPeso = impresa(pesoPct);
+  const elRiesgo = impresa(riesgoPct);
+  return elPeso !== null && elRiesgo !== null && elRiesgo > elPeso;
+}
+
 /** La clave de la fila de lo que no entra: el papel la deja siempre a la vista, y las frases no la toman por la clase que más pesa. */
 export const CLAVE_DE_LO_QUE_NO_ENTRA = "fuera_del_reparto";
 
@@ -334,16 +365,22 @@ export const CLAVE_DE_LO_QUE_NO_ENTRA = "fuera_del_reparto";
  * La mezcla de lo que hay dentro de los fondos, en % de toda la cartera, con su fila de lo que no entra. El reparto es neto de cortos: una clase
  * negativa se enseña, con la barra a cero, si se llega a leer en el decimal que se escribe (decisión A-63); lo que redondea a −0,0 no dice nada.
  */
+/** La fila de la mezcla con lo que no declara su reparto (A-203): no se reparte entre las clases, y va antes de lo que queda fuera. */
+export const CLAVE_SIN_REPARTO_EN_LA_MEZCLA = "sin_reparto";
+
 export function bucketsDeLaMezcla(
   porcentajes: Readonly<Record<string, number>>,
   etiquetas: Readonly<Record<string, string>>,
-  fuera: Pick<FueraDelRepartoEnElPapel, "parteInvertible" | "pesoPct">
+  fuera: Pick<FueraDelRepartoEnElPapel, "parteInvertible" | "pesoPct">,
+  sinRepartoPct = 0
 ): WeightedBucket[] {
   const filas = Object.entries(porcentajes)
     .map(([key, value]) => ({ key, label: etiquetas[key] ?? key, weight: (value * fuera.parteInvertible) / 100 }))
     .filter((fila) => fila.weight > 0 || fila.weight <= -0.0005)
     .sort((a, b) => b.weight - a.weight);
-  return fuera.pesoPct > 0 ? [...filas, { key: CLAVE_DE_LO_QUE_NO_ENTRA, label: FUERA_DEL_REPARTO, weight: fuera.pesoPct / 100 }] : filas;
+  const sinReparto = (sinRepartoPct * fuera.parteInvertible) / 100;
+  const conSinReparto = sinReparto >= 0.0005 ? [...filas, { key: CLAVE_SIN_REPARTO_EN_LA_MEZCLA, label: textoDeAusencia("falta"), weight: sinReparto }] : filas;
+  return fuera.pesoPct > 0 ? [...conSinReparto, { key: CLAVE_DE_LO_QUE_NO_ENTRA, label: FUERA_DEL_REPARTO, weight: fuera.pesoPct / 100 }] : conSinReparto;
 }
 
 /** Cómo se escribe de dónde sale un indicador, en una barra: un código que no se conoce dice su nombre, y sin origen no se le pone. */
@@ -495,6 +532,7 @@ export function buildInternalReportModel(
       /* El indicador de riesgo es de quien tiene KID o KIID: a una acción no le aplica, aunque la base vieja le traiga un nivel estimado (decisión 83). */
       const conIndicador = seEnsenaLaMetrica("indicadorDeRiesgo", instrumentType);
       const exposure = asset?.pms_exposure;
+      const sinReparto = Boolean(exposure) && assetPmsShares({ pms_exposure: exposure, economic_asset_class: asset?.economic_asset_class }).source === "sin_reparto";
       return {
         assetId: position.asset_id,
         name: asset?.display_name ?? reportPosition?.display_name ?? position.label ?? position.asset_id,
@@ -530,11 +568,13 @@ export function buildInternalReportModel(
         holdingsAsOf: asset?.holdings_summary?.as_of_date ?? null,
         holdingsCount: cuentaQueCuadra(asset?.holdings_summary?.positions_count, titulosRecibidos.get(position.asset_id)) ?? null,
         top10Weight: diezMayoresComprobadas(asset?.holdings_summary?.top10_weight, diezPrimeras.get(position.asset_id)),
-        equity: num(exposure?.equity),
-        fixedIncome: num(exposure?.fixed_income),
-        cash: num(exposure?.cash),
-        otherExposure: exposure ? (num(exposure.other) ?? 0) + (num(exposure.alternative) ?? 0) + (num(exposure.real_asset) ?? 0) : null,
+        /* A-203: sin reparto declarado, las tres cifras no son ceros: faltan. */
+        equity: sinReparto ? null : num(exposure?.equity),
+        fixedIncome: sinReparto ? null : num(exposure?.fixed_income),
+        cash: sinReparto ? null : num(exposure?.cash),
+        otherExposure: exposure && !sinReparto ? (num(exposure.other) ?? 0) + (num(exposure.alternative) ?? 0) + (num(exposure.real_asset) ?? 0) : null,
         exposicionPorSuClase: exposure?.source === "CLASSIFICATION_FALLBACK",
+        exposicionSinDato: sinReparto,
         inBacktest,
         exclusionReason,
         fueraDelCatalogo: sinFicha.has(position.asset_id),
@@ -609,8 +649,11 @@ export function buildInternalReportModel(
     pms_exposure: assetsById.get(p.assetId)?.pms_exposure,
     economic_asset_class: p.assetClass
   })));
-  const mixBuckets = mixDistribution ? bucketsDeLaMezcla(mixDistribution.percent, MIX_LABELS, fueraDelReparto) : [];
+  const mixBuckets = mixDistribution ? bucketsDeLaMezcla(mixDistribution.percent, MIX_LABELS, fueraDelReparto, mixDistribution.sin_reparto_weight_percent) : [];
+  /* A-203: lo que no tiene reparto, en % de la cartera, para decirlo junto a la cobertura. */
+  const mixSinReparto = mixDistribution ? (mixDistribution.sin_reparto_weight_percent / 100) * fueraDelReparto.parteInvertible : 0;
   const mixCovered = mixDistribution ? (mixDistribution.covered_weight_percent / 100) * fueraDelReparto.parteInvertible : 0;
+  /* A-211: el fondo sin reparto de activos no entra, como en pantalla; su peso lo dice `equityLookthroughSinReparto`. */
   const sectors = computeEquitySectorAllocation(activePositions, assets);
   /* Regiones con la misma función que la pantalla (RegionAllocation). Las filas
      siguen llegando por `input.regionRows` (los llamadores pasan
@@ -642,7 +685,9 @@ export function buildInternalReportModel(
   }
 
   /* Se mira dentro de los fondos y sobre lo que entra en el reparto, con la mezcla de la hoja 3. Sin ningún vector, por la clase, no se conoce. */
-  const rentaVariableDeLaCartera = mixDistribution && mixDistribution.covered_weight_percent > 0 ? mixDistribution.percent.equity : null;
+  /* A-203: la renta variable de lo que tiene reparto. Lo que no lo tiene no se cuenta como cero, que la rebajaría. */
+  const conReparto = mixDistribution ? 100 - mixDistribution.sin_reparto_weight_percent : 0;
+  const rentaVariableDeLaCartera = mixDistribution && mixDistribution.covered_weight_percent > 0 && conReparto > 0 ? (mixDistribution.percent.equity / conReparto) * 100 : null;
   /* Sin ninguna ventana comparada no hay cifras de las que avisar. */
   const avisoDeRiesgoDistinto = perfilDelBenchmark && horizons.some((h) => h.comparison) ? avisoDeRentaVariableDistinta(rentaVariableDeLaCartera, perfilDelBenchmark.weights.rv * 100) : null;
   const reviewPoints = buildReviewPoints({
@@ -683,15 +728,17 @@ export function buildInternalReportModel(
     allocation: {
       byClass: bucketsFrom(report.xray.by_economic_asset_class ?? report.summary.by_economic_asset_class, (key) => labels.classLabels[key] ?? key, fueraDelReparto),
       byType: bucketsFrom(report.xray.by_instrument_type ?? report.summary.by_instrument_type, (key) => labels.typeLabels[key] ?? key, fueraDelReparto),
-      byCurrency: bucketsFrom(report.xray.by_currency, undefined, fueraDelReparto),
-      byRegion: bucketsFrom(report.xray.by_region, regionLegible, fueraDelReparto),
+      byCurrency: bucketsFrom(report.xray.by_currency, divisaDelPapel, fueraDelReparto),
+      byRegion: bucketsFrom(report.xray.by_region, regionDelPapel, fueraDelReparto),
       byCategory: bucketsFrom(filasPorCategoria(report), (key) => categoriaLegible(key) ?? key, fueraDelReparto),
       bySri: toBuckets(sri, (key) => rotulosDelIndicador.get(key) ?? key).sort((a, b) => a.key.localeCompare(b.key)),
       /* Los métodos de la base nueva no tienen nombre corto: el suyo, con mayúscula como los demás de la lista. */
       byMetricsMethod: toBuckets(method, (key) => METHOD_SHORT_LABELS[key] ?? labels.metricsMethodLabel(key).replace(/^./, (letra) => letra.toLocaleUpperCase("es"))),
       underlyingMix: mixBuckets,
       underlyingMixCoverage: mixDistribution ? mixCovered : null,
+      underlyingMixSinReparto: mixSinReparto,
       equitySectors: sectorBuckets,
+      equityLookthroughSinReparto: mixSinReparto,
       equitySectorsQuality: sectors.quality,
       equityRegions: input.regionRows ?? regionAllocation.rows,
       equityRegionsUnclassified: regionAllocation.unclassified_weight_percent,
@@ -777,7 +824,49 @@ export function topeDelModelo(horizon: Pick<PortfolioHorizon, "frontier">): numb
   return typeof tope === "number" && Number.isFinite(tope) ? tope : null;
 }
 
-const topeEscrito = (tope: number | null) => (tope === null ? "tope por posición no informado" : `tope del ${oFalta(peso(tope))} por posición`);
+/**
+ * El tope por posición, en palabras. `superado`: alguna posición lo pasa, y eso solo lo hace un candado. Con el tope que pone el modelo por defecto
+ * —el que depende del número de activos— un candado es una decisión del asesor y puede quedar por encima (`robust_engine.solve`, `lock_cap`); con
+ * un tope que fija el asesor, no. Óscar, 20-11-2026: la nota no puede decir «tope del X % por posición» de una cartera que lleva una por encima.
+ */
+export const topeEscrito = (tope: number | null, superado = false) =>
+  tope === null
+    ? "tope por posición no informado"
+    : `tope del ${oFalta(peso(tope))} por posición${superado ? ", que una posición con candado puede superar" : ""}`;
+
+type FronteraConPesos = Pick<FrontierViewModel, "maxSharpe" | "minVolatility"> & Partial<Pick<FrontierViewModel, "target" | "targetReturn" | "methodologyV2">>;
+
+/**
+ * Si el modelo lleva una posición con candado por encima del tope. Se reconoce en los pesos: un candado fija el mismo peso en todas las carteras del
+ * modelo (`bounds = (locked, locked)`), así que es una posición que pasa del tope en Máximo Sharpe y pesa lo mismo en las demás. Con medio punto
+ * básico de holgura, por el redondeo de los pesos. Sin pesos completos no se afirma.
+ */
+export function hayCandadoPorEncimaDelTope(frontier: FronteraConPesos | null | undefined): boolean {
+  const tope = frontier?.methodologyV2?.weightBounds?.[1];
+  const pesos = frontier?.maxSharpe?.pesosCompletos;
+  if (typeof tope !== "number" || !Number.isFinite(tope) || !pesos) return false;
+  const otras = [frontier?.minVolatility, frontier?.target, frontier?.targetReturn].flatMap((punto) => (punto?.pesosCompletos ? [punto.pesosCompletos] : []));
+  return Object.entries(pesos).some(([id, w]) => w > tope + 0.00005 && otras.every((otra) => Math.abs((otra[id] ?? 0) - w) <= 0.00005));
+}
+
+/**
+ * Si el modelo regulariza también las rentabilidades. Con tres activos o menos no: `estimate_returns` (robust_engine.py) solo las encoge hacia la
+ * media con más de tres (`N > 3`), y entonces solo se regulariza la covarianza. Los activos del cálculo son los de los pesos completos, ceros
+ * incluidos. Sin pesos completos no se sabe, y no se afirma: `null`.
+ */
+export function regularizaLasRentabilidades(frontier: Pick<FrontierViewModel, "maxSharpe"> | null | undefined): boolean | null {
+  const pesos = frontier?.maxSharpe?.pesosCompletos;
+  if (!pesos) return null;
+  return Object.keys(pesos).length > 3;
+}
+
+/** Lo que regulariza el modelo para Máximo Sharpe, dicho solo donde es verdad. */
+export function queRegularizaElMaximoSharpe(frontier: Pick<FrontierViewModel, "maxSharpe"> | null | undefined): string {
+  const conRentabilidades = regularizaLasRentabilidades(frontier);
+  if (conRentabilidades === false) return "covarianza regularizada (con tres activos o menos, las rentabilidades no se regularizan)";
+  if (conRentabilidades === true) return "rentabilidades y covarianza regularizadas";
+  return "covarianza regularizada";
+}
 
 /**
  * La nota del Máximo Sharpe (hallazgo 43). Se elige con un modelo que regulariza rentabilidades y covarianza y se mide luego con la serie
@@ -786,10 +875,16 @@ const topeEscrito = (tope: number | null) => (tope === null ? "tope por posició
  */
 export function notaDelMaximoSharpe(horizontes: readonly Pick<InternalHorizonModel, "horizon">[]): string {
   const conMaximo = horizontes.filter(({ horizon }) => horizon.maxSharpe);
-  const topes = [...new Set(conMaximo.map(({ horizon }) => topeDelModelo(horizon)))];
+  const topeDe = ({ horizon }: Pick<InternalHorizonModel, "horizon">) => topeEscrito(topeDelModelo(horizon), hayCandadoPorEncimaDelTope(horizon.frontier));
+  const topes = [...new Set(conMaximo.map(topeDe))];
   const tope = topes.length <= 1
-    ? topeEscrito(topes[0] ?? null)
-    : conMaximo.map(({ horizon }) => `${topeEscrito(topeDelModelo(horizon))} a ${horizon.years} años`).join(" y ");
+    ? (topes[0] ?? topeEscrito(null))
+    : conMaximo.map((h) => `${topeDe(h)} a ${h.horizon.years} años`).join(" y ");
+  /* Lo que se regulariza, como el tope: si las ventanas dicen lo mismo, una vez; si no, cada una lo suyo. */
+  const regulariza = [...new Set(conMaximo.map(({ horizon }) => queRegularizaElMaximoSharpe(horizon.frontier)))];
+  const queRegulariza = regulariza.length <= 1
+    ? (regulariza[0] ?? queRegularizaElMaximoSharpe(null))
+    : conMaximo.map(({ horizon }) => `${queRegularizaElMaximoSharpe(horizon.frontier)} a ${horizon.years} años`).join(" y ");
   const pordebajo = conMaximo
     /* Un Sharpe vacío (volatilidad cero) no se compara: no está ni por encima ni por debajo. */
     .filter(({ horizon }) => {
@@ -798,7 +893,7 @@ export function notaDelMaximoSharpe(horizontes: readonly Pick<InternalHorizonMod
       return maximo !== null && actual !== null && maximo < actual;
     })
     .map(({ horizon }) => `a ${horizon.years} años, ${oFalta(ratio(horizon.maxSharpe!.metrics.sharpe))} frente a ${oFalta(ratio(horizon.backtest.metrics.sharpe))}`);
-  return `Máximo Sharpe del modelo: rentabilidades y covarianza regularizadas, ${tope}. Medida luego con la serie real puede quedar por debajo de la cartera actual${pordebajo.length ? `: aquí, ${pordebajo.join("; ")}` : ""}.`;
+  return `Máximo Sharpe del modelo: ${queRegulariza}, ${tope}. Medida luego con la serie real puede quedar por debajo de la cartera actual${pordebajo.length ? `: aquí, ${pordebajo.join("; ")}` : ""}.`;
 }
 
 /**

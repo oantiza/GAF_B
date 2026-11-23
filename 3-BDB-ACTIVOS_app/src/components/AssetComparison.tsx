@@ -1,5 +1,7 @@
+import { useMensaje } from "./ui/useMensaje";
+import { MarcaDeActivo } from "./ui/MarcaDeActivo";
 import { EnlaceAFicha } from "./ui/EnlaceAFicha";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { estilosPorPapel } from "../charts/oaa/chartTheme";
 import { getAssetDataSource } from "../adapters/assetDataSource";
 import { AssetPicker, type AssetPickerFilterState } from "./AssetPicker";
@@ -253,6 +255,10 @@ export function AssetComparison({
 }: AssetComparisonProps) {
   const modoCliente = useModoCliente();
   const clientMode = modoCliente.activo;
+  /* H2-05: lo que se pregunta al acabar de dibujar el informe interno, que lleva retrocesiones. */
+  const clientModeRef = useRef(clientMode);
+  const { decir } = useMensaje();
+  useEffect(() => { clientModeRef.current = clientMode; }, [clientMode]);
   const dataSource = useMemo(() => getAssetDataSource(sourceKind), [sourceKind]);
   const [selected, setSelected] = useState<BdbAssetSearchResult[]>(assets);
   const [enSesion] = useState(() => mandosDeComparar.read());
@@ -472,8 +478,14 @@ export function AssetComparison({
     [selected, tarjetas]
   );
   const columnasComparadas = useMemo(
-    () => columnasDeActivos(fuentesComparadas, { modoCliente: !modoCliente.seEnsena("fuenteDeDatos") }),
-    [fuentesComparadas, modoCliente]
+    () =>
+      /* Cada columna, con el número y el color de su activo en el gráfico (Óscar, 20-11-2026). */
+      columnasDeActivos(fuentesComparadas, { modoCliente: !modoCliente.seEnsena("fuenteDeDatos") }).map((columna, indice) => {
+        const puesto = selected.findIndex((activo) => activo.asset_id === columna.id);
+        const enLaPantalla = puesto >= 0 ? puesto : indice;
+        return { ...columna, marca: { numero: enLaPantalla + 1, color: COLORS[enLaPantalla % COLORS.length] } };
+      }),
+    [fuentesComparadas, modoCliente, selected]
   );
   const filasComparadas = useMemo(
     () =>
@@ -584,8 +596,10 @@ export function AssetComparison({
       : `el ${oFalta(fecha(comparacion.ultimaComun))}`
     : "";
   /* Sin esto el PDF podría salir sin la referencia elegida por haberlo pedido antes de que llegaran las series. */
-  const esperandoComparacion =
-    perfilElegido !== null && (referencia.estado === "cargando" || (!rebaseSettled && !rebaseError));
+  /* H1-11: tampoco sale mientras las series cargadas no sean las de la selección que se ve (un activo sustituido, otra
+     ventana u otra frecuencia): la matriz y la base 100 del papel serían las del par anterior. Un error de carga
+     cierra la petición con su clave y no bloquea. */
+  const esperandoComparacion = !rebaseSettled || (perfilElegido !== null && referencia.estado === "cargando");
   /* Cómo acaba la referencia en la ventana que se ve, sin reequilibrar (decisión 86): cambia con el periodo. */
   const pesoAlFinal = perfilElegido && comparacion ? pesoDeLaReferenciaAlFinal(perfilElegido, comparacion.rentaVariableAlFinal) : null;
   const notaDeLaReferencia = !perfilElegido
@@ -630,6 +644,7 @@ export function AssetComparison({
   }
 
   async function handleExportPdf(salida: SalidaDeLaComparativa): Promise<void> {
+    if (esperandoComparacion) return;
     setExportError(null);
     setExportingPdf(true);
     try {
@@ -667,7 +682,7 @@ export function AssetComparison({
       /* Lo que cada celda de la pantalla dice bajo su cifra, de las mismas filas: la fecha de cada ventana del proveedor va en su celda (decisión A-125). */
       const apuntes = apuntesDelPapel(columnasComparadas, filasComparadas);
 
-      await downloadAssetComparisonPdf({
+      const descargado = await downloadAssetComparisonPdf({
         assets: selected.map((asset) => ({
           name: asset.display_name,
           isin: asset.isin,
@@ -712,7 +727,8 @@ export function AssetComparison({
         },
         correlation,
         salida
-      });
+      }, () => salida !== "interno" || !clientModeRef.current);
+      if (!descargado) decir("Informe interno descartado: se activó el Modo cliente y lleva retrocesiones.");
     } catch (error) {
       appLogger.error("Export PDF comparativa de activos fallo", error);
       setExportError("No se pudo generar el informe PDF. Vuelve a intentarlo.");
@@ -812,7 +828,7 @@ export function AssetComparison({
               const avisoDelBoton = avisoDeAccionDeCartera(paraLaAccion);
               return (
                 <span className="cmp-chip" key={a.asset_id}>
-                  <span className="cmp-dot" style={{ background: COLORS[i % COLORS.length] }} />
+                  <MarcaDeActivo color={COLORS[i % COLORS.length]} numero={i + 1} />
                   <span className="cmp-chip-name">
                     <EnlaceAFicha isin={a.asset_id}>{a.display_name}</EnlaceAFicha>
                   </span>

@@ -18,6 +18,7 @@ import { referenciaMasCercana } from "../core/referenciaPorNivel";
 import { nombreDelNivel } from "../core/textoDelNivelDePerfil";
 import * as formato from "../core/formato";
 import { Aviso } from "./ui/Aviso";
+import { useMensaje } from "./ui/useMensaje";
 import { Button } from "./ui/Button";
 import { Campo } from "./ui/Campo";
 import { Distintivo } from "./ui/Distintivo";
@@ -76,6 +77,7 @@ interface PortfolioReportProps {
 
 /* El interno sale aunque la simulación no mida nada, y lo dice dentro: si algún día los datos no dan, no es por eso, y el motivo dice por qué. */
 const EL_INTERNO_NO_SE_PUEDE_GENERAR = "No se puede generar este informe con los datos de hoy.";
+const AVISO_INTERNO_DESCARTADO = "Informe interno descartado: se activó el Modo cliente y lleva retrocesiones.";
 
 const PERIODOS = [
   { id: "3Y", label: "3 años" },
@@ -83,27 +85,51 @@ const PERIODOS = [
 ] as const;
 
 /**
- * Una fila de la lista: qué documento es y para quién (un `Distintivo`: «Para el cliente», en azul, o «Interno», en tinta y
- * versalitas), qué contiene en una línea, qué le falta como `Aviso` y su botón. El error de un documento que se descarga
- * sin diálogo sale aquí, en su fila, y no arriba de la página.
+ * En qué estado está un documento antes de una reunión (I1, Óscar, 21-11-2026). «Listo»: sale con lo que hay. «Falta algo»: sale,
+ * pero le falta un dato que se pone fuera de su diálogo (el capital, en Diseño). «Bloqueado»: con los datos de hoy no se puede
+ * preparar, y su botón no se pulsa. El color refuerza la palabra, no la sustituye.
+ *
+ * A-200 (Óscar, 21-11-2026): «Bloqueado» va en ocre, como «Falta algo»; el rojo queda para las pérdidas y lo que va «en contra», y
+ * la palabra distingue los dos estados. A-201 (el mismo día): lo que solo se pide en el diálogo al pulsar «Preparar» —las dos
+ * carteras, Actual y Propuesta, el motivo, el nombre— no es un dato que falte: el documento está «Listo», y su fila dice qué se
+ * pedirá (`pide`), sin aviso.
  */
-function Documento({ nombre, para, contiene, falta, boton, error }: {
+type EstadoDelDocumento = "listo" | "falta" | "bloqueado";
+
+const DISTINTIVO_DEL_ESTADO: Record<EstadoDelDocumento, ReactNode> = {
+  listo: <Distintivo tono="marca">Listo</Distintivo>,
+  falta: <Distintivo tono="aviso">Falta algo</Distintivo>,
+  bloqueado: <Distintivo tono="aviso">Bloqueado</Distintivo>
+};
+
+/**
+ * Una fila de la lista: qué documento es y en qué estado está (un `Distintivo`), qué contiene en una línea, qué le falta como
+ * `Aviso`, con la acción que lo arregla a su derecha (`arreglo`), y su botón. Para quién es lo dice el grupo en que va, «Para el
+ * cliente» o «Internos» (I2). El error de un documento que se descarga sin diálogo sale aquí, en su fila, y no arriba de la página.
+ */
+function Documento({ nombre, bloqueado = false, contiene, pide, falta, arreglo, boton, error }: {
   nombre: string;
-  para: "cliente" | "interno";
+  /** Con los datos de hoy no se puede preparar: su botón está desactivado por eso, no porque otro documento se esté preparando. */
+  bloqueado?: boolean;
   contiene: string;
+  /** Lo que su diálogo pedirá al pulsar «Preparar» (A-201): no cambia el estado, que sigue «Listo». */
+  pide?: string;
   falta?: ReactNode;
+  /** Lo que lo arregla, si se arregla fuera de esta pantalla: «Fijar en Diseño», «Ir a Optimizar». Solo con `falta`. */
+  arreglo?: ReactNode;
   boton: ReactNode;
   error?: ReactNode;
 }) {
+  const estado: EstadoDelDocumento = bloqueado ? "bloqueado" : falta ? "falta" : "listo";
   return (
     <li className="informes-lista__documento">
       <div className="informes-lista__texto">
         <h3 className="informes-lista__nombre">
-          {nombre}{" "}
-          {para === "cliente" ? <Distintivo tono="marca">Para el cliente</Distintivo> : <Distintivo tono="interno">Interno</Distintivo>}
+          {nombre} {DISTINTIVO_DEL_ESTADO[estado]}
         </h3>
         <p className="informes-lista__contiene">{contiene}</p>
-        {falta ? <Aviso>{falta}</Aviso> : null}
+        {pide && !falta ? <p className="informes-lista__contiene">{pide}</p> : null}
+        {falta ? <Aviso accion={arreglo}>{falta}</Aviso> : null}
         {error}
       </div>
       <div className="informes-lista__boton">{boton}</div>
@@ -192,10 +218,31 @@ export function PortfolioReport({
      normalizan y lo dicen en el papel. Dónde se arregla es una instrucción al asesor; delante del cliente basta con decir que no cuadra. */
   const informeDeClienteBloqueado = motivoParaNoGenerarElInformeDeCliente(report);
   const faltaAlInformeDeCliente = informeDeClienteBloqueado
-    ? (clientMode ? informeDeClienteBloqueado : `${informeDeClienteBloqueado} Se ajustan en Diseño.`)
-    : !capitalFijado
-      ? "Capital sin fijar: el informe saldrá sin importes."
-      : undefined;
+    ?? (!capitalFijado ? "Capital sin fijar: el informe saldrá sin importes." : undefined);
+  /* I1 (21-11-2026): lo que falta, con la acción que lo arregla al lado. Es una instrucción al asesor: delante del cliente basta
+     con decir qué falta, y en Modo cliente no sale. Cada una va al paso de Diseño donde se arregla. */
+  const irAlPaso = (paso: "compose" | "optimize", texto: string) =>
+    onIrADiseno && !clientMode ? (
+      <Button
+        onClick={() => {
+          disenoEnSesion.write({ ...disenoEnSesion.read(), step: paso });
+          onIrADiseno();
+        }}
+        size="sm"
+        variant="quiet"
+      >
+        {texto}
+      </Button>
+    ) : undefined;
+  const fijarElCapital = irAlPaso("compose", "Fijar en Diseño");
+  const arregloDelInformeDeCliente = informeDeClienteBloqueado ? irAlPaso("compose", "Ajustar en Diseño") : !capitalFijado ? fijarElCapital : undefined;
+  /* Una cartera se guarda en la cabecera de Diseño, con «Guardar» o «Guardar como…», en cualquier paso: se va sin cambiarlo. */
+  const guardarEnDiseno =
+    onIrADiseno && !clientMode ? (
+      <Button onClick={onIrADiseno} size="sm" variant="quiet">
+        Guardar en Diseño
+      </Button>
+    ) : undefined;
 
   /* 13-10-2026: informe completo para el asesor. Solo fuera del modo cliente: lleva
      retrocesiones e ingresos. Pide el análisis a 3 y 5 años, el solapamiento y las
@@ -220,6 +267,17 @@ export function PortfolioReport({
     cerrarElDialogoInterno();
   };
   useEffect(() => () => esperaDelInterno.current?.abort(), []);
+  /* H2-05: el informe interno lleva retrocesiones e ingresos. Si se activa el Modo cliente (aquí o en otra pestaña, que lo
+     sincroniza) con uno en preparación, se deja de esperar y no se descarga: se avisa de que se descartó. */
+  const clientModeRef = useRef(clientMode);
+  const { decir } = useMensaje();
+  useEffect(() => {
+    clientModeRef.current = clientMode;
+    if (clientMode && esperaDelInterno.current) {
+      cancelarElInterno();
+      decir(AVISO_INTERNO_DESCARTADO);
+    }
+  }, [clientMode]); // eslint-disable-line react-hooks/exhaustive-deps -- solo reacciona al cambio de modo
 
   const calculoDeMejora = useMemo(() => loadImprovementResult(analyticsPositions), [huella]); // eslint-disable-line react-hooks/exhaustive-deps -- la huella ya contiene ids y pesos
   /* Se guarda cualquier resultado, también el que no encontró nada. Ese no es una propuesta: su papel saldría
@@ -285,7 +343,7 @@ export function PortfolioReport({
       const { downloadInternalPortfolioReportPdf } = await import("../reports/internalPortfolioReportPdf");
       /* Última parada antes de dibujar: un documento que se canceló no se descarga. */
       if (cancelado()) return;
-      await downloadInternalPortfolioReportPdf({
+      const descargado = await downloadInternalPortfolioReportPdf({
         report: informe,
         assets,
         positions: analyticsPositions.map((p) => ({ asset_id: p.asset_id, weight_percent: p.weight_percent })),
@@ -305,8 +363,14 @@ export function PortfolioReport({
         includeAssetSheets: internalAnnex,
         // Decisión 8.6: último cálculo de «Mejorar cartera» de esta misma composición, si lo hay.
         improvement: loadImprovementResult(analyticsPositions)
-      });
+      }, () => !cancelado() && !clientModeRef.current);
       if (cancelado()) return;
+      if (!descargado) {
+        /* Se activó el Modo cliente mientras se dibujaba: el documento con retrocesiones no sale. */
+        setInternalDialogOpen(false);
+        decir(AVISO_INTERNO_DESCARTADO);
+        return;
+      }
       confirmarNombre();
       setInternalDialogOpen(false);
     } catch (error) {
@@ -401,7 +465,9 @@ export function PortfolioReport({
       : !seEnsena("otrasCarteras") && !yaElegidas
         ? "Las dos carteras se eligen antes de entrar: sal de Modo cliente para elegirlas."
         : undefined;
-  const faltaALaComparativa = comparativaBloqueada ?? (yaElegidas ? undefined : "Falta elegir las dos carteras.");
+  /* A-201: elegir las dos carteras se hace en su diálogo; no es un dato que falte. */
+  const faltaALaComparativa = comparativaBloqueada;
+  const pideLaComparativa = yaElegidas ? undefined : "Al preparar, se eligen las dos carteras.";
   /* La Propuesta de cambio: con la activa y una guardada ya hay dos. Y la misma regla: con Modo cliente, se eligen antes de entrar. */
   const eleccionDePropuesta = eleccionDeLaPropuesta.read();
   const propuestaYaElegida = [eleccionDePropuesta.actual, eleccionDePropuesta.propuesta].every(
@@ -414,7 +480,11 @@ export function PortfolioReport({
       : !seEnsena("otrasCarteras") && !propuestaYaElegida
         ? "Actual y Propuesta se eligen antes de entrar: sal de Modo cliente para elegirlas."
         : undefined;
-  const faltaALaPropuestaDeCambio = propuestaDeCambioBloqueada ?? (propuestaYaElegida ? "Falta escribir el motivo." : "Falta elegir Actual y Propuesta, y escribir el motivo.");
+  /* A-201: Actual, Propuesta y el motivo se ponen en su diálogo; no son datos que falten. */
+  const faltaALaPropuestaDeCambio = propuestaDeCambioBloqueada;
+  const pideLaPropuestaDeCambio = propuestaYaElegida
+    ? "Al preparar, se escribe el motivo."
+    : "Al preparar, se eligen Actual y Propuesta y se escribe el motivo.";
 
   /* Un campo de nombre en el diálogo interno mientras la propuesta no lo tenga. Comparte valor con el de arriba. */
   const campoDeNombre = !nombreEscrito ? (
@@ -422,9 +492,16 @@ export function PortfolioReport({
       <input maxLength={80} onChange={(event) => setNombre(event.target.value)} type="text" value={nombre} />
     </Campo>
   ) : null;
-  /* Con un diálogo antes de descargar, el botón de la lista dice «Preparar» y el del diálogo, «Descargar el informe». */
-  const preparar = (documento: string, abrir: () => void, opciones: { disabled?: boolean; primario?: boolean } = {}) => (
-    <Button aria-label={`Preparar: ${documento}`} disabled={opciones.disabled} onClick={abrir} variant={opciones.primario ? "primary" : "secondary"}>
+  /* I3 (21-11-2026): el botón de la lista dice «Preparar» en las seis filas, también en la que descarga sin diálogo; el del
+     diálogo, «Descargar el informe». */
+  const preparar = (documento: string, abrir: () => void, opciones: { disabled?: boolean; primario?: boolean; busy?: boolean } = {}) => (
+    <Button
+      aria-label={`Preparar: ${documento}`}
+      busy={opciones.busy}
+      disabled={opciones.disabled}
+      onClick={abrir}
+      variant={opciones.primario ? "primary" : "secondary"}
+    >
       Preparar
     </Button>
   );
@@ -496,73 +573,77 @@ export function PortfolioReport({
         <FirmaDeLosInformes alCambiar={() => setFirmaAbierta(true)} deshabilitado={pdfBusy} />
       </Panel>
 
-      <Panel subtitulo="Primero los que se entregan al cliente; después, los internos del asesor." titulo="Documentos">
+      {/* I2 (21-11-2026): dos grupos con título. Para quién es cada documento lo dice su grupo, y su fila dice en qué estado está. */}
+      <Panel subtitulo="Se entregan al cliente, en el papel del cliente." titulo="Para el cliente">
         <ul className="informes-lista">
           <Documento
-            boton={preparar("Informe para el cliente", () => setClientDialogOpen(true), { disabled: pdfBusy || Boolean(informeDeClienteBloqueado), primario: true })}
+            arreglo={arregloDelInformeDeCliente}
+            bloqueado={Boolean(informeDeClienteBloqueado)}
+            boton={preparar("Informe de la propuesta", () => setClientDialogOpen(true), { disabled: pdfBusy || Boolean(informeDeClienteBloqueado), primario: true })}
             contiene={CONTENIDO_DEL_INFORME_DE_CLIENTE}
             falta={faltaAlInformeDeCliente}
-            nombre="Informe para el cliente"
-            para="cliente"
+            nombre="Informe de la propuesta"
           />
           <Documento
-            boton={preparar("Informe de costes", () => setCostesAbiertos(true))}
+            arreglo={fijarElCapital}
+            boton={preparar("Costes de la propuesta", () => setCostesAbiertos(true))}
             contiene="Coste corriente de cada posición, media ponderada y, si se añade, la comisión de gestión de la cartera."
             falta={!capitalFijado ? "Capital sin fijar: el informe saldrá en porcentajes." : undefined}
-            nombre="Informe de costes"
-            para="cliente"
+            nombre="Costes de la propuesta"
           />
           <Documento
+            /* Las dos carteras se eligen en su diálogo («Preparar»); lo que se arregla fuera es tener dos guardadas. */
+            arreglo={hayHistorico && !hayDosCarteras ? guardarEnDiseno : undefined}
+            bloqueado={Boolean(comparativaBloqueada)}
             boton={preparar("Comparativa de propuestas", () => setComparativaAbierta(true), { disabled: Boolean(comparativaBloqueada) })}
             contiene="Dos propuestas guardadas en el mismo periodo: evolución, riesgo y composición."
             falta={faltaALaComparativa}
             nombre="Comparativa de propuestas"
-            para="cliente"
+            pide={pideLaComparativa}
           />
           <Documento
+            arreglo={hayHistorico && conLaMismaFuente.length === 0 ? guardarEnDiseno : undefined}
+            bloqueado={Boolean(propuestaDeCambioBloqueada)}
             boton={preparar("Propuesta de cambio", () => setPropuestaAbierta(true), { disabled: Boolean(propuestaDeCambioBloqueada) })}
             contiene="Actual y Propuesta en el mismo periodo: qué cambia en cada posición, rentabilidad, volatilidad y caída, crisis pasadas, coste corriente, motivo y plan de ejecución."
             falta={faltaALaPropuestaDeCambio}
             nombre="Propuesta de cambio"
-            para="cliente"
+            pide={pideLaPropuestaDeCambio}
           />
-          {seEnsena("documentosInternos") ? (
-            <>
-              <Documento
-                boton={preparar("Informe interno del asesor", () => setInternalDialogOpen(true), { disabled: pdfBusy || internalBusy })}
-                contiene="Todas las cifras de la cartera, incluidas retrocesiones e ingresos estimados. Puede tardar varios minutos, y se puede cancelar."
-                nombre="Informe interno del asesor"
-                para="interno"
-              />
-              <Documento
-                boton={
-                  /* Se descarga sin diálogo: el botón dice «Descargar». */
-                  <Button
-                    aria-label="Descargar: Propuesta de mejora"
-                    busy={propuestaBusy}
-                    disabled={!propuesta || propuestaBusy}
-                    onClick={() => void descargarPropuesta()}
-                    variant="secondary"
-                  >
-                    Descargar
-                  </Button>
-                }
-                contiene="Las sustituciones que ha evaluado «Fondos equivalentes» para esta composición, con su equivalencia y sus descartes."
-                error={propuestaError ? <AsyncErrorBanner error={propuestaError} onRetry={() => void descargarPropuesta()} /> : null}
-                falta={
-                  propuesta
-                    ? undefined
-                    : calculoDeMejora
-                      ? "El último cálculo no encontró sustituciones: no hay propuesta que descargar."
-                      : "Falta calcularla en Diseño, en Optimizar."
-                }
-                nombre="Propuesta de mejora"
-                para="interno"
-              />
-            </>
-          ) : null}
         </ul>
       </Panel>
+
+      {seEnsena("documentosInternos") ? (
+        <Panel
+          estado={<Distintivo tono="interno">Interno</Distintivo>}
+          subtitulo="Documentos de trabajo del asesor: no se entregan al cliente y no salen en Modo cliente."
+          titulo="Internos"
+        >
+          <ul className="informes-lista">
+            <Documento
+              boton={preparar("Informe interno del asesor", () => setInternalDialogOpen(true), { disabled: pdfBusy || internalBusy })}
+              contiene="Todas las cifras de la cartera, incluidas retrocesiones e ingresos estimados. Puede tardar varios minutos, y se puede cancelar."
+              nombre="Informe interno del asesor"
+            />
+            <Documento
+              arreglo={propuesta ? undefined : irAlPaso("optimize", "Ir a Optimizar")}
+              bloqueado={!propuesta}
+              /* Se descarga sin diálogo, y el botón también dice «Preparar» (I3): mientras se genera, se ocupa. */
+              boton={preparar("Propuesta de mejora", () => void descargarPropuesta(), { busy: propuestaBusy, disabled: !propuesta || propuestaBusy })}
+              contiene="Las sustituciones que ha evaluado «Fondos equivalentes» para esta composición, con su equivalencia y sus descartes."
+              error={propuestaError ? <AsyncErrorBanner error={propuestaError} onRetry={() => void descargarPropuesta()} /> : null}
+              falta={
+                propuesta
+                  ? undefined
+                  : calculoDeMejora
+                    ? "El último cálculo no encontró sustituciones: no hay propuesta que descargar."
+                    : "Falta calcularla en Diseño, en Optimizar."
+              }
+              nombre="Propuesta de mejora"
+            />
+          </ul>
+        </Panel>
+      ) : null}
 
       {clientDialogOpen ? (
         <DialogoDelInformeDeCliente

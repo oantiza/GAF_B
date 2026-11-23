@@ -79,7 +79,7 @@ export interface SerieDeActivo {
   costes: Float64Array;
 }
 
-export type CodigoDeValoracion = "SIN_CAMBIO" | "SIN_PRECIO" | "DIVIDENDOS_SIN_REGISTRAR" | "CAPITAL_RESIDUAL" | "SIN_CAPITAL";
+export type CodigoDeValoracion = "SIN_CAMBIO" | "SIN_PRECIO" | "DIVIDENDOS_SIN_REGISTRAR" | "CAPITAL_RESIDUAL" | "SIN_CAPITAL" | "SIN_VALORAR";
 
 /**
  * CARTERA CASI VACÍA (auditoría 16-11-2026, GES-2). La rentabilidad de un día es su resultado entre el capital de ese día, y
@@ -272,13 +272,26 @@ function cambiosEfectivos(cartera: Cartera, mercado: DatosDeMercado): Map<string
   const cambios = new Map<string, Punto[]>();
   for (const [divisa, puntos] of mercado.cambios) if (puntos.length > 0) cambios.set(divisa, puntos);
   for (const [divisa, porDia] of propios) {
-    if (cambios.has(divisa)) continue;
     const puntos: Punto[] = [];
     for (const [fecha, delDia] of porDia) {
       const media = delDia.cuantos === 1 ? delDia.suma : delDia.enBase.gt(0) ? delDia.extranjera.div(delDia.enBase) : delDia.suma.div(delDia.cuantos);
       puntos.push({ fecha, valor: aNumero(media) });
     }
-    cambios.set(divisa, ordenados(puntos));
+    const delMercado = cambios.get(divisa);
+    if (!delMercado) {
+      cambios.set(divisa, ordenados(puntos));
+      continue;
+    }
+    /*
+     * ANTES DE QUE EMPIECE LA SERIE DEL MERCADO (N-1, auditoría consolidada del 22-11-2026): como con los precios (GES-1),
+     * una serie de cambios que empieza después de la primera operación no dice nada de los días anteriores, y esos días se
+     * valoran con el cambio escrito en las operaciones. Antes, con el mercado trayendo la divisa, el cambio propio se
+     * descartaba entero: una compra en USD con su cambio escrito el día 1 y la serie del mercado desde el día 2 valía cero
+     * el día 1, daba −100 % y congelaba la TWR de todo periodo que lo contuviera. Desde su primer punto manda el mercado.
+     */
+    const primero = ordenados([...delMercado])[0].fecha;
+    const anteriores = puntos.filter((punto) => punto.fecha < primero);
+    if (anteriores.length > 0) cambios.set(divisa, ordenados([...anteriores, ...delMercado]));
   }
   return cambios;
 }
@@ -300,8 +313,13 @@ interface PuntoDePrecio extends Punto {
  * también. Desde su primer punto manda la serie, y lo que el precio se movió hasta entonces
  * aparece junto ese día.
  *
- * Y lo que el banco declaró en un extracto de posiciones es un precio más: el valor de la
- * posición entre sus títulos, a la fecha del extracto. Solo se usa cuando es MÁS RECIENTE
+ * Y lo que el banco declaró en un extracto de posiciones es un precio más: el precio de mercado
+ * que el extracto da en la divisa del activo, si lo da (A-205, 21-11-2026); si no —los ficheros
+ * de antes y los extractos que no lo dicen—, el valor de la posición en la divisa base, llevado
+ * a la del activo con el cambio del día del extracto, entre sus títulos. El contravalor lleva el
+ * cambio que aplicó el banco, que no tiene por qué ser el que aquí se usa para todo lo demás: con
+ * el precio en su divisa, la posición vale lo que cotiza y no hereda ese cambio, y su valor en
+ * la base sale del mismo cambio que el resto de la cartera. Solo se usa cuando es MÁS RECIENTE
  * que el último precio de la plataforma (o no hay serie): el extracto del banco suele ir
  * unos días por delante, y sin él el patrimonio de hoy sale con precios de la semana pasada.
  * En cuanto la serie llega a esa fecha, vuelve a mandar ella. También vale el de un extracto
@@ -352,12 +370,19 @@ function preciosEfectivos(
     const mult = multiplicador(activo);
     for (const extracto of cartera.extractos) {
       for (const posicion of extracto.posiciones) {
-        if (posicion.activoId !== activo.id || posicion.valor === undefined) continue;
+        if (posicion.activoId !== activo.id) continue;
         /* GES-10 (auditoría del 16-11-2026): el precio es del día de su cotización, que el extracto dice posición a posición. Con la
            fecha del extracto —la mayor de todas— un fondo valorado tres días antes quedaba con un precio fechado de más. */
         const fechaDelPrecio = posicion.fecha ?? extracto.fecha;
         /* Dentro del tramo que cubre la serie manda ella. Antes de su primer punto, igual que después del último, el extracto es el único precio de mercado que hay. */
         if (ultimaDeMercado !== undefined && primeraDeMercado !== undefined && primeraDeMercado <= fechaDelPrecio && fechaDelPrecio <= ultimaDeMercado) continue;
+        /* A-205 (21-11-2026): si el extracto da el precio en la divisa del activo, vale ese precio, sin pasar por el contravalor. */
+        const enSuDivisa = posicion.precio !== undefined && posicion.divisa === activo.divisa ? Number(posicion.precio) : Number.NaN;
+        if (enSuDivisa > 0) {
+          porFecha.set(fechaDelPrecio, { fecha: fechaDelPrecio, valor: enSuDivisa / mult, fuente: FUENTE.extracto });
+          continue;
+        }
+        if (posicion.valor === undefined) continue;
         const titulos = Number(posicion.titulos);
         const valor = Number(posicion.valor);
         const cambio = activo.divisa === cartera.divisaBase ? 1 : cambioDe(activo.divisa, extracto.fecha);
@@ -609,6 +634,19 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
      desde ahí, lo que valga la cartera hasta que vuelva a entrar dinero no es capital del cliente sobre el que medir. */
   let hayDinero = false;
   let sinCapital: { desde: Dia; hasta: Dia; resultado: number } | undefined;
+  /*
+   * Y los días en que la cartera vale cero porque todo lo que tiene son títulos sin valorar —sin precio o sin tipo de
+   * cambio— (decisión 2 de la auditoría consolidada del 22-11-2026, aprobada por Óscar el 23-11). Ese cero no es falta de
+   * capital: es falta de valoración. Antes apagaba la cadena como un capital cero (GES-9), y como solo se reenciende con
+   * dinero nuevo del cliente, la TWR de cualquier periodo que contuviera ese día quedaba congelada para siempre (H1-01:
+   * 0 % con +4.500 € de resultado, −100 % desde el origen). Ahora esos días no se encadenan —no hay valor sobre el que
+   * medir—, la cadena no se apaga, y se reanuda el primer día con valor: la TWR mide desde que vuelve a haber valoración,
+   * y lo que la cartera ganó o perdió entretanto cuenta en el resultado en euros y en la TIR, y lo dice `SIN_VALORAR`.
+   * Una cartera con PARTE sin valorar sigue encadenándose con esa parte a cero (N02, 22-11-2026).
+   */
+  let titulosSinValorAyer = false;
+  let esperandoValor = false;
+  let sinValorar: { desde: Dia; hasta: Dia; resultado: number } | undefined;
 
   /* 4. Día a día. */
   for (let k = 0; k < n; k += 1) {
@@ -700,6 +738,8 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
       cambio: number;
       /** Valor de un título hoy, en la divisa del activo (precio × multiplicador + cupón corrido). */
       unitario: number;
+      /** En otra divisa y sin tipo de cambio hoy: no se puede valorar, y va como una posición sin precio. */
+      sinCambio: boolean;
     }
     const cierres: Cierre[] = [];
     for (const estado of estados.values()) {
@@ -716,17 +756,29 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
          resto entraba en el patrimonio y en la composición. */
       const unitarioAjustado = punto ? precioAjustado * multiplicador(activo) + corrido / factor : 0;
       const cambio = activo ? aBase(activo.divisa, dia) : 1;
-      const local = estado.titulos * factor * unitarioAjustado;
+      /*
+       * SIN CAMBIO ES SIN VALOR (22-11-2026, aprobado por Óscar). Una posición en otra divisa sin tipo de cambio ese día —ni
+       * del mercado, ni de sus propias operaciones (`cambiosEfectivos`)— tiene precio, pero no un valor en la base: es lo
+       * mismo que no tener precio, y va igual. Su fuente es `FUENTE.sinPrecio`, así que el análisis no da su valor, la pone
+       * en `sinPrecio` y cada cifra lo dice; cuenta como cero en la serie del valor, también en la divisa del activo, para
+       * que lo que pierde o recupera ese día vaya a la variación de precio como el de una posición sin precio, y no al
+       * efecto divisa. Antes valía 0 € con su fuente de siempre: con 2.000 € aportados y 1.000 pagados por 10 títulos a
+       * 100 $, el patrimonio era 1.000 €, el resultado −1.000 € de efecto divisa y la posición salía a 0 € en el informe del
+       * cliente sin una palabra.
+       */
+      const sinCambio = activo !== undefined && activo.divisa !== base && !(cambio > 0);
+      const local = sinCambio ? 0 : estado.titulos * factor * unitarioAjustado;
       const serie = estado.serie;
       serie.titulos[k] = estado.titulos;
+      /* Sin cambio, el precio se guarda igual: no valora nada, pero dice que lo que falta es el cambio (`integridad.ts`). */
       serie.precio[k] = precioAjustado * factor;
-      serie.fuente[k] = punto?.fuente ?? FUENTE.sinPrecio;
-      serie.antiguedad[k] = punto ? Math.min(65535, Math.max(0, diasEntre(punto.fecha, dia))) : 0;
+      serie.fuente[k] = sinCambio ? FUENTE.sinPrecio : punto?.fuente ?? FUENTE.sinPrecio;
+      serie.antiguedad[k] = punto && !sinCambio ? Math.min(65535, Math.max(0, diasEntre(punto.fecha, dia))) : 0;
       if (!punto && estado.titulos > 0 && !estado.sinPrecioDesde) {
         estado.sinPrecioDesde = dia;
         avisos.push({ codigo: "SIN_PRECIO", activoId: serie.activoId, desde: dia, mensaje: `${activo?.nombre ?? serie.activoId} no tiene ningún precio desde el ${fechaEnTexto(dia)}: cuenta como cero hasta que se le ponga uno.` });
       }
-      cierres.push({ estado, local, valor: local * cambio, cambio, unitario: unitarioAjustado * factor });
+      cierres.push({ estado, local, valor: local * cambio, cambio, unitario: unitarioAjustado * factor, sinCambio });
     }
     const cierreDe = new Map(cierres.map((cierre) => [cierre.estado.serie.activoId, cierre]));
 
@@ -752,13 +804,16 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
     let valorDePosiciones = 0;
     let precioDelDia = 0;
     let divisaDePosiciones = 0;
+    let titulosSinValorHoy = false;
     for (const cierre of cierres) {
-      const { estado, local, valor, cambio } = cierre;
+      const { estado, local, valor, cambio, sinCambio } = cierre;
       const id = estado.serie.activoId;
+      if (estado.titulos > 0 && estado.serie.fuente[k] === FUENTE.sinPrecio) titulosSinValorHoy = true;
       const invertido = invertidoBase.get(id) ?? 0;
       const resultadoBase = valor - estado.valorAyer - invertido;
       const resultadoLocal = local - estado.localAyer - (invertidoLocal.get(id) ?? 0);
-      const efectoPrecio = resultadoLocal * cambio;
+      /* Sin cambio no hay divisa que separar: lo del día es variación de precio, como en una posición sin precio. */
+      const efectoPrecio = sinCambio ? resultadoBase : resultadoLocal * cambio;
       const serie = estado.serie;
       serie.valor[k] = valor;
       serie.invertido[k] = invertido;
@@ -795,16 +850,29 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
        saldos en otra divisa. Si ni hoy ni ayer hubo efectivo en otra divisa, ese resto solo puede ser ruido de coma
        flotante (del orden de 1e-13) y se deja en cero exacto. */
     valoracion.divisaDelEfectivo[k] = hayOtraDivisa ? resultado - precioDelDia - divisaDePosiciones - ingresosDelDia + costesDelDia : 0;
-    if (!(capital > 1e-9)) hayDinero = false;
-    else if (entradas > 1e-9) hayDinero = true;
-    const residual = hayDinero && capital < CAPITAL_RESIDUAL * maximoHastaAyer;
-    const encadena = hayDinero && !residual;
+    /* Sin valoración: hoy no vale nada y tiene títulos sin valorar, o el capital es cero porque ayer pasaba eso. */
+    const porFaltaDeValor = (titulosSinValorHoy && !(valor > 1e-9)) || (!(capital > 1e-9) && titulosSinValorAyer);
+    if (porFaltaDeValor) esperandoValor = true;
+    else if (!(capital > 1e-9)) {
+      hayDinero = false;
+      esperandoValor = false;
+    } else if (entradas > 1e-9 || esperandoValor) {
+      /* Entra dinero del cliente, o vuelve el valor de una cartera que se quedó sin valoración. */
+      hayDinero = true;
+      esperandoValor = false;
+    }
+    const residual = hayDinero && !porFaltaDeValor && capital < CAPITAL_RESIDUAL * maximoHastaAyer;
+    const encadena = hayDinero && !residual && !porFaltaDeValor;
     valoracion.rentabilidad[k] = encadena ? (valor - salidas) / capital - 1 : 0;
     valoracion.encadena[k] = encadena ? 1 : 0;
     if (residual && Math.abs(resultado) >= 0.005) {
       sinEncadenar = sinEncadenar ? { desde: sinEncadenar.desde, hasta: dia, resultado: sinEncadenar.resultado + resultado } : { desde: dia, hasta: dia, resultado };
     }
-    if (!hayDinero && Math.abs(resultado) >= 0.005) {
+    if (porFaltaDeValor && Math.abs(resultado) >= 0.005) {
+      sinValorar = sinValorar ? { desde: sinValorar.desde, hasta: dia, resultado: sinValorar.resultado + resultado } : { desde: dia, hasta: dia, resultado };
+    }
+    titulosSinValorAyer = titulosSinValorHoy;
+    if (!hayDinero && !porFaltaDeValor && Math.abs(resultado) >= 0.005) {
       sinCapital = sinCapital ? { desde: sinCapital.desde, hasta: dia, resultado: sinCapital.resultado + resultado } : { desde: dia, hasta: dia, resultado };
     }
     maximoHastaAyer = Math.max(maximoHastaAyer, valor);
@@ -830,6 +898,17 @@ export function valorar(cartera: Cartera, mercado: DatosDeMercado = MERCADO_VACI
       codigo: "SIN_CAPITAL",
       desde: sinCapital.desde,
       mensaje: `${cuando} capital del cliente sobre el que medir (lo que valía era cero, negativo o solo lo ganado antes de que llegara el dinero): el resultado de ${unDia ? "ese día" : "esos días"}, ${signo}${cifraEnTexto(Math.abs(sinCapital.resultado), 2)} ${base}, no entra en la rentabilidad ponderada por tiempo, que se encadena desde que hay dinero. Suele ser una compra anotada antes que su aportación, o un cobro que llega a una cartera ya vacía: revisa las fechas. Sí cuenta en el resultado en euros.`
+    });
+  }
+
+  if (sinValorar) {
+    const unDia = sinValorar.desde === sinValorar.hasta;
+    const cuando = unDia ? `El ${fechaEnTexto(sinValorar.desde)} todo lo que tenía la cartera estaba` : `Del ${fechaEnTexto(sinValorar.desde)} al ${fechaEnTexto(sinValorar.hasta)} todo lo que tenía la cartera estuvo`;
+    const signo = sinValorar.resultado < 0 ? "−" : "";
+    avisos.push({
+      codigo: "SIN_VALORAR",
+      desde: sinValorar.desde,
+      mensaje: `${cuando} sin precio o sin tipo de cambio, y no hay valor sobre el que medir: ${unDia ? "ese día" : "esos días"} no ${unDia ? "entra" : "entran"} en la rentabilidad ponderada por tiempo, que sigue desde que vuelve a haber valoración, y su resultado, ${signo}${cifraEnTexto(Math.abs(sinValorar.resultado), 2)} ${base}, cuenta en el resultado en euros y en la TIR. Escribe el precio o el cambio que falta para medirlo.`
     });
   }
 

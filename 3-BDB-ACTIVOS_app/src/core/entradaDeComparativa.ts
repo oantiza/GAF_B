@@ -16,7 +16,7 @@ import {
   type ComparisonResult
 } from "./portfolioComparison";
 import { fraseDeLaParteMedida, motivoParaElCliente, pesoEnElPapel, type ParteMedida } from "./parteMedida";
-import { assetPmsShares } from "./portfolio";
+import { parteParaLaLectura, pesoSinReparto } from "./portfolio";
 import { calculatePortfolioCosts } from "./portfolioCosts";
 import { comparisonPositionRows } from "./portfolioComparisonReport";
 import { CATEGORIA_DE_LAS_ACCIONES, categoriaDeUnReparto, fraseDeLoQueNoEntra, FUERA_DEL_CATALOGO, FUERA_DEL_REPARTO } from "./repartoDelPapel";
@@ -103,16 +103,19 @@ export function loQueSeMideDe(historia: ComparisonHistory, posiciones: Cartera["
 
 /**
  * La renta variable de una cartera por región, mirando dentro de los fondos: la misma cuenta que el informe de cliente y la radiografía
- * (`computeEquityRegionAllocation`), y cuánto pesa esa renta variable en la cartera, con el peso canónico de cada activo (`assetPmsShares`).
+ * (`computeEquityRegionAllocation`), y cuánto pesa esa renta variable en la cartera, con el peso canónico de cada activo (`parteParaLaLectura`): un fondo sin reparto de activos no entra (A-211), y su peso en la cartera
+ * va en `sinRepartoPct`.
  * Lo que no tiene ficha cuenta en el total y no en la renta variable: no se sabe qué es.
  */
 export function rentaVariablePorRegionDe(posiciones: Cartera["positions"], assets: readonly BdbAssetDetail[]) {
   const porId = new Map(assets.map((asset) => [asset.asset_id, asset]));
   const conPeso = posiciones.filter((p) => Number.isFinite(p.weight_percent) && p.weight_percent > 0);
   const total = conPeso.reduce((suma, p) => suma + p.weight_percent, 0);
-  const deRentaVariable = conPeso.reduce((suma, p) => { const asset = porId.get(p.asset_id); return suma + (asset ? p.weight_percent * assetPmsShares(asset).shares.equity : 0); }, 0);
+  /* A-211: un fondo sin reparto de activos no entra en la renta variable ni en sus regiones; su peso va aparte, en `sinRepartoPct`. */
+  const deRentaVariable = conPeso.reduce((suma, p) => { const asset = porId.get(p.asset_id); return suma + (asset ? p.weight_percent * (parteParaLaLectura(asset, "equity") ?? 0) : 0); }, 0);
   const reparto = computeEquityRegionAllocation(conPeso, [...assets]);
-  return { filas: reparto.rows, pesoPct: total > 0 ? (deRentaVariable / total) * 100 : 0 };
+  const sinRepartoPct = pesoSinReparto(conPeso, [...assets]);
+  return { filas: reparto.rows, pesoPct: total > 0 ? (deRentaVariable / total) * 100 : 0, ...(sinRepartoPct > 0 ? { sinRepartoPct } : {}) };
 }
 
 /**

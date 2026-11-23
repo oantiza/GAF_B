@@ -8,6 +8,7 @@ import { ComparadorDePlanes } from "../components/planes/ComparadorDePlanes";
 import { FichaDelPlan } from "../components/planes/FichaDelPlan";
 import { TablaDeDatos } from "../components/tabla/TablaDeDatos";
 import { EmptyState } from "../components/ui/AsyncState";
+import { Aviso } from "../components/ui/Aviso";
 import { Button } from "../components/ui/Button";
 import { Campo } from "../components/ui/Campo";
 import { Esqueleto } from "../components/ui/Esqueleto";
@@ -265,6 +266,11 @@ export function PlanesPage() {
         title="Planes y EPSV"
       />
 
+      {/* PL4 (Óscar, 21-11-2026): la regla de esta pantalla (decisión D-11), bajo el título y no al pie, donde no se leía. */}
+      <Aviso tono="nota" titulo="No son parte de la cartera.">
+        Los planes de pensiones y las EPSV no salen en el Buscador, no se añaden a una propuesta y no entran en ningún análisis.
+      </Aviso>
+
       <div className="planes-filtros">
         <Campo className="planes-filtros__buscar" rotulo="Buscar">
           <input onChange={(evento) => cambiarFiltro({ busqueda: evento.target.value })} placeholder="Nombre, gestora o código" type="search" value={filtro.busqueda} />
@@ -351,9 +357,6 @@ export function PlanesPage() {
               {conProveedor ? "el banco" : "la entidad comercializadora"}: aquí no se calcula ninguna.
             </p>
             <p className="cmp-note">Marca de dos a {MAXIMO_A_COMPARAR} planes con «Comparar» para verlos uno junto a otro.</p>
-            <p className="cmp-note">
-              Los planes de pensiones y las EPSV no son parte de la cartera: no salen en el Buscador, no se añaden a una propuesta y no entran en ningún análisis.
-            </p>
           </div>
         </>
       ) : null}

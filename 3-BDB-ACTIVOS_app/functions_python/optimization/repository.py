@@ -17,6 +17,8 @@ from datetime import date, datetime, timedelta
 import math
 import os
 import time
+import traceback
+import uuid
 from quietlog import swallowed
 from firebase_functions import logger as LOGGER
 from .runtime import prepare_solver_during_reads
@@ -161,6 +163,45 @@ class InvalidOptimizationRequest(ValueError):
 
 class OptimizationError(RuntimeError):
     pass
+
+
+class OptimizationInternalError(Exception):
+    """Un fallo del programa dentro del optimizador, no de los datos ni de las restricciones (20-11-2026).
+
+    El texto es para el asesor y no lleva nada de la excepcion: la causa, con su traza, va al registro con `referencia`.
+    No hereda de OptimizationError, que la pantalla lee como «no hay solucion con lo que has pedido».
+    """
+
+    def __init__(self, referencia: str):
+        self.referencia = referencia
+        super().__init__(
+            "Error interno del optimizador: no es un problema de los activos ni de las restricciones elegidas, y cambiarlas "
+            f"no lo arregla. Ha quedado registrado con la referencia {referencia}.")
+
+
+def es_fallo_del_calculo(exc: BaseException) -> bool:
+    """Si una excepcion del motor es del calculo numerico (el solver no converge, se sale de las cotas, una matriz que no
+    se factoriza, un objetivo al que no llega) y no un error de programacion.
+
+    Cuentan como calculo: los errores del solver (cvxpy) y de PyPortfolioOpt, el `RuntimeError` con que el propio motor
+    rechaza una solucion que no cumple, y el `ValueError` (con `LinAlgError`) con que PyPortfolioOpt y numpy rechazan un
+    problema que no pueden resolver. Un `TypeError`, `KeyError`, `AttributeError`, `IndexError`, `NameError`,
+    `ZeroDivisionError` o `AssertionError`, y las subclases de `RuntimeError` que no son del calculo (`RecursionError`,
+    `NotImplementedError`), son del programa."""
+    if isinstance(exc, (RecursionError, NotImplementedError)):
+        return False
+    numericos: Tuple[type, ...] = (RuntimeError, ValueError)
+    try:
+        from cvxpy.error import SolverError
+        numericos += (SolverError,)
+    except ImportError:  # pragma: no cover - cvxpy va con PyPortfolioOpt
+        pass
+    try:
+        from pypfopt.exceptions import OptimizationError as FalloDePyPortfolioOpt
+        numericos += (FalloDePyPortfolioOpt,)
+    except ImportError:  # pragma: no cover
+        pass
+    return isinstance(exc, numericos)
 
 
 @dataclass(frozen=True)
@@ -1058,10 +1099,16 @@ def backtest_portfolio(reader, request: dict, *, risk_free_rate: float = DEFAULT
         if isinstance(aid, str) and aid.strip():
             aid = canonical_noting(aid, alias_resolutions)
             w = p.get("weight")
+            if isinstance(w, bool):
+                # `True` es 1.0 para float(): un peso de verdad/falso es un dato mal formado, no un 100 %.
+                raise InvalidOptimizationRequest("weight must be a number.")
             try:
                 w = float(w)
             except (TypeError, ValueError):
                 w = 0.0
+            if not math.isfinite(w):
+                # inf/inf = NaN al normalizar: se rechaza en vez de contaminar la cartera.
+                raise InvalidOptimizationRequest("weight must be a finite number.")
             if aid not in weights:
                 if len(ids) >= MAX_REBASED_SERIES_ASSETS:
                     # El tope recortaba en silencio: ahora sale en excluded_assets.
@@ -1441,8 +1488,16 @@ def _optimize_v2(req, asset_ids, matrix, periodo, excluded, warnings, as_of_date
     except (InvalidOptimizationRequest, OptimizationError):
         raise  # ya llevan su mensaje
     except Exception as exc:
-        # Hallazgo 15 (15-11-2026): cualquier otro fallo del motor (el segundo intento del solver que tambien falla en la
-        # minima volatilidad, la «Rentabilidad objetivo» a la que no llega) sale como error con mensaje y no como INTERNAL.
+        if not es_fallo_del_calculo(exc):
+            # 20-11-2026 (pendiente del hallazgo 15): un error de programacion no es «el optimizador no ha conseguido una
+            # solucion», que manda al asesor a quitar restricciones que no tienen la culpa. Sale como error interno, con
+            # una referencia para buscarlo en el registro y sin el texto ni la traza de la excepcion.
+            referencia = uuid.uuid4().hex[:8]
+            LOGGER.error("portfolio_optimization_internal_error", error=type(exc).__name__, detail=str(exc)[:300],
+                         objective=req.objective, referencia=referencia, traza=traceback.format_exc()[-2000:])
+            raise OptimizationInternalError(referencia) from exc
+        # Hallazgo 15 (15-11-2026): un fallo del calculo (el segundo intento del solver que tambien falla en la minima
+        # volatilidad, la «Rentabilidad objetivo» a la que no llega) sale como error con mensaje y no como INTERNAL.
         LOGGER.warn("portfolio_optimization_solver_failed", error=type(exc).__name__, detail=str(exc)[:300], objective=req.objective)
         raise OptimizationError(_mensaje_de_fallo_del_optimizador(req.objective)) from exc
     all_warnings = list(warnings) + list(eng.get("warnings", []))

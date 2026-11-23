@@ -607,10 +607,10 @@ describe("5 · los cambios menores", () => {
     expect(portada).toContain("Informe de su cartera");
     expect(portada).not.toMatch(/Rentabilidad anualizada|Volatilidad|Sharpe|Caída máxima|Tipo sin riesgo/);
     expect(paginas[0]).not.toMatch(/Rentabilidad anualizada|Volatilidad 3 años|Sharpe 3 años|Caída máxima|Tipo sin riesgo/);
-    /* Las cuatro, con su nota, en «Cifras de la cartera». */
+    /* Las cuatro en «Cifras de la cartera», sin la nota del tipo sin riesgo (22-11-2026). */
     const cifras = seccion(paginas, "cifras");
     for (const rotulo of ["Rentabilidad anualizada 3 años", "Volatilidad 3 años", "Sharpe 3 años", "Caída máxima 3 años"]) expect(cifras, rotulo).toContain(rotulo);
-    expect(cifras).toContain("Tipo sin riesgo a 3 años: 2,00 %, la referencia del ratio de Sharpe.");
+    expect(cifras).not.toContain("Tipo sin riesgo");
     /* Y van tras el reparto y delante de la geografía, como en la hoja 03 del papel de antes; nunca en la primera hoja. */
     const todo = paginas.join(" ");
     const [reparto, lasCifras, geografia] = ["02 Reparto de la cartera", "03 Cifras de la cartera", "04 Distribución geogr"].map((titulo) => todo.indexOf(titulo));
@@ -685,21 +685,20 @@ describe("5 · los cambios menores", () => {
     expect(report.positions.length).toBe(5);
   }, 30_000);
 
-  test("el tipo sin riesgo ya no es una casilla: la tira lleva cuatro cifras y el tipo va en la nota", async () => {
+  test("el tipo sin riesgo ya no es una casilla ni una nota: la tira lleva cuatro cifras", async () => {
     const { report, ids } = cartera(5);
     const filas = informeDeClienteMetricRows(report, analisis(backtest(ids, ids), 100));
     expect(filas.map((f) => f.label)).toEqual(["Rentabilidad anualizada 3 años", "Volatilidad 3 años", "Sharpe 3 años", "Caída máxima 3 años"]);
     const hoja = seccion(await hojas(entrada(5)), "cifras");
-    expect(hoja).toContain("Tipo sin riesgo a 3 años: 2,00 %, la referencia del ratio de Sharpe.");
-    expect(hoja).not.toMatch(/TIPO SIN RIESGO 3/);
+    expect(hoja).not.toMatch(/Tipo sin riesgo|TIPO SIN RIESGO 3/);
   }, 30_000);
 
-  test("bajo las cifras, solo el tipo sin riesgo: ni la simulación, ni la parte medida, ni los tramos estimados (A-143)", async () => {
+  test("bajo las cifras, nada: ni el tipo sin riesgo (22-11-2026), ni la simulación, ni la parte medida, ni los tramos estimados (A-143)", async () => {
     const conReferencia = [{ assetId: "LU0900000000", reference: "Índice", url: "https://x", estimatedFrom: "2023-08-25", estimatedUntil: "2024-01-05", observedFrom: "2024-01-08", validationWeeks: 80, holdoutCorrelation: 0.97, residualVolatility: 0.08, referenceHasBacktestedHistory: false }];
     const base = entrada(10, { fuera: 2 });
     const paginas = await hojas({ ...base, analysis: { ...base.analysis!, extensions: conReferencia } });
     const hoja = seccion(paginas, "cifras");
-    expect(hoja).toContain("Tipo sin riesgo a 3 años: 2,00 %, la referencia del ratio de Sharpe.");
+    expect(hoja).not.toContain("Tipo sin riesgo");
     expect(hoja).not.toMatch(/Simulación con los pesos de hoy|Mide el|quedan? fuera|tramos anteriores|anexo|Cifras ilustrativas/);
     /* Lo quitado de aquí sigue donde ya estaba: la simulación y su cobertura, bajo la curva de la hoja 04. */
     const hoja4 = seccion(paginas, "evolucion");
@@ -759,7 +758,7 @@ describe("5 · los cambios menores", () => {
     const bytes = await bytesDe({ ...base, analysis: { ...base.analysis!, backtest: bt, extensions: conReferencia } }, "guia-mas-larga");
     const paginas = extractPdfPageTexts(bytes).map(plano);
     expect(numeros(paginas)).toEqual(numerosSeguidos(paginas, { ampliado: true }));
-    expect(seccion(paginas, "guia")).toContain("Un tipo jo de respaldo");
+    expect(seccion(paginas, "cifras")).toContain("Sharpe con un tipo jo de respaldo");
     expect(seccion(paginas, "guia")).toContain("Cifras calculadas sobre el 81,8 % de la cartera.");
     expect(lineasBajoElPie(bytes)).toEqual([]);
   }, 30_000);
@@ -1071,5 +1070,31 @@ describe("la matriz de solapamiento, en el papel de cliente (Óscar, 12-11-2026)
     expect(hoja).toContain("Los otros 3 fondos comparables no comparten el 40 % o más con ningún otro: Fondo de ejemplo A, Fondo de ejemplo B y Fondo de ejemplo C.");
     expect(matriz).not.toMatch(/sin comunes|100 %/);
     expect(lineasBajoElPie(bytes)).toEqual([]);
+  }, 30_000);
+});
+
+describe("las crisis, con la serie que deja de cotizar (A-209, Óscar, 21-11-2026)", () => {
+  /* Desde P1-06 una posición cuya serie se detiene antes que las demás no entra en las crisis (`SERIES_ENDS_EARLY`). La línea de «Crisis
+     pasadas» de la guía lo dice ahora, como ya lo decía la frase de la sección (A-206). */
+  /* N03 (22-11-2026): y la que tiene un hueco de más de catorce días dentro de la crisis (`GAP_IN_WINDOW`). */
+  /* Desde el 22-11-2026 la guía no lleva «Crisis pasadas» (Óscar: es redundante): lo dice la nota de la propia sección. */
+  test("la sección de las crisis cubre también la serie parada y la que no cotizó durante parte de la crisis, y la guía no lo repite", async () => {
+    const paginas = await hojas(entrada(3));
+    expect(plano(seccion(paginas, "crisis"))).toContain("sin cotizaciones durante parte de ella o sin precios recientes no entran");
+    expect(plano(seccion(paginas, "guia"))).not.toContain("Crisis pasadas");
+  }, 30_000);
+});
+
+describe("la geografía, con un fondo sin reparto de activos (A-211, con el sí de Óscar)", () => {
+  /* El análisis dice que el 12,5 % de lo invertible no declara su reparto; sin nada fuera, es el 12,5 % de la cartera. */
+  test("bajo el mapa, qué parte de la cartera no entra en las regiones", async () => {
+    const base = entrada(3);
+    const report = {
+      ...base.report,
+      xray: { ...base.report.xray, pms_exposure_sin_reparto_percent: 12.5, pms_exposure_sin_reparto: [{ asset_id: base.report.positions[2].asset_id, display_name: base.report.positions[2].display_name, weight_percent: 12.5 }] }
+    } as BdbPortfolioReport;
+    const geografia = plano(seccion(await hojas({ ...base, report }), "geografia"));
+    expect(geografia).toContain("Falta el dato: el 12,5 % de la cartera no declara su reparto de activos, y no se sabe qué parte es renta variable; no entra en este reparto.");
+    expect(plano(seccion(await hojas(base), "geografia"))).not.toContain("no declara su reparto de activos");
   }, 30_000);
 });

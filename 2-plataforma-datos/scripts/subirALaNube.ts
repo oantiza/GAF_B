@@ -5,6 +5,8 @@
  *   BDB_SUBIDA_A_LA_NUBE=SI_ENTIENDO_QUE_ESCRIBE_EN_LA_NUBE \
  *     npm run nube:subir -- --escribe        # escribe
  *
+ * `--reanuda-desde <ruta>` sigue una subida cortada desde la primera ruta de la tanda que falló (la dice al fallar).
+ *
  * `--parte catalogo` sube solo lo que no es de nadie y `--parte carteras` solo lo que sí.
  * Existe porque las dos mitades **no están listas a la vez**: el catálogo se lee con tener
  * sesión, y una cartera solo la lee su dueño, que tiene que existir antes.
@@ -60,15 +62,18 @@ import { HOST_EMULADOR_BASE_NUEVA, PROYECTO_BASE_NUEVA } from '../src/config/pro
 import { planDeCorreccion, type Disponibilidad } from '../src/ingestion/baseNueva/correccionDeBajas';
 import { validarForma } from '../src/config/baseNueva/validadores';
 import { CONTRATOS_FUERA_DE_LA_SUBIDA } from '../src/ingestion/baseNueva/carteraDelEmisor';
-import { coleccionesRaizDeclaradas, raicesDelDueno, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
+import { coleccionesRaizDeclaradas, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
 import { marcaDeTiempo } from '../src/ingestion/baseNueva/retrocesiones';
 import {
     claseDeLaColeccion,
     compararConLaNube,
     entraEnLaParte,
+    loQueQuedaPorSubir,
     PARTES,
     PARTES_QUE_NO_PISAN,
-    type Parte
+    raicesDeLaSubida,
+    type Parte,
+    type RaicesDeLaSubida
 } from '../src/ingestion/baseNueva/partesDeLaSubida';
 import {
     describirPlan,
@@ -142,10 +147,11 @@ interface DocumentoLeido {
 
 /*
  * Las partes de la base, y la línea que las separa es de quién es el dato. La regla vive en
- * `partesDeLaSubida.ts`: lo que el contrato declara de la aplicación (`x-owner: app`) nunca es catálogo.
+ * `partesDeLaSubida.ts`: lo que el contrato declara de la aplicación (`x-owner: app`) nunca es catálogo,
+ * y una raíz que no declara ningún contrato no es de ninguna parte (falla cerrada).
  */
-const RAICES_DE_LA_APP: ReadonlySet<string> = raicesDelDueno('app');
-const claseDe = (documento: DocumentoLeido) => claseDeLaColeccion(documento.ruta.split('/')[0], RAICES_DE_LA_APP);
+const RAICES: RaicesDeLaSubida = raicesDeLaSubida();
+const claseDe = (documento: DocumentoLeido) => claseDeLaColeccion(documento.ruta.split('/')[0], RAICES);
 
 /** Márgenes comerciales: ni catálogo ni de un asesor, y se suben por su propia decisión. */
 function esRetrocesion(documento: DocumentoLeido): boolean {
@@ -221,7 +227,7 @@ async function grupo(coleccion: string): Promise<{ name: string; fields?: Record
  * escribe su primer documento, que es la misma regla que sigue la auditoría.
  */
 async function leerElEmulador(parte: Parte, conCarteraDelEmisor: boolean): Promise<DocumentoLeido[]> {
-    const entra = (raiz: string | undefined): boolean => entraEnLaParte(parte, raiz, RAICES_DE_LA_APP);
+    const entra = (raiz: string | undefined): boolean => entraEnLaParte(parte, raiz, RAICES);
     const raices = coleccionesRaizDeclaradas();
     const subs = subcoleccionesDeclaradas();
     const vistos = new Set<string>();
@@ -548,10 +554,18 @@ async function main(): Promise<void> {
     const LIMITE_OPERACIONES = 400;
     const LIMITE_BYTES = 2 * 1024 * 1024;
 
+    /* P2-09: `--reanuda-desde <ruta>` sigue una subida cortada desde la primera ruta de la tanda que falló, que es la que
+       se dice al fallar. Escribir es idempotente, así que repetir entera también vale: esto solo ahorra lo ya escrito. Y la
+       relectura de después compara todos los documentos de la parte, también los que aquí se saltan. */
+    const { quedan, saltados } = loQueQuedaPorSubir(aSubir, valor('reanuda-desde'));
+    if (saltados > 0) {
+        console.log(`reanuda desde ${quedan[0]?.ruta}: se saltan ${saltados} documentos, que se dan por escritos y se releen igual`);
+    }
+
     const tandas: DocumentoLeido[][] = [];
     let enCurso: DocumentoLeido[] = [];
     let bytesEnCurso = 0;
-    for (const documento of aSubir) {
+    for (const documento of quedan) {
         const suyos = documento.bytes;
         const llena = enCurso.length >= LIMITE_OPERACIONES || bytesEnCurso + suyos > LIMITE_BYTES;
         if (enCurso.length > 0 && llena) {
@@ -594,13 +608,15 @@ async function main(): Promise<void> {
             /* Dónde se paró y con qué dentro: sin esto, un fallo a media subida deja la nube en
                un estado que hay que ir a medir a mano, que es lo que pasó el 03-11-2026. */
             console.log('');
-            console.log(`FALLO en la tanda ${i + 1} de ${tandas.length}: ${escritos} documentos ya escritos.`);
+            console.log(`FALLO en la tanda ${i + 1} de ${tandas.length}: ${saltados + escritos} documentos ya escritos.`);
             console.log(`  documentos en la tanda: ${tanda.length}`);
             console.log(`  primera ruta          : ${tanda[0]?.ruta ?? '(vacia)'}`);
+            console.log('  No se ha borrado nada. Para seguir desde aqui, la misma orden con:');
+            console.log(`    --reanuda-desde ${tanda[0]?.ruta ?? '(vacia)'}`);
             throw error;
         }
         escritos += tanda.length;
-        if (i % 5 === 4 || escritos === aSubir.length) console.log(`  ${escritos} de ${aSubir.length}`);
+        if (i % 5 === 4 || escritos === quedan.length) console.log(`  ${saltados + escritos} de ${aSubir.length}`);
     }
 
     /* Después de escribir: si una tanda falla no se ha borrado nada. */

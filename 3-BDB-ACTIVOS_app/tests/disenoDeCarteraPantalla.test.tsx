@@ -389,7 +389,7 @@ describe("Simular dice el tope que ha aplicado (hallazgo 125)", () => {
     /* Decisión 40: es la misma cartera que en Optimizar, y lo que se dice es de qué modelo sale y con qué tope. */
     expect(host.textContent).not.toContain("No es la misma cartera");
     expect(host.textContent).not.toContain("otro cálculo");
-    expect(host.textContent).toContain(`Máximo Sharpe del modelo: rentabilidades y covarianza regularizadas, ${limites ? `tope del ${Math.round(limites[1] * 100)},0\u00a0% por posición` : "tope por posición no informado"}.`);
+    expect(host.textContent).toContain(`Máximo Sharpe del modelo: covarianza regularizada (con tres activos o menos, las rentabilidades no se regularizan), ${limites ? `tope del ${Math.round(limites[1] * 100)},0\u00a0% por posición` : "tope por posición no informado"}.`);
   });
 
   test("si medida con la serie queda por debajo de la cartera, lo dice con las dos cifras", async () => {

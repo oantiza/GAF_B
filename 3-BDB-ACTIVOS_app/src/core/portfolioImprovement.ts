@@ -155,7 +155,8 @@ const REJECTION_LABELS: Record<string, string> = {
   DISTRIBUTES_WITHOUT_PAYMENTS: "Reparte y no tenemos todos los pagos",
   NON_INVESTABLE: "No invertible",
   NON_INVESTABLE_CORPORATE_ACTION: "Baja por fusión: no admite nuevas selecciones",
-  ASSET_CAP_EXCEEDED: "Fuera por el tope de activos"
+  ASSET_CAP_EXCEEDED: "Fuera por el tope de activos",
+  POSITION_HISTORY_EXTENDED: "La posición tiene un tramo estimado con su referencia: no se le buscan sustitutos"
 };
 
 export function rejectionLabel(reason: string): string {
@@ -267,7 +268,7 @@ export function notasDelPeriodo(response: ImprovementResponse, nombreDe: (assetI
   const extensiones = response.extensions ?? [];
   const completadas = extensiones.length > 0
     ? `Completada${extensiones.length === 1 ? "" : "s"} con una referencia antes de su inicio real, como en la simulación: ${extensiones
-      .map((item) => `${nombreDe(item.asset_id)}, con ${item.reference} hasta el ${fecha(item.observed_from) ?? ""}`).join("; ")}. Ese tramo es estimado, no historia observada.`
+      .map((item) => `${nombreDe(item.asset_id)}, con ${item.reference} hasta el ${fecha(item.observed_from) ?? ""}`).join("; ")}. Ese tramo es estimado, no historia observada, y por eso a ${extensiones.length === 1 ? "esa posición" : "esas posiciones"} no se le${extensiones.length === 1 ? "" : "s"} buscan sustitutos.`
     : null;
   const tope = response.candidates_per_position;
   const recorte = tope?.trimmed
@@ -293,12 +294,27 @@ export function excluidosSinRepetir(response: ImprovementResponse): ImprovementR
   return response.excluded_assets.filter((item) => !dichos.has(item.asset_id));
 }
 
-/** Posiciones del Constructor con las sustituciones aplicadas y los pesos intactos. */
+/** Ids con candado que están entre las posiciones invertidas, en orden estable: lo que la huella del cálculo recuerda. */
+export function improvementLockKey(
+  positions: readonly Pick<BdbManualPortfolioPosition, "asset_id" | "weight_percent">[],
+  lockedIds: readonly string[] = []
+): string {
+  const held = new Set(positions.filter((position) => position.weight_percent > 0).map((position) => position.asset_id));
+  return [...new Set(lockedIds)].filter((id) => held.has(id)).sort().join(",");
+}
+
+/**
+ * Posiciones del Constructor con las sustituciones aplicadas y los pesos intactos.
+ * Una posición con candado no se sustituye nunca, aunque la propuesta la nombre (H1-12):
+ * el candado puede haberse puesto después del cálculo.
+ */
 export function proposalPositions(
   positions: readonly BdbManualPortfolioPosition[],
-  proposal: ImprovementProposal
+  proposal: ImprovementProposal,
+  lockedIds: readonly string[] = []
 ): BdbManualPortfolioPosition[] {
-  const replacement = new Map(proposal.substitutions.map((s) => [s.from_asset_id, s]));
+  const locked = new Set(lockedIds);
+  const replacement = new Map(proposal.substitutions.filter((s) => !locked.has(s.from_asset_id)).map((s) => [s.from_asset_id, s]));
   return positions.map((position) => {
     const sub = replacement.get(position.asset_id);
     return sub

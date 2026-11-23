@@ -21,7 +21,6 @@
 .positions-footnote,
 .optimizer-locked-note,
 .frontier-soft-notice,
-.system-freshness-age,
 .avisos-mercado-objetivo__marco,
 .risk-profile-disclaimer {
   font-size: var(--texto-xs);
@@ -548,7 +547,6 @@
   }
 }
 
-.cmp-dot,
 .cmp-legend-dot {
   width: 8px;
   height: 8px;
@@ -850,8 +848,7 @@
 /* Listas de definición usadas como rejilla de métricas: nunca deben
    empujar el ancho del documento por un valor largo sin espacios. */
 .portfolio-import-kpis > div,
-.asset-detail-kpis > div,
-.metric-grid > div {
+.asset-detail-kpis > div {
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
@@ -917,6 +914,32 @@
 
 .portfolio-table tbody td {
   border-bottom: 1px solid var(--filete);
+}
+
+/* La fila «Total», al pie (D1, 21-11-2026): la suma en negrita, que es lo que el sistema deja a la negrita en una tabla,
+   y «Normalizar al 100 %» junto al rótulo, siempre a la vista. El filete fuerte la separa de las posiciones. */
+.portfolio-table__total > * {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--filete-fuerte);
+  font-weight: 600;
+  text-align: left;
+}
+
+.portfolio-table__total > th {
+  padding-left: 0;
+}
+
+.portfolio-table__total > .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.portfolio-table__total-rotulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
 }
 
 /* Lo que va debajo de un nombre y es una frase, no un código: en monoespaciada se leía como un identificador. */
@@ -1674,6 +1697,12 @@
   padding: 0;
 }
 
+/* En la fila de tres (Producto, Categoría, Exposición agregada) cada lista vive en un tercio: con 38 em su cifra
+   quedaba a 32 px de la lista de al lado y se leía como suya. La concentración, en dos tercios, conserva los 38 em. */
+.xray-dist-grid:not(.xray-dist-grid--secondary) .xray-dist-rows {
+  max-width: var(--reparto-max-w);
+}
+
 .xray-dist-rows > li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 64px;
@@ -1863,7 +1892,8 @@
 .f5-stress-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: var(--s-5);
+  /* 24 px entre tarjetas (Óscar, 20-11-2026): con 12 se leían como una sola tabla. */
+  column-gap: var(--s-8);
   row-gap: 0;
 }
 
@@ -1874,7 +1904,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: subgrid;
-  grid-row: span 6;
+  grid-row: span 7;
   min-width: 0;
 }
 
@@ -1911,8 +1941,18 @@
   grid-row: 5;
 }
 
-.f5-stress-card > .f5-stress-detail:last-child {
+/* `last-of-type`, no `last-child`: en la historia común, detrás de los excluidos va la frase de las mismas fechas, que es un párrafo. */
+.f5-stress-card > .f5-stress-detail:last-of-type {
   grid-row: 6;
+}
+
+/* Por qué la historia común da otra cifra que la crisis con la que comparte fechas (HistoricalStressCards.tsx, 20-11-2026). Es una frase:
+   va en la letra de las notas y parte donde haga falta. */
+.f5-stress-card > .f5-stress-mismas-fechas {
+  grid-row: 7;
+  color: var(--tinta-2);
+  font-size: var(--texto-xs);
+  line-height: var(--lh-snug);
 }
 
 /* MAR-32: el nombre del escenario era un `h4`, que el navegador deja al tamaño de lo que lo rodea; como `h3` lo conserva. */
@@ -1990,7 +2030,7 @@
 @media (max-width: 1379.98px) {
   .f5-stress-grid {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--s-5);
+    row-gap: var(--s-8);
   }
 
   .f5-stress-card {
@@ -2291,9 +2331,10 @@
 
 /* Asignación (la única rejilla con bloques anchos), siempre en dos columnas desde 860: con `auto-fit` salían tres, y
    cada bloque ancho dejaba un tercio vacío. Hasta 1.440 la matriz y las tablas van a todo el ancho y los dos aros, en
-   pareja; desde 1.440 —cortes declarados en tests/cortesDeAncho.test.ts— los ocho bloques van por parejas en su orden
-   (Visión con la matriz, los dos aros y las cuatro tablas de dos en dos). Así ningún aro baja de unos 450 px ni una
-   tabla de lo que medía como bloque ancho con cuatro columnas, y el recuento cabe junto a su título. */
+   pareja; desde 1.440 —cortes declarados en tests/cortesDeAncho.test.ts— los bloques van por parejas en su orden
+   (los dos aros y las cuatro tablas de dos en dos; la visión y la matriz, a todo el ancho desde el 21-11-2026). Así
+   ningún aro baja de unos 450 px ni una tabla de lo que medía como bloque ancho con cuatro columnas, y el recuento cabe
+   junto a su título. */
 @media (min-width: 860px) {
   .strategy-grid:has(> .strategy-span-2) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2314,6 +2355,12 @@
 
 .strategy-span-2 {
   grid-column: span 2;
+}
+
+/* La visión de asignación y la matriz, a todo el ancho en todos los anchos: la visión es una banda de texto sobre el
+   gráfico. Con ellas fuera de las parejas, desde 1.440 siguen juntos los dos aros y las tablas de dos en dos. */
+.strategy-ancho {
+  grid-column: 1 / -1;
 }
 
 .strategy-drivers,
@@ -2360,9 +2407,11 @@
 
 /* Las cifras de mercado: rótulo, valor y flecha, con un filete debajo, como las filas de la ficha.
    El valor es texto libre del informe («90,40 – 90,79 USD/barril al 20 jul 2026»), así que puede
-   partirse; lo que no hace es estirarse hasta el alto de la columna vecina. */
+   partirse; lo que no hace es estirarse hasta el alto de la columna vecina. Y con tope de lectura (21-11-2026): a 1.920
+   la cifra quedaba a 22 px de los hechos de la sesión de la columna siguiente. */
 .strategy-kpis dl {
   margin: 0;
+  max-width: var(--cifras-mercado-max-w);
 }
 
 .strategy-kpi {
@@ -2505,8 +2554,6 @@
   font-size: var(--texto-xs);
 }
 
-
-
 /* ==========================================================================
    16. Informes
    ========================================================================== */
@@ -2515,101 +2562,17 @@
    17. Estado del sistema
    ========================================================================== */
 
-.system-status-page,
-.system-status-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-8);
-  min-width: 0;
-}
-
-/* El veredicto, en tarjeta de papel como los paneles que lo siguen (dirección A, 18-11-2026): suelto sobre el marfil
-   era el único bloque de la pestaña sin superficie. La tarjeta es blanca y no de color: el estado lo dicen el punto
-   del orbe y el distintivo. */
-.system-health-hero {
-  display: flex;
-  align-items: center;
-  gap: var(--s-7);
-  padding: calc(var(--s-6) + var(--s-1)) var(--s-7);
-  border: 1px solid var(--filete);
-  border-radius: var(--radio-bloque);
-  background: var(--papel);
-  box-shadow: var(--sombra-tarjeta);
-  flex-wrap: wrap;
-}
-
-/* El orbe, en el fondo suave de su estado: en blanco sobre la tarjeta blanca no se vería. */
-.system-health-orb {
-  width: var(--s-10);
-  height: var(--s-10);
-  border-radius: var(--radius-round);
-  background: var(--banda);
-  border: 0;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  color: var(--tinta-2);
-}
-
-.is-ok .system-health-orb {
-  color: var(--marca);
-  background: var(--marca-tenue);
-}
-.is-warn .system-health-orb {
-  color: var(--aviso);
-  background: var(--aviso-suave);
-}
-.is-fail .system-health-orb {
-  color: var(--baja);
-  background: var(--baja-suave);
-}
-
-.system-health-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  min-width: 0;
-  flex: 1;
-}
-
-/* Sin filete propio en cada columna, el hueco es lo que las separa: con menos, «Correcto» y el título de la
-   siguiente se leían seguidos. */
-.system-freshness-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: var(--s-5) var(--s-10);
-}
-
-/* Frescura por fuente: una columna con su estado en el distintivo. Sin filete propio: el de
-   arriba ya es el de la cabecera, y con los dos salían dos líneas a 17 px una de otra. */
-.system-freshness-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  min-width: 0;
-}
-
-/* La fecha de cada proceso es la cifra de su columna: en la serifa de la dirección A, como `.respuesta__cifra`. */
-.system-freshness-date {
-  font-family: var(--fuente-serifa);
-  font-feature-settings: normal;
-  font-size: var(--cifra-indicador);
-  font-weight: var(--peso-titulo);
-  line-height: 1.125;
-  letter-spacing: -0.01em;
-  font-variant-numeric: lining-nums tabular-nums;
-}
-
-/* Una tabla de rótulo y cifra (Conteos de la maestra, Estado del catálogo) no se estira a todo el ancho: a 2560 la
+/* Una tabla de rótulo y cifra (Estado del catálogo) no se estira a todo el ancho: a 2560 la
    cifra quedaba a más de 1.000 px de su nombre. La de «Para revisar», de tres columnas, sigue a lo ancho. */
-:is(.system-status-content, .admin-tab-panel > .stack) .tabla__marco:has(> .tabla > thead > tr > th:last-child:nth-child(2)) {
+.admin-tab-panel > .stack .tabla__marco:has(> .tabla > thead > tr > th:last-child:nth-child(2)) {
   max-width: var(--filas-max-w);
 }
 
-.system-problem-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
+/* Y su tarjeta se ajusta a la tabla, cuando la tabla es todo lo que lleva: el blanco pasa al lienzo, fuera de la
+   tarjeta (21-11-2026). El tope es el de la tabla más el relleno y el borde de la tarjeta; `em` se resuelve en la
+   tarjeta, que tiene la misma letra que la tabla. */
+.admin-tab-panel > .stack .panel:has(> .panel__body > .tabla__marco:only-child > .tabla > thead > tr > th:last-child:nth-child(2)) {
+  max-width: calc(var(--filas-max-w) + 2 * var(--s-7) + 2px);
 }
 
 /* ==========================================================================
@@ -2635,21 +2598,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-8);
-}
-
-.admin-status-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-6);
-  min-width: 0;
-}
-
-.admin-content-toolbar,
-.admin-reference-picker {
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-  flex-wrap: wrap;
 }
 
 /* ==========================================================================
@@ -3199,112 +3147,6 @@ input.wealth-tipo {
 /* Cabecera de sección de Estado del sistema: antetítulo sobre título */
 /* Antetítulo + título en columna (el marcador y el filete vienen de
    components.css). */
-/* --- Estado del sistema: detalle --- */
-
-.system-health-copy > p {
-  font-size: var(--texto-sm);
-  color: var(--tinta-2);
-}
-
-.system-health-copy > .system-health-titular {
-  font-size: var(--titulo-md);
-  font-weight: 500;
-  line-height: var(--lh-snug);
-  color: var(--tinta);
-}
-
-.system-health-copy > small {
-  font-size: var(--texto-xs);
-  color: var(--tinta-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.system-health-orb > span {
-  width: var(--s-5);
-  height: var(--s-5);
-  border-radius: var(--radius-round);
-  background: currentColor;
-  display: block;
-}
-
-.system-freshness-card > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-4);
-}
-
-.system-freshness-card > header h3 {
-  font-size: var(--texto-sm);
-  font-weight: 600;
-}
-
-.system-freshness-card > small {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.system-problem-list > li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: var(--s-5);
-  padding: var(--s-5) 0;
-  border-bottom: 1px solid var(--filete);
-}
-
-.system-problem-list > li:last-child {
-  border-bottom: 0;
-}
-
-.system-problem-list > li > div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  min-width: 0;
-}
-
-.system-problem-list strong {
-  font-size: var(--texto-sm);
-  font-weight: 500;
-}
-
-/* El `<span>` descriptivo de la fila, NO cualquier span que haya dentro: el
-   distintivo de severidad tambien es un span y lleva otro dentro con su punto,
-   y esta regla los pintaba de gris. Con el punto relleno el fallo pasaba
-   inadvertido —un circulo gris de 7 px junto a una palabra de color—; con
-   el anillo del aviso (03-11-2026) se vio: el aro salia gris. */
-.system-problem-list > li > div > span {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.system-problem-list small {
-  font-family: var(--fuente-codigo);
-  font-size: var(--texto-xs);
-  color: var(--tinta-3);
-  overflow-wrap: anywhere;
-}
-
-.system-problems-empty {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--s-5);
-  min-height: 96px;
-  padding: var(--s-8);
-  text-align: left;
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.system-problems-empty > div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-}
-
 /* --- Resumen de cartera (Constructor) --- */
 
 .portfolio-allocation-grid > div {
@@ -3582,146 +3424,6 @@ input.wealth-tipo {
 }
 
 /* --- Administración: paneles y utilidades --- */
-
-/* Barra de progreso compartida (refresco manual y backfill). Previsualizar y aplicar llevan
-   el mismo relleno: lo que las separa es la palabra del título, que ya dice qué está pasando. */
-.admin-progress {
-  margin-top: var(--s-5);
-  padding: var(--s-4) var(--s-5);
-}
-
-.admin-progress__head {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-4);
-  margin-bottom: var(--s-3);
-  font-size: var(--texto-xs);
-}
-
-.admin-progress__track {
-  background: var(--banda);
-  overflow: hidden;
-}
-
-.admin-progress__fill {
-  height: 12px;
-  min-width: 2px;
-  background: var(--marca);
-  transition: width var(--dur-slow) var(--curva);
-}
-
-.admin-progress__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-5);
-  margin-top: var(--s-3);
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.admin-panel__note {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-  margin: 0;
-  max-width: 38em;
-}
-
-.metric--compact .metric__value {
-  font-size: var(--texto-lg);
-}
-
-.admin-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-}
-
-.admin-bars > li {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 56px;
-  align-items: center;
-  gap: var(--s-5);
-  font-size: var(--texto-xs);
-}
-
-.admin-bars--recuento > li {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.admin-bars__label {
-  color: var(--tinta-2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.admin-bars__value {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-}
-
-.admin-result {
-  padding: var(--s-4) var(--s-5);
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.admin-mini-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-  overflow-wrap: anywhere;
-}
-
-.admin-inline-meta {
-  display: flex;
-  gap: var(--s-5);
-  flex-wrap: wrap;
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.admin-readonly-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-5);
-  padding: var(--s-4) var(--s-5);
-  flex-wrap: wrap;
-}
-
-.admin-readonly-row__title {
-  display: block;
-  font-size: var(--texto-sm);
-  font-weight: 500;
-  color: var(--tinta);
-}
-
-.admin-readonly-row__detail {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.admin-readonly-meta {
-  font-family: var(--fuente-codigo);
-  font-size: var(--texto-xs);
-  color: var(--tinta-3);
-}
-
-.admin-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--s-5);
-  align-items: end;
-}
-
-.admin-json {
-  max-height: 300px;
-  overflow: auto;
-}
 
 input.is-invalid,
 select.is-invalid,
@@ -4016,11 +3718,6 @@ textarea.is-invalid {
 
 /* --- Toolbar de la cartera de fondos --- */
 
-/* Distintivos dentro de una sección de estado: nunca a ancho completo. */
-.system-health-copy > .badge {
-  align-self: flex-start;
-}
-
 /* ==========================================================================
    27. BBDD maestra · Retrocesiones comerciales
    Migrado al sistema: sin estilos en línea, sin tipografía por debajo de
@@ -4100,14 +3797,6 @@ textarea.is-invalid {
 /* El control de fecha nativo necesita hueco para dd/mm/aaaa y el icono. */
 .retro-date-input {
   min-width: 148px;
-}
-
-/* Dentro de la tarjeta de «Retrocesiones comerciales»: el papel y el borde los pone ella, y la primera y la última
-   columna quedan a ras de su relleno, como el título. El filete de abajo marca dónde corta la caja desplazable. */
-.retro-table-wrapper {
-  max-height: 560px;
-  overflow: auto;
-  border-bottom: 1px solid var(--filete);
 }
 
 .retro-preview-wrapper {
@@ -4435,6 +4124,18 @@ textarea.is-invalid {
   min-width: 420px;
 }
 
+/* La palabra junto a la diferencia de Simular, «mejora» o «empeora» (MetricasComparativas.tsx, 20-11-2026): del color de su cifra, sin
+   la negrita de ella, para que la cifra siga siendo lo que se lee primero. */
+.diferencia__palabra {
+  font-weight: 400;
+}
+
+/* Con la palabra, la celda puede partir: la cifra no (`.cifra` no parte), y la palabra baja debajo de ella si no cabe. En una línea, a
+   1.024 px la tabla pedía 397 px en una caja de 386 y la diferencia quedaba a medias fuera de la vista. */
+.report-table td.num:has(> strong > .diferencia__palabra) {
+  white-space: normal;
+}
+
 /* ==========================================================================
    30. Diálogos de costes y de sustitución de fondos
    ========================================================================== */
@@ -4688,79 +4389,17 @@ input.costs-retro-input::-webkit-outer-spin-button { appearance: none; margin: 0
 
 
 /* ==========================================================================
-   31. BBDD maestra · Inspección de activos y carga de históricos
+   31. Sistema · Columna de la acción fija en las retrocesiones
    ========================================================================== */
-
-.inspector,
-.backfill {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.inspector {
-  gap: var(--s-5);
-}
-
-.backfill {
-  gap: var(--s-6);
-}
-
-.inspector-toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--s-6);
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-/* El desplegable de tipo se dimensiona por su contenido, no al 100 %. */
-.inspector-toolbar select {
-  width: auto;
-  min-width: 150px;
-}
-
-.inspector-meta {
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.inspector-pagination {
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-}
-
-.inspector-table-wrapper {
-  border: 1px solid var(--filete);
-  background: var(--papel);
-}
-
-.backfill-table-wrapper {
-  max-height: 360px;
-  overflow: auto;
-}
-
-.inspector-table {
-  min-width: 980px;
-}
-
-.inspector-row {
-  cursor: pointer;
-}
 
 /* Sistema (20-11-2026): por debajo de 1.440 px las tablas de calidad, de inspección y de retrocesiones no caben y se
    desplazan de lado, y dejaban fuera de la vista «Ver ficha», «Inspeccionar», «Guardar» y «Eliminar» (apartado 14.7
-   del sistema). La columna de la acción se queda fija a la derecha, como en el Buscador y en Planes. Las celdas fijas
+   del sistema). Desde el 21-11-2026 solo quedan las retrocesiones: calidad e inspección se borraron con la base vieja. La columna de la acción se queda fija a la derecha, como en el Buscador y en Planes. Las celdas fijas
    llevan fondo propio, así que repiten el de la fila bajo el ratón; la fila de detalle y la del vacío, que ocupan todo
    el ancho, no se fijan. */
 @media (max-width: 1439.98px) {
-  .admin-quality .tabla .tabla__celda--acciones,
-  :is(.inspector-table, .retro-table) tbody td:last-child:not(.retro-empty),
-  :is(.inspector-table, .retro-table) thead th:last-child {
+  .retro-table tbody td:last-child:not(.retro-empty),
+  .retro-table thead th:last-child {
     position: sticky;
     right: 0;
     z-index: var(--z-pegado);
@@ -4769,138 +4408,21 @@ input.costs-retro-input::-webkit-outer-spin-button { appearance: none; margin: 0
     box-shadow: var(--shadow-columna-fija-derecha);
   }
 
-  .admin-quality .tabla thead .tabla__celda--acciones {
-    z-index: calc(var(--z-sticky) + 1);
-    box-shadow: var(--shadow-columna-fija-derecha-cabecera);
-  }
-
   /* En una tabla escrita a mano el filete de la fila es el borde de la celda, y con los bordes colapsados la celda fija
      lo tapa con su fondo: viaja con ella como sombra, salvo en la última fila, que no lo lleva (components.css). */
-  :is(.inspector-table, .retro-table) tbody tr:not(:last-child) > td:last-child:not(.retro-empty) {
+  .retro-table tbody tr:not(:last-child) > td:last-child:not(.retro-empty) {
     box-shadow: -1px 0 0 var(--filete), inset 0 -1px 0 var(--filete);
   }
 
   /* La cabecera de una tabla escrita a mano subraya con `--filete-fuerte` (components.css), no con la tinta. */
-  :is(.inspector-table, .retro-table) thead th:last-child {
+  .retro-table thead th:last-child {
     z-index: calc(var(--z-sticky) + 1);
     box-shadow: -1px 0 0 var(--filete), inset 0 -1px 0 var(--filete-fuerte);
   }
 
-  .admin-quality .tabla tbody tr:hover > .tabla__celda--acciones {
-    background: var(--lienzo);
-  }
-
-  :is(.inspector-table, .retro-table) tbody tr:hover > td:last-child {
+  .retro-table tbody tr:hover > td:last-child {
     background: var(--marca-tenue);
   }
-}
-
-.inspector-flags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-
-/* Un dato bajo la cifra de años, no un aviso. */
-.inspector-dato {
-  display: block;
-  font-size: var(--texto-xs);
-  font-weight: 400;
-  color: var(--tinta-3);
-  white-space: nowrap;
-}
-
-.inspector-ficha-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-5);
-}
-
-.inspector-ficha-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--s-3) var(--s-6);
-  font-size: var(--texto-sm);
-  min-width: 0;
-}
-
-.inspector-gaps > summary {
-  font-size: var(--texto-xs);
-  cursor: pointer;
-}
-
-.inspector-gaps > ul {
-  margin-top: var(--s-3);
-  padding-left: var(--s-7);
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.inspector-manual {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-  padding-top: var(--s-5);
-  border-top: 1px solid var(--filete);
-}
-
-.inspector-actions,
-.backfill-actions {
-  display: flex;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-}
-
-.inspector-result {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-4);
-  min-width: 0;
-}
-
-/* La respuesta del backend se comprueba, no se explora: se acota. */
-.inspector-result-json {
-  width: 100%;
-  max-height: 180px;
-  overflow: auto;
-}
-
-.backfill-type-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2) var(--s-5);
-}
-
-.backfill-table {
-  min-width: 960px;
-}
-
-.backfill-table th,
-.backfill-table td {
-  white-space: nowrap;
-}
-
-.backfill-outcome {
-  font-weight: 500;
-}
-
-/* «Cargado» y «OK · cargable» son los dos un sí, y los separa la palabra. */
-.backfill-outcome--done,
-.backfill-outcome--ok {
-  color: var(--marca-fuerte);
-}
-
-.backfill-outcome--warn {
-  color: var(--aviso);
-}
-
-.backfill-outcome--err {
-  color: var(--baja);
-}
-
-.backfill-error-detail {
-  color: var(--tinta-2);
 }
 
 /* ==========================================================================
@@ -5407,198 +4929,6 @@ input.costs-retro-input::-webkit-outer-spin-button { appearance: none; margin: 0
 .benchmark-select select {
   width: 100%;
   min-width: 0;
-}
-
-/* ------------------------------------------------------------------
-   Sistema · Operaciones (05-09-2026): alta, extracción, canónico y
-   plataforma de datos desde la app, paso a paso, contra el servicio local
-   del extractor. Solo composición: los controles son las primitivas.
-   ------------------------------------------------------------------ */
-.ops-admin {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-8);
-}
-
-/* Estado vacío: texto entre dos filetes, con la causa y la acción. */
-.ops-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-  max-width: 72ch;
-  padding: var(--s-7) 0;
-  /* Solo se pinta tras las pestañas, que ya acaban en filete: uno arriba dejaba dos líneas sin nada entre medias. */
-  border-bottom: 1px solid var(--filete);
-  color: var(--tinta-2);
-}
-
-.ops-empty p {
-  margin: 0;
-}
-
-.ops-empty__title {
-  font-size: var(--texto-lg);
-  font-weight: 500;
-  color: var(--tinta);
-}
-
-.ops-empty__hint {
-  font-size: var(--texto-xs);
-}
-
-.ops-input-row {
-  display: grid;
-  grid-template-columns: minmax(240px, 2fr) minmax(160px, 1fr) auto;
-  gap: var(--s-5);
-  align-items: end;
-}
-
-.ops-isin-field {
-  grid-row: span 1;
-}
-
-.ops-isin-text,
-.ops-isin-input,
-.ops-mono-input,
-.ops-isin,
-.ops-mono {
-  font-family: var(--fuente-codigo);
-}
-
-.ops-isin-text {
-  font-size: var(--texto-xs);
-  min-height: 84px;
-  resize: vertical;
-}
-
-.ops-step-actions,
-.ops-row-actions {
-  display: flex;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.ops-check {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  font-size: var(--texto-sm);
-  min-height: var(--control-sm);
-}
-
-.ops-check input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-}
-
-.ops-meta {
-  margin: 0;
-  font-size: var(--texto-xs);
-  color: var(--tinta-2);
-}
-
-.ops-table td,
-.ops-table th {
-  white-space: nowrap;
-}
-
-.ops-table td.ops-cell-wrap {
-  white-space: normal;
-  min-width: 260px;
-  max-width: 560px;
-  overflow-wrap: anywhere;
-}
-
-.ops-row--flag td:not(:first-child) {
-  color: var(--aviso);
-}
-
-.ops-row--quiet td {
-  color: var(--tinta-3);
-}
-
-.ops-empty-cell {
-  text-align: center;
-  color: var(--tinta-2);
-}
-
-/* Registro en vivo de la tarea: cabecera con progreso y volcado monoespaciado. */
-.ops-log {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-}
-
-.ops-log__head {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-5);
-  flex-wrap: wrap;
-  font-size: var(--texto-xs);
-}
-
-.ops-log__title {
-  font-weight: 500;
-  color: var(--tinta);
-}
-
-.ops-log__meta {
-  color: var(--tinta-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.ops-log__body {
-  max-height: 320px;
-  overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.ops-correccion-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--s-5);
-  align-items: end;
-}
-
-.ops-motivo-field {
-  grid-column: span 2;
-}
-
-
-.admin-quality-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-6);
-}
-.admin-quality-filters label {
-  display: grid;
-  gap: var(--s-2);
-}
-
-/* La ficha ampliada de un fondo, bajo su fila: rótulo y valor, con un filete, como en la ficha. */
-.admin-quality-ficha {
-  margin: 0;
-}
-
-.admin-quality-ficha > div {
-  display: grid;
-  grid-template-columns: minmax(0, 16em) minmax(0, 1fr);
-  gap: var(--s-5);
-  padding: var(--s-2) 0;
-  border-bottom: 1px solid var(--filete);
-  font-size: var(--texto-xs);
-}
-
-.admin-quality-ficha dt {
-  color: var(--tinta-2);
-}
-
-.admin-quality-ficha dd {
-  margin: 0;
-  max-width: 62em;
 }
 
 /* «Generar un borrador» (decisión 122): su columna en el arranque, y el borrador debajo, a todo el ancho. */

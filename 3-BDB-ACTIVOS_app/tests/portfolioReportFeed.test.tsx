@@ -9,7 +9,6 @@ import { computeEquityRegionAllocation } from "../src/core/equityRegions";
 import { buildRegionTable } from "../src/core/regionTaxonomy";
 import {
   informeDeClienteMetricRows,
-  notaDelTipoSinRiesgo,
   createInformeDeClientePdfBlob
 } from "../src/reports/informeDeClientePdf";
 import type { PortfolioFeasibilityCheck } from "../src/core/portfolioConstraints";
@@ -85,8 +84,6 @@ describe("feed único del informe", () => {
     /* Desde la plantilla única, con el formato común: rentabilidad con signo y dos decimales, volatilidad y caída con dos, y espacio duro. */
     expect(filas.map((fila) => fila.value)).toEqual(["+18,50\u00a0%", "10,90\u00a0%", "1,43", "−10,20\u00a0%"]);
     expect(filas.map((fila) => fila.label)).toEqual(["Rentabilidad anualizada 3 años", "Volatilidad 3 años", "Sharpe 3 años", "Caída máxima 3 años"]);
-    /* El tipo sin riesgo dejó de ser una casilla de la tira (10-11-2026): va en su nota, con la cifra de la misma simulación. */
-    expect(notaDelTipoSinRiesgo(report, horizonteDePrueba(backtest3y))).toBe("Tipo sin riesgo a 3 años: 2,90\u00a0%, la referencia del ratio de Sharpe.");
     // La estimación ponderada divergente (16,3 / −33,7) no sale nunca.
     const impreso = filas.map((fila) => `${fila.label} ${fila.value}`).join(" ");
     expect(impreso).not.toContain("16,3");
@@ -96,7 +93,6 @@ describe("feed único del informe", () => {
   test("sin simulación, «Falta el dato» en cada cifra: ya no hay estimación local que poner en su sitio (decisión 59)", () => {
     const filas = informeDeClienteMetricRows(report);
     expect(filas.map((fila) => fila.value)).toEqual(["Falta el dato", "Falta el dato", "Falta el dato", "Falta el dato"]);
-    expect(notaDelTipoSinRiesgo(report)).toBe("Tipo sin riesgo a 3 años: falta el dato.");
     expect(filas.map((fila) => fila.label).join(" ")).not.toContain("estimad");
   });
 });

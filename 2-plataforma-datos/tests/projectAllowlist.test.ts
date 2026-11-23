@@ -37,10 +37,11 @@ describe('allowlist de project id', () => {
         // verlo.
         //
         // Dos: `bdb-gestor-de-activos` es un proyecto REAL en la nube. ALLOWED_PROJECT_IDS lo
-        // consultan catorce comprobaciones que despues llaman a initializeApp SIN exigir
-        // emulador; hoy eso es inofensivo solo porque `gestor-activos-local` no existe en la
-        // nube. Meter el proyecto real en ese conjunto las dejaria escribiendo fuera en cuanto
-        // exista una clave de servicio. Esta prueba es la que no deja juntarlos.
+        // consultaban seis comprobaciones (contadas el 20-11-2026, borradas con la base vieja el 21-11) que
+        // despues llamaban a initializeApp SIN exigir emulador; eso era inofensivo solo porque
+        // `gestor-activos-local` no existe en la nube, y lo sigue siendo para quien lo use. Meter
+        // el proyecto real en ese conjunto lo dejaria escribiendo fuera en cuanto exista una
+        // clave de servicio. Esta prueba es la que no deja juntarlos.
         expect(PROYECTO_BASE_NUEVA).toBe('bdb-gestor-de-activos');
         expect(PROYECTO_BASE_NUEVA).not.toBe(ALLOWED_PROJECT_ID);
         expect(isAllowedProjectId(PROYECTO_BASE_NUEVA)).toBe(false);
@@ -92,7 +93,8 @@ describe('allowlist de project id', () => {
         // Lo que esta prueba persigue es que nadie escriba ese literal como proyecto
         // AUTORIZADO. Nombrarlo diciendo otra cosa esta bien, y hay dos maneras de hacerlo:
         //
-        //   - PROHIBIENDOLO. Las dos guardas de copias, y desde el 03-11-2026 los dos
+        //   - PROHIBIENDOLO. La guarda de la restauracion de copias (la de la copia diaria se
+        //     borro con la base vieja el 21-11-2026), y desde el 03-11-2026 los dos
         //     scripts que hablan con la nube de verdad: los dos comprueban la clave de
         //     servicio contra ese id para negarla, porque en la carpeta de claves hay dos y
         //     la otra abre la base de PRODUCCION de BDB.
@@ -108,7 +110,6 @@ describe('allowlist de project id', () => {
             path.join('src', 'config', 'projectAllowlist.ts'),
             path.join('src', 'config', 'baseNueva', 'asesores.ts'),
             path.join('scripts', 'restoreBackupToEmulator.ts'),
-            path.join('scripts', 'runBackupExport.ts'),
             path.join('scripts', 'subirALaNube.ts'),
             path.join('scripts', 'verReglasDesplegadas.ts')
         ]);

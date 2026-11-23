@@ -83,7 +83,7 @@ export function entradaDelInformeDeCliente(opciones: OpcionesDelInformeDeCliente
     benchmarkId: opciones.benchmarkId,
     banker: opciones.banker,
     clientMode: opciones.clientMode,
-    /* La geografía canónica, la misma que pintan Resumen y Análisis. */
+    /* La geografía canónica, la misma que pintan Resumen y Análisis: sin el fondo que no declara su reparto (A-211). */
     regionRows: computeEquityRegionAllocation(positions, assets).rows,
     rentabilidadPorDividendo: opciones.rentabilidadPorDividendoDe(assets),
     perfilYHorizonte: opciones.perfilYHorizonte,

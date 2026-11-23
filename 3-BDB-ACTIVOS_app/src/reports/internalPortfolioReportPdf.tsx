@@ -46,7 +46,7 @@ import { LO_QUE_NO_INCLUYE_EL_COSTE, NOTA_DE_LAS_ACCIONES } from "../core/portfo
 import { aportacionAlRiesgo, fraseDelMaximoSinLoQueNoSePuedeComprar, notaDeLoQueNoEntraEnLaFrontera, pesoLegible, TOPE_DE_LA_FRONTERA } from "../core/medidaDeLaCartera";
 import { pesoEnElPapel } from "../core/parteMedida";
 import { cotaDelSolapamiento, noLlegaAUnaDecima, NOTA_MAS_DE_100, NOTA_SIN_COMUNES, pasaDeCien, sinComunes, solapamientoEnUnaFrase, textoDelSolapamiento } from "../core/overlap";
-import { FUERA_DEL_CATALOGO, fraseDeLoQueNoEntra } from "../core/repartoDelPapel";
+import { FUERA_DEL_CATALOGO, fraseDeLoQueNoEntra, fraseDelSinRepartoEnElPapel } from "../core/repartoDelPapel";
 import { tipoDeRespaldo } from "../core/tipoDeRespaldo";
 import { fraseDeLasCarterasDelEmisor } from "../core/carteraDelEmisor";
 import { corteDeLaMatriz, FUERA_DE_LA_MATRIZ, notasDeLasFechasDelModelo, paresDeSolapamiento, recortarLaMatriz, type ReportOverlapStatus } from "../core/reportOverlap";
@@ -63,8 +63,10 @@ import {
   metricsMethodLabel,
   readableBackendLabel
 } from "../core/labels";
+import { CLAVE_SIN_DATO_DEL_REPARTO } from "../core/portfolio";
 import {
   anioQueMasDifiere,
+  aportaMasRiesgoDelQuePesa,
   buildInternalReportModel,
   CLAVE_DE_LO_QUE_NO_ENTRA,
   cualesSonLasAlertas,
@@ -844,10 +846,10 @@ function performanceReading(ventanas: InternalHorizonModel[], benchmarkLabel: st
       ? `${pctSigned(r.portfolioReturn)} anual contra ${pctSigned(r.benchmarkReturn)}, ${noAplicaAUnaAccion(h, "rentabilidadActiva") ? "" : `${ppT(r.activeReturn)} al año ${r.activeReturn >= 0 ? "a favor" : "en contra"}, `}con una beta de ${ratio(r.beta)}`
       : null;
   });
-  const vsEqual = porVentanas(ventanas, "Frente a repartir los mismos activos a partes iguales, los pesos elegidos:", (h) => {
+  const vsEqual = porVentanas(ventanas, ventanas.some((h) => h.horizon.frontierNotSelectable?.length) ? "Frente a repartir a partes iguales los activos que se pueden comprar, los pesos elegidos:" : "Frente a repartir los mismos activos a partes iguales, los pesos elegidos:", (h) => {
     const mt = h.horizon.backtest.metrics;
-    const eq = h.horizon.equalWeight.metrics;
-    return num(mt.cagr) && num(eq.cagr) ? `${mt.cagr >= eq.cagr ? "aportan" : "restan"} ${ppT(mt.cagr - eq.cagr)} anuales (${pctSigned(eq.cagr)})` : null;
+    const eq = h.horizon.equalWeight?.metrics;
+    return eq && num(mt.cagr) && num(eq.cagr) ? `${mt.cagr >= eq.cagr ? "aportan" : "restan"} ${ppT(mt.cagr - eq.cagr)} anuales (${pctSigned(eq.cagr)})` : null;
   });
   const yearsLine = porVentanas(ventanas, "Mejor y peor año natural completo:", (h) => {
     const years = h.calendarYears.filter((y) => !y.partial);
@@ -1110,13 +1112,16 @@ function CompositionSheet({ m }: { m: InternalReportModel }) {
   /* Lo que no entra no es la clase que más pesa, por mucho que pese. */
   const clases = a.byClass.filter((b) => b.key !== CLAVE_DE_LO_QUE_NO_ENTRA);
   const topClass = clases[0];
-  const topCur = a.byCurrency.find((b) => b.key !== CLAVE_DE_LO_QUE_NO_ENTRA);
+  /* La divisa mayor que se conoce: «denominado en Falta el dato» no es una frase. */
+  const topCur = a.byCurrency.find((b) => b.key !== CLAVE_DE_LO_QUE_NO_ENTRA && b.key !== CLAVE_SIN_DATO_DEL_REPARTO);
   const mix = Object.fromEntries(a.underlyingMix.map((b) => [b.key, b.weight]));
   /* Un entero, salvo un negativo: «−0,1 %» no se escribe «0 %» junto a la barra que lo dice. */
   const enLaLectura = (v: number | undefined) => pct(v ?? 0, (v ?? 0) < 0 ? 1 : 0);
   const fueraPct = a.fueraDelReparto.pesoPct;
   const cubreLoQueEntra = a.underlyingMixCoverage !== null && a.underlyingMixCoverage + fueraPct / 100 > 0.9995;
   const { macroTotals: geo } = buildRegionTable(a.equityRegions);
+  /* A-211: en % de la cartera; `equityLookthroughSinReparto` es una fracción. */
+  const sinRepartoEnLaLectura = fraseDelSinRepartoEnElPapel((a.equityLookthroughSinReparto ?? 0) * 100);
   const topMacro = MACROS.reduce((best, mz) => (geo[mz] > geo[best] ? mz : best), "america" as Macro);
   /* Región, categoría y SRI van en la misma columna, y con más de 18 filas no caben los nombres en dos líneas: con 15 posiciones dejaba una hoja casi vacía. */
   const columnaLarga = a.byRegion.length + Math.min(a.byCategory.length, 9) + Math.min(a.bySri.length, 9) > 18;
@@ -1128,7 +1133,7 @@ function CompositionSheet({ m }: { m: InternalReportModel }) {
         fraseDeLoQueNoEntra(a.fueraDelReparto, "detalladas en la sección 10"),
         topClass ? `Clase dominante: ${topClass.label} con el ${pesoT(topClass.weight)} del peso${clases[1] ? `, seguida de ${clases[1].label} (${pesoT(clases[1].weight)})` : ""}.` : null,
         topCur ? `El ${pesoT(topCur.weight)} de la cartera está denominado en ${topCur.label}${topCur.key !== "EUR" ? ": hay riesgo de divisa que conviene explicar" : ""}.` : null,
-        num(mix.equity) ? `Mirando dentro de los fondos, la exposición real es ${enLaLectura(mix.equity)} renta variable, ${enLaLectura(mix.fixed_income)} renta fija y ${enLaLectura(mix.cash)} liquidez (cobertura ${a.underlyingMixCoverage !== null ? pct(a.underlyingMixCoverage, 0) : FALTA}).` : null,
+        num(mix.equity) ? `Mirando dentro de los fondos, la exposición real es ${enLaLectura(mix.equity)} renta variable, ${enLaLectura(mix.fixed_income)} renta fija y ${enLaLectura(mix.cash)} liquidez (cobertura ${a.underlyingMixCoverage !== null ? pct(a.underlyingMixCoverage, 0) : FALTA}${a.underlyingMixSinReparto >= 0.0005 ? `; el ${pesoT(a.underlyingMixSinReparto)} no declara su reparto` : ""}).` : null,
         geoLine
       ]} />
       <H2>Reparto declarado</H2>
@@ -1151,19 +1156,22 @@ function CompositionSheet({ m }: { m: InternalReportModel }) {
         <View style={s.columna}>
           <H3>Mezcla de activos</H3>
           <BarList rows={a.underlyingMix} width={MEDIO} empty="Sin exposición publicada." />
-          <T style={s.pie}>Cobertura: {a.underlyingMixCoverage !== null ? pct(a.underlyingMixCoverage, 0) : FALTA} del peso con vector de exposición; {fueraPct <= 0 ? "el resto se reparte por su clase económica." : cubreLoQueEntra ? `el ${pesoT(fueraPct / 100)} queda fuera del reparto.` : `lo que no lo trae se reparte por su clase económica, y el ${pesoT(fueraPct / 100)} queda fuera del reparto.`}</T>
+          <T style={s.pie}>Cobertura: {a.underlyingMixCoverage !== null ? pct(a.underlyingMixCoverage, 0) : FALTA} del peso con vector de exposición; {pieDeLaMezcla(a.underlyingMixCoverage, a.underlyingMixSinReparto, fueraPct, cubreLoQueEntra)}</T>
         </View>
         <View style={s.columna}>
           <H3>Sectores de la renta variable</H3>
           {/* Todas las filas: con el límite de siempre, «No declarado» se perdía dentro de «Otros» (decisión 11). */}
           <BarList rows={a.equitySectors} width={MEDIO} empty="Sin sectores." limit={a.equitySectors.length} />
           <T style={s.pie}>Fuente: {qualityText[a.equitySectorsQuality] ?? a.equitySectorsQuality}.</T>
+          {/* A-211: lo que no declara su reparto de activos no entra en los sectores ni en las regiones, y se dice en los dos. */}
+          {sinRepartoEnLaLectura ? <T style={s.pie}>{sinRepartoEnLaLectura}</T> : null}
         </View>
       </View>
       {/* El título va con su mapa, que no se parte: si no cabe, pasan juntos a la hoja siguiente. */}
       <View wrap={false}>
         <H2>Distribución geográfica de la renta variable</H2>
         <GeoMap rows={a.equityRegions} unclassified={a.equityRegionsUnclassified} canadaYAfricaSinSeparar={a.canadaYAfricaSinSeparar} width={ANCHO} />
+        {sinRepartoEnLaLectura ? <T style={s.pie}>{sinRepartoEnLaLectura}</T> : null}
       </View>
       <H3>Metodología de las métricas por posición</H3>
       <BarList rows={a.byMetricsMethod} width={MEDIO} />
@@ -1388,7 +1396,7 @@ function PerformanceSheets({ m }: { m: InternalReportModel }) {
   const lineasDe = (h: InternalHorizonModel): SerieDeLineas[] => {
     const series = h.horizon.backtest.portfolio_series;
     const dates = series.map((p) => p.date);
-    const eq = new Map(h.horizon.equalWeight.portfolio_series.map((p) => [p.date, p.value]));
+    const eq = new Map((h.horizon.equalWeight?.portfolio_series ?? []).map((p) => [p.date, p.value]));
     const ms = new Map((h.horizon.maxSharpe?.portfolio_series ?? []).map((p) => [p.date, p.value]));
     const bench = h.benchmarkValues;
     /* Los dos parten del mismo punto en su primera fecha común, sea o no la primera de la cartera. */
@@ -1397,7 +1405,7 @@ function PerformanceSheets({ m }: { m: InternalReportModel }) {
     return [
       { nombre: "Cartera actual", valores: series.map((p) => p.value) },
       ...(bench && benchScale !== null ? [{ nombre: "Referencia", valores: bench.map((v) => (v === null ? null : v * benchScale)), referencia: true }] : []),
-      { nombre: "Equiponderada", valores: dates.map((d) => eq.get(d) ?? null) },
+      ...(h.horizon.equalWeight ? [{ nombre: "Equiponderada", valores: dates.map((d) => eq.get(d) ?? null) }] : []),
       ...(h.horizon.maxSharpe ? [{ nombre: "Máximo Sharpe", valores: dates.map((d) => ms.get(d) ?? null) }] : [])
     ];
   };
@@ -1405,7 +1413,7 @@ function PerformanceSheets({ m }: { m: InternalReportModel }) {
   type FilaDeCartera = { label: string; de: (h: InternalHorizonModel) => Metricas | undefined };
   const filasDeCartera: FilaDeCartera[] = [
     { label: "Cartera actual", de: (h) => h.horizon.backtest.metrics },
-    { label: "Equiponderada", de: (h) => h.horizon.equalWeight.metrics },
+    { label: "Equiponderada", de: (h) => h.horizon.equalWeight?.metrics },
     { label: "Máximo Sharpe", de: (h) => h.horizon.maxSharpe?.metrics }
   ];
   /* Con una sola acción no hay nada que optimizar: la fila del Máximo Sharpe no aplica, no es que le falte el dato. */
@@ -1563,7 +1571,8 @@ function RiskContributions({ m, name }: { m: InternalReportModel; name: (id: str
             {titulo("Peso / riesgo", 96, true)}
           </View>
           {rows.map((c) => {
-            const pesaMenos = c.risk_pct > c.weight_pct;
+            /* Con las cifras que se imprimen: «1,4 % / 1,4 %» no va en ocre (Óscar, 20-11-2026). */
+            const pesaMenos = aportaMasRiesgoDelQuePesa(c.weight_pct, c.risk_pct);
             return (
               <View key={c.asset_id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 1.4 }} wrap={false}>
                 <Texto style={[celda, { width: 16, color: PAPEL.tinta3 }]}>{String(numeroDe(m, c.asset_id))}</Texto>
@@ -1677,7 +1686,7 @@ function RiskSheets({ m }: { m: InternalReportModel }) {
                       <T style={[celda, { flex: 1, fontWeight: 600 }]}>{x.peak_date && !sinCifra ? `${x.label}, desde máximos` : x.label}</T>
                       <Texto style={[celda, { fontWeight: 600, color: sinCifra ? PAPEL.tinta3 : PAPEL.tinta }]}>{sinCifra ? FALTA : pct(x.drawdown_pct !== null ? x.drawdown_pct / 100 : null)}</Texto>
                     </View>
-                    <T style={[s.pequeno, { color: PAPEL.tinta3 }]}>{sinCifra ?? `${desde && x.trough_date ? t(periodo(desde, x.trough_date)) : FALTA} · ${x.recovery_status === "RECOVERED" ? `recuperada en ${x.recovery_days ?? "?"} días` : x.recovery_status === "NOT_RECOVERED" ? `pendiente de recuperar ${pct(x.remaining_to_recover_pct !== null ? x.remaining_to_recover_pct / 100 : null)}` : "sin datos de recuperación"} · cobertura ${pct(x.coverage.weight_pct / 100, 0)}`}</T>
+                    <T style={[s.pequeno, { color: PAPEL.tinta3 }]}>{sinCifra ?? `${desde && x.trough_date ? t(periodo(desde, x.trough_date)) : FALTA} · ${x.recovery_status === "RECOVERED" ? `recuperada en ${x.recovery_days ?? "?"} días` : x.recovery_status === "NOT_RECOVERED" ? `pendiente de recuperar ${pct(x.remaining_to_recover_pct !== null ? x.remaining_to_recover_pct / 100 : null)}` : x.recovery_status === "NO_DRAWDOWN" ? "sin caída" : "sin datos de recuperación"} · cobertura ${pct(x.coverage.weight_pct / 100, 0)}`}</T>
                   </View>
                 );
               }) : <Texto style={s.pequeno}>Sin escenarios de estrés para estas posiciones en el análisis del periodo.</Texto>}
@@ -2049,7 +2058,8 @@ export function diaDeLaPropuesta(savedAt: string | null | undefined, zona?: stri
 /** Decisión 8.6 (13-10-2026): la propuesta de «Mejorar cartera» entra solo en el informe interno, como última subsección de Optimización. */
 function ImprovementSheet({ m }: { m: InternalReportModel }) {
   const n = "8.2";
-  const lead = "Fondos equivalentes que sustituirían a los actuales con los mismos pesos, elegidos en los dos primeros tercios de la ventana y confirmados en el último. Solo lectura: la propuesta se revisa y se aplica desde Diseño de cartera.";
+  /* Como la pantalla y el PDF de la mejora (7245443a): el último tercio filtra las candidatas, no es una prueba fuera de la muestra. */
+  const lead = "Fondos equivalentes que sustituirían a los actuales con los mismos pesos, elegidos en los dos primeros tercios de la ventana y filtrados con el último, que decide entre hasta 50 candidatas: ese tramo no es una prueba fuera de la muestra. Solo lectura: la propuesta se revisa y se aplica desde Diseño de cartera.";
   const stored = m.improvement;
   /* Sin propuesta, lo dice una línea al final de la frontera. */
   if (!stored) return null;
@@ -2319,7 +2329,7 @@ const GLOSSARY: Array<[string, string]> = [
   ["Nº efectivo de posiciones", "A cuántas posiciones de igual peso equivale la cartera (1/HHI). Cuanto más lejos del número real, más concentrada."],
   ["Correlación", "De −1 a 1: cuánto se mueven dos series a la vez. Alta entre fondos significa que diversifican poco entre sí."],
   ["Solapamiento", "Porcentaje de cartera que dos fondos tienen en común, sumando el menor peso de cada valor compartido. Solo se ve lo que publican: es un mínimo."],
-  ["Equiponderada", "Los mismos activos a partes iguales."],
+  ["Equiponderada", "Los mismos activos a partes iguales, sin los que no se pueden comprar (la misma regla que la frontera)."],
   ["Frontera eficiente", "Conjunto de combinaciones de los mismos activos que dan la máxima rentabilidad para cada nivel de riesgo, con el histórico del periodo."],
   ["Coste corriente", "Gastos corrientes anuales del fondo sobre el patrimonio; es lo que el cliente paga cada año dentro del valor liquidativo."],
   ["Retrocesión", "Parte de la comisión de gestión que la gestora cede al distribuidor. Dato comercial interno; nunca se enseña al cliente."],
@@ -2362,10 +2372,25 @@ function riesgoDeLaFicha(p: InternalPositionRow): string {
   return origen ? `${origen}: ${Math.round(p.sri)}` : `Indicador de riesgo: ${Math.round(p.sri)}`;
 }
 
+/**
+ * Lo que sigue a «Cobertura: X del peso con vector de exposición;» bajo la mezcla de activos. A-203 (21-11-2026): lo que no lo trae
+ * ya no se reparte todo por su clase —un fondo sin reparto declarado va en su fila, «Falta el dato»—, y la frase dice las tres partes.
+ */
+function pieDeLaMezcla(cobertura: number | null, sinReparto: number, fueraPct: number, cubreLoQueEntra: boolean): string {
+  const fuera = fueraPct > 0 ? `el ${pesoT(fueraPct / 100)} queda fuera del reparto` : null;
+  const sinDato = sinReparto >= 0.0005 ? `el ${pesoT(sinReparto)} no declara su reparto (${FALTA.toLocaleLowerCase("es")})` : null;
+  const porSuClase = cobertura !== null && cobertura + sinReparto + fueraPct / 100 < 0.9995 ? "la inversión directa sin vector cuenta por su clase económica" : null;
+  if (!sinDato) return fueraPct <= 0 ? "el resto se reparte por su clase económica." : cubreLoQueEntra ? `${fuera}.` : `lo que no lo trae se reparte por su clase económica, y ${fuera}.`;
+  const partes = [porSuClase, sinDato, fuera].filter((parte): parte is string => parte !== null);
+  return `${partes.slice(0, -1).join("; ")}${partes.length > 1 ? "; y " : ""}${partes[partes.length - 1]}.`;
+}
+
 /** «Exposición: RV 0 % · RF 0 % · liquidez 0 %» es cierto del oro y no dice lo que tiene: si casi todo está fuera de esas tres, se escribe (decisión 80). */
 function exposicionDeLaFicha(p: InternalPositionRow): string {
   /* Sin mezcla en su ficha, el reparto es el de su clase: tres cifras dirían que la base las trae (revisión final, V3-1). */
   if (p.exposicionPorSuClase) return `Exposición: por su clase (${classLabel(p.assetClass)}), sin dato declarado`;
+  /* A-203: un fondo sin reparto declarado ya no se reparte por su clase; tres ceros dirían que no tiene nada. */
+  if (p.exposicionSinDato) return `Exposición: ${FALTA}`;
   const tres = `Exposición: RV ${pct(p.equity, 0)} · RF ${pct(p.fixedIncome, 0)} · liquidez ${pct(p.cash, 0)}`;
   if (!num(p.otherExposure) || p.otherExposure < 0.5) return tres;
   const rotulo = ["EQUITY", "FIXED_INCOME", "MONEY_MARKET"].includes(p.assetClass) ? "otros" : classLabel(p.assetClass).toLocaleLowerCase("es");
@@ -2470,12 +2495,19 @@ export async function createInternalPortfolioReportPdfBlob(input: InternalReport
   return renderizarInforme(elemento);
 }
 
-export async function downloadInternalPortfolioReportPdf(input: InternalReportInput): Promise<void> {
+/**
+ * Dibuja el informe interno y lo descarga. `puedeDescargar` se pregunta con el documento ya dibujado y justo antes de
+ * ofrecerlo: el informe lleva retrocesiones, y si en esos segundos se activó el Modo cliente (en esta pestaña o en otra)
+ * se descarta y no se descarga (H2-05). Devuelve si se descargó.
+ */
+export async function downloadInternalPortfolioReportPdf(input: InternalReportInput, puedeDescargar: () => boolean = () => true): Promise<boolean> {
   /* El documento se dibuja con todo ya cargado. Si la referencia no llega, sale igual y dice que no está. */
   const { seriesDeReferenciaOAusencia } = await import("../adapters/seriesDeReferencia");
   const referencia = input.referencia !== undefined ? input.referencia : await seriesDeReferenciaOAusencia();
   const blob = await createInternalPortfolioReportPdfBlob({ ...input, referencia });
+  if (!puedeDescargar()) return false;
   descargar(blob, nombreDelFicheroDelInterno(input));
+  return true;
 }
 
 /** «Informe interno de la propuesta - Propuesta García - 2026-11-14.pdf»: el documento, la propuesta y el día de generación que imprime. */

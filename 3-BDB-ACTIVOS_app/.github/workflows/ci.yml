@@ -21,7 +21,8 @@ jobs:
           java-version: "21"
       - run: npm ci
       - name: Auth, batch limits and transactional imports (demo project only)
-        run: npx --yes firebase-tools@15.29.0 emulators:exec --only auth,firestore --project demo-bdb-audit "node scripts/testCommercialRetroEmulators.mjs"
+        # Las reglas son las de producción, 4-base-nueva/firestore.rules (21-11-2026): de ahí `--config`.
+        run: npx --yes firebase-tools@15.29.0 emulators:exec --config ../4-base-nueva/firebase.json --only auth,firestore --project demo-bdb-audit "node scripts/testCommercialRetroEmulators.mjs"
 
   app-and-functions:
     runs-on: ubuntu-latest

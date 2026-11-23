@@ -13,7 +13,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("../src/components/AssetHistoryChart", () => ({ AssetHistoryChart: () => createElement("output", null, "Evolución") }));
 
-import { MARGEN_DE_FECHA_DE_CORTE_DIAS, notasDeCorteYBase, type FuenteDeColumna } from "../src/adapters/comparativaDeActivos";
+import { MARGEN_DE_FECHA_DE_CORTE_DIAS, MARGEN_ENTRE_CALENDARIOS_DIAS, notasDeCorteYBase, type FuenteDeColumna } from "../src/adapters/comparativaDeActivos";
 import { AssetDetail } from "../src/components/AssetDetail";
 import { AssetHoldingsSection } from "../src/components/AssetHoldingsSection";
 import { alcanceDeLaCartera } from "../src/core/cuentaDePosiciones";
@@ -64,6 +64,56 @@ describe("la nota de fecha de corte y base de rentabilidad", () => {
       "No consta a qué fecha están las cifras de B: no se puede afirmar que sea la de las demás.",
       "No consta si las rentabilidades de B incluyen los dividendos: no se puede afirmar que midan lo mismo que las demás."
     ]);
+  });
+
+  /*
+   * Entre una columna de método mensual y una de método diario (Óscar, 21-11-2026). Las distancias, contadas a mano: del 31-10 al 16-11
+   * van 16 días; del 30-09 al 16-11, 31 + 16 = 47; del 31-10 al 05-12, 30 + 5 = 35, y al 06-12, 36; del 31-10 al 24-10, −7, y al 23-10, −8.
+   */
+  const mensual = (nombre: string, as_of: string) => deLaTarjeta(nombre, { as_of, frequency: "MONTHLY", return_basis: "TOTAL_RETURN" });
+  const diaria = (nombre: string, as_of: string) => deLaTarjeta(nombre, { as_of, frequency: "DAILY", method: "EXTRACTOR_DAILY_V4", return_basis: "TOTAL_RETURN" });
+
+  test("entre una mensual y una diaria el margen es de 35 días", () => {
+    expect(MARGEN_ENTRE_CALENDARIOS_DIAS).toBe(35);
+  });
+
+  test("un fondo a fin de mes y una acción de mitad del mes siguiente no avisan: es el calendario, no un retraso", () => {
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-10-31"), diaria("Acción", "2026-11-16")])).toEqual([]);
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-10-31"), diaria("Acción", "2026-12-05")])).toEqual([]);
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-10-31"), diaria("Acción", "2026-10-24")])).toEqual([]);
+  });
+
+  test("más allá de lo que explica el calendario, un aviso propio con las dos fechas", () => {
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-09-30"), diaria("Acción", "2026-11-16")])).toEqual([
+      "Las cifras se cierran con calendarios distintos: las de Fondo, a fin de mes, y las de Acción, cada día. " +
+        "Eso explica hasta 35 días entre sus fechas de corte, y aquí la distancia es otra: Fondo, a 30/09/2026; Acción, a 16/11/2026. " +
+        "Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta."
+    ]);
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-10-31"), diaria("Acción", "2026-12-06")])).toHaveLength(1);
+    /* Una acción anterior al cierre del fondo no la explica el calendario: el margen de siempre. */
+    expect(notasDeCorteYBase([mensual("Fondo", "2026-10-31"), diaria("Acción", "2026-10-23")])).toHaveLength(1);
+  });
+
+  test("las dos notas a la vez: la de la misma frecuencia nombra solo a las que se separan, y la de calendario, igual", () => {
+    expect(notasDeCorteYBase([mensual("Fondo A", "2026-10-31"), mensual("Fondo B", "2026-09-30"), diaria("Acción C", "2026-11-16")])).toEqual([
+      "Las cifras no tienen la misma fecha de corte: Fondo B, a 30/09/2026; Fondo A, a 31/10/2026. Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta.",
+      "Las cifras se cierran con calendarios distintos: las de Fondo B, a fin de mes, y las de Acción C, cada día. " +
+        "Eso explica hasta 35 días entre sus fechas de corte, y aquí la distancia es otra: Fondo B, a 30/09/2026; Acción C, a 16/11/2026. " +
+        "Una rentabilidad o una volatilidad a otra fecha mide otro periodo, y aquí no se ajusta."
+    ]);
+  });
+
+  test("una cifra del proveedor a fin de mes se cierra a fin de mes; a otra fecha, su calendario no consta", () => {
+    const delProveedor = (nombre: string, as_of: string) => deLaTarjeta(nombre, { as_of, frequency: "PROVIDER", source: "PROVIDER", method: "TRAILING_PROVIDER", return_basis: "TOTAL_RETURN" });
+    expect(notasDeCorteYBase([delProveedor("Fondo", "2026-10-31"), diaria("Acción", "2026-11-16")])).toEqual([]);
+    expect(notasDeCorteYBase([delProveedor("Fondo", "2026-09-30"), diaria("Acción", "2026-11-16")])[0]).toMatch(/^Las cifras se cierran con calendarios distintos/);
+    /* El 28-10 no es fin de mes: del 28-10 al 16-11 van 3 + 16 = 19 días, más que la semana de siempre. */
+    expect(notasDeCorteYBase([delProveedor("Fondo", "2026-10-28"), diaria("Acción", "2026-11-16")])[0]).toMatch(/^Las cifras no tienen la misma fecha de corte/);
+  });
+
+  test("dos acciones diarias siguen con el margen de una semana", () => {
+    expect(notasDeCorteYBase([diaria("A", "2026-11-06"), diaria("B", "2026-11-16")])).toHaveLength(1);
+    expect(notasDeCorteYBase([diaria("A", "2026-11-09"), diaria("B", "2026-11-16")])).toEqual([]);
   });
 
   test("un activo sin ninguna cifra no entra en la cuenta", () => {

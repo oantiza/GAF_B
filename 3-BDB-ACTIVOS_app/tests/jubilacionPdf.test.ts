@@ -182,6 +182,49 @@ describe("informe de jubilación", () => {
     expect(todo).not.toContain("Impuesto según escala");
   });
 
+  describe("lleva lo que la pantalla avisa y lo supuesto de una EPSV sin desglose, con su texto (H2-17, 22-11-2026)", () => {
+    const COSTE = "Falta el coste de adquisición de los fondos de inversión, las acciones y ETF: se calcula con el coste igual al valor de hoy. La plusvalía ya acumulada no cuenta, y el IRPF de las retiradas sale por lo bajo.";
+    /* El texto se lee del PDF, que pierde las ligaduras «fi» y «fl»: se mira hasta ellas. */
+    const ESTIMACION_1 = "Sin desglose, Hacienda Foral de Bizkaia estima la rentabilidad en el 1 % de lo cobrado: un 1 % por año de antigüedad, con un máximo del 35 %, o el 25 % si no se conoce la antigüedad. El simulador la aplica al saldo de hoy; lo que crezca hasta la jubilación cuenta entero como rentabilidad.";
+    const TRAMO_1 = "Con un año de antigüedad o menos, la primera aportación puede ser de 2026: el simulador trata el saldo entero como posterior a 2025 y no aplica el régimen transitorio. El certi";
+
+    test("sin desglose y en capital, lo supuesto de la EPSV va en la hoja de su cobro, y la primera hoja sigue cabiendo entera", async () => {
+      const entrada: EntradaDeJubilacion = { ...DEFECTO, edad: 55, edadJubilacion: 65, tieneEpsv: true, epsvDesglose: "estimacion", antiguedad: 1, epsvPre: 100000, epsvPost: 0, epsvCobro: "mixto", epsvPctCapital: 50 };
+      const res = resultado(entrada);
+      const paginas = await hojas("sin-desglose", { resultado: res, formas: compararFormasDeCobro(entrada), supervivencia: lecturaDeLaSupervivencia(res, "mujer"), supuestos: [COSTE] });
+      /* Las mismas cinco hojas que con certificado: la respuesta, el plan, el cobro y los dos anexos. */
+      expect(paginas).toHaveLength(5);
+      hojasEnOrden(paginas);
+      expect(paginas[0]).toContain(`Supuestos. ${COSTE}`);
+      expect(paginas[0]).not.toContain("Sin desglose");
+      expect(paginas[1]).toContain("El plan, año a año");
+      expect(paginas[2]).toContain("El cobro de la EPSV");
+      expect(paginas[2]).toContain(`Supuestos. ${ESTIMACION_1} ${TRAMO_1}`);
+    });
+
+    test("lo que el motor corrige de la entrada va en la primera hoja, como en la pantalla", async () => {
+      /* Jubilación a los 60 con 66 años: la pantalla dice que se usa la edad actual. */
+      const entrada: EntradaDeJubilacion = { ...DEFECTO, edad: 66, edadJubilacion: 60 };
+      const res = resultado(entrada);
+      expect(res.avisos).toEqual(["La edad de jubilación no puede ser anterior a la edad actual: se usa la edad actual."]);
+      const paginas = await hojas("aviso-del-motor", { resultado: res, supervivencia: lecturaDeLaSupervivencia(res, "mujer"), supuestos: [COSTE] });
+      expect(paginas).toHaveLength(4);
+      hojasEnOrden(paginas);
+      expect(paginas[0]).toContain(`Supuestos. ${COSTE} La edad de jubilación no puede ser anterior a la edad actual: se usa la edad actual.`);
+    });
+
+    test("sin la hoja del cobro, lo supuesto de la EPSV va en la primera hoja", async () => {
+      const entrada: EntradaDeJubilacion = { ...DEFECTO, edad: 65, edadJubilacion: 65, tieneEpsv: true, epsvDesglose: "estimacion", antiguedad: 10, epsvPre: 100000, epsvPost: 0, epsvCobro: "renta" };
+      const paginas = await hojas("sin-desglose-sin-cobro", { resultado: resultado(entrada), formas: null });
+      expect(paginas).toHaveLength(4);
+      hojasEnOrden(paginas);
+      /* Jubilado hoy: sin crecimiento hasta la jubilación, la nota no lo menciona. */
+      expect(paginas[0]).toContain(
+        "Supuestos. Sin desglose, Hacienda Foral de Bizkaia estima la rentabilidad en el 10 % de lo cobrado: un 1 % por año de antigüedad, con un máximo del 35 %, o el 25 % si no se conoce la antigüedad. El simulador trata el saldo como aportado hasta 2025. Si el cliente ha aportado en 2026, el certi"
+      );
+    });
+  });
+
   test("solo pensión, con una comunidad autónoma: su ley en las fuentes y sin gráfico que rompa nada", async () => {
     const paginas = await hojas("madrid-solo-pension", { resultado: resultado({ territorio: "estatal", ccaa: "madrid", liquidez: 0, fondos: 0, fondosCoste: 0, acciones: 0, accionesCoste: 0 }) });
     expect(paginas).toHaveLength(4);

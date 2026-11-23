@@ -80,7 +80,11 @@ export interface BacktestSynthetic {
   annual_return: number;
 }
 
-export type StressRecoveryStatus = "RECOVERED" | "NOT_RECOVERED" | "NO_DATA";
+/**
+ * `NO_DRAWDOWN` (P1-06, 21-11-2026): la cartera no bajó nunca del nivel desde el que se mide. La caída es 0, no hay
+ * recuperación ni activo que más restó (`worst_asset` es null). Antes llegaba como «RECOVERED» en un día.
+ */
+export type StressRecoveryStatus = "RECOVERED" | "NOT_RECOVERED" | "NO_DRAWDOWN" | "NO_DATA";
 export type StressScenarioReason =
   | "NO_POSITIVE_WEIGHTS"
   | "NO_ELIGIBLE_ASSETS"
@@ -89,6 +93,11 @@ export type StressExclusionReason =
   | "NO_SERIES"
   | "NO_DATA_AT_WINDOW_START"
   | "YOUNGEST_TO_REACH_THREE_YEARS"
+  /* P1-06: una serie que acaba más de catorce días antes que la más reciente (la regla de A-161) se aparta de los tres escenarios. */
+  | "SERIES_ENDS_EARLY"
+  /* N03 (22-11-2026): dentro de una crisis, dos precios seguidos de la serie distan más de catorce días. Se aparta de esa crisis: llevar el
+     último precio a través del hueco inventaba un tramo plano justo donde se mide la caída. */
+  | "GAP_IN_WINDOW"
   | "PRICE_SERIES_MISSING"
   | "INSUFFICIENT_HISTORY"
   | "FX_SERIES_MISSING"
@@ -188,6 +197,8 @@ const STRESS_EXCLUSION_REASONS = [
   "NO_SERIES",
   "NO_DATA_AT_WINDOW_START",
   "YOUNGEST_TO_REACH_THREE_YEARS",
+  "SERIES_ENDS_EARLY",
+  "GAP_IN_WINDOW",
   "PRICE_SERIES_MISSING",
   "INSUFFICIENT_HISTORY",
   "FX_SERIES_MISSING",
@@ -258,7 +269,7 @@ function parseStressScenario(raw: unknown, index: number): BacktestStressScenari
   const coverage = requireObject(item.coverage, `${field}.coverage`);
   const recoveryStatus = requireOneOf(
     item.recovery_status,
-    ["RECOVERED", "NOT_RECOVERED", "NO_DATA"] as const,
+    ["RECOVERED", "NOT_RECOVERED", "NO_DRAWDOWN", "NO_DATA"] as const,
     `${field}.recovery_status`
   );
   const scenarioId = requireOneOf(

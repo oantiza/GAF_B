@@ -27,6 +27,8 @@ from typing import Dict, List, Optional
 from quietlog import swallowed, swallowed_quiet
 
 ANNUALIZATION_FACTOR = 52
+# Por debajo de esta proporcion de observaciones por activo la covarianza avisa (`LOW_TN_OAS`): ver `estimate_covariance`.
+UMBRAL_DE_AVISO_T_SOBRE_N = 2.0
 
 # Slider de riesgo 1-10 -> objetivo de volatilidad anualizada. Tabla CONFIGURABLE
 # (no debe estar hardcodeada en el solver; se pasa/parametriza desde arriba).
@@ -237,12 +239,38 @@ def estimate_returns(matrix, mode: str = "HISTORICAL_SHRINKAGE", factor: int = A
 
 
 def _cond(S):
+    """Numero de condicion (mayor / menor autovalor positivo) y menor autovalor.
+
+    P2-03 (auditoria del 20-11-2026): sin ningun autovalor positivo (una covarianza nula, de series planas) era
+    `inf`, que no es JSON y rompia la respuesta. No hay numero de condicion que dar: va vacio, `None`, nunca un
+    valor inventado. Lo mismo si el cociente no es finito.
+    """
     np = _np()
     ev = np.linalg.eigvalsh(np.asarray(S, dtype=float))
     mineig = float(ev.min())
     pos = ev[ev > 0]
-    cnum = float(pos.max() / pos.min()) if len(pos) else float("inf")
-    return cnum, mineig
+    cnum = float(pos.max() / pos.min()) if len(pos) else None
+    return (cnum if cnum is not None and math.isfinite(cnum) else None), mineig
+
+
+def _para_comparar(cnum):
+    """Un numero de condicion vacio es el peor: al elegir estimador pierde frente a cualquiera que lo tenga."""
+    return math.inf if cnum is None else cnum
+
+
+def _con_reintento(paso, etiqueta):
+    """`paso(solver)` con el solver por defecto y, si falla, con uno de punto interior (CLARABEL).
+
+    P2-03 (auditoria del 20-11-2026): es el reintento que ya tenian la minima volatilidad, el maximo Sharpe y cada
+    punto de la frontera (17-10-2026: OSQP se sale de las cotas en ~1e-5 cerca de un candado o del maximo), y que
+    faltaba en las sondas de grupos y de rotacion, en el maximo factible y en la volatilidad objetivo. Que el
+    solver por defecto falle no es que no haya solucion. Si falla tambien el segundo, su excepcion sube.
+    """
+    try:
+        return paso(None)
+    except Exception:
+        swallowed_quiet(f"robust_engine.py:{etiqueta}")
+    return paso("CLARABEL")
 
 
 def estimate_covariance(matrix, asset_ids, factor: int = ANNUALIZATION_FACTOR):
@@ -263,13 +291,22 @@ def estimate_covariance(matrix, asset_ids, factor: int = ANNUALIZATION_FACTOR):
         c_lw, _ = _cond(S_lw)
         c_oas, _ = _cond(S_oas)
         if tn < 4:
-            est, S, delta, warn = "OAS", S_oas, d_oas, "LOW_TN_OAS"
-        elif c_oas < c_lw:
+            est, S, delta = "OAS", S_oas, d_oas
+            # El aviso ya no va con el cambio de estimador (20-11-2026, lo que dejo abierto la A-154): saltaba a 3 anos
+            # con 40 activos, que es justo el tope que el calculo admite (156/40 = 3,9), y un aviso que sale siempre en el
+            # tope no avisa de nada. El criterio: lo que mueve los pesos es la inversa de la covarianza, y con T
+            # observaciones y N activos la de la muestra esta sesgada en media por (T-1)/(T-N-2) (Wishart inversa). En el
+            # tope de 3 anos son 155/114 = 1,36; con T/N = 2 (80 semanas y 40 activos), 79/38 = 2,08: mas del doble.
+            # Por debajo de T/N = 2 se avisa. El encogimiento (OAS) reduce ese sesgo, pero no fabrica datos que no hay.
+            if tn < UMBRAL_DE_AVISO_T_SOBRE_N:
+                warn = "LOW_TN_OAS"
+        elif _para_comparar(c_oas) < _para_comparar(c_lw):
             est, S, delta = "OAS", S_oas, d_oas
     cnum, mineig = _cond(S)
     meta = {"covariance_estimator": est, "cov_shrinkage_intensity": round(delta, 4) if delta == delta else None,
             "T": int(T), "N": int(N), "T_over_N": round(tn, 2),
-            "condition_number": round(cnum, 1), "min_eigenvalue": round(mineig, 8), "cov_warning": warn}
+            "condition_number": round(cnum, 1) if cnum is not None else None,
+            "min_eigenvalue": round(mineig, 8) if math.isfinite(mineig) else None, "cov_warning": warn}
     return S, meta
 
 
@@ -418,11 +455,14 @@ def solve(asset_ids, matrix, *, objective="TARGET_RISK", risk_target_mode="FRONT
     gcs = _normalize_group_constraints(group_constraints, asset_ids)
     apply_gc = bool(gcs)
     if apply_gc:
-        try:
-            _probe = EfficientFrontier(mu, S, weight_bounds=bounds)
+        def _sonda_de_grupos(solver):
+            _probe = EfficientFrontier(mu, S, weight_bounds=bounds, solver=solver)
             for gc in gcs:
                 _probe.add_sector_constraints(gc["mapper"], gc.get("lower", {}), gc.get("upper", {}))
             _probe.min_volatility()
+        try:
+            # P2-03: «Sin solución» solo si tampoco la encuentra CLARABEL.
+            _con_reintento(_sonda_de_grupos, "sonda_de_grupos")
         except Exception as exc:
             raise WeightConstraintError(_sin_solucion_por_grupos(gcs, asset_ids, lower, upper)) from exc
 
@@ -438,7 +478,7 @@ def solve(asset_ids, matrix, *, objective="TARGET_RISK", risk_target_mode="FRONT
 
     if turnover_vec is not None:
         try:
-            ef().min_volatility()
+            _con_reintento(lambda solver: ef(solver).min_volatility(), "sonda_de_rotacion")
         except Exception as exc:
             # La pantalla cuenta la rotacion como lo que cambia de sitio, la mitad de sum|w - w0|.
             raise WeightConstraintError(
@@ -488,8 +528,9 @@ def solve(asset_ids, matrix, *, objective="TARGET_RISK", risk_target_mode="FRONT
 
     def _max_return_factible():
         # _max_return es privado en PyPortfolioOpt 1.6.0 (fijado en requirements.txt);
-        # es el mismo LP que efficient_return usa para validar el objetivo.
-        return float(ef()._max_return())
+        # es el mismo LP que efficient_return usa para validar el objetivo. P2-03: si falla, la frontera por QP se
+        # quedaba en un solo punto (la minima volatilidad) sin decirlo.
+        return _con_reintento(lambda solver: float(ef(solver)._max_return()), "_max_return")
 
     def _feasible_return_range():
         """Rango de retornos alcanzables con TODAS las restricciones activas (cotas, candados,
@@ -589,14 +630,24 @@ def solve(asset_ids, matrix, *, objective="TARGET_RISK", risk_target_mode="FRONT
             if tv < vol_min - 1e-9:
                 target_point = dict(min_vol); warnings.append("TARGET_ABSOLUTE_VOL_CLIPPED_LOW")
             else:
+                def _con_ese_riesgo(solver):
+                    e = ef(solver); e.efficient_risk(min(tv, vol_max)); return point_of(e)
                 try:
-                    e = ef(); e.efficient_risk(min(tv, vol_max)); target_point = point_of(e)
+                    target_point = _con_reintento(_con_ese_riesgo, "efficient_risk")
                     if tv > vol_max + 1e-9:
                         warnings.append("TARGET_ABSOLUTE_VOL_CLIPPED_HIGH")
                 except Exception:
-                    swallowed("robust_engine.py:320")
-                    target_point = max(frontier, key=lambda p: p["expected_return"])
-                    warnings.append("TARGET_ABSOLUTE_VOL_CLIPPED_HIGH")
+                    swallowed("robust_engine.py:efficient_risk")
+                    # P2-03 (auditoria del 20-11-2026): antes se tomaba el punto de MAS rentabilidad de la frontera, que es
+                    # el de mas riesgo, y se avisaba de que la volatilidad pedida pasaba de la maxima, sin ser cierto.
+                    # Ahora, el punto de la frontera mas cercano que no la supera, y se dice. Por encima de la maxima ese
+                    # punto es el ultimo, que es lo que ya dice CLIPPED_HIGH; por debajo de la primera, la de minima volatilidad.
+                    por_debajo = [p for p in frontier if p["volatility"] <= tv + 1e-9]
+                    target_point = dict(max(por_debajo, key=lambda p: (p["volatility"], p["expected_return"]))) if por_debajo else dict(min_vol)
+                    if tv > vol_max + 1e-9:
+                        warnings.append("TARGET_ABSOLUTE_VOL_CLIPPED_HIGH")
+                    else:
+                        warnings.append("TARGET_ABSOLUTE_VOL_FROM_FRONTIER")
         else:  # FRONTIER_PERCENTILE (default)
             sl = max(1, min(10, int(round(risk_slider or 5))))
             frontier_percentile = (sl - 1) / 9.0
@@ -618,7 +669,8 @@ def solve(asset_ids, matrix, *, objective="TARGET_RISK", risk_target_mode="FRONT
             # y sobra buscarla: es esa cartera, la misma que sale como minima volatilidad, y no la que deja el redondeo del solver.
             target_point = dict(min_vol)
         else:
-            maximo = float(ef(medias=serie)._max_return())
+            # P2-03: con reintento, como el resto. Si fallaba con OSQP, la peticion entera acababa en error interno.
+            maximo = _con_reintento(lambda solver: float(ef(solver, serie)._max_return()), "_max_return_de_la_serie")
             if objetivo > maximo:
                 raise WeightConstraintError(_sin_solucion_por_rentabilidad(objetivo, maximo, mx, bool(locked), turnover_vec is not None, apply_gc))
             # Aqui hay solucion: que un solver falle no es que no la haya. Cerca del maximo OSQP se sale de las cotas

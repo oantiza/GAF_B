@@ -9,6 +9,7 @@ import type { FueraDeLaMedida } from "../core/medidaDeLaCartera";
 import { rotuloDeLaVentana } from "../core/metricsFrequency";
 import type { ResolvedPositionBounds } from "../core/portfolioConstraints";
 import { PORTFOLIO_HEALTH_RULES } from "../core/portfolioHealth";
+import { esSinClasificar } from "../core/riesgoPorClase";
 import type { BdbAssetDetail, BdbManualPortfolioPosition, BdbPortfolioReport } from "../types/bdbAssets";
 import type { PortfolioRiskContribution } from "../types/portfolioFrontier";
 import { textoDeAusencia } from "../core/textoDeAusencia";
@@ -133,7 +134,8 @@ export function filasDeComposicion(entrada: EntradaDeComposicion): FilaDeComposi
     const clave =
       categoriaLegible(asset?.category) ??
       (asset && esAccion(asset.instrument_type) ? CATEGORIA_DE_UNA_ACCION : undefined) ??
-      (asset ? (CLASS_LABELS[asset.economic_asset_class] ?? readableBackendLabel(asset.economic_asset_class)) : "Sin clasificar");
+      /* A-202: sin clase conocida es «Sin clasificar», como sin ficha; «Otros» es una clase (el oro, las materias primas). */
+      (asset && !esSinClasificar(asset.economic_asset_class) ? (CLASS_LABELS[asset.economic_asset_class] ?? readableBackendLabel(asset.economic_asset_class)) : "Sin clasificar");
     grupos.set(clave, [...(grupos.get(clave) ?? []), posicion]);
   });
 
@@ -163,8 +165,9 @@ export function filasDeComposicion(entrada: EntradaDeComposicion): FilaDeComposi
       volatilidad: anos === 5 ? asset?.metrics?.volatility_5y : asset?.metrics?.volatility_3y,
       volatilidadDelProveedor: rotuloDeLaVentana(asset?.metrics, ventana).method === "TRAILING_PROVIDER",
       producto: tipo ? (TYPE_LABELS[tipo] ?? readableBackendLabel(tipo)) : undefined,
-      clase: clase ? (CLASS_LABELS[clase] ?? readableBackendLabel(clase)) : undefined,
-      claveDeClase: clase ?? undefined,
+      /* A-202: una clase que no se sabe no es «Otros»: la celda dice que falta el dato. */
+      clase: clase && !esSinClasificar(clase) ? (CLASS_LABELS[clase] ?? readableBackendLabel(clase)) : undefined,
+      claveDeClase: clase && !esSinClasificar(clase) ? clase : undefined,
       divisa: informe?.currency ?? asset?.currency,
       noInvertible: informe ? !informe.is_investable : false,
       bloqueadoPorCalidad: informe ? bloqueadoPorCalidadDelDato(informe) : false,

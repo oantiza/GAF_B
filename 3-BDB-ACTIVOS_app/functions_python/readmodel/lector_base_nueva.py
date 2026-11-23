@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Lector de la base nueva con la misma interfaz que FirestoreReader.
+Lector de la base nueva con la interfaz que espera `repository.py` (la del lector antiguo, `FirestoreReader`,
+borrado el 21-11-2026 con el resto del codigo de la base vieja).
 
 `repository.py` recibe un lector duck-typed y `mappers.py` traduce la forma vieja al
 contrato asset-for-bdb.v1. Aqui se reconstruye esa forma desde la base nueva, asi que las
@@ -12,16 +13,18 @@ de otro documento, dos pantallas podrian ensenar dos numeros para el mismo activ
 El Sharpe y el Sortino de una accion individual no se proyectan (par. 9 del metodo).
 """
 import bisect
+import math
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from typing import Optional
 
 from google.api_core.retry import Retry
 
 from ecb_rates import _weighted_average_percent, resolve_estr_window_average
-from master_project import PROYECTO_BASE_NUEVA, master_project_id
-from .firestore_client import FirestoreReader, _valid_asset_id, get_master_db
+from master_project import PROYECTO_BASE_NUEVA, exigir_base_nueva
+from .firestore_client import _valid_asset_id, get_master_db
 
 ESQUEMA_SERIE_VIEJO = "asset-price-series.v1.2"
 TOLERANCIA_CAMBIO_DIAS = 7
@@ -36,7 +39,7 @@ _VENTANAS = ("1y", "3y", "5y", "10y")
 CONTEXTO_DE_LAS_METRICAS = ("as_of", "returns_as_of", "returns_as_of_by_window", "return_basis", "series_class",
                             "distribution_policy", "windows_out_of_range")
 _LOTE_GET_ALL = 300
-# El limite de cada lectura, el mismo que el lector antiguo (`optimization/firestore_reader.py`). Sin el,
+# El limite de cada lectura, el mismo que tenia el lector antiguo (`optimization/firestore_reader.py`). Sin el,
 # una base que no contesta deja la llamada colgada hasta que la corta la propia funcion, y Simular lee
 # con seis hilos contando con el (hallazgo 19 de la auditoria del 15-11-2026).
 PLAZO_LECTURA_SEGUNDOS = 15
@@ -316,8 +319,17 @@ def posicion_vieja(posicion: dict) -> dict:
 class LectorBaseNueva:
     read_timeout_seconds = PLAZO_LECTURA_SEGUNDOS
 
+    max_parallel_reads = 6
+
     def __init__(self, db=None):
         self.db = db or get_master_db()
+        # Una peticion crea su lector (`lector_de_activos()`), asi que esta memoria vive lo que la peticion y no se comparte
+        # entre peticiones: no hay TTL que justificar ni dato viejo que servir. P1-12 (auditoria del 20-11-2026): `resolve_portfolio`
+        # leia `read/card` tres veces (raices, metricas, resumenes de posiciones).
+        self._memoria = {}            # (ruta, id) -> datos, o None si el documento no existe
+        self._posiciones = {}         # id -> (cabecera, posiciones), o None si no tiene `declared/holdings`
+        self._cerrojo_memoria = threading.Lock()
+        self.documentos_leidos = 0    # documentos pedidos a la base, para medirlo en las pruebas
 
     def _instrumento(self, instrument_id: str):
         return self.db.collection("instruments").document(str(instrument_id))
@@ -326,6 +338,8 @@ class LectorBaseNueva:
         snaps = []
         for inicio in range(0, len(referencias), _LOTE_GET_ALL):
             snaps.extend(self.db.get_all(referencias[inicio:inicio + _LOTE_GET_ALL], **_plazo(self.read_timeout_seconds)))
+        with self._cerrojo_memoria:
+            self.documentos_leidos += len(referencias)
         return snaps
 
     def _datos_por_instrumento(self, asset_ids, *ruta) -> dict:
@@ -334,18 +348,29 @@ class LectorBaseNueva:
         Un identificador fuera del alfabeto del catalogo no se lee: con barras construiria la ruta de otro
         documento (`X/read/card`), y con un numero impar de tramos haria fallar la lectura (hallazgo 21).
         Es la misma puerta que el lector antiguo, y se trata como un activo que no existe.
+
+        Lo ya leido por este lector no se vuelve a pedir, ni lo que no existia. Los dicts que salen se comparten con la memoria:
+        quien los reciba no los modifica.
         """
-        referencias = []
-        for asset_id in (a for a in asset_ids if _valid_asset_id(a)):
-            referencia = self._instrumento(asset_id)
-            if ruta:
-                referencia = referencia.collection(ruta[0]).document(ruta[1])
-            referencias.append(referencia)
-        salida = {}
-        for snap in self._leer_muchos(referencias):
-            if snap.exists:
-                salida[snap.id if not ruta else snap.reference.parent.parent.id] = snap.to_dict() or {}
-        return salida
+        ids = [a for a in dict.fromkeys(a for a in asset_ids if _valid_asset_id(a))]
+        with self._cerrojo_memoria:
+            faltan = [a for a in ids if (ruta, a) not in self._memoria]
+        if faltan:
+            referencias = []
+            for asset_id in faltan:
+                referencia = self._instrumento(asset_id)
+                if ruta:
+                    referencia = referencia.collection(ruta[0]).document(ruta[1])
+                referencias.append(referencia)
+            leidos = {}
+            for snap in self._leer_muchos(referencias):
+                if snap.exists:
+                    leidos[snap.id if not ruta else snap.reference.parent.parent.id] = snap.to_dict() or {}
+            with self._cerrojo_memoria:
+                for asset_id in faltan:
+                    self._memoria[(ruta, asset_id)] = leidos.get(asset_id)
+        with self._cerrojo_memoria:
+            return {a: self._memoria[(ruta, a)] for a in ids if self._memoria.get((ruta, a)) is not None}
 
     def get_assets_many(self, asset_ids) -> dict:
         ids = list(dict.fromkeys(asset_id for asset_id in asset_ids if _valid_asset_id(asset_id)))
@@ -403,18 +428,49 @@ class LectorBaseNueva:
     def get_holdings_summary(self, asset_id: str) -> Optional[dict]:
         return self.get_holdings_summaries_many([asset_id]).get(asset_id)
 
-    def get_holdings(self, asset_id: str) -> Optional[dict]:
+    def _trozos_de(self, asset_id: str) -> list:
+        trozos = sorted(self._instrumento(asset_id).collection("holdings_chunks").stream(**_plazo(self.read_timeout_seconds)),
+                        key=lambda snap: snap.id)
+        with self._cerrojo_memoria:
+            self.documentos_leidos += len(trozos)
+        return [p for snap in trozos for p in (snap.to_dict() or {}).get("positions") or []]
+
+    def _posiciones_de(self, asset_ids) -> dict:
+        """{id: (cabecera, posiciones)} de los que tienen `declared/holdings`.
+
+        La cabecera de todos va en una sola lectura por lotes y los trozos de cada uno, en paralelo (P1-12: eran dos llamadas en
+        serie por activo). Lo que se lee bien queda en memoria aunque otro falle: si una lectura falla, la excepcion sale cuando
+        han acabado las demas, y quien reintente suelto (`get_asset_holdings_many`) no vuelve a pedir lo que ya esta.
+        """
+        ids = list(dict.fromkeys(a for a in asset_ids if _valid_asset_id(a)))
+        cabeceras = self._datos_por_instrumento(ids, "declared", "holdings")
+        pendientes = [a for a in ids if a in cabeceras and a not in self._posiciones]
+        errores = []
+        if len(pendientes) <= 1:
+            for asset_id in pendientes:
+                try:
+                    self._posiciones[asset_id] = (cabeceras[asset_id], self._trozos_de(asset_id))
+                except Exception as exc:
+                    errores.append(exc)
+        else:
+            with ThreadPoolExecutor(max_workers=min(self.max_parallel_reads, len(pendientes))) as pool:
+                futuros = {a: pool.submit(self._trozos_de, a) for a in pendientes}
+            for asset_id in pendientes:
+                try:
+                    posiciones = futuros[asset_id].result()
+                except Exception as exc:
+                    errores.append(exc)
+                    continue
+                with self._cerrojo_memoria:
+                    self._posiciones[asset_id] = (cabeceras[asset_id], posiciones)
+        if errores:
+            raise errores[0]
+        return {a: self._posiciones[a] for a in ids if a in cabeceras}
+
+    @staticmethod
+    def _documento_de_posiciones(asset_id: str, cabecera: dict, posiciones: list) -> dict:
         from fund_data_quality import normalize_holdings
 
-        if not _valid_asset_id(asset_id):
-            return None
-        instrumento = self._instrumento(asset_id)
-        declarado = instrumento.collection("declared").document("holdings").get(**_plazo(self.read_timeout_seconds))
-        if not declarado.exists:
-            return None
-        cabecera = declarado.to_dict() or {}
-        trozos = sorted(instrumento.collection("holdings_chunks").stream(**_plazo(self.read_timeout_seconds)), key=lambda snap: snap.id)
-        posiciones = [p for snap in trozos for p in (snap.to_dict() or {}).get("positions") or []]
         filas = [posicion_vieja(p) for p in (posiciones or cabecera.get("top") or [])]
         return {"data": {
             "storage_mode": "SINGLE_DOCUMENT",
@@ -425,13 +481,15 @@ class LectorBaseNueva:
             **_alcance_de_las_posiciones(cabecera, bool(posiciones)),
         }}
 
+    def get_holdings(self, asset_id: str) -> Optional[dict]:
+        if not _valid_asset_id(asset_id):
+            return None
+        hallado = self._posiciones_de([asset_id]).get(asset_id)
+        return self._documento_de_posiciones(asset_id, *hallado) if hallado else None
+
     def get_holdings_many(self, asset_ids) -> dict:
-        salida = {}
-        for asset_id in dict.fromkeys(a for a in asset_ids if _valid_asset_id(a)):
-            posiciones = self.get_holdings(asset_id)
-            if posiciones is not None:
-                salida[asset_id] = posiciones
-        return salida
+        return {asset_id: self._documento_de_posiciones(asset_id, *hallado)
+                for asset_id, hallado in self._posiciones_de(asset_ids).items()}
 
     def list_assets(self, types, limit: int) -> list:
         ids = []
@@ -440,6 +498,11 @@ class LectorBaseNueva:
             consulta = coleccion.where("instrument_type", "==", tipo).limit(int(limit))
             ids.extend(snap.id for snap in consulta.stream(**_plazo(self.read_timeout_seconds)))
         return list(self.get_assets_many(ids).values())
+
+
+def _cambio_valido(c) -> bool:
+    """Un cambio sirve si es un numero finito y positivo; lo demas (0, negativo, NaN, texto) se aparta en vez de dividir por el."""
+    return isinstance(c, (int, float)) and not isinstance(c, bool) and math.isfinite(c) and c > 0
 
 
 def a_euros(documento: dict, cambios: list) -> Optional[dict]:
@@ -451,6 +514,9 @@ def a_euros(documento: dict, cambios: list) -> Optional[dict]:
     """
     divisa = documento.get("currency")
     moneda, escala = MONEDAS_MENORES.get(divisa, (divisa, 1.0))
+    # P3-04: un cambio que no es un numero positivo no sirve para dividir (cero daba ZeroDivisionError). Se aparta como si no
+    # existiera: el punto usa el ultimo cambio bueno en tolerancia, o se descarta, y no se inventa uno.
+    cambios = [(f, c) for f, c in cambios if _cambio_valido(c)]
     fechas = [fecha for fecha, _ in cambios]
     puntos = []
     for punto in documento.get("points") or []:
@@ -531,6 +597,8 @@ class LectorOptimizacionBaseNueva:
         self.read_count = 0
         self.write_count = 0
         self._cerrojo = threading.Lock()
+        self._monedas_sin_cambios = set()
+        self._estr_sin_serie = {}
 
     def get_asset(self, asset_id: str) -> Optional[dict]:
         return self.get_assets_many([asset_id]).get(asset_id) if _valid_asset_id(asset_id) else None
@@ -569,7 +637,7 @@ class LectorOptimizacionBaseNueva:
         """
         if rate != "ESTR":
             return []
-        return list(_estr_guardada(self.db))
+        return list(_estr_guardada(self.db, self._estr_sin_serie))
 
     def get_ecb_fx_points(self, currency: str) -> list:
         """[(fecha, divisa por euro), ...] del BCE: los mismos cambios con los que se pasan a euros las series (decision 10).
@@ -605,56 +673,86 @@ class LectorOptimizacionBaseNueva:
         return a_euros(documento, cambios) if cambios else documento
 
     def _cambios_de(self, moneda: str) -> list:
-        ahora = time.monotonic()
-        with _CERROJO_CAMBIOS:
-            guardado = _CAMBIOS.get(moneda)
-            if guardado and ahora - guardado[0] <= _TTL_CAMBIOS_SEGUNDOS:
-                return guardado[1]
-        consulta = self.db.collection("fx_rates").where("currency", "==", moneda)
-        puntos = {}
-        for snap in consulta.stream(**_plazo(self.read_timeout_seconds)):
-            for punto in (snap.to_dict() or {}).get("points") or []:
-                puntos[punto["date"]] = punto["value"]
-        cambios = sorted(puntos.items())
-        with _CERROJO_CAMBIOS:
-            _CAMBIOS[moneda] = (ahora, cambios)
-        return cambios
+        # Una recarga a la vez por moneda (P1-12): los seis hilos de `portfolio_horizon` pedian la misma moneda a la vez y cada
+        # uno la leia entera. El que llega segundo espera al cerrojo de la moneda y encuentra la cache llena.
+        with _cerrojo_de_recarga(("fx", moneda)):
+            ahora = time.monotonic()
+            with _CERROJO_CAMBIOS:
+                guardado = _CAMBIOS.get(moneda)
+                if guardado and ahora - guardado[0] <= _TTL_CAMBIOS_SEGUNDOS:
+                    return guardado[1]
+            with self._cerrojo:
+                if moneda in self._monedas_sin_cambios:
+                    return []
+            consulta = self.db.collection("fx_rates").where("currency", "==", moneda)
+            puntos = {}
+            for snap in consulta.stream(**_plazo(self.read_timeout_seconds)):
+                for punto in (snap.to_dict() or {}).get("points") or []:
+                    # Solo cambios que sirven para dividir; un hueco deja al punto sin cambio, que el motor descarta o dice.
+                    if _cambio_valido(punto.get("value")):
+                        puntos[punto["date"]] = punto["value"]
+            cambios = sorted(puntos.items())
+            if not cambios:
+                # Un vacio no se guarda 15 minutos para todos: puede ser una lectura que no llego o una carga a medias. Solo se
+                # recuerda en este lector, para que una peticion no lo pregunte una vez por serie.
+                with self._cerrojo:
+                    self._monedas_sin_cambios.add(moneda)
+                return []
+            with _CERROJO_CAMBIOS:
+                _CAMBIOS[moneda] = (ahora, cambios)
+            return cambios
 
 
 _TTL_ESTR_SEGUNDOS = 15 * 60
 _DIAS_DE_RETRASO_ADMITIDOS = 7
 _ESTR_GUARDADA = {}
+_CERROJOS_DE_RECARGA: dict = {}
 
 
-def _estr_guardada(db) -> list:
+def _cerrojo_de_recarga(clave) -> threading.Lock:
+    with _CERROJO_CAMBIOS:
+        return _CERROJOS_DE_RECARGA.setdefault(clave, threading.Lock())
+
+
+def _estr_guardada(db, sin_serie: Optional[dict] = None) -> list:
     """[(fecha, tanto por uno), ...] de `reference_rates`, como la guarda la base.
 
     La leen la media de la ventana (en por ciento, que es como la calcula el BCE) y el indice
     capitalizado de Rendimiento (decision B-70), con la misma cache.
+
+    La recarga va de una en una, y una serie vacia no se guarda en la cache compartida (P1-12). `sin_serie` es la memoria de quien
+    llama —un lector, un resolvedor— para no volver a preguntar lo mismo dentro de su vida.
     """
-    ahora = time.monotonic()
-    with _CERROJO_CAMBIOS:
-        guardada = _ESTR_GUARDADA.get("ESTR")
-        if guardada and ahora - guardada[0] <= _TTL_ESTR_SEGUNDOS:
-            return guardada[1]
-    puntos = {}
-    for snap in db.collection("reference_rates").where("rate", "==", "ESTR").stream(**_plazo()):
-        for punto in (snap.to_dict() or {}).get("points") or []:
-            puntos[punto["date"]] = punto["value"]
-    observaciones = sorted((date.fromisoformat(fecha), valor) for fecha, valor in puntos.items())
-    with _CERROJO_CAMBIOS:
-        _ESTR_GUARDADA["ESTR"] = (ahora, observaciones)
-    return observaciones
+    with _cerrojo_de_recarga(("estr",)):
+        ahora = time.monotonic()
+        with _CERROJO_CAMBIOS:
+            guardada = _ESTR_GUARDADA.get("ESTR")
+            if guardada and ahora - guardada[0] <= _TTL_ESTR_SEGUNDOS:
+                return guardada[1]
+        if sin_serie is not None and sin_serie.get("vacia"):
+            return []
+        puntos = {}
+        for snap in db.collection("reference_rates").where("rate", "==", "ESTR").stream(**_plazo()):
+            for punto in (snap.to_dict() or {}).get("points") or []:
+                puntos[punto["date"]] = punto["value"]
+        observaciones = sorted((date.fromisoformat(fecha), valor) for fecha, valor in puntos.items())
+        if not observaciones:
+            if sin_serie is not None:
+                sin_serie["vacia"] = True
+            return []
+        with _CERROJO_CAMBIOS:
+            _ESTR_GUARDADA["ESTR"] = (ahora, observaciones)
+        return observaciones
 
 
-def _media_de_la_serie_guardada(db, inicio: str, fin: str) -> Optional[dict]:
+def _media_de_la_serie_guardada(db, inicio: str, fin: str, sin_serie: Optional[dict] = None) -> Optional[dict]:
     """La media de la ventana con lo guardado, y si la serie llega a tiempo. Sin serie, None.
 
     El calculo del BCE alarga la ultima observacion hasta el final de la ventana y dice que la
     cubre entera. Con una serie guardada eso esconderia que esta atrasada, asi que aqui la
     cobertura solo cuenta los dias hasta la ultima observacion, mas los que tardaria en publicarse.
     """
-    observaciones = _estr_guardada(db)
+    observaciones = _estr_guardada(db, sin_serie)
     ventana_inicio, ventana_fin = date.fromisoformat(inicio), date.fromisoformat(fin)
     if not observaciones or observaciones[-1][0] < ventana_inicio:
         return None
@@ -670,18 +768,19 @@ def _media_de_la_serie_guardada(db, inicio: str, fin: str) -> Optional[dict]:
 
 
 def resolver_tipo_libre(db=None):
-    """Quien resuelve la media ESTR de una ventana, segun el proyecto declarado.
+    """Quien resuelve la media ESTR de una ventana.
 
-    En la base nueva manda la serie guardada, que se puede reproducir y no espera al BCE. Si esta
+    Manda la serie guardada en la base nueva, que se puede reproducir y no espera al BCE. Si esta
     atrasada se pregunta al BCE, y si tampoco contesta se usa lo guardado con su cobertura real,
     que es lo que hace salir el aviso de Sharpe aproximado. Solo sin serie queda el tipo fijo.
+    Con otro proyecto declarado para (`exigir_base_nueva`): la base vieja ya no tiene lector.
     """
-    if master_project_id() != PROYECTO_BASE_NUEVA:
-        return resolve_estr_window_average
+    exigir_base_nueva()
     cliente = db or get_master_db()
+    sin_serie: dict = {}
 
     def resolver(inicio: str, fin: str) -> dict:
-        guardada = _media_de_la_serie_guardada(cliente, inicio, fin)
+        guardada = _media_de_la_serie_guardada(cliente, inicio, fin, sin_serie)
         if guardada is not None and guardada.pop("al_dia"):
             return guardada
         try:
@@ -696,14 +795,12 @@ def resolver_tipo_libre(db=None):
 
 def lector_de_optimizacion():
     """Como `lector_de_activos`, para quien ademas necesita las series."""
-    if master_project_id() == PROYECTO_BASE_NUEVA:
-        return LectorOptimizacionBaseNueva()
-    from optimization.firestore_reader import FirestoreOptimizationReader
-    return FirestoreOptimizationReader()
+    exigir_base_nueva()
+    return LectorOptimizacionBaseNueva()
 
 
 def lector_de_activos():
-    """El lector que corresponde al proyecto declarado en MASTER_PROJECT_ID."""
-    if master_project_id() == PROYECTO_BASE_NUEVA:
-        return LectorBaseNueva()
-    return FirestoreReader()
+    """El lector de la base nueva. Con otro proyecto en MASTER_PROJECT_ID para, nombrandolo
+    (`master_project.exigir_base_nueva`): desde el 21-11-2026 no hay lector de la base vieja."""
+    exigir_base_nueva()
+    return LectorBaseNueva()

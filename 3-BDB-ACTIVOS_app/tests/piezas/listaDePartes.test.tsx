@@ -50,9 +50,36 @@ describe("la pieza ListaDePartes", () => {
       />
     );
     quitar = vista.quitar;
-    const anchos = [...vista.host.querySelectorAll<HTMLElement>(".partes__barra")].map((barra) => barra.style.width);
-    expect(anchos).toEqual(["54%", "100%", "0%", "0%"]);
-    expect(vista.host.querySelectorAll("li")[3].querySelector(".ausencia--falta")?.textContent).toBe("Falta el dato");
+    const partes = [...vista.host.querySelectorAll<HTMLElement>("li")];
+    /* Lo que no es positivo no lleva barra (C-29, 21-11-2026): su carril queda vacío. Hasta ese día era una barra de ancho 0. */
+    const anchos = partes.map((parte) => parte.querySelector<HTMLElement>(".partes__barra")?.style.width ?? null);
+    expect(anchos).toEqual(["54%", "100%", null, null]);
+    expect(partes.every((parte) => parte.querySelector(".partes__carril") !== null)).toBe(true);
+    expect(partes[3].querySelector(".ausencia--falta")?.textContent).toBe("Falta el dato");
+  });
+
+  test("C-29: la clase corta de un reparto neto se escribe con su signo y sin barra; la que pasa de 100, tal cual", () => {
+    /* ES0137396000 en el canónico del 17-11-2026: 3,198089 + 0,115421 − 2,425742 + 0,112232 = 1. */
+    const vista = pintar(
+      <ListaDePartes
+        partes={[
+          { nombre: "Renta variable", fraccion: 3.198089 },
+          { nombre: "Renta fija", fraccion: 0.115421 },
+          { nombre: "Liquidez", fraccion: -2.425742 },
+          { nombre: "Otros", fraccion: 0.112232, apagada: true }
+        ]}
+      />
+    );
+    quitar = vista.quitar;
+    const partes = [...vista.host.querySelectorAll<HTMLElement>("li")];
+    expect(partes.map((parte) => parte.textContent)).toEqual([
+      `Renta variable319,8${N}%`,
+      `Renta fija11,5${N}%`,
+      `Liquidez−242,6${N}%`,
+      `Otros11,2${N}%`
+    ]);
+    expect(partes[2].querySelector(".partes__barra")).toBeNull();
+    expect(partes[0].querySelector<HTMLElement>(".partes__barra")?.style.width).toBe("100%");
   });
 
   test("«Otros» va apagada", () => {

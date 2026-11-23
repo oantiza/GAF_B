@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest';
 
-import { raicesDelDueno } from '../src/config/baseNueva/esquemas';
+import { raicesDelDueno, subcoleccionesDeclaradas } from '../src/config/baseNueva/esquemas';
 import { ejecutarBorrados, type BaseDeBorrados, type BorradoAprobado, type DecisionDeBorrado } from '../src/ingestion/baseNueva/borradosAprobados';
 import {
     claseDeLaColeccion,
     compararConLaNube,
     entraEnLaParte,
+    loQueQuedaPorSubir,
     PARTES_QUE_NO_PISAN,
+    raicesDeLaSubida,
     type BaseQueRelee
 } from '../src/ingestion/baseNueva/partesDeLaSubida';
 
@@ -17,10 +19,11 @@ import {
  */
 
 describe('PLA-4 · lo que es de la aplicación nunca es catálogo', () => {
-    const deLaApp = raicesDelDueno('app');
+    const deLaApp = raicesDeLaSubida();
 
     it('las raíces de la aplicación salen del dueño que declara su contrato', () => {
-        expect([...deLaApp].sort()).toEqual(['clients', 'commercial_retro', 'commercial_retro_imports', 'portfolios']);
+        expect([...deLaApp.deLaApp].sort()).toEqual(['clients', 'commercial_retro', 'commercial_retro_imports', 'portfolios']);
+        expect(deLaApp.deLaApp).toEqual(raicesDelDueno('app'));
     });
 
     it('`clients` no entra en la parte que se sube sin el piso, y solo sube con «todo»', () => {
@@ -50,9 +53,45 @@ describe('PLA-4 · lo que es de la aplicación nunca es catálogo', () => {
     });
 
     it('una colección de la aplicación que se declare mañana tampoco será catálogo', () => {
-        const conUnaNueva = new Set([...deLaApp, 'notas_del_asesor']);
+        const conUnaNueva = {
+            deLaApp: new Set([...deLaApp.deLaApp, 'notas_del_asesor']),
+            declaradas: new Set([...deLaApp.declaradas, 'notas_del_asesor', 'una_del_catalogo'])
+        };
         expect(entraEnLaParte('catalogo', 'notas_del_asesor', conUnaNueva)).toBe(false);
         expect(entraEnLaParte('catalogo', 'una_del_catalogo', conUnaNueva)).toBe(true);
+    });
+
+    it('P2-09 · una colección que no declara ningún contrato no cae en el catálogo: para, en todas las partes', () => {
+        /* Antes caía en `catalogo`, la única parte que sube sin `--piso-lo-de-la-app`. */
+        for (const parte of ['catalogo', 'planes', 'carteras', 'retrocesiones', 'todo'] as const) {
+            expect(() => entraEnLaParte(parte, 'una_que_nadie_declara', deLaApp)).toThrow('no la declara ningun contrato');
+        }
+        expect(() => claseDeLaColeccion(undefined, deLaApp)).toThrow('no la declara ningun contrato');
+    });
+
+    it('toda subcolección declarada cuelga de una raíz declarada: la subida no se para con lo que hay hoy', () => {
+        /* El guion lee las subcolecciones por su raíz; si alguna colgara de una raíz sin contrato, la subida pararía. */
+        const raicesDeLasSubs = new Set([...subcoleccionesDeclaradas().keys()].map((clave) => clave.split('/')[0]));
+        for (const raiz of raicesDeLasSubs) expect(deLaApp.declaradas.has(raiz as string), String(raiz)).toBe(true);
+        for (const raiz of deLaApp.declaradas) expect(() => claseDeLaColeccion(raiz, deLaApp)).not.toThrow();
+    });
+});
+
+describe('P2-09 · reanudar una subida cortada, por la ruta y no por el número de tanda', () => {
+    const aSubir = ['instruments/A', 'instruments/A/declared/costs', 'instruments/B', 'issuers/I1'].map((ruta) => ({ ruta }));
+
+    it('sin --reanuda-desde se sube todo', () => {
+        expect(loQueQuedaPorSubir(aSubir, undefined)).toEqual({ quedan: aSubir, saltados: 0 });
+    });
+
+    it('desde la primera ruta de la tanda que falló: se saltan las anteriores, y se cuentan', () => {
+        const { quedan, saltados } = loQueQuedaPorSubir(aSubir, 'instruments/B');
+        expect(saltados).toBe(2);
+        expect(quedan.map((d) => d.ruta)).toEqual(['instruments/B', 'issuers/I1']);
+    });
+
+    it('una ruta que no está en lo que se va a subir para: no se salta nada a ciegas', () => {
+        expect(() => loQueQuedaPorSubir(aSubir, 'instruments/Z')).toThrow('no esta en lo que se va a subir');
     });
 });
 

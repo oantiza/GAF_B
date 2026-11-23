@@ -16,6 +16,8 @@ const contractsRoot = process.env.BDB_CONTRACTS_ROOT
 const targetDir = resolve(repoRoot, "functions_python", "contracts_cache");
 const manifestPath = join(targetDir, "manifest.json");
 const checkOnly = process.argv.includes("--check");
+/** Las carpetas de `contracts/` que se copian a la caché de las Functions. */
+const GRUPOS = ["read"];
 
 // Git can convert CRLF to LF during checkout; hashes must be portable.
 function normalizedContract(content) {
@@ -90,9 +92,10 @@ function main() {
   if (!checkOnly) mkdirSync(targetDir, { recursive: true });
   const expectedNames = new Set();
   const hashes = {};
-  const count =
-    syncSchemasFrom(join(contractsRoot, "master"), expectedNames, hashes) +
-    syncSchemasFrom(join(contractsRoot, "read"), expectedNames, hashes);
+  // Solo `read` (asset-for-bdb.v1, la forma que el servidor da a la app). Hasta el 21-11-2026 se copiaba también
+  // `master`, los contratos de la maestra vieja contra los que validaban sus escritores; se borraron con ella
+  // (decisión 36, CENSO_BASE_VIEJA_2026-11-21.md).
+  const count = GRUPOS.reduce((total, grupo) => total + syncSchemasFrom(join(contractsRoot, grupo), expectedNames, hashes), 0);
 
   const extras = schemaNames(targetDir).filter((name) => !expectedNames.has(name));
   if (extras.length) throw new Error(`Cache contiene schemas ajenos al SSOT: ${extras.join(", ")}`);

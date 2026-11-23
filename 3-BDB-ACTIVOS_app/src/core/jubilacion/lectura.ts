@@ -430,6 +430,12 @@ export function cortesDelEje(maximo: number, pasos = 4): number[] {
  * Cómo se reparte el bruto de un año entre lo que queda de cada fuente y el IRPF. El impuesto que añaden las
  * retiradas se reparte entre ahorros y previsión según lo que cada uno aporta a la base imponible. Solo decide
  * el color de cada tramo: los totales no cambian.
+ *
+ * Los cuatro tramos suman el bruto, y los tres primeros, el neto (P2-11, auditoría del 20-11-2026). El impuesto que
+ * le toca a una fuente puede pasar de lo que se retira de ella: al conservar, los intereses de la liquidez tributan
+ * y se quedan en la cuenta, y lo retirado de los ahorros puede ser cero. Antes ese tramo se recortaba a cero y el
+ * impuesto que sobraba no lo pagaba nadie: la barra pasaba del bruto. Ahora lo que sobra lo paga lo demás que se
+ * cobra ese año: primero la otra retirada y, si no alcanza, la pensión.
  */
 export function repartoAnual(f: FilaAnual): { pension: number; ahorros: number; prevision: number; irpf: number } {
   const delAhorro = f.interes + f.ganancia;
@@ -438,12 +444,22 @@ export function repartoAnual(f: FilaAnual): { pension: number; ahorros: number; 
   const extra = f.impuestoResto;
   const retirado = f.retiradaAhorros + f.retiradaEpsv;
   const alAhorro = total > 0 ? (extra * delAhorro) / total : retirado > 0 ? (extra * f.retiradaAhorros) / retirado : 0;
-  return {
-    pension: Math.max(0, f.pensionNeta),
-    ahorros: Math.max(0, f.retiradaAhorros - alAhorro),
-    prevision: Math.max(0, f.retiradaEpsv - (extra - alAhorro)),
-    irpf: Math.max(0, f.impuesto)
-  };
+  let pension = f.pensionNeta;
+  let ahorros = f.retiradaAhorros - alAhorro;
+  let prevision = f.retiradaEpsv - (extra - alAhorro);
+  if (ahorros < 0) {
+    prevision += ahorros;
+    ahorros = 0;
+  }
+  if (prevision < 0) {
+    ahorros += prevision;
+    prevision = 0;
+  }
+  if (ahorros < 0) {
+    pension += ahorros;
+    ahorros = 0;
+  }
+  return { pension: Math.max(0, pension), ahorros, prevision, irpf: Math.max(0, f.impuesto) };
 }
 
 export interface PuntoDeIngresos {
@@ -621,6 +637,20 @@ export interface PasoDelMetodo {
   texto: string;
 }
 
+/**
+ * Cómo trata el simulador las pérdidas de lo vendido, en el territorio del cálculo (hallazgo P1-03; Óscar, 21-11-2026).
+ * Donde la norma deja compensarlas también con los intereses del año (territorio común y Navarra, hasta el 25 %), se dice
+ * que el simulador no lo hace y hacia dónde se equivoca.
+ */
+export function compensacionDePerdidas(res: ResultadoDisponible): string {
+  const regla = F.reglaDeCompensacion(res.cfg);
+  const base = `Si se vende en pérdidas, la pérdida se compensa con las ganancias de lo vendido de los ${regla.plazo} años siguientes y lo que no cabe en ese plazo se pierde (${regla.articulo}).`;
+  const cruce = regla.cruceConRendimientos > 0
+    ? ` La norma deja compensar además hasta un ${supuesto(regla.cruceConRendimientos, 0)} con los intereses del mismo año; el simulador no lo hace, y ese año el impuesto podría salir algo mayor que el real.`
+    : "";
+  return `${base}${cruce} No calcula ventas por lotes: usa el coste medio.`;
+}
+
 export function metodo(res: ResultadoDisponible): { pasos: PasoDelMetodo[]; noTieneEnCuenta: string[] } {
   /* Solo si algún escenario rinde menos de cero y hay liquidez hoy o en la jubilación: es cuando la liquidez se queda en un
      0 % (JUB-6 y A-191). */
@@ -643,7 +673,7 @@ export function metodo(res: ResultadoDisponible): { pasos: PasoDelMetodo[]; noTi
       "Una sola rentabilidad para todo el patrimonio, igual todos los años: es un supuesto elegido para simular, no una previsión ni una rentabilidad prometida. Los mercados suben y bajan.",
       ...(liquidezAlCero ? ["Con una rentabilidad negativa, la liquidez y los depósitos rinden un 0 %, antes y después de la jubilación: el efectivo no pierde euros, solo poder de compra, y eso ya lo recoge la inflación."] : []),
       "Las retiradas salen de la liquidez y de las inversiones a prorrata de su saldo, sin un orden fiscal.",
-      "No compensa pérdidas ni calcula ventas por lotes: usa el coste medio.",
+      compensacionDePerdidas(res),
       "No incluye otros ingresos (alquileres, trabajo) ni el IRPF de los años anteriores a la jubilación.",
       "Un solo contribuyente, en declaración individual: no reparte los ahorros con el cónyuge ni cuenta su pensión.",
       "La pensión sube cada año con el IPC supuesto, sin aplicar la pensión máxima.",
@@ -679,4 +709,58 @@ export function datosDeLaSimulacion(res: ResultadoDisponible): Array<[rotulo: st
   );
   if (o.otrasDeducciones > 0) datos.push(["Otras deducciones en la cuota", `${euros(o.otrasDeducciones)} al año`]);
   return datos;
+}
+
+/* ------------------------------------------------------ Lo supuesto y lo avisado --- */
+
+/**
+ * Lo que el simulador supone con una EPSV sin desglose (modelo vasco): la estimación reglada de su rentabilidad y a qué
+ * tramo va el saldo (N05). El formulario lo dice junto al saldo y el informe con los supuestos, con las mismas palabras:
+ * hasta el 22-11-2026 solo lo decía la pantalla (H2-17 de la auditoría de ese día). Sin `calculado`, la regla sin la
+ * estimación que se aplica. Fuera del modelo vasco no hay nada que suponer.
+ */
+export function notasDelSaldoSinDesglose(cfg: F.Configuracion, antiguedadConocida: boolean, antiguedad: number, calculado: ResultadoDisponible | null): string[] {
+  const pv = cfg.parametros.prevision;
+  if (pv.modelo !== "vasco") return [];
+  const entero = (fraccion: number): string => supuesto(fraccion, 0);
+  const aplicada = calculado ? ` en el ${entero(F.ratioEstimado(calculado.cfg, calculado.entrada.antiguedadConocida, calculado.entrada.antiguedad))} de lo cobrado` : "";
+  const crece =
+    calculado && calculado.entrada.aniosHastaJubilacion > 0 && calculado.entrada.rentabilidad > 0
+      ? " El simulador la aplica al saldo de hoy; lo que crezca hasta la jubilación cuenta entero como rentabilidad."
+      : "";
+  return [
+    `Sin desglose, ${cfg.hacienda} estima la rentabilidad${aplicada}: un ${entero(pv.estimacionAnual)} por año de antigüedad, con un máximo del ${entero(pv.estimacionMaxima)}, o el ${entero(pv.estimacionSinAntiguedad)} si no se conoce la antigüedad.${crece}`,
+    F.saldoSinDesgloseEsPosterior(antiguedadConocida, antiguedad)
+      ? `Con un año de antigüedad o menos, la primera aportación puede ser de ${pv.corte}: el simulador trata el saldo entero como posterior a ${pv.corte - 1} y no aplica el régimen transitorio. El certificado de la EPSV da el reparto exacto.`
+      : `El simulador trata el saldo como aportado hasta ${pv.corte - 1}. Si el cliente ha aportado en ${pv.corte}, el certificado de la EPSV da el reparto exacto.`
+  ];
+}
+
+/**
+ * Lo que se dice cuando la casilla de «más de 2 años desde la primera aportación» no puede cumplirse con lo escrito (sin
+ * desglose, antigüedad conocida): la pantalla la desmarca junto a ella y el informe lo lleva con los supuestos (H1-03,
+ * aprobado por Óscar el 23-11-2026). `null` si puede cumplirse o no se sabe.
+ */
+export function notaDeLosDosAnios(o: { sinDesglose: boolean; antiguedadConocida: boolean; antiguedad: number; aniosHastaCobro: number; contingencia: string }): string | null {
+  if (!F.dosAniosNoPuedeCumplirse(o)) return null;
+  return o.aniosHastaCobro > 0
+    ? "Con la antigüedad escrita, cuando se cobre no habrán pasado más de 2 años desde la primera aportación: el cobro no tiene la reducción."
+    : "Con la antigüedad escrita, no han pasado más de 2 años desde la primera aportación: el cobro no tiene la reducción.";
+}
+
+/**
+ * Lo que la pantalla avisa sobre el resultado, y el informe en su primera hoja: lo supuesto para poder calcular
+ * (`entradaDelMotor`) y lo que el motor ha corregido de la entrada. Hasta el 22-11-2026 el informe llevaba solo lo
+ * primero (H2-17).
+ */
+export function avisosDelResultado(res: ResultadoDisponible, supuestos: readonly string[]): string[] {
+  return [...supuestos, ...res.avisos];
+}
+
+/** Lo supuesto de la EPSV del resultado si va sin desglose y tiene saldo, para el informe: lo que el formulario dice junto al saldo. */
+export function supuestosDeLaPrevision(res: ResultadoDisponible): string[] {
+  const o = res.entrada;
+  if (!(o.tieneEpsv && o.epsvDesglose === "estimacion" && o.epsvPre + o.epsvPost > 0)) return [];
+  const dosAnios = o.epsvCobro === "renta" ? null : notaDeLosDosAnios({ sinDesglose: true, antiguedadConocida: o.antiguedadConocida, antiguedad: o.antiguedad, aniosHastaCobro: o.aniosHastaJubilacion, contingencia: o.contingencia });
+  return [...notasDelSaldoSinDesglose(res.cfg, o.antiguedadConocida, o.antiguedad, res), ...(dosAnios ? [dosAnios] : [])];
 }

@@ -233,6 +233,14 @@ describe("las dos salidas (decisión 20) y su sello", () => {
     expect(texto).not.toMatch(/ISIN Tipo /);
   }, 15_000);
 
+  test("el rótulo de las estrellas: «Estrellas» en el papel de cliente, «Morningstar» en el interno (H3-01)", async () => {
+    const cliente = (await leer({ ...input, salida: "cliente" })).hojas.join(" ");
+    expect(cliente).toMatch(/10 años Estrellas/);
+    expect(cliente).not.toContain("Morningstar");
+    const interno = (await leer({ ...input, salida: "interno" })).hojas.join(" ");
+    expect(interno).toMatch(/10 años Morningstar/);
+  }, 15_000);
+
   test("el pie llega como se le da, y el documento no escribe otro", async () => {
     const texto = (await leer({ ...input, salida: "cliente" })).hojas.join(" ");
     /* La ventana, en palabras al imprimir (revisión del 14-11-2026): el pie llega «Sharpe 3A…» y sale «Sharpe a 3 años…». */

@@ -83,13 +83,13 @@ describe("modo cliente: sin diagnóstico de datos en Análisis ni en Optimizar",
     const props = { report, feasibility, totalCapital: 100000 };
     const advisor = render(createElement(PortfolioReport, props), false);
     const client = render(createElement(PortfolioReport, props), true);
-    /* Rediseño (14-11-2026): cada documento con su nombre y, al lado, un `Distintivo` que dice para quién es. */
-    for (const documento of ["Informe para el cliente", "Informe de costes", "Comparativa de propuestas", "Propuesta de cambio"]) {
+    /* Desde el 21-11-2026 (I2) para quién es cada documento lo dice su grupo: «Para el cliente», una vez, e «Internos». */
+    for (const documento of ["Informe de la propuesta", "Costes de la propuesta", "Comparativa de propuestas", "Propuesta de cambio"]) {
       expect(advisor).toContain(documento);
       expect(client).toContain(documento);
     }
-    expect(count(client, "Para el cliente")).toBe(4);
-    for (const documento of ["Propuesta de mejora", "Informe interno del asesor", "distintivo--interno", "retrocesiones"]) {
+    expect(count(client, "Para el cliente")).toBe(1);
+    for (const documento of ["Propuesta de mejora", "Informe interno del asesor", "Internos", "distintivo--interno", "retrocesiones"]) {
       expect(advisor).toContain(documento);
       expect(client).not.toContain(documento);
     }

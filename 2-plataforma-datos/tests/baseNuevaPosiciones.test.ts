@@ -162,6 +162,33 @@ describe('holdings_chunks', () => {
         expect((r.documentos[0]!.documento['positions'] as unknown[])).toHaveLength(1);
     });
 
+    it('un peso nulo, vacio o que no es numero no entra como 0 (P2-09)', () => {
+        /* `Number(null)`, `Number('')` y `Number([])` valen 0 y `Number(true)` vale 1. Medido el
+           21-11-2026 en export_bdb: las 161.442 lineas traen el peso como numero, asi que hoy no
+           cambia ningun dato; esto cierra la puerta. */
+        const r = componerTrozos(
+            ISIN,
+            [
+                { name: 'Nulo', weight: null },
+                { name: 'Vacio', weight: '' },
+                { name: 'Blancos', weight: '   ' },
+                { name: 'Lista', weight: [] },
+                { name: 'Verdadero', weight: true },
+                { name: 'Texto numerico', weight: ' 2.5 ' },
+                { name: 'Cero de verdad', weight: 0 }
+            ],
+            'canonical:fondosdb',
+            FECHA
+        );
+        expect(r.descartadas).toBe(5);
+        const lineas = r.documentos[0]!.documento['positions'] as Record<string, unknown>[];
+        /* 2,5 % es 0,025 en fraccion; un 0 declarado es un 0 y si entra. */
+        expect(lineas).toEqual([
+            { name: 'Texto numerico', weight: 0.025 },
+            { name: 'Cero de verdad', weight: 0 }
+        ]);
+    });
+
     it('lo que la linea no trae no se inventa', () => {
         const r = componerTrozos(
             ISIN,

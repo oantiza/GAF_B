@@ -11,7 +11,7 @@ import { describe, expect, test } from "vitest";
 import { parsePortfolioHorizon, type PortfolioHorizon } from "../src/adapters/portfolioHorizon";
 import { parseFrontierNotSelectable } from "../src/adapters/portfolioFrontierAdapter";
 import { HorizonFrontier } from "../src/components/PortfolioHorizonPanel";
-import { fraseDelMaximoSinLoQueNoSePuedeComprar, notaDeLoQueNoEntraEnLaFrontera } from "../src/core/medidaDeLaCartera";
+import { fraseDeLaEquiponderadaSinLoQueNoSePuedeComprar, fraseDelMaximoSinLoQueNoSePuedeComprar, notaDeLoQueNoEntraEnLaFrontera } from "../src/core/medidaDeLaCartera";
 import { notasDeLoQueNoEntra } from "../src/reports/internalPortfolioReportPdf";
 import type { BdbAssetDetail } from "../src/types/bdbAssets";
 
@@ -46,7 +46,7 @@ function respuesta({ conLista, conFrontera = true }: { conLista: boolean; conFro
   };
   return {
     schema_version: "portfolio-horizon.v1", window: "3Y", horizon_years: 3, reference_version: "test",
-    backtest: simulacion({ A: 0.5, B: 0.4, NH: 0.1 }), equal_weight: simulacion({ A: 1 / 3, B: 1 / 3, NH: 1 / 3 }),
+    backtest: simulacion({ A: 0.5, B: 0.4, NH: 0.1 }), equal_weight: simulacion(conLista ? { A: 0.5, B: 0.5, NH: 0 } : { A: 1 / 3, B: 1 / 3, NH: 1 / 3 }),
     max_sharpe: conFrontera ? simulacion(conLista ? { ...propuestas, NH: 0 } : propuestas) : null,
     frontier: conFrontera ? frontera : null,
     frontier_unavailable_reason: conFrontera ? null : "La frontera solo usa activos que se pueden comprar y necesita al menos dos.",
@@ -100,6 +100,25 @@ describe("el adaptador lee lo que no entra en la frontera", () => {
     const malSimulada = respuesta({ conLista: true });
     (malSimulada.max_sharpe as { weights_normalized: Record<string, number> }).weights_normalized = { A: 0.5, B: 0.3, NH: 0.2 };
     expect(() => parsePortfolioHorizon(malSimulada, "3Y")).toThrow(/no se puede comprar/);
+    /* La equiponderada sigue la misma regla (pendiente del 19-11-2026). */
+    const malIgual = respuesta({ conLista: true });
+    (malIgual.equal_weight as { weights_normalized: Record<string, number> }).weights_normalized = { A: 1 / 3, B: 1 / 3, NH: 1 / 3 };
+    expect(() => parsePortfolioHorizon(malIgual, "3Y")).toThrow(/no se puede comprar/);
+  });
+
+  test("sin equiponderada solo vale si no queda nada que se pueda comprar", () => {
+    const sinIgual = { ...respuesta({ conLista: true }), equal_weight: null };
+    expect(() => parsePortfolioHorizon(sinIgual, "3Y")).toThrow(/equiponderada/);
+    const nadaComprable = { ...respuesta({ conLista: true, conFrontera: false }), equal_weight: null,
+      frontier_excluded_assets: IDS.map((asset_id) => ({ asset_id, reason: "FROZEN_PRICE", weight: 1 / 3 })) };
+    expect(parsePortfolioHorizon(nadaComprable, "3Y").equalWeight).toBeNull();
+  });
+
+  test("la equiponderada dice qué deja fuera, con la misma lista que la frontera", () => {
+    const analisis = parsePortfolioHorizon(respuesta({ conLista: true }), "3Y");
+    expect(fraseDeLaEquiponderadaSinLoQueNoSePuedeComprar(analisis, nombreDe)).toBe(
+      "La equiponderada no lleva NH Hotel Group (precio congelado): no se puede comprar. La cartera actual sí lo lleva.");
+    expect(fraseDeLaEquiponderadaSinLoQueNoSePuedeComprar(parsePortfolioHorizon(respuesta({ conLista: false }), "3Y"), nombreDe)).toBeNull();
   });
 });
 

@@ -20,7 +20,7 @@ const FILAS = [
   { clave: "EQUITY", rotulo: "Renta variable", peso: 54 },
   { clave: "fixed_income", rotulo: "Renta fija", peso: 30 },
   { clave: "cash", rotulo: "Liquidez", peso: 9 },
-  { clave: "other", rotulo: "Otros / sin clasificar", peso: 7 }
+  { clave: "other", rotulo: "Otros", peso: 7 }
 ];
 
 const puntos = (host: HTMLElement) => [...host.querySelectorAll<HTMLElement>(".clase-con-color__punto")].map((punto) => punto.style.background.toUpperCase());
@@ -95,7 +95,7 @@ describe("las filas de un reparto por clase de activo", () => {
       "Renta variable54,0 %",
       "Renta fija30,0 %",
       "Liquidez9,0 %",
-      "Otros / sin clasificar7,0 %"
+      "Otros7,0 %"
     ]);
     expect(vista.host.querySelector(".clase-con-color__punto")?.getAttribute("aria-hidden")).toBe("true");
   });

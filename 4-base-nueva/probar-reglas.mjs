@@ -26,6 +26,14 @@
  * pueden filtrar algo comprueban **lo que vuelve**, no sólo que se permita, y para eso hay una
  * cartera de pruebas ajena que se siembra y se borra aquí mismo.
  *
+ * Y lo que se añadió el 21-11-2026 (P1-10 de la auditoría integral del 20-11): que un bloque
+ * `declared`, `computed` u `holdings_chunks` colgado de una cartera o de un cliente NO se lee —antes
+ * lo abrían unas reglas de grupo que el navegador no usaba—, mientras los del catálogo se siguen
+ * leyendo por su ruta; que una retrocesión firmada con la autoría de otro se rechaza; y que la foto
+ * de una importación se rechaza con un campo del tipo equivocado o pasado de tamaño. Lo que estos
+ * casos siembran (una cartera ajena con bloques, un cliente y fotos de importación) se borra al
+ * final con el token de dueño, como la cartera ajena de siempre.
+ *
  * Lo que este script NO puede comprobar, y hay que saberlo: **el emulador no exige índices**.
  * Una consulta filtrada que aquí contesta 200 puede fallar en la nube pidiendo un índice. Por
  * eso `firestore.indexes.json` se razona a mano y se verifica desplegando.
@@ -195,6 +203,18 @@ const ADMIN = { admin: true };
 /* El claim de administrador no sustituye al correo verificado: `esAdministrador()` se apoya en `esAsesor()`. */
 const ADMIN_SIN_VERIFICAR = { admin: true, email_verified: false };
 const ISIN_INEXISTENTE = 'XX0000000000';
+/* Un administrador cuyo token lleva el correo: la app firma con él cuando lo tiene. */
+const CORREO = 'asesor-de-prueba@ejemplo.com';
+const CON_CORREO = { admin: true, email: CORREO };
+/** Una foto con `n` filas, todas de borrado: `previous` y `applied` con las mismas claves. */
+const filasDeLaFoto = (n) => {
+    const claves = Array.from({ length: n }, (_, i) => `XX${String(i).padStart(10, '0')}`);
+    return {
+        counts: { DELETE: n },
+        previous: Object.fromEntries(claves.map((c) => [c, null])),
+        applied: Object.fromEntries(claves.map((c) => [c, 'DELETE']))
+    };
+};
 
 const cabecerasDe = cabeceras;
 
@@ -202,8 +222,9 @@ async function leerRetro(ruta, uid, claims) {
     return String((await fetch(`${BASE}/${ruta}`, { headers: cabecerasDe(uid, claims) })).status);
 }
 
-/** Escribe como lo hace la app: la hora la pone el servidor, que es lo que exige la regla. */
-async function escribirRetro(isin, uid, claims, retro = 0.5) {
+/** Escribe como lo hace la app: la hora la pone el servidor, que es lo que exige la regla. La firma
+    es la de la sesión salvo que se diga otra, que es lo que prueba P1-10. */
+async function escribirRetro(isin, uid, claims, retro = 0.5, firma = uid ?? 'nadie') {
     const r = await fetch(`${BASE}:commit`, {
         method: 'POST',
         headers: { ...cabecerasDe(uid, claims), 'Content-Type': 'application/json' },
@@ -217,7 +238,7 @@ async function escribirRetro(isin, uid, claims, retro = 0.5) {
                             retro_pct: { doubleValue: retro },
                             as_of_date: { stringValue: '2026-11-03' },
                             source: { stringValue: 'PRUEBA-REGLAS' },
-                            updated_by: { stringValue: uid ?? 'nadie' }
+                            updated_by: { stringValue: firma }
                         }
                     },
                     updateTransforms: [{ fieldPath: 'updated_at', setToServerValue: 'REQUEST_TIME' }]
@@ -230,6 +251,111 @@ async function escribirRetro(isin, uid, claims, retro = 0.5) {
 
 async function borrarComo(ruta, uid, claims) {
     return String((await fetch(`${BASE}/${ruta}`, { method: 'DELETE', headers: cabecerasDe(uid, claims) })).status);
+}
+
+/** Una lectura que las reglas dejan pasar: 200 si el documento existe y 404 si no. Las dos dicen
+    «permitida»; lo que no lo dice es un 403. Así el caso vale contra cualquier base. */
+const permitida = async (pendiente) => {
+    const estado = await pendiente;
+    return estado === '200' || estado === '404' ? 'permitida' : estado;
+};
+
+/** Un valor de JavaScript en el formato REST de Firestore. Los enteros van como enteros: la regla
+    compara `schema_version == 2` y `applied_batches is int`. */
+function valor(v) {
+    if (v === null) return { nullValue: null };
+    if (typeof v === 'boolean') return { booleanValue: v };
+    if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    if (typeof v === 'string') return { stringValue: v };
+    if (Array.isArray(v)) return { arrayValue: v.length ? { values: v.map(valor) } : {} };
+    const fields = Object.fromEntries(Object.entries(v).map(([k, x]) => [k, valor(x)]));
+    return { mapValue: Object.keys(fields).length ? { fields } : {} };
+}
+const campos = (objeto) => valor(objeto).mapValue.fields ?? {};
+const nombreDe = (ruta) => `projects/${PROYECTO}/databases/(default)/documents/${ruta}`;
+
+/** Las fotos de importación que siembra esta prueba, para borrarlas al final con el token de dueño. */
+const RECIBO = 'PRUEBA-REGLAS-P110';
+const recibosCreados = new Set();
+
+/** La foto de una importación como la escribe `applyCommercialRetroImport`, con lo que se quiera cambiar. */
+function recibo(id, firma, cambios = {}) {
+    return {
+        import_id: id,
+        created_by: firma,
+        as_of_date: '2026-11-21',
+        file_name: 'retro.xlsx',
+        scale: 'porcentaje',
+        replace_all: false,
+        counts: { CREATE: 1 },
+        previous: { [ISIN_INEXISTENTE]: null },
+        applied: { [ISIN_INEXISTENTE]: { retro_pct: 0.45, status: 'CONFIRMED', as_of_date: '2026-11-21', source: 'FILE_IMPORT' } },
+        schema_version: 2,
+        applied_isins: [],
+        undone_isins: [],
+        applied_versions: {},
+        status: 'partial',
+        ...cambios
+    };
+}
+
+/** Crea la foto como la app: con la hora del servidor en `created_at` y solo si no existe. */
+async function crearRecibo(sufijo, uid, claims, cambios = {}, firma = uid) {
+    const id = `${RECIBO}-${sufijo}`;
+    recibosCreados.add(id);
+    const r = await fetch(`${BASE}:commit`, {
+        method: 'POST',
+        headers: { ...cabecerasDe(uid, claims), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            writes: [
+                {
+                    update: { name: nombreDe(`commercial_retro_imports/${id}`), fields: campos(recibo(id, firma, cambios)) },
+                    updateTransforms: [{ fieldPath: 'created_at', setToServerValue: 'REQUEST_TIME' }],
+                    currentDocument: { exists: false }
+                }
+            ]
+        })
+    });
+    return String(r.status);
+}
+
+/** Cambia solo los campos que se digan de una foto que ya existe, como `updateDoc`. */
+async function cambiarRecibo(sufijo, uid, claims, cambios) {
+    const r = await fetch(`${BASE}:commit`, {
+        method: 'POST',
+        headers: { ...cabecerasDe(uid, claims), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            writes: [
+                {
+                    update: { name: nombreDe(`commercial_retro_imports/${RECIBO}-${sufijo}`), fields: campos(cambios) },
+                    updateMask: { fieldPaths: Object.keys(cambios) },
+                    currentDocument: { exists: true }
+                }
+            ]
+        })
+    });
+    return String(r.status);
+}
+
+/* Lo que no debe leerse: bloques con los nombres del catálogo colgados de una cartera ajena y de un
+   cliente. Hasta el 21-11-2026 los abrían las reglas de grupo de `declared`, `computed` y
+   `holdings_chunks`, aunque el bloque de carteras y el de clientes digan `if false`. */
+const CLIENTE_DE_PRUEBA = 'PRUEBA-REGLAS-P110';
+const BLOQUES_FUERA_DEL_CATALOGO = [
+    `portfolios/${CARTERA_AJENA}/declared/profile`,
+    `portfolios/${CARTERA_AJENA}/computed/metrics`,
+    `portfolios/${CARTERA_AJENA}/holdings_chunks/0`,
+    `clients/${CLIENTE_DE_PRUEBA}/declared/profile`
+];
+
+async function sembrarBloquesFueraDelCatalogo() {
+    await escribir(`clients/${CLIENTE_DE_PRUEBA}`, {
+        name: { stringValue: 'Cliente de prueba' },
+        advisor_uids: { arrayValue: { values: [{ stringValue: DUENO_AJENO }] } }
+    });
+    for (const ruta of BLOQUES_FUERA_DEL_CATALOGO) {
+        await escribir(ruta, { nota: { stringValue: 'no debe leerse' } });
+    }
 }
 
 /** Una retrocesión que existe y un instrumento sin retrocesión, leídos de la base. */
@@ -267,6 +393,7 @@ async function main() {
     console.log('');
 
     await sembrarCarteraAjena(asesor, new Date().toISOString());
+    await sembrarBloquesFueraDelCatalogo();
 
     const retro = await retroDePrueba();
     /* Un plan que exista de verdad, leído con el token de dueño. */
@@ -294,8 +421,26 @@ async function main() {
         ['grupo de tarjetas (el buscador)', async () => (await consultar('read', asesor)).estado, '200'],
         ['grupo de tarjetas SIN sesion', async () => (await consultar('read', null)).estado, '403'],
         ['grupo de calidad (la salud)', async () => (await consultar('quality', asesor)).estado, '200'],
-        ['grupo de bloques declarados', async () => (await consultar('declared', asesor)).estado, '200'],
-        ['grupo de trozos de cartera', async () => (await consultar('holdings_chunks', asesor)).estado, '200'],
+        /* P1-10 (21-11-2026): el navegador no consulta en grupo los bloques ni los trozos, así que esas
+           consultas ya no tienen regla. Lo que lee, lo lee por su ruta, y eso sigue abierto. */
+        ['grupo de bloques declarados', async () => (await consultar('declared', asesor)).estado, '403'],
+        ['grupo de bloques calculados', async () => (await consultar('computed', asesor)).estado, '403'],
+        ['grupo de trozos de cartera', async () => (await consultar('holdings_chunks', asesor)).estado, '403'],
+        ['un bloque declarado por su ruta', () => permitida(leer('instruments/ES0105836003/declared/profile', asesor)), 'permitida'],
+        ['un bloque calculado por su ruta', () => permitida(leer('instruments/ES0105836003/computed/metrics', asesor)), 'permitida'],
+        ['la calidad por su ruta', () => permitida(leer('instruments/ES0105836003/quality/latest', asesor)), 'permitida'],
+        ['un año de la serie de precios', () => permitida(leer('instruments/ES0105836003/price_series/2026', asesor)), 'permitida'],
+        ['los trozos de cartera, la lista', async () => (await consultarLista('instruments/ES0105836003/holdings_chunks', asesor)).estado, '200'],
+        ['un bloque, SIN sesion', () => leer('instruments/ES0105836003/declared/profile', null), '403'],
+        /* Lo del emisor (decisión 53): hoy lo lee cualquier asesor, como el resto del catálogo. Si Óscar
+           decide reservarlo al administrador, estos dos casos son los que cambian. */
+        ['datos del emisor por su ruta', () => permitida(leer('instruments/ES0105836003/declared/issuer_data', asesor)), 'permitida'],
+        ['trozos del emisor, la lista', async () => (await consultarLista('instruments/ES0105836003/issuer_holdings_chunks', asesor)).estado, '200'],
+        /* Y lo que no es catálogo, aunque se llame igual. Ni para el dueño de la cartera o del cliente. */
+        ...BLOQUES_FUERA_DEL_CATALOGO.flatMap((ruta) => [
+            [`${ruta.split('/')[0]}/…/${ruta.split('/').slice(2).join('/')}`, () => leer(ruta, asesor), '403'],
+            [`  y para su dueño`, () => leer(ruta, DUENO_AJENO), '403']
+        ]),
         ['su propia cartera', () => leer(cartera, asesor), '200'],
         ['la cartera de otro', () => leer(cartera, otro), '403'],
         ['una cartera SIN sesion', () => leer(cartera, null), '403'],
@@ -307,26 +452,15 @@ async function main() {
             () => leer(`portfolios/${CARTERA_AJENA}/targets/${INSTRUMENTO_AJENO}`, asesor),
             '403'
         ],
-        /* La consulta de grupo sobre los objetivos NO se puede conceder sin filtro: Firestore
-           no evalúa las reglas documento a documento en una consulta, exige poder demostrar
-           que ningún resultado posible las incumple. Así que la lista de carteras tiene que
-           filtrar, y si alguien quita ese filtro esta prueba se pone roja. */
+        /* A-207 (21-11-2026): la regla de grupo de `targets` se retiró; el navegador no lanza esa
+           consulta desde el 04-11 y las Functions usan la cuenta de servicio. Ahora la consulta de
+           grupo se rechaza con y sin filtro, también la del dueño, y los objetivos propios se
+           siguen leyendo por su ruta (la regla anidada de `portfolios`). */
         ['grupo de objetivos SIN filtro', async () => (await consultar('targets', asesor)).estado, '403'],
-        /* Y aquí está la mitad que faltaba: no basta con que se permita, hay que ver QUÉ
-           vuelve. Con la regla keyed en `set_by` vuelve el objetivo de la cartera ajena.
-           Y mira TAMBIÉN que vuelvan los suyos, porque una consulta que no devuelve nada
-           también tiene cero ajenos: sin esa mitad, el caso no podría fallar. */
         [
             'grupo de objetivos CON filtro',
-            async () => {
-                const { estado, rutas } = await consultar('targets', asesor, {
-                    campo: CAMPO_DE_ACCESO,
-                    valor: asesor
-                });
-                const propios = rutas.filter((ruta) => ruta.startsWith(`${cartera}/`)).length;
-                return `${estado}, ${propios > 0 ? 'con' : 'SIN'} los suyos, ${deOtro(rutas)} de otro`;
-            },
-            '200, con los suyos, 0 de otro'
+            async () => (await consultar('targets', asesor, { campo: CAMPO_DE_ACCESO, valor: asesor })).estado,
+            '403'
         ],
         [
             'el filtro viejo por set_by',
@@ -335,15 +469,22 @@ async function main() {
         ],
         [
             'grupo de objetivos de otro',
-            async () => {
-                const { estado, rutas } = await consultar('targets', otro, {
-                    campo: CAMPO_DE_ACCESO,
-                    valor: otro
-                });
-                return `${estado}, ${rutas.length} documentos`;
-            },
-            '200, 0 documentos'
+            async () => (await consultar('targets', otro, { campo: CAMPO_DE_ACCESO, valor: otro })).estado,
+            '403'
         ],
+        [
+            'un objetivo propio, por su ruta',
+            async () => {
+                /* Un objetivo cualquiera de su cartera, tomado con la llave del dueño del emulador. */
+                const r = await fetch(`${BASE}/${cartera}/targets?pageSize=1`, { headers: DUENO });
+                const doc = ((await r.json()).documents ?? [])[0];
+                if (doc === undefined) return 'SIN objetivo que leer';
+                return leer(doc.name.split('/documents/')[1], asesor);
+            },
+            '200'
+        ],
+        /* Lo demás de una cartera propia, aunque sea suya, sigue cerrado (`match /{otro=**}`). */
+        ['posiciones de su cartera, por ruta', () => leer(`${cartera}/positions/x`, asesor), '403'],
         ['retro sin sesion', () => leerRetro(`commercial_retro/${retro.existente}`, null), '403'],
         ['retro, asesor sin claim', () => leerRetro(`commercial_retro/${retro.existente}`, asesor), '403'],
         ['retro, administrador', () => leerRetro(`commercial_retro/${retro.existente}`, asesor, ADMIN), '200'],
@@ -356,6 +497,39 @@ async function main() {
         ['escribir retro, administrador', () => escribirRetro(retro.libre, asesor, ADMIN), '200'],
         ['borrar retro, sin claim', () => borrarComo(`commercial_retro/${retro.libre}`, asesor), '403'],
         ['borrar retro, administrador', () => borrarComo(`commercial_retro/${retro.libre}`, asesor, ADMIN), '200'],
+        /* P1-10 (21-11-2026): la retrocesión va firmada por la sesión, con su uid o con su correo, como
+           la guarda la app (`user.email ?? user.uid`). La autoría de otro ya no entra. */
+        ['escribir retro, firma ajena', () => escribirRetro(retro.libre, asesor, ADMIN, 0.5, 'otro@ejemplo.com'), '403'],
+        ['escribir retro, con su correo', () => escribirRetro(retro.libre, asesor, CON_CORREO, 0.5, CORREO), '200'],
+        ['escribir retro, correo de otro', () => escribirRetro(retro.libre, asesor, CON_CORREO, 0.5, 'otro@ejemplo.com'), '403'],
+        /* Y la foto de cada importación: nace como la escribe la app, y no con otro tipo ni pasada de tamaño. */
+        ['foto de importacion, como la app', () => crearRecibo('valida', asesor, ADMIN), '200'],
+        ['foto, sin claim', () => crearRecibo('sin-claim', asesor, {}), '403'],
+        ['foto, firmada por otro', () => crearRecibo('firma', asesor, ADMIN, {}, 'otro@ejemplo.com'), '403'],
+        ['foto, sin nombre de fichero', () => crearRecibo('sin-fichero', asesor, ADMIN, { file_name: null }), '200'],
+        ['foto, nombre de 255', () => crearRecibo('nombre-255', asesor, ADMIN, { file_name: 'x'.repeat(255) }), '200'],
+        ['foto, nombre de 256', () => crearRecibo('nombre-256', asesor, ADMIN, { file_name: 'x'.repeat(256) }), '403'],
+        ['foto, fecha sin formato', () => crearRecibo('fecha', asesor, ADMIN, { as_of_date: '21/11/2026' }), '403'],
+        ['foto, escala desconocida', () => crearRecibo('escala', asesor, ADMIN, { scale: 'otra' }), '403'],
+        ['foto, replace_all no booleano', () => crearRecibo('replace', asesor, ADMIN, { replace_all: 'no' }), '403'],
+        ['foto, recuento con otra clave', () => crearRecibo('recuento', asesor, ADMIN, { counts: { CREATE: 1, OTRA: 1 } }), '403'],
+        ['foto, previous no es un mapa', () => crearRecibo('previous', asesor, ADMIN, { previous: 'x' }), '403'],
+        ['foto, applied con otra clave', () => crearRecibo('applied', asesor, ADMIN, { applied: { ES0000000000: 'DELETE' } }), '403'],
+        [
+            'foto, applied con una de mas',
+            () => crearRecibo('applied-mas', asesor, ADMIN, { applied: { [ISIN_INEXISTENTE]: 'DELETE', ES0000000000: 'DELETE' } }),
+            '403'
+        ],
+        ['foto, 5.000 filas', () => crearRecibo('filas-5000', asesor, ADMIN, filasDeLaFoto(5000)), '200'],
+        ['foto, 5.001 filas', () => crearRecibo('filas-5001', asesor, ADMIN, filasDeLaFoto(5001)), '403'],
+        ['foto, otra version del esquema', () => crearRecibo('esquema', asesor, ADMIN, { schema_version: 3 }), '403'],
+        ['foto, mas aplicados que filas', () => crearRecibo('aplicados', asesor, ADMIN, { applied_isins: ['A', 'B'] }), '403'],
+        ['avance de lote, como la app', () => cambiarRecibo('valida', asesor, ADMIN, { applied_isins: [ISIN_INEXISTENTE], applied_batches: 1 }), '200'],
+        ['avance, mas lotes que filas', () => cambiarRecibo('valida', asesor, ADMIN, { applied_batches: 2 }), '403'],
+        ['avance, lotes no enteros', () => cambiarRecibo('valida', asesor, ADMIN, { applied_batches: 1.5 }), '403'],
+        ['anotar un error de 2.000', () => cambiarRecibo('valida', asesor, ADMIN, { error: 'e'.repeat(2000) }), '200'],
+        ['anotar un error de 2.001', () => cambiarRecibo('valida', asesor, ADMIN, { error: 'e'.repeat(2001) }), '403'],
+        ['anotar un error que no es texto', () => cambiarRecibo('valida', asesor, ADMIN, { error: 5 }), '403'],
         ['emisores, que nadie lee todavia', async () => (await consultar('issuers', asesor)).estado, '403'],
         /* Los planes de pensiones y las EPSV (D-11): catálogo aparte, con sesión y sin escritura. */
         ['la lista de planes, con sesion', async () => (await consultarLista('pension_plans', asesor)).estado, '200'],
@@ -394,12 +568,7 @@ async function main() {
         ['serie de un plan, sin verificar', () => leer(`pension_plans/${plan}/series/monthly`, asesor, SIN_VERIFICAR), '403'],
         ['su cartera, sin verificar', () => leer(cartera, asesor, SIN_VERIFICAR), '403'],
         ['su cartera, sin el campo', () => leer(cartera, asesor, SIN_EL_CAMPO), '403'],
-        [
-            'sus objetivos, sin verificar',
-            async () =>
-                (await consultar('targets', asesor, { campo: CAMPO_DE_ACCESO, valor: asesor }, SIN_VERIFICAR)).estado,
-            '403'
-        ],
+        ['sus objetivos, sin verificar', async () => (await consultar('targets', asesor, { campo: CAMPO_DE_ACCESO, valor: asesor }, SIN_VERIFICAR)).estado, '403'],
         ['retro, admin sin verificar', () => leerRetro(`commercial_retro/${retro.existente}`, asesor, ADMIN_SIN_VERIFICAR), '403'],
         ['lista retro, admin sin verificar', async () => (await consultarLista('commercial_retro', asesor, ADMIN_SIN_VERIFICAR)).estado, '403'],
         ['recibos, admin sin verificar', async () => (await consultarLista('commercial_retro_imports', asesor, ADMIN_SIN_VERIFICAR)).estado, '403'],
@@ -436,6 +605,9 @@ async function main() {
         await borrar(`portfolios/${CARTERA_AJENA}/targets/${INSTRUMENTO_AJENO}`);
         await borrar(`portfolios/${CARTERA_AJENA}`);
         await borrar(`commercial_retro/${retro.libre}`);
+        for (const ruta of BLOQUES_FUERA_DEL_CATALOGO) await borrar(ruta);
+        await borrar(`clients/${CLIENTE_DE_PRUEBA}`);
+        for (const id of recibosCreados) await borrar(`commercial_retro_imports/${id}`);
     }
 
     console.log('');

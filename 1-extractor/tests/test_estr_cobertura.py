@@ -91,9 +91,13 @@ def test_la_tolerancia_es_de_tres_dias_habiles():
     # Martes 03-11: faltan miércoles, jueves y viernes, tres. Aún no se marca.
     assert metricas.cobertura_rf(estr(date(2026, 11, 3)), FIN) == {
         "rf_hasta": "2026-11-03", "fin_ventana": "2026-11-06",
-        "dias_habiles_sin_estr": 3, "incompleto": False}
+        "dias_habiles_sin_estr": 3, "incompleto": False, "sharpe_suprimido": False}
     # Lunes 02-11: faltan cuatro. Se marca.
     assert metricas.cobertura_rf(estr(date(2026, 11, 2)), FIN)["incompleto"] is True
+    # C-28: la última noche de la ventana es la del jueves 05-11. Con el €STR del jueves 29-10 tiene un tipo de 7 días,
+    # el máximo que se arrastra: se marca y no se suprime. Con el del miércoles 28-10, de 8: sin Sharpe.
+    assert metricas.cobertura_rf(estr(date(2026, 10, 29)), FIN)["sharpe_suprimido"] is False
+    assert metricas.cobertura_rf(estr(date(2026, 10, 28)), FIN)["sharpe_suprimido"] is True
     # Un €STR posterior al fin de la ventana no cuenta: no entra en su media.
     assert metricas.cobertura_rf(estr(date(2026, 11, 9)), FIN)["rf_hasta"] == "2026-11-06"
     assert metricas.cobertura_rf([], FIN) is None
@@ -120,15 +124,35 @@ def test_un_dia_de_retraso_se_apunta_y_no_se_marca(monkeypatch):
     assert "rf_incompleto" not in cortada["historial_precios"]
 
 
-def test_un_estr_parado_deja_marca_y_no_suprime_el_sharpe(monkeypatch):
+def test_un_estr_parado_siete_dias_deja_marca_y_no_suprime_el_sharpe(monkeypatch):
     riesgo = _metricas(monkeypatch, _Http(date(2026, 10, 29)))["riesgo"]
     hp = riesgo["historial_precios"]
     assert hp["rf_hasta"] == "2026-10-29"
     # Viernes 30-10 y la semana del 2 al 6 de noviembre: seis días hábiles sin €STR.
     assert hp["rf_incompleto"] == {"rf_hasta": "2026-10-29", "fin_ventana": "2026-11-06",
-                                   "dias_habiles_sin_estr": 6, "tolerancia_dias_habiles": 3}
-    # §3 del método: el Sharpe solo falta si falta el tipo. Aquí el tipo está, aunque corto.
+                                   "dias_habiles_sin_estr": 6, "tolerancia_dias_habiles": 3,
+                                   "sharpe_suprimido": False}
+    # La última noche, la del jueves 05-11, usa el €STR del 29-10: 7 días, lo que arrastra el mensual. Hay tipo, aunque
+    # corto, y la §3 solo quita el Sharpe si falta el tipo.
     assert riesgo["sharpe"]["1a"]["fondo"] is not None
+
+
+def test_un_estr_parado_mas_de_siete_dias_suprime_el_sharpe_y_lo_dice(monkeypatch):
+    """C-28 (Óscar, 21-11-2026): pasados 7 días naturales, como en el método mensual, la última noche de la ventana no
+    tiene tipo. Antes se publicaba marcado `rf_incompleto` sin límite de días."""
+    riesgo = _metricas(monkeypatch, _Http(date(2026, 10, 28)))["riesgo"]
+    hp = riesgo["historial_precios"]
+    # La noche del jueves 05-11 tendría el €STR del miércoles 28-10: 8 días. Ninguna de las tres ventanas tiene Sharpe,
+    # porque las tres acaban el 06-11; lo que no depende del tipo sigue.
+    assert "sharpe" not in riesgo or all(v.get("fondo") is None for v in riesgo["sharpe"].values())
+    assert "rf_pct" not in riesgo or all(v.get("fondo") is None for v in riesgo["rf_pct"].values())
+    assert riesgo["volatilidad_pct"]["1a"]["fondo"] is not None
+    # Sin Sharpe no hay referencia ni `rf_hasta` de una media que no se hizo; sí la marca, con el porqué.
+    assert "rf_referencia" not in hp and "rf_hasta" not in hp
+    # Jueves 29 y viernes 30 de octubre, y del lunes 2 al viernes 6 de noviembre: siete días hábiles.
+    assert hp["rf_incompleto"] == {"rf_hasta": "2026-10-28", "fin_ventana": "2026-11-06",
+                                   "dias_habiles_sin_estr": 7, "tolerancia_dias_habiles": 3,
+                                   "sharpe_suprimido": True}
 
 
 def test_el_csv_del_estr_es_el_que_espera_el_lector():

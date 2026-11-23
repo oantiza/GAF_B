@@ -115,6 +115,6 @@ def test_main_y_la_simulacion_dicen_el_mismo_tope():
     main = (Path(__file__).resolve().parents[1] / "main.py").read_text(encoding="utf-8")
     assert re.search(r"^CAP_SIMULATION_POSITIONS = (\d+)$", main, re.M).group(1) == str(h.MAX_POSICIONES_SIMULACION)
     assert re.search(r"^CAP_OPTIMIZE_ASSETS = (\d+)$", main, re.M).group(1) == str(h.MAX_ACTIVOS_FRONTERA)
-    assert '_cap_list(req.data, "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")' in main
+    assert '_cap_list(_datos(req), "positions", CAP_SIMULATION_POSITIONS if bundle else CAP_SERIES_ASSETS, "posiciones")' in main
     # El mensaje del tope lleva cuantas llegan: la pantalla lo lee (src/core/appError.ts).
     assert '"Maximo %d %s por peticion; llegan %d." % (cap, label, len(items))' in main

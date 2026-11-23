@@ -27,7 +27,8 @@ import {
   respuestaAlMes,
   respuestaDelPrimerAnio,
   serieDeIngresos,
-  serieDeSaldos
+  serieDeSaldos,
+  supuestosDeLaPrevision
 } from "../src/core/jubilacion/lectura";
 import { calcular, DEFECTO, type EntradaDeJubilacion, type ResultadoDisponible } from "../src/core/jubilacion/motor";
 import { probabilidadDeLlegar, supervivientes, TABLA_DE_MORTALIDAD } from "../src/core/jubilacion/supervivencia";
@@ -246,6 +247,30 @@ describe("lo que se lee del resultado", () => {
     }
   });
 
+  test("al conservar, el IRPF de unos intereses que no se retiran lo paga lo que se cobra, y los tramos siguen sumando el bruto (P2-11)", () => {
+    /*
+     * Rentabilidad del 2 % e IPC del 2 %: conservar no deja nada que retirar (C × máx(0, 2 % − 2 %) = 0), pero los 50.000 €
+     * de liquidez rinden y sus intereses tributan. Lo retirado de los ahorros es cero y su impuesto no: antes se recortaba
+     * el tramo a cero y la barra quedaba por encima del bruto en ese impuesto.
+     */
+    const r = resultado({ estrategia: "conservar", rentabilidad: 2, inflacion: 2 });
+    const primero = r.base.filas[0];
+    expect(primero.retiradaAhorros).toBe(0);
+    expect(primero.interes).toBeGreaterThan(0);
+    expect(primero.impuestoResto).toBeGreaterThan(0);
+    for (const unidades of ["hoy", "nominal"] as const) {
+      serieDeIngresos(r, unidades).forEach((p) => {
+        expect(p.pension + p.ahorros + p.prevision + p.irpf).toBeCloseTo(p.bruto, 6);
+        expect(p.pension + p.ahorros + p.prevision).toBeCloseTo(p.neto, 6);
+        expect(Math.min(p.pension, p.ahorros, p.prevision, p.irpf)).toBeGreaterThanOrEqual(0);
+      });
+    }
+    /* Sin retirada ni previsión, todo lo que queda es de la pensión: su tramo es el neto del año. */
+    const p0 = serieDeIngresos(r, "nominal")[0];
+    expect(p0.ahorros).toBe(0);
+    expect(p0.pension).toBeCloseTo(p0.neto, 6);
+  });
+
   test("la serie de saldos empieza en el patrimonio de la jubilación y acaba donde acaba cada escenario", () => {
     const r = resultado({ edad: 60, edadJubilacion: 65 });
     const saldos = serieDeSaldos(r, "hoy");
@@ -461,6 +486,21 @@ describe("lo que se lee del resultado", () => {
     /* Sin liquidez ni cobro de una vez, no hay liquidez que rinda nada. */
     expect(limites({ rentabilidad: -1, liquidez: 0, depositos: 0 })).not.toContain(frase);
     expect(limites({ rentabilidad: -1, liquidez: 0, depositos: 0, ...CON_EPSV, epsvCobro: "capital" })).toContain(frase);
+  });
+
+  test("las pérdidas de lo vendido se dicen con la regla y el artículo del territorio (P1-03)", () => {
+    /* El formato escribe «25 %» con espacio duro: se compara con espacio corriente. */
+    const limites = (entrada: Partial<EntradaDeJubilacion>) => metodo(resultado(entrada)).noTieneEnCuenta.join(" ").replaceAll(String.fromCharCode(0xa0), " ");
+    /* En los territorios vascos, la norma no cruza con los rendimientos: no hay nada más que decir. */
+    expect(limites({})).toContain(
+      "Si se vende en pérdidas, la pérdida se compensa con las ganancias de lo vendido de los 4 años siguientes y lo que no cabe en ese plazo se pierde (art. 66.1.b de la NF 13/2013). No calcula ventas por lotes: usa el coste medio."
+    );
+    expect(limites({ territorio: "gipuzkoa" })).toContain("(art. 66.1.b de la NF 3/2014). No calcula");
+    /* En territorio común y Navarra se dice que el cruce del 25 % no se hace, y hacia dónde se equivoca. */
+    const cruce = "La norma deja compensar además hasta un 25 % con los intereses del mismo año; el simulador no lo hace, y ese año el impuesto podría salir algo mayor que el real.";
+    expect(limites({ territorio: "estatal", ccaa: "madrid" })).toContain(`(art. 49.1.b de la Ley 35/2006). ${cruce}`);
+    expect(limites({ territorio: "navarra" })).toContain(`(art. 54.2.b del DFL 4/2008). ${cruce}`);
+    expect(limites({})).not.toContain("No compensa pérdidas");
   });
 
   test("la procedencia y los datos de la simulación dicen de dónde sale cada cifra", () => {
@@ -752,5 +792,18 @@ describe("hasta cuándo llegan los ahorros, en frases", () => {
   test("sin el mal comienzo son tres, y sin ahorros no hay nada que contar", () => {
     expect(frasesDeEscenarios(resultado({ estres: false }), "hoy")!.map((f) => f.clave)).toEqual(["base", "conservador", "optimista"]);
     expect(frasesDeEscenarios(resultado({ liquidez: 0, fondos: 0, fondosCoste: 0, acciones: 0, accionesCoste: 0 }), "hoy")).toBeNull();
+  });
+});
+
+describe("la nota de los dos años en el informe (H1-03, 23-11-2026)", () => {
+  const base = { ...BIZKAIA, edad: 65, edadJubilacion: 65, tieneEpsv: true, epsvPre: 100000, epsvPost: 0, epsvDesglose: "estimacion", antiguedadConocida: true, epsvCobro: "capital" } as const;
+  const NOTA = "Con la antigüedad escrita, no han pasado más de 2 años desde la primera aportación: el cobro no tiene la reducción.";
+
+  test("con un año de antigüedad y cobrando hoy sale con los supuestos; con cinco años hasta cobrar, no", () => {
+    // 1 + 0 = 1 < 2: no puede cumplirse.
+    expect(supuestosDeLaPrevision(resultado({ ...base, antiguedad: 1 }))).toContain(NOTA);
+    // 1 + 5 = 6 ≥ 2: puede cumplirse; y con dos años de antigüedad ya cobrando, 2 + 0 ≥ 2.
+    expect(supuestosDeLaPrevision(resultado({ ...base, edadJubilacion: 70, antiguedad: 1 })).join(" ")).not.toContain("más de 2 años");
+    expect(supuestosDeLaPrevision(resultado({ ...base, antiguedad: 2 })).join(" ")).not.toContain("más de 2 años");
   });
 });

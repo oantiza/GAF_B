@@ -611,6 +611,137 @@ def test_el_proxy_de_su_indice_no_se_mide_contra_si_mismo(tmp_path, monkeypatch)
     assert out["riesgo"]["relativas"]["indice_proxy"] == "LU0000000032"
 
 
+# ---- C-28 (Óscar, 21-11-2026): tampoco contra otra clase del mismo fondo ----
+
+_PROXY_HERMANA = "IE0000000040"
+_PATRIMONIO = {"patrimonio_fondo_meur": 24320.3, "patrimonio_fecha": "2026-10-30"}
+_CARTERA = {"fecha": "2026-09-30", "num_posiciones": 1261, "peso_top10_pct": 27.89487}
+
+
+def _relativas_contra_la_ficha(ref: dict | None, previo: dict, tmp_path, monkeypatch,
+                               clase_de_serie="VALOR_LIQUIDATIVO") -> dict:
+    """Las relativas de un fondo cuyo proxy tiene en disco la ficha `ref` (sin ficha si es `None`)."""
+    from core import indices
+    fila = {"benchmark": "MSCI World", "variante": "NR", "proxy": _PROXY_HERMANA,
+            "clase_de_serie": clase_de_serie, "base": "TOTAL_RETURN", "declarado": None}
+    monkeypatch.setattr(indices, "proxy_de", lambda *a, **k: fila)
+    monkeypatch.setattr(indices, "es_tasa", lambda *a, **k: False)
+    monkeypatch.setattr(vl_fondos, "_serie_del_proxy", lambda *a, **k: _serie(crec=0.04))
+    if ref is not None:
+        carpeta = tmp_path / "data" / "funds"
+        carpeta.mkdir(parents=True, exist_ok=True)
+        (carpeta / f"{_PROXY_HERMANA}.json").write_text(json.dumps(ref), encoding="utf-8")
+    out, _ = _fetch("IE0000000041", _Http(_serie()), previo, tmp_path)
+    return out["riesgo"]["relativas"]
+
+
+def _previo_hermana(gestora="Vanguard", valoracion=None, cartera=None, **otras):
+    ficha = {"identificacion": {"nombre": "Global Stock Index Fund Investor EUR Accumulation", "gestora": gestora,
+                                "indice_benchmark_oficial": "MSCI World NR USD"}}
+    if valoracion is not None:
+        ficha["valoracion"] = valoracion
+    if cartera is not None:
+        ficha["cartera"] = cartera
+    return {"ms": ficha, **otras}
+
+
+def test_otra_clase_del_mismo_fondo_por_su_patrimonio_no_se_usa_de_referencia(tmp_path, monkeypatch):
+    # El caso medido: Vanguard Global Stock Index Investor contra la clase EUR Acc, el proxy de MSCI World. El patrimonio
+    # del fondo entero, 24.320,3 M€ al 30-10-2026, es el mismo en las dos fichas; el de la clase, no.
+    ref = {"identificacion": {"gestora": "Vanguard"}, "valoracion": _PATRIMONIO}
+    relativas = _relativas_contra_la_ficha(ref, _previo_hermana(valoracion=_PATRIMONIO), tmp_path, monkeypatch)
+    assert relativas == {"aviso": f"sin_relativas_referencia_del_mismo_fondo({_PROXY_HERMANA})",
+                         "mismo_fondo_por": "patrimonio_del_fondo"}
+
+
+def test_otra_clase_del_mismo_fondo_por_su_cartera_no_se_usa_de_referencia(tmp_path, monkeypatch):
+    # Una clase en dólares da el patrimonio del fondo en dólares, y otro número: la cartera del fondo es la misma.
+    ref = {"identificacion": {"gestora": "vanguard "}, "valoracion": {"patrimonio_fondo_meur": 28000.0,
+                                                                    "patrimonio_fecha": "2026-10-30"},
+           "cartera": _CARTERA}
+    relativas = _relativas_contra_la_ficha(ref, _previo_hermana(valoracion=_PATRIMONIO, cartera=_CARTERA), tmp_path, monkeypatch)
+    assert relativas["mismo_fondo_por"] == "cartera"
+    assert "beta" not in relativas
+
+
+def test_la_ficha_anterior_del_fondo_tambien_cuenta(tmp_path, monkeypatch):
+    # La ficha de la referencia en disco puede ser de la pasada anterior: su patrimonio es de otro día que el de esta
+    # pasada del fondo, pero el mismo que la ficha anterior del fondo.
+    ref = {"identificacion": {"gestora": "Vanguard"}, "valoracion": _PATRIMONIO}
+    previo = _previo_hermana(valoracion={"patrimonio_fondo_meur": 24410.9, "patrimonio_fecha": "2026-11-13"},
+                 _anterior={"valoracion": _PATRIMONIO})
+    relativas = _relativas_contra_la_ficha(ref, previo, tmp_path, monkeypatch)
+    assert relativas["mismo_fondo_por"] == "patrimonio_del_fondo"
+
+
+def test_el_mismo_patrimonio_de_otra_gestora_no_es_el_mismo_fondo(tmp_path, monkeypatch):
+    # Medido el 21-11-2026: dos fondos de 2,15 M€ al 29-10-2026, uno de Andbank y otro de Metagestión. Se mide.
+    ref = {"identificacion": {"gestora": "Metagestión"}, "valoracion": _PATRIMONIO}
+    relativas = _relativas_contra_la_ficha(ref, _previo_hermana(gestora="Andbank", valoracion=_PATRIMONIO), tmp_path, monkeypatch)
+    assert relativas["indice_proxy"] == _PROXY_HERMANA and relativas["beta"]["3a"] is not None
+
+
+def test_otro_fondo_de_la_misma_gestora_si_se_usa_de_referencia(tmp_path, monkeypatch):
+    # Una firma a medias no vale: la cartera sin el peso de las diez primeras no es la del fondo.
+    ref = {"identificacion": {"gestora": "Vanguard"},
+           "valoracion": {"patrimonio_fondo_meur": 7692.5, "patrimonio_fecha": "2026-10-30"},
+           "cartera": {**_CARTERA, "peso_top10_pct": None}}
+    previo = _previo_hermana(valoracion=_PATRIMONIO, cartera={**_CARTERA, "peso_top10_pct": None})
+    relativas = _relativas_contra_la_ficha(ref, previo, tmp_path, monkeypatch)
+    assert relativas["indice_proxy"] == _PROXY_HERMANA and "aviso" not in relativas
+
+
+def test_sin_la_ficha_de_la_referencia_se_mide_como_antes(tmp_path, monkeypatch):
+    relativas = _relativas_contra_la_ficha(None, _previo_hermana(valoracion=_PATRIMONIO), tmp_path, monkeypatch)
+    assert relativas["beta"]["3a"] is not None and "aviso" not in relativas
+
+
+# Lo que la ficha de Vanguard Global Stock Index Investor publicaba el 17-11-2026, recortado: contra su clase EUR Acc.
+_PUBLICADAS_CONTRA_LA_HERMANA = {"valoracion": _PATRIMONIO, "riesgo": {"relativas": {
+    "indice_nombre": "MSCI World", "indice_variante": "NR", "indice_proxy": _PROXY_HERMANA,
+    "indice_clase_de_serie": "VALOR_LIQUIDATIVO", "base_indice": "TOTAL_RETURN", "fecha_dato": "2026-10-31",
+    "beta": {"1a": 1.0, "3a": 1.0, "5a": 1.0}, "r2": {"1a": 100.0, "3a": 100.0, "5a": 100.0}}}}
+
+
+def test_retirar_las_publicadas_contra_otra_clase_del_mismo_fondo_deja_su_fecha(tmp_path, monkeypatch):
+    """C-28 con la §10 del método: la retirada dice hasta cuándo, contra qué y con qué dato, como la del KID."""
+    monkeypatch.setattr(vl_fondos, "_hoy", lambda: date(2026, 11, 22))
+    ref = {"identificacion": {"gestora": "Vanguard"}, "valoracion": _PATRIMONIO}
+    previo = _previo_hermana(valoracion=_PATRIMONIO, _anterior=_PUBLICADAS_CONTRA_LA_HERMANA)
+    relativas = _relativas_contra_la_ficha(ref, previo, tmp_path, monkeypatch)
+    assert relativas == {
+        "aviso": f"sin_relativas_referencia_del_mismo_fondo({_PROXY_HERMANA})",
+        "mismo_fondo_por": "patrimonio_del_fondo",
+        "retirada": {"fecha": "2026-11-22",
+                     "decision": "DECISIONES_BASE_NUEVA_2026-11-01.md, decisión C-28 (regla 3)",
+                     "indice_nombre": "MSCI World", "indice_proxy": _PROXY_HERMANA,
+                     "indice_clase_de_serie": "VALOR_LIQUIDATIVO", "ultima_fecha_dato": "2026-10-31"}}
+
+
+@pytest.mark.parametrize("proxy_anterior", [_PROXY_HERMANA, "IE0000000042"])
+def test_la_retirada_por_el_mismo_fondo_no_se_mueve_aunque_cambie_el_proxy(proxy_anterior, tmp_path, monkeypatch):
+    # El motivo es el mismo con otro proxy entre paréntesis: si la fila del índice pasa a otra clase del mismo fondo, las
+    # cifras siguen retiradas desde el mismo día.
+    ya_retirada = {"valoracion": _PATRIMONIO, "riesgo": {"relativas": {
+        "aviso": f"sin_relativas_referencia_del_mismo_fondo({proxy_anterior})", "mismo_fondo_por": "patrimonio_del_fondo",
+        "retirada": {"fecha": "2026-11-22", "decision": vl_fondos.DECISION_RETIRADA_MISMO_FONDO,
+                     "indice_proxy": proxy_anterior, "ultima_fecha_dato": "2026-10-31"}}}}
+    monkeypatch.setattr(vl_fondos, "_hoy", lambda: date(2026, 12, 20))
+    ref = {"identificacion": {"gestora": "Vanguard"}, "valoracion": _PATRIMONIO}
+    relativas = _relativas_contra_la_ficha(ref, _previo_hermana(valoracion=_PATRIMONIO, _anterior=ya_retirada),
+                                           tmp_path, monkeypatch)
+    assert relativas["retirada"] == ya_retirada["riesgo"]["relativas"]["retirada"]
+
+
+def test_sin_cifras_en_la_ficha_anterior_no_hay_retirada_por_el_mismo_fondo(tmp_path, monkeypatch):
+    """Decisión 17: un fondo que nunca las publicó contra su hermana no lleva retirada."""
+    ref = {"identificacion": {"gestora": "Vanguard"}, "valoracion": _PATRIMONIO}
+    anterior = {"valoracion": _PATRIMONIO, "riesgo": {"relativas": {"aviso": "sin_relativas_clase_cubierta"}}}
+    relativas = _relativas_contra_la_ficha(ref, _previo_hermana(valoracion=_PATRIMONIO, _anterior=anterior),
+                                           tmp_path, monkeypatch)
+    assert relativas["mismo_fondo_por"] == "patrimonio_del_fondo" and "retirada" not in relativas
+
+
 # ---- Decisiones 20 y 21 del 07-11-2026: lo que el KID dice del índice ----
 
 _FILA_ACWI = {"benchmark": "MSCI ACWI", "variante": "NR", "proxy": "IE00B6R52259",

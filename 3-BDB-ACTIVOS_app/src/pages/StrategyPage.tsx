@@ -241,13 +241,15 @@ function AllocationTab({ report }: { report: WeeklyReport }) {
         Estos pesos los propone el modelo de IA que redacta el informe. No salen de un cálculo ni de una decisión de la casa.
       </Aviso>
 
-      <Panel className="strategy-span-2" nivel={3} titulo="Visión de asignación">
+      {/* Visión y matriz, cada una a todo el ancho y en este orden: el texto es una banda sobre el gráfico, sin la tarjeta
+          en blanco que dejaba al lado de la matriz, y los aros siguen en pareja debajo (Óscar, 21-11-2026). */}
+      <Panel className="strategy-ancho" nivel={3} titulo="Visión de asignación">
         <p className="strategy-card-copy">{allocation.overview}</p>
       </Panel>
 
       {/* El peso estratégico es la referencia (gris, a trazos) y el táctico, lo que el comité propone (marino): el color
           sale del papel de cada serie, no de un color a mano. */}
-      <Panel className="strategy-span-2" nivel={3} subtitulo="Estratégica frente a táctica" titulo="Matriz de asignación táctica">
+      <Panel className="strategy-ancho" nivel={3} subtitulo="Estratégica frente a táctica" titulo="Matriz de asignación táctica">
         <OaaGroupedBarChart
           rows={rows.map((row) => ({
             key: row.assetClass,

@@ -293,6 +293,46 @@ def test_que_el_solver_falle_no_es_que_no_haya_solucion(monkeypatch):
     assert isinstance(error.value.__cause__, RuntimeError) and "el solver" in str(error.value.__cause__)
 
 
+@pytest.mark.parametrize("fallo", [KeyError("weights"), TypeError("unsupported operand"), AttributeError("x"),
+                                   IndexError("list index"), ZeroDivisionError("division"), RecursionError("depth")])
+def test_un_error_de_programacion_no_se_disfraza_de_sin_solucion(monkeypatch, fallo):
+    """Pendiente del 19-11-2026: cualquier fallo salia como «el optimizador no ha conseguido una solucion», y el asesor
+    quitaba restricciones que no tenian la culpa. Ahora un error del programa es interno, con referencia y sin la traza."""
+    lector = universo()
+
+    def falla(*_a, **_k):
+        raise fallo
+
+    monkeypatch.setattr(motor, "solve", falla)
+    with pytest.raises(repo.OptimizationInternalError) as error:
+        optimizar(lector, sorted(lector.series), "MAX_SHARPE")
+    texto = str(error.value)
+    assert texto.startswith("Error interno del optimizador:") and error.value.referencia in texto
+    assert len(error.value.referencia) == 8
+    # Ni el tipo ni el texto de la excepcion llegan al asesor.
+    assert type(fallo).__name__ not in texto and str(fallo) not in texto
+    assert not isinstance(error.value, repo.OptimizationError)
+
+
+@pytest.mark.parametrize("fallo", [RuntimeError("bounds"), ValueError("infeasible"), np.linalg.LinAlgError("not PD")])
+def test_un_fallo_del_calculo_sigue_siendo_sin_solucion(monkeypatch, fallo):
+    lector = universo()
+
+    def falla(*_a, **_k):
+        raise fallo
+
+    monkeypatch.setattr(motor, "solve", falla)
+    with pytest.raises(repo.OptimizationError, match="no ha conseguido una solución"):
+        optimizar(lector, sorted(lector.series), "MAX_SHARPE")
+
+
+def test_los_errores_del_solver_y_de_pypfopt_son_del_calculo():
+    from cvxpy.error import SolverError
+    from pypfopt.exceptions import OptimizationError as FalloDePyPortfolioOpt
+    assert repo.es_fallo_del_calculo(SolverError("x")) and repo.es_fallo_del_calculo(FalloDePyPortfolioOpt("x"))
+    assert not repo.es_fallo_del_calculo(NotImplementedError("x"))
+
+
 def test_si_el_primer_solver_se_sale_de_las_cotas_se_reintenta_con_el_otro(monkeypatch):
     from pypfopt import EfficientFrontier
     lector = universo()
